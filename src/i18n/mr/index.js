@@ -1,0 +1,16 @@
+/**
+ * Registers every Marathi catalogue file. Each import below runs its
+ * `registerMessages('mr', {...})` call as a side effect — order matters only
+ * in that a later registration of the same English source wins, which is
+ * how a module-specific reading can override the shell's general one.
+ */
+import './shell.js'
+import './shared.js'
+import './modules/executiveCommandCenter.js'
+import './modules/revenueAndSector.js'
+import './modules/taxpayerAndDistrict.js'
+import './modules/ewayAndRefund.js'
+import './modules/itcAndFakeInvoice.js'
+import './modules/copilotAndEarlyWarning.js'
+import './modules/governanceAndReports.js'
+import './modules/auditAndLitigation.js'

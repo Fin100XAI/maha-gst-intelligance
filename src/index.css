@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-steel-50 text-navy-900 antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #b0b7c3;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8791a3;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@layer components {
+  .kv-label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-steel-500;
+  }
+}

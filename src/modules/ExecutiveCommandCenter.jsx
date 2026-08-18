@@ -1,0 +1,647 @@
+import { useMemo, useRef, useState } from 'react'
+import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
+import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
+import { Modal } from '../components/ui/Modal.jsx'
+import { DataTable } from '../components/ui/DataTable.jsx'
+import { PillTabs } from '../components/ui/PillTabs.jsx'
+import { TrendLineChart, RiskBarChart, RiskDonutChart, HealthRadarChart } from '../components/ui/Charts.jsx'
+import { ScoreGauge } from '../components/ui/ScoreGauge.jsx'
+import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
+import { ExportBar } from '../components/ui/ExportBar.jsx'
+import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
+import {
+  KPI_SUMMARY, STATE_REVENUE_TREND, DISTRICT_REVENUE, SECTOR_REVENUE,
+  TAXPAYERS, COMPLIANCE_ALERTS, REFUND_CASES, AUDIT_CASES, LITIGATION_CASES, LITIGATION_SUMMARY,
+  isWithinDateRange, sliceTrendByDateRange
+} from '../data/mockData.js'
+import { RISK_COLORS, riskCategoryFromScore } from '../data/risk.js'
+import { generateExecutiveBrief } from '../data/ai.js'
+import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
+import { t } from '../i18n/index.js'
+import {
+  ShieldAlert, Sparkles, Landmark, TrendingDown, TrendingUp,
+  MapPin, Bell, Users, FileWarning, Gauge, IndianRupee, UserPlus, Factory, BarChart3,
+  Activity, ClipboardCheck
+} from 'lucide-react'
+
+const REFERENCE_DATE = new Date(2026, 7, 17)
+const caseAgeDays = openedOn => Math.max(0, Math.round((REFERENCE_DATE - new Date(openedOn)) / (1000 * 60 * 60 * 24)))
+
+export default function ExecutiveCommandCenter() {
+  const { filters } = useApp()
+  const [selectedTaxpayer, setSelectedTaxpayer] = useState(null)
+  const [selectedDistrict, setSelectedDistrict] = useState(null)
+  const [briefGenerated, setBriefGenerated] = useState(false)
+  const [statTab, setStatTab] = useState('revenue')
+  const briefRef = useRef(null)
+
+  const lastMonth = STATE_REVENUE_TREND.at(-1)
+  const revenueGapCr = lastMonth.actual - lastMonth.target
+  const revenueGapPct = Math.round((revenueGapCr / lastMonth.target) * 1000) / 10
+
+  const isFilteredView = filters.district !== 'All Districts' || filters.division !== 'All Divisions'
+    || filters.sector !== 'All Sectors' || filters.riskLevel !== 'All Risk Levels'
+    || filters.taxpayerType !== 'All Types' || filters.dateRange !== 'Last 12 Months' || !!filters.search
+
+  const filteredTaxpayers = useMemo(
+    () => TAXPAYERS.filter(t => applyGlobalFilters(t, filters)),
+    [filters]
+  )
+
+  const filteredDistrictRevenue = useMemo(
+    () => DISTRICT_REVENUE.filter(d =>
+      (filters.district === 'All Districts' || d.district === filters.district)
+      && (filters.division === 'All Divisions' || d.division === filters.division)
+    ),
+    [filters.district, filters.division]
+  )
+
+  const filteredTrend = useMemo(() => sliceTrendByDateRange(STATE_REVENUE_TREND, filters.dateRange), [filters.dateRange])
+
+  // Case-level datasets (audit/refund/litigation) carry their own district/sector/risk/date
+  // fields, so they're filtered directly rather than through the taxpayer-shaped applyGlobalFilters.
+  const filteredAuditCasesFull = useMemo(() => AUDIT_CASES.filter(c =>
+    (filters.district === 'All Districts' || c.district === filters.district) &&
+    (filters.sector === 'All Sectors' || c.sector === filters.sector) &&
+    (filters.riskLevel === 'All Risk Levels' || c.riskCategory === filters.riskLevel) &&
+    isWithinDateRange(c.openedOn, filters.dateRange) &&
+    (!filters.search?.trim() || `${c.gstin} ${c.tradeName}`.toLowerCase().includes(filters.search.toLowerCase()))
+  ), [filters])
+
+  const filteredRefundCasesFull = useMemo(() => REFUND_CASES.filter(c =>
+    (filters.district === 'All Districts' || c.district === filters.district) &&
+    (filters.sector === 'All Sectors' || c.sector === filters.sector) &&
+    (filters.riskLevel === 'All Risk Levels' || c.riskCategory === filters.riskLevel) &&
+    isWithinDateRange(c.filedOn, filters.dateRange) &&
+    (!filters.search?.trim() || `${c.gstin} ${c.tradeName}`.toLowerCase().includes(filters.search.toLowerCase()))
+  ), [filters])
+
+  const filteredLitigationCases = useMemo(() => LITIGATION_CASES.filter(c =>
+    (filters.district === 'All Districts' || c.district === filters.district) &&
+    (filters.sector === 'All Sectors' || c.sector === filters.sector) &&
+    isWithinDateRange(c.filedOn, filters.dateRange) &&
+    (!filters.search?.trim() || `${c.gstin} ${c.tradeName}`.toLowerCase().includes(filters.search.toLowerCase()))
+  ), [filters])
+
+  const riskDistribution = useMemo(() => {
+    const counts = { Low: 0, Medium: 0, High: 0, Critical: 0 }
+    filteredTaxpayers.forEach(t => { counts[t.risk.category] = (counts[t.risk.category] || 0) + 1 })
+    return Object.entries(counts).map(([name, value]) => ({ name, value }))
+  }, [filteredTaxpayers])
+
+  const sectorChartData = useMemo(
+    () => [...SECTOR_REVENUE]
+      .filter(s => filters.sector === 'All Sectors' || s.sector === filters.sector)
+      .sort((a, b) => b.revenueLakh - a.revenueLakh)
+      .map(s => ({ sector: s.sector, revenueLakh: s.revenueLakh })),
+    [filters.sector]
+  )
+
+  const topRiskTaxpayers = useMemo(
+    () => [...filteredTaxpayers].sort((a, b) => b.risk.score - a.risk.score).slice(0, 10),
+    [filteredTaxpayers]
+  )
+
+  const filteredOpenAlerts = useMemo(
+    () => [...COMPLIANCE_ALERTS]
+      .filter(a => a.status === 'Open')
+      .filter(a => filters.district === 'All Districts' || a.district === filters.district)
+      .filter(a => filters.sector === 'All Sectors' || a.sector === filters.sector)
+      .filter(a => filters.riskLevel === 'All Risk Levels' || riskCategoryFromScore(a.riskScore) === filters.riskLevel)
+      .filter(a => {
+        if (!filters.search || !filters.search.trim()) return true
+        const q = filters.search.toLowerCase()
+        const hay = `${a.gstin} ${a.tradeName}`.toLowerCase()
+        return hay.includes(q)
+      })
+      .sort((a, b) => b.riskScore - a.riskScore),
+    [filters]
+  )
+  const priorityAlerts = useMemo(() => filteredOpenAlerts.slice(0, 8), [filteredOpenAlerts])
+
+  const kpis = useMemo(() => {
+    const highRiskExposureCr = Math.round(
+      filteredTaxpayers.filter(t => t.risk.category === 'High' || t.risk.category === 'Critical')
+        .reduce((s, t) => s + t.estimatedRevenueExposure, 0) / 10000000
+    )
+    const itcRiskCases = filteredTaxpayers.filter(t => t.signals.itc_spike || t.signals.circular_signal).length
+    const refundCasesUnderReview = filteredRefundCasesFull.filter(r => r.status !== 'Low Risk').length
+    const auditRecoveryPipelineCr = filteredDistrictRevenue.reduce((s, d) => s + d.auditRecoveryCr, 0)
+    return { highRiskExposureCr, itcRiskCases, refundCasesUnderReview, auditRecoveryPipelineCr }
+  }, [filteredTaxpayers, filteredRefundCasesFull, filteredDistrictRevenue])
+
+  const revenueMonitoredCr = useMemo(() => filteredTrend.reduce((s, m) => s + m.actual, 0), [filteredTrend])
+
+  const lateFilerCount = filteredTaxpayers.filter(t => t.filingStatus === 'Late Filer').length
+  const nonFilerCount = filteredTaxpayers.filter(t => t.filingStatus === 'Non-Filer').length
+  const criticalRiskCount = filteredTaxpayers.filter(t => t.risk.category === 'Critical').length
+  const highRiskCount = filteredTaxpayers.filter(t => t.risk.category === 'High').length
+
+  const districtMax = Math.max(...filteredDistrictRevenue.map(d => d.riskTaxpayers), 1)
+
+  const brief = useMemo(
+    () => generateExecutiveBrief(KPI_SUMMARY, DISTRICT_REVENUE, KPI_SUMMARY.complianceAlerts),
+    []
+  )
+
+  // ---- Revenue & Compliance Health Index — a single weighted composite, the way
+  // a state-level command center reduces many indicators to one number leadership
+  // can track quarter to quarter, with the components disclosed rather than hidden. ----
+  const healthIndex = useMemo(() => {
+    const totalTP = filteredTaxpayers.length || 1
+    const filingCompliance = Math.round((filteredTaxpayers.filter(t => t.filingStatus === 'Regular Filer').length / totalTP) * 100)
+    const revenueRealisation = Math.min(100, Math.round((lastMonth.actual / lastMonth.target) * 100))
+    const itcRiskCasesCount = filteredTaxpayers.filter(t => t.signals.itc_spike || t.signals.circular_signal).length
+    const itcContainment = Math.max(0, 100 - Math.round((itcRiskCasesCount / totalTP) * 100))
+    const highRiskRefunds = filteredRefundCasesFull.filter(r => r.riskCategory === 'High' || r.riskCategory === 'Critical').length
+    const refundContainment = filteredRefundCasesFull.length ? Math.max(0, 100 - Math.round((highRiskRefunds / filteredRefundCasesFull.length) * 100)) : 100
+    const closedAudits = filteredAuditCasesFull.filter(c => c.stage === 'Closed').length
+    const auditClosure = filteredAuditCasesFull.length ? Math.round((closedAudits / filteredAuditCasesFull.length) * 100) : 0
+    const resolvedLit = filteredLitigationCases.filter(c => c.stage === 'Order Confirmed' || c.stage === 'Order Reversed')
+    const confirmedLit = resolvedLit.filter(c => c.stage === 'Order Confirmed').length
+    const litigationPosition = resolvedLit.length ? Math.round((confirmedLit / resolvedLit.length) * 100) : LITIGATION_SUMMARY.departmentSuccessRatePct
+
+    const components = [
+      { axis: 'Filing Compliance', weight: 25, score: filingCompliance },
+      { axis: 'Revenue Realisation', weight: 20, score: revenueRealisation },
+      { axis: 'ITC Risk Containment', weight: 15, score: itcContainment },
+      { axis: 'Refund Risk Containment', weight: 15, score: refundContainment },
+      { axis: 'Audit Closure Rate', weight: 15, score: auditClosure },
+      { axis: 'Litigation Position', weight: 10, score: litigationPosition }
+    ]
+    const composite = Math.round(components.reduce((s, c) => s + (c.score * c.weight) / 100, 0))
+    return { composite, components }
+  }, [filteredTaxpayers, filteredRefundCasesFull, filteredAuditCasesFull, filteredLitigationCases, lastMonth])
+
+  // ---- Revenue & Finance ----
+  const nonFilerExposureCr = useMemo(
+    () => Math.round(filteredTaxpayers.filter(t => t.filingStatus === 'Non-Filer').reduce((s, t) => s + t.estimatedRevenueExposure, 0) / 10000000),
+    [filteredTaxpayers]
+  )
+  const revenueRealisationPct = Math.min(100, Math.round((lastMonth.actual / lastMonth.target) * 100))
+
+  // ---- Audit & Enforcement Pipeline ----
+  const auditPipeline = useMemo(() => {
+    const sanctionedExposureCr = Math.round(filteredAuditCasesFull.reduce((s, c) => s + c.estimatedExposure, 0) / 10000000)
+    const atRiskCount = filteredAuditCasesFull.filter(c => c.riskCategory === 'Critical').length
+    const delayedCount = filteredAuditCasesFull.filter(c => c.stage !== 'Closed' && caseAgeDays(c.openedOn) > 180).length
+    const highestRisk = [...filteredAuditCasesFull].sort((a, b) => b.riskScore - a.riskScore).slice(0, 5)
+    return { sanctionedExposureCr, atRiskCount, delayedCount, highestRisk }
+  }, [filteredAuditCasesFull])
+
+  // ---- Statewide Statistics (horizontal pill-tab pattern, mirrors mahagst.gov.in's public Statistics page) ----
+  const revenueCollectionRows = useMemo(
+    () => filteredTrend.map(m => ({
+      id: m.month, month: m.month, target: m.target, actual: m.actual, variance: m.actual - m.target
+    })),
+    [filteredTrend]
+  )
+
+  const registeredTaxpayerRows = useMemo(
+    () => filteredDistrictRevenue.map(d => {
+      const districtTaxpayers = filteredTaxpayers.filter(t => t.district === d.district)
+      return {
+        id: d.district,
+        district: d.district,
+        division: d.division,
+        total: districtTaxpayers.length,
+        newRegistrations: districtTaxpayers.filter(t => t.isNewRegistration).length,
+        regular: districtTaxpayers.filter(t => t.filingStatus === 'Regular Filer').length,
+        late: districtTaxpayers.filter(t => t.filingStatus === 'Late Filer').length,
+        nonFiler: districtTaxpayers.filter(t => t.filingStatus === 'Non-Filer').length
+      }
+    }),
+    [filteredDistrictRevenue, filteredTaxpayers]
+  )
+
+  const districtRevenueRows = useMemo(
+    () => filteredDistrictRevenue.map(d => ({ id: d.district, ...d })),
+    [filteredDistrictRevenue]
+  )
+
+  const sectorCollectionRows = useMemo(
+    () => [...SECTOR_REVENUE]
+      .filter(s => filters.sector === 'All Sectors' || s.sector === filters.sector)
+      .sort((a, b) => b.revenueLakh - a.revenueLakh)
+      .map(s => ({ id: s.sector, ...s })),
+    [filters.sector]
+  )
+
+  const STAT_TABS = [
+    { key: 'revenue', label: t('Revenue Collection'), icon: IndianRupee },
+    { key: 'taxpayers', label: t('Registered Taxpayers'), icon: UserPlus },
+    { key: 'district', label: t('District-wise Revenue'), icon: MapPin },
+    { key: 'sector', label: t('Sector-wise Collection'), icon: Factory }
+  ]
+
+  const tileTone = riskTaxpayers => {
+    const ratio = riskTaxpayers / districtMax
+    if (ratio > 0.75) return RISK_COLORS.Critical
+    if (ratio > 0.5) return RISK_COLORS.High
+    if (ratio > 0.25) return RISK_COLORS.Medium
+    return RISK_COLORS.Low
+  }
+
+  const riskTableColumns = [
+    { key: 'tradeName', label: t('Taxpayer'), render: r => (
+      <div>
+        <div className="font-semibold text-navy-900">{r.tradeName}</div>
+        <div className="text-[11px] text-steel-500">{r.gstin}</div>
+      </div>
+    ) },
+    { key: 'district', label: t('District') },
+    { key: 'sector', label: t('Sector') },
+    { key: 'estimatedRevenueExposure', label: t('Exposure'), align: 'right', render: r => `₹${(r.estimatedRevenueExposure / 100000).toFixed(1)}L` },
+    { key: 'risk', label: t('Risk'), align: 'right', sortValue: r => r.risk.score, render: r => <RiskBadge category={r.risk.category} score={r.risk.score} /> }
+  ]
+
+  const STAT_COLUMNS = {
+    revenue: [
+      { key: 'month', label: t('Month') },
+      { key: 'target', label: t('Target (₹ Cr)'), align: 'right' },
+      { key: 'actual', label: t('Actual (₹ Cr)'), align: 'right' },
+      { key: 'variance', label: t('Variance'), align: 'right', render: r => (
+        <span className={r.variance >= 0 ? 'text-maharisk-low font-semibold' : 'text-maharisk-critical font-semibold'}>
+          {r.variance >= 0 ? '+' : ''}₹{r.variance.toLocaleString('en-IN')} Cr
+        </span>
+      ) }
+    ],
+    taxpayers: [
+      { key: 'district', label: t('District') },
+      { key: 'division', label: t('Division') },
+      { key: 'total', label: t('Total Registered'), align: 'right' },
+      { key: 'newRegistrations', label: t('New Registrations'), align: 'right' },
+      { key: 'regular', label: t('Regular Filers'), align: 'right' },
+      { key: 'late', label: t('Late Filers'), align: 'right' },
+      { key: 'nonFiler', label: t('Non-Filers'), align: 'right', render: r => <span className="text-maharisk-critical font-semibold">{r.nonFiler}</span> }
+    ],
+    district: [
+      { key: 'district', label: t('District') },
+      { key: 'division', label: t('Division') },
+      { key: 'targetCr', label: t('Target (₹ Cr)'), align: 'right' },
+      { key: 'actualCr', label: t('Actual (₹ Cr)'), align: 'right' },
+      { key: 'gapPct', label: t('Gap %'), align: 'right', render: r => (
+        <span className={r.gapPct >= 0 ? 'text-maharisk-low font-semibold' : 'text-maharisk-critical font-semibold'}>
+          {r.gapPct >= 0 ? '+' : ''}{r.gapPct}%
+        </span>
+      ) },
+      { key: 'auditRecoveryCr', label: t('Audit Recovery (₹ Cr)'), align: 'right' }
+    ],
+    sector: [
+      { key: 'sector', label: t('Sector') },
+      { key: 'revenueLakh', label: t('Revenue (₹ Lakh)'), align: 'right' },
+      { key: 'taxpayerCount', label: t('Taxpayers'), align: 'right' },
+      { key: 'highRiskCount', label: t('High-Risk Count'), align: 'right', render: r => r.highRiskCount > 0 ? <Pill tone="red">{r.highRiskCount}</Pill> : <Pill tone="green">0</Pill> }
+    ]
+  }
+
+  const STAT_ROWS = { revenue: revenueCollectionRows, taxpayers: registeredTaxpayerRows, district: districtRevenueRows, sector: sectorCollectionRows }
+
+  return (
+    <div>
+      {/* Home hero */}
+      <div className="mb-6 rounded-2xl border border-navy-800 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 px-6 py-7 sm:px-8 sm:py-9 shadow-panel relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)', backgroundSize: '18px 18px' }} />
+        <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="p-1.5 rounded-lg bg-saffron-500/90"><Landmark className="w-4 h-4 text-navy-900" /></span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-saffron-300">{t('Government of Maharashtra · GST Department')}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{t('Maha GST Intelligence')}</h1>
+            <p className="text-sm text-navy-200 mt-1.5 max-w-2xl">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => { setBriefGenerated(true); briefRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
+              className="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-2.5 rounded-lg bg-saffron-500 hover:bg-saffron-400 text-navy-900 shadow-panel"
+            >
+              <Sparkles className="w-4 h-4" /> {t('Generate Commissioner Brief')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <SectionHeader
+        eyebrow={t('Executive Command Center')}
+        title={t('Statewide Revenue & Risk Overview')}
+        description={t('Consolidated view of revenue performance, fraud risk exposure and compliance posture across Maharashtra for the Commissioner and senior leadership.')}
+        actions={<ExportBar moduleLabel="Executive Command Center" />}
+      />
+
+      {/* KPI row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+        <KpiCard label={t('GST Revenue Monitored')} value={revenueMonitoredCr.toLocaleString('en-IN')} unit={t('₹ Cr')} tone="navy" icon={Landmark} />
+        <KpiCard label={t('High-Risk Exposure')} value={kpis.highRiskExposureCr.toLocaleString('en-IN')} unit={t('₹ Cr')} tone="red" icon={ShieldAlert} />
+        <KpiCard label={t('ITC Risk Cases')} value={kpis.itcRiskCases} tone="saffron" icon={FileWarning} />
+        <KpiCard label={t('Refund Cases Under Review')} value={kpis.refundCasesUnderReview} tone="steel" icon={Gauge} />
+        <KpiCard label={t('Audit Recovery Pipeline')} value={kpis.auditRecoveryPipelineCr.toLocaleString('en-IN')} unit={t('₹ Cr')} tone="green" icon={TrendingUp} />
+        <KpiCard label={t('Compliance Alerts (Open)')} value={filteredOpenAlerts.length} tone="red" icon={Bell} />
+      </div>
+
+      {/* Revenue & Compliance Health Index — weighted composite, disclosed not hidden */}
+      <Card
+        className="mb-5"
+        title={t('Revenue & Compliance Health Index')}
+        subtitle={t('Weighted composite across six indicators — the single number leadership tracks period to period')}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="flex items-center justify-center lg:border-r lg:border-steel-100 lg:pr-6">
+            <ScoreGauge score={healthIndex.composite} label={t('Composite score')} />
+          </div>
+          <div className="lg:col-span-1">
+            <HealthRadarChart data={healthIndex.components} height={230} />
+          </div>
+          <div className="lg:col-span-1 overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-steel-200">
+                  <th className="text-left py-1.5 font-semibold text-steel-500 uppercase text-[10px] tracking-wide">{t('Component')}</th>
+                  <th className="text-right py-1.5 font-semibold text-steel-500 uppercase text-[10px] tracking-wide">{t('Wt')}</th>
+                  <th className="text-right py-1.5 font-semibold text-steel-500 uppercase text-[10px] tracking-wide">{t('Score')}</th>
+                  <th className="text-right py-1.5 font-semibold text-steel-500 uppercase text-[10px] tracking-wide">{t('Contrib.')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {healthIndex.components.map(c => (
+                  <tr key={c.axis} className="border-b border-steel-100 last:border-0">
+                    <td className="py-1.5 text-navy-800">{t(c.axis)}</td>
+                    <td className="py-1.5 text-right text-steel-500">{c.weight}%</td>
+                    <td className="py-1.5 text-right font-semibold text-navy-900 tabular-nums">{c.score}</td>
+                    <td className="py-1.5 text-right text-steel-500 tabular-nums">{((c.score * c.weight) / 100).toFixed(1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Card>
+
+      {/* Statewide Statistics — horizontal pill-tab pattern */}
+      <Card
+        className="mb-5"
+        title={t('Statewide Statistics')}
+        subtitle={t("One consolidated statistics panel — switch views the way the department's own public Statistics page does")}
+        actions={<span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-steel-400"><BarChart3 className="w-3.5 h-3.5" /> {t('{0} records', STAT_ROWS[statTab].length)}</span>}
+      >
+        <PillTabs tabs={STAT_TABS} active={statTab} onChange={setStatTab} />
+        <div className="mt-4">
+          <DataTable
+            columns={STAT_COLUMNS[statTab]}
+            rows={STAT_ROWS[statTab]}
+            searchPlaceholder={t('Search this view...')}
+            pageSize={8}
+          />
+        </div>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+        {/* Revenue trend */}
+        <Card
+          className="lg:col-span-2"
+          title={t('State Revenue Trend — Target vs Actual')}
+          subtitle={t('{0}-month collection performance (₹ Cr) — {1}', filteredTrend.length, t(filters.dateRange))}
+          actions={
+            <span
+              className="text-xs font-semibold px-2.5 py-1 rounded-full border"
+              style={revenueGapCr >= 0 ? { backgroundColor: TONE_STYLES.green.bg, borderColor: TONE_STYLES.green.border, color: TONE_STYLES.green.accent } : { backgroundColor: TONE_STYLES.red.bg, borderColor: TONE_STYLES.red.border, color: TONE_STYLES.red.accent }}
+            >
+              {revenueGapCr >= 0 ? <TrendingUp className="w-3 h-3 inline mr-1" /> : <TrendingDown className="w-3 h-3 inline mr-1" />}
+              {t('Gap:')} {revenueGapCr >= 0 ? '+' : ''}₹{revenueGapCr.toLocaleString('en-IN')} Cr ({revenueGapPct}%)
+            </span>
+          }
+        >
+          <TrendLineChart
+            data={filteredTrend}
+            xKey="month"
+            series={[
+              { key: 'target', label: t('Target (₹ Cr)'), color: '#8791a3', dashed: true },
+              { key: 'actual', label: t('Actual (₹ Cr)'), color: '#204575' }
+            ]}
+          />
+        </Card>
+
+        {/* Risk distribution */}
+        <Card title={t('Taxpayer Risk Distribution')} subtitle={isFilteredView ? t('{0} taxpayers matching current filters', filteredTaxpayers.length) : t('{0} taxpayers monitored statewide', filteredTaxpayers.length)}>
+          <RiskDonutChart
+            data={riskDistribution}
+            colors={{ Low: RISK_COLORS.Low.solid, Medium: RISK_COLORS.Medium.solid, High: RISK_COLORS.High.solid, Critical: RISK_COLORS.Critical.solid }}
+          />
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+        {/* District heatmap */}
+        <Card
+          className="lg:col-span-2"
+          title={t('District Risk Heatmap')}
+          subtitle={t('Shaded by count of High/Critical-risk taxpayers — click a district for detail')}
+          actions={isFilteredView ? <Pill tone="navy">{t('Filtered view active')}</Pill> : null}
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+            {filteredDistrictRevenue.map(d => {
+              const c = tileTone(d.riskTaxpayers)
+              return (
+                <button
+                  key={d.district}
+                  onClick={() => setSelectedDistrict(d)}
+                  className={`text-left rounded-lg border ${c.border} ${c.bg} p-3 hover:-translate-y-0.5 hover:shadow-panel transition-all`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-xs font-semibold text-navy-900 truncate">{d.district}</span>
+                    <MapPin className={`w-3 h-3 ${c.text} shrink-0`} />
+                  </div>
+                  <div className={`text-lg font-bold mt-1 ${c.text}`}>{d.riskTaxpayers}</div>
+                  <div className="text-[10px] text-steel-500">{t('high/critical taxpayers')}</div>
+                  <div className="text-[10px] text-steel-500 mt-1">{t('Gap:')} {d.gapPct >= 0 ? '+' : ''}{d.gapPct}%</div>
+                </button>
+              )
+            })}
+          </div>
+        </Card>
+
+        {/* Supporting stats */}
+        <Card title={t('Filing Behaviour Snapshot')} subtitle={isFilteredView ? t('Filer status — matching current filters') : t('Statewide filer status')}>
+          <div className="space-y-3">
+            <StatRow icon={FileWarning} tone="red" label={t('Non-Filers')} value={nonFilerCount} sub={t('{0}% of taxpayer base', filteredTaxpayers.length ? ((nonFilerCount / filteredTaxpayers.length) * 100).toFixed(1) : '0.0')} />
+            <StatRow icon={TrendingDown} tone="amber" label={t('Late Filers')} value={lateFilerCount} sub={t('{0}% of taxpayer base', filteredTaxpayers.length ? ((lateFilerCount / filteredTaxpayers.length) * 100).toFixed(1) : '0.0')} />
+            <StatRow icon={Users} tone="navy" label={t('Critical Risk Entities')} value={criticalRiskCount} sub={t('Requires immediate officer attention')} />
+            <StatRow icon={ShieldAlert} tone="orange" label={t('High Risk Entities')} value={highRiskCount} sub={t('Prioritised for scrutiny / audit')} />
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+        {/* Sector revenue */}
+        <Card className="lg:col-span-2" title={t('Sector-Wise Revenue Contribution')} subtitle={t('Tax collected by sector (₹ Lakh)')}>
+          <RiskBarChart data={sectorChartData} xKey="sector" barKey="revenueLakh" colorFn={() => '#204575'} />
+        </Card>
+
+        {/* Matters requiring attention */}
+        <Card title={t('Matters Requiring Attention')} subtitle={t('{0} open', priorityAlerts.length)}>
+          <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
+            {priorityAlerts.map(a => {
+              const category = riskCategoryFromScore(a.riskScore)
+              const sev = category === 'Critical' ? { tone: 'red', label: t('Critical') } : { tone: 'saffron', label: t('High') }
+              return (
+                <button
+                  key={a.id}
+                  onClick={() => setSelectedTaxpayer(TAXPAYERS.find(t => t.id === a.taxpayerId))}
+                  className="w-full text-left px-3 py-2.5 rounded-lg border border-steel-200 hover:border-navy-300 hover:bg-navy-50/40 transition-colors"
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Pill tone={sev.tone}>{sev.label}</Pill>
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-steel-400">{a.type}</span>
+                  </div>
+                  <div className="text-xs font-semibold text-navy-900">{a.tradeName} · {a.district}</div>
+                  <p className="text-[11px] text-steel-500 mt-0.5 leading-snug">{a.recommendedAction}</p>
+                </button>
+              )
+            })}
+            {priorityAlerts.length === 0 && <div className="text-xs text-steel-500 py-4 text-center">{t('No open high-risk alerts.')}</div>}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        {/* Revenue & Finance */}
+        <Card title={t('Revenue & Finance')} subtitle={t('Collection realisation against target, and exposure locked in non-filing')}>
+          <div className="mb-4">
+            <div className="flex items-baseline justify-between">
+              <span className="text-[11px] font-semibold text-steel-500 uppercase tracking-wide">{t('Revenue Realisation')}</span>
+              <span className="text-2xl font-bold text-navy-900 tabular-nums">{revenueRealisationPct}%</span>
+            </div>
+            <div className="text-[11px] text-steel-500 mb-1.5">{t('₹{0} Cr collected of ₹{1} Cr target ({2})', lastMonth.actual.toLocaleString('en-IN'), lastMonth.target.toLocaleString('en-IN'), lastMonth.month)}</div>
+            <div className="h-2.5 rounded-full bg-steel-100 border border-steel-200 overflow-hidden">
+              <div className={`h-full ${revenueRealisationPct >= 90 ? 'bg-maharisk-low' : revenueRealisationPct >= 75 ? 'bg-maharisk-medium' : 'bg-maharisk-critical'}`} style={{ width: `${revenueRealisationPct}%` }} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <MiniStat label={t('Est. Exposure — Non-Filers')} value={`₹${nonFilerExposureCr} Cr`} />
+            <MiniStat label={t('Audit Recovery Pipeline')} value={`₹${kpis.auditRecoveryPipelineCr} Cr`} />
+          </div>
+        </Card>
+
+        {/* Audit & Enforcement Pipeline */}
+        <Card
+          title={t('Audit & Enforcement Pipeline')}
+          subtitle={isFilteredView ? t('{0} cases matching filters', filteredAuditCasesFull.length) : t('{0} cases statewide', filteredAuditCasesFull.length)}
+          actions={<span className="inline-flex items-center gap-1 text-[11px] font-medium text-steel-400"><Activity className="w-3.5 h-3.5" /> {t('live')}</span>}
+        >
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <MiniStat label={t('Sanctioned Exposure')} value={`₹${auditPipeline.sanctionedExposureCr} Cr`} />
+            <MiniStat label={t('Critical Risk')} value={auditPipeline.atRiskCount} />
+            <MiniStat label={t('Delayed (>180d)')} value={auditPipeline.delayedCount} />
+          </div>
+          <div className="text-[11px] font-semibold text-steel-500 uppercase tracking-wide mb-1.5">{t('Highest-Risk Cases')}</div>
+          <div className="space-y-2">
+            {auditPipeline.highestRisk.map(c => (
+              <div key={c.id} className="flex items-center gap-2">
+                <span className="text-[11px] text-navy-700 w-32 truncate shrink-0">{c.tradeName}</span>
+                <div className="flex-1 h-1.5 rounded-full bg-steel-100 overflow-hidden">
+                  <div className="h-full bg-navy-600" style={{ width: `${c.riskScore}%` }} />
+                </div>
+                <span className="text-[11px] font-semibold text-navy-900 w-6 text-right shrink-0">{c.riskScore}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Top risk clusters table */}
+      <Card
+        title={t('Top 10 Highest-Risk Taxpayers')}
+        subtitle={t('Statewide risk ranking — click a row for the full Taxpayer 360 profile')}
+        className="mb-5"
+        actions={topRiskTaxpayers.some(t => t.risk.category === 'High' || t.risk.category === 'Critical') ? <HumanReviewBadge /> : null}
+      >
+        <DataTable
+          columns={riskTableColumns}
+          rows={topRiskTaxpayers}
+          onRowClick={row => setSelectedTaxpayer(row)}
+          searchable={false}
+          pageSize={10}
+        />
+      </Card>
+
+      {/* Executive brief — governed AI layer, generated inline rather than in a modal */}
+      <div ref={briefRef}>
+        <Card
+          className="mb-5"
+          title={t('Commissioner Daily Brief')}
+          subtitle={t('Governed AI layer — advisory only. Every finding below states its evidence and confidence.')}
+          actions={
+            <button
+              onClick={() => setBriefGenerated(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-navy-700 text-white hover:bg-navy-800"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> {t('Generate')}
+            </button>
+          }
+        >
+          {briefGenerated ? (
+            <AIOutputPanel output={brief} />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
+              <ClipboardCheck className="w-6 h-6 text-navy-300" />
+              <div className="text-sm font-semibold text-navy-800">{t('No brief generated yet')}</div>
+              <div className="text-xs text-steel-500 max-w-md">
+                {t("Generate an executive brief to synthesise the state's current revenue and risk position, with evidence and confidence stated for every finding.")}
+              </div>
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* District detail modal */}
+      <Modal
+        open={!!selectedDistrict}
+        onClose={() => setSelectedDistrict(null)}
+        size="md"
+        title={selectedDistrict?.district}
+        subtitle={selectedDistrict?.division}
+      >
+        {selectedDistrict && (
+          <div className="grid grid-cols-2 gap-3">
+            <MiniStat label={t('Target Collection')} value={`₹${selectedDistrict.targetCr.toLocaleString('en-IN')} Cr`} />
+            <MiniStat label={t('Actual Collection')} value={`₹${selectedDistrict.actualCr.toLocaleString('en-IN')} Cr`} />
+            <MiniStat label={t('Collection Gap')} value={`${selectedDistrict.gapPct >= 0 ? '+' : ''}${selectedDistrict.gapPct}%`} />
+            <MiniStat label={t('High/Critical Risk Taxpayers')} value={selectedDistrict.riskTaxpayers} />
+            <MiniStat label={t('Non-Filers')} value={selectedDistrict.nonFilers} />
+            <MiniStat label={t('Audit Recovery')} value={`₹${selectedDistrict.auditRecoveryCr} Cr`} />
+            <MiniStat label={t('Officer Workload Index')} value={selectedDistrict.officerWorkload} />
+            <MiniStat label={t('Avg. Case Ageing')} value={t('{0} days', selectedDistrict.caseAgeingDays)} />
+          </div>
+        )}
+      </Modal>
+
+      <TaxpayerDrilldownModal taxpayer={selectedTaxpayer} open={!!selectedTaxpayer} onClose={() => setSelectedTaxpayer(null)} />
+    </div>
+  )
+}
+
+function StatRow({ icon: Icon, tone, label, value, sub }) {
+  const t = TONE_STYLES[tone] || TONE_STYLES.steel
+  return (
+    <div className="flex items-center gap-3 rounded-lg border px-3 py-2.5" style={{ backgroundColor: t.bg, borderColor: t.border }}>
+      <span className="p-2 rounded-lg shrink-0" style={{ backgroundColor: t.iconBg, color: t.accent }}><Icon className="w-4 h-4" /></span>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="text-xs font-medium" style={{ color: t.accent }}>{label}</span>
+          <span className="text-base font-bold text-navy-900 tabular-nums">{value}</span>
+        </div>
+        <div className="text-[10.5px] text-steel-500">{sub}</div>
+      </div>
+    </div>
+  )
+}
+
+function MiniStat({ label, value }) {
+  return (
+    <div className="px-3 py-2.5 rounded-lg border border-steel-200 bg-steel-50">
+      <div className="text-[10px] uppercase tracking-wide text-steel-500 font-semibold">{label}</div>
+      <div className="text-sm font-bold text-navy-900 mt-0.5">{value}</div>
+    </div>
+  )
+}

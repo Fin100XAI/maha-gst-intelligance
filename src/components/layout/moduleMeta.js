@@ -1,0 +1,57 @@
+import { useMemo } from 'react'
+import {
+  LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck,
+  Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
+  FileBarChart2
+} from 'lucide-react'
+import {
+  KPI_SUMMARY, NETWORK_CLUSTERS, EWAY_RECORDS, AUDIT_CASES,
+  LITIGATION_CASES, AI_GOVERNANCE_METRICS
+} from '../../data/mockData.js'
+
+export const MODULE_ICONS = {
+  'command-center': LayoutDashboard,
+  'revenue-intelligence': TrendingUp,
+  'taxpayer-360': UserSearch,
+  'itc-risk': ShieldAlert,
+  'fake-invoice': Network,
+  'eway-bill': Truck,
+  'refund-risk': Receipt,
+  'audit-scrutiny': ClipboardCheck,
+  'sector-intelligence': Factory,
+  'district-performance': Map,
+  'officer-copilot': Bot,
+  'litigation': Gavel,
+  'early-warning': BellRing,
+  'ai-governance': ShieldCheck,
+  'reports': FileBarChart2
+}
+
+// Numeric counts shown on navigation — each one a queue that plausibly demands
+// an officer's attention, not decoration. `urgent` items pulse / show red.
+export function useSidebarBadges() {
+  return useMemo(() => {
+    const activeAuditCases = AUDIT_CASES.filter(c => c.stage !== 'Closed').length
+    const eWayAnomalies = EWAY_RECORDS.filter(r => r.anomalyFlag).length
+    const pendingLitigation = LITIGATION_CASES.filter(c => c.stage !== 'Order Confirmed' && c.stage !== 'Order Reversed').length
+    return {
+      'itc-risk': { count: KPI_SUMMARY.itcRiskCases, urgent: false },
+      'fake-invoice': { count: NETWORK_CLUSTERS.length, urgent: true },
+      'eway-bill': { count: eWayAnomalies, urgent: false },
+      'refund-risk': { count: KPI_SUMMARY.refundCasesUnderReview, urgent: false },
+      'audit-scrutiny': { count: activeAuditCases, urgent: false },
+      'litigation': { count: pendingLitigation, urgent: false },
+      'early-warning': { count: KPI_SUMMARY.complianceAlerts, urgent: true },
+      'ai-governance': { count: AI_GOVERNANCE_METRICS.pendingGovernanceReview, urgent: false }
+    }
+  }, [])
+}
+
+export const NAV_GROUPS = [
+  { id: 'Leadership', label: 'Leadership' },
+  { id: 'Revenue', label: 'Revenue' },
+  { id: 'Fraud & Risk', label: 'Fraud & Risk' },
+  { id: 'Enforcement', label: 'Enforcement' },
+  { id: 'Benchmarking', label: 'Benchmarking' },
+  { id: 'Governance', label: 'Governance' }
+]
