@@ -54,6 +54,54 @@ export default {
           medium: '#d99a15',
           high: '#d9631c',
           critical: '#c41e3a'
+        },
+        // BMC Intelligence institutional palette — used for the header, landing
+        // page and sign-in screen only, so those surfaces read as one shared
+        // brand system with the corporation's other intelligence platforms.
+        govt: {
+          50: '#eef4ff',
+          100: '#dae7ff',
+          200: '#bcd3ff',
+          300: '#8db4fe',
+          400: '#5a8ffa',
+          500: '#2f6bef',
+          600: '#1d4fd8',
+          700: '#1a3faf',
+          800: '#1b378a',
+          // The corporation's own civic blue — read directly off mcgm.gov.in's
+          // top utility bar — used for the header and navbar bands specifically.
+          900: '#0051bb',
+          950: '#101d45'
+        },
+        rail: {
+          900: '#070d1c',
+          800: '#0b1428',
+          700: '#101d38',
+          600: '#16264a',
+          500: '#1d3160',
+          400: '#294478'
+        },
+        intel: {
+          50: '#ecfeff',
+          100: '#cbf8fb',
+          200: '#9deff5',
+          300: '#5fdfec',
+          400: '#22c4d8',
+          500: '#08a3ba',
+          600: '#05819a',
+          700: '#0a677d',
+          800: '#0f5366',
+          900: '#124556'
+        },
+        gold: {
+          50: '#fdf9ec',
+          100: '#f5ebcc',
+          200: '#ecdba0',
+          300: '#d6ba5f',
+          400: '#d2b040',
+          500: '#cda629',
+          600: '#c2a01e',
+          700: '#9a7d16'
         }
       },
       boxShadow: {

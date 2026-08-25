@@ -11,7 +11,7 @@ function Select({ value, onChange, options }) {
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="appearance-none text-xs font-medium bg-white border border-steel-200 rounded-lg pl-2.5 pr-6 py-1.5 text-navy-700 focus:outline-none focus:ring-2 focus:ring-navy-300 hover:bg-steel-50"
+        className="appearance-none text-xs font-medium bg-white border border-steel-200 rounded-lg pl-2.5 pr-6 py-1.5 text-navy-700 focus:outline-none focus:ring-2 focus:ring-govt-300 hover:bg-steel-50"
       >
         {options.map(o => <option key={o} value={o}>{t(o)}</option>)}
       </select>
@@ -34,9 +34,9 @@ export function ContextBar() {
         <span className="h-3 w-px bg-steel-300 shrink-0" />
         <span className="shrink-0 px-2 py-0.5 rounded-full bg-steel-100 text-steel-600 border border-steel-200 font-medium">{t('Maha GST Intelligence')}</span>
         <ChevronRight className="w-3 h-3 text-steel-300 shrink-0" />
-        <span className="shrink-0 px-2 py-0.5 rounded-full bg-navy-50 text-navy-700 border border-navy-200 font-medium">{t(current?.group)}</span>
+        <span className="shrink-0 px-2 py-0.5 rounded-full bg-govt-50 text-govt-700 border border-govt-200 font-medium">{t(current?.group)}</span>
         <ChevronRight className="w-3 h-3 text-steel-300 shrink-0" />
-        <span className="shrink-0 px-2 py-0.5 rounded-full bg-saffron-50 text-saffron-800 border border-saffron-200 font-semibold">{t(current?.label)}</span>
+        <span className="shrink-0 px-2 py-0.5 rounded-full bg-gold-50 text-gold-700 border border-gold-200 font-semibold">{t(current?.label)}</span>
         <div className="flex-1" />
         <span className="shrink-0 px-2 py-0.5 rounded-full bg-steel-100 text-steel-600 border border-steel-200 font-medium whitespace-nowrap">{t('Acting as {0}', t(role))}</span>
       </div>

@@ -40,6 +40,8 @@ registerMessages('mr', {
   /* == Revenue Intelligence — Monthly trend chart ========================== */
   'Monthly Revenue Trend': 'मासिक महसूल कल',
   'State GST collection — target vs actual (₹ Cr) — {0}': 'राज्य GST वसुली — उद्दिष्ट वि. प्रत्यक्ष (₹ कोटी) — {0}',
+  'State GST collection — target vs actual (₹ Cr) — {0} · statewide trend, not filtered by district/division':
+    'राज्य GST वसुली — उद्दिष्ट वि. प्रत्यक्ष (₹ कोटी) — {0} · राज्यव्यापी कल, जिल्हा/विभागानुसार फिल्टर केलेला नाही',
   'Target (₹ Cr)': 'उद्दिष्ट (₹ कोटी)',
   'Actual (₹ Cr)': 'प्रत्यक्ष (₹ कोटी)',
 

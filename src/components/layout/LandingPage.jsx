@@ -1,6 +1,6 @@
 import {
   Landmark, ArrowRight, ShieldCheck, Network, ClipboardCheck, Bot,
-  TrendingUp, Lock, Eye, Users, CheckCircle2, Building2
+  TrendingUp, Lock, Eye, Users, CheckCircle2, Building2, MapPin, LayoutGrid
 } from 'lucide-react'
 import { MODULES } from '../../context/AppContext.jsx'
 import { MODULE_ICONS } from './moduleMeta.js'
@@ -125,15 +125,15 @@ export function LandingPage({ onEnter }) {
   return (
     <div className="min-h-screen bg-steel-50">
       {/* Top bar */}
-      <div className="sticky top-0 z-20 bg-navy-900/95 backdrop-blur text-white">
+      <div className="sticky top-0 z-20 bg-govt-900/95 backdrop-blur text-white">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-saffron-400 to-saffron-600 flex items-center justify-center shrink-0">
-              <Landmark className="w-4.5 h-4.5 text-navy-900" />
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center shrink-0">
+              <Landmark className="w-4.5 h-4.5 text-rail-900" />
             </div>
             <div className="leading-tight min-w-0">
               <div className="text-sm font-bold tracking-wide truncate">{t('MAHA GST INTELLIGENCE')}</div>
-              <div className="text-[10px] text-navy-300 tracking-wider hidden sm:block truncate">{t('GOVERNMENT OF MAHARASHTRA · STATE GST DEPARTMENT')}</div>
+              <div className="text-[10px] text-govt-200 tracking-wider hidden sm:block truncate">{t('GOVERNMENT OF MAHARASHTRA · STATE GST DEPARTMENT')}</div>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -141,7 +141,7 @@ export function LandingPage({ onEnter }) {
             <LanguageSwitcher className="bg-white/10 border-white/15" />
             <button
               onClick={onEnter}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold bg-saffron-500 hover:bg-saffron-400 text-navy-900 px-3.5 py-2 rounded-lg transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold bg-gradient-to-b from-govt-600 to-govt-700 hover:from-govt-500 hover:to-govt-600 text-white px-3.5 py-2 rounded-lg transition-colors whitespace-nowrap"
             >
               {t('Officer Sign-In')} <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -152,16 +152,16 @@ export function LandingPage({ onEnter }) {
       {/* Live ticker — recent signal counts pulled from the same figures the modules
           themselves show, so what an officer sees here is never a different number
           from what they'd find after signing in. */}
-      <div className="bg-navy-950 border-b border-white/10 overflow-hidden">
+      <div className="bg-govt-900 border-b border-white/10 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 h-9 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-saffron-300 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-saffron-400 animate-pulse" aria-hidden /> {t('Live')}
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-intel-300 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-intel-400 animate-pulse" aria-hidden /> {t('Live')}
           </span>
           <div className="flex-1 overflow-hidden">
-            <div className="ticker-track flex items-center gap-10 whitespace-nowrap text-[11.5px] text-navy-200">
+            <div className="ticker-track flex items-center gap-10 whitespace-nowrap text-[11.5px] text-govt-100">
               {[...ticker, ...ticker].map((item, i) => (
                 <span key={i} className="inline-flex items-center gap-2 shrink-0">
-                  {i > 0 && <span className="text-navy-500" aria-hidden>·</span>}
+                  {i > 0 && <span className="text-govt-500" aria-hidden>·</span>}
                   {item}
                 </span>
               ))}
@@ -177,28 +177,39 @@ export function LandingPage({ onEnter }) {
       `}</style>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 text-white">
+      <section
+        className="relative overflow-hidden bg-govt-900 text-white"
+        style={{
+          background:
+            'radial-gradient(60% 85% at 88% 0%, rgb(8 163 186 / 0.30) 0%, transparent 55%), ' +
+            'radial-gradient(70% 90% at 8% 100%, rgb(47 107 239 / 0.35) 0%, transparent 60%), ' +
+            '#0051bb'
+        }}
+      >
         <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '28px 28px' }} />
+        {/* A soft ring of light behind the copy — the single ornamental flourish
+            that keeps a flat institutional blue from reading as inert. */}
+        <div className="absolute -top-24 right-[-6rem] w-[28rem] h-[28rem] rounded-full bg-intel-400/20 blur-3xl pointer-events-none" aria-hidden />
         <div className="max-w-6xl mx-auto px-6 pt-16 pb-20 relative">
-          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-saffron-300 bg-saffron-400/10 border border-saffron-400/30 rounded-full px-3 py-1.5 mb-6">
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-govt-200 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 mb-6 shadow-[0_1px_0_0_rgb(255_255_255/0.15)_inset]">
             <Building2 className="w-3.5 h-3.5" /> {t('Government of Maharashtra · State GST Department')}
           </div>
-          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight max-w-3xl leading-tight">
-            {t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}
+          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight max-w-3xl leading-[1.1]">
+            <span className="text-intel-300">{t('Revenue Assurance, Fraud Risk')}</span>{t(' & Compliance Intelligence Infrastructure for Maharashtra GST')}
           </h1>
-          <p className="text-navy-200 text-sm sm:text-base max-w-2xl mt-5 leading-relaxed">
+          <p className="text-govt-100 text-sm sm:text-lg max-w-2xl mt-5 leading-relaxed">
             {t('A unified intelligence platform for the Commissioner, senior officers, audit teams and refund teams — turning filings, payments, ITC claims, e-way bills and litigation into explainable, action-ready risk signals. Built for revenue protection and taxpayer fairness alike.')}
           </p>
           <div className="flex flex-wrap items-center gap-3 mt-8">
             <button
               onClick={onEnter}
-              className="inline-flex items-center gap-2 text-sm font-semibold bg-saffron-500 hover:bg-saffron-400 text-navy-900 px-5 py-3 rounded-xl transition-colors shadow-panel"
+              className="inline-flex items-center gap-2 text-sm font-semibold bg-white text-govt-900 hover:bg-govt-50 px-5 py-3 rounded-xl transition-all shadow-[0_8px_24px_-6px_rgb(0_0_0/0.35)] hover:-translate-y-0.5"
             >
               {t('Enter Secure Workspace')} <ArrowRight className="w-4 h-4" />
             </button>
             <a
               href="#surfaces"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-navy-100 border border-white/20 hover:bg-white/10 px-5 py-3 rounded-xl transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white bg-white/10 border border-white/25 hover:bg-white/20 px-5 py-3 rounded-xl transition-colors"
             >
               <Eye className="w-4 h-4" /> {t('View Platform Capabilities')}
             </a>
@@ -206,10 +217,10 @@ export function LandingPage({ onEnter }) {
 
           {/* Hero stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-12 max-w-3xl">
-            <HeroStat label={t('GST Revenue Monitored')} value={`₹${KPI_SUMMARY.revenueMonitoredCr.toLocaleString('en-IN')} Cr`} />
-            <HeroStat label={t('Taxpayers Tracked')} value={KPI_SUMMARY.totalTaxpayers.toLocaleString('en-IN')} />
-            <HeroStat label={t('Districts Covered')} value={DISTRICTS.length} />
-            <HeroStat label={t('Intelligence Modules')} value={MODULES.length} />
+            <HeroStat icon={Landmark} label={t('GST Revenue Monitored')} value={`₹${KPI_SUMMARY.revenueMonitoredCr.toLocaleString('en-IN')} Cr`} />
+            <HeroStat icon={Users} label={t('Taxpayers Tracked')} value={KPI_SUMMARY.totalTaxpayers.toLocaleString('en-IN')} />
+            <HeroStat icon={MapPin} label={t('Districts Covered')} value={DISTRICTS.length} />
+            <HeroStat icon={LayoutGrid} label={t('Intelligence Modules')} value={MODULES.length} />
           </div>
         </div>
       </section>
@@ -228,7 +239,7 @@ export function LandingPage({ onEnter }) {
       {/* Value props */}
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-saffron-600 mb-2">{t('What This Platform Does')}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('What This Platform Does')}</div>
           <h2 className="text-2xl font-bold text-navy-900">{t('Intelligence infrastructure, not another dashboard')}</h2>
           <p className="text-sm text-steel-500 mt-2">{t('Every module is built around one principle: officers get explainable signals, never black-box decisions.')}</p>
         </div>
@@ -253,7 +264,7 @@ export function LandingPage({ onEnter }) {
           from what this preview shows. */}
       <section id="surfaces" className="max-w-6xl mx-auto px-6 py-16">
         <div className="max-w-2xl mb-10">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-saffron-600 mb-2">{t('Behind The Sign-In')}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('Behind The Sign-In')}</div>
           <h2 className="text-2xl font-bold text-navy-900">{t('The intelligence pages behind this platform')}</h2>
           <p className="text-sm text-steel-500 mt-2 leading-relaxed">
             {t('This page is the storefront. After sign-in, these same figures are laid out in the pages officers actually decide from — one for every area the department runs.')}
@@ -279,7 +290,7 @@ export function LandingPage({ onEnter }) {
       {/* District coverage */}
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="text-center max-w-2xl mx-auto mb-8">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-saffron-600 mb-2">{t('Statewide Coverage')}</div>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('Statewide Coverage')}</div>
           <h2 className="text-2xl font-bold text-navy-900">{t('Every district, one consolidated view')}</h2>
         </div>
         <div className="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
@@ -296,7 +307,7 @@ export function LandingPage({ onEnter }) {
       <section className="bg-white border-y border-steel-200">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="max-w-2xl mb-10">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-saffron-600 mb-2">{t('Assurance')}</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('Assurance')}</div>
             <h2 className="text-2xl font-bold text-navy-900">{t('Built to be accountable')}</h2>
             <p className="text-sm text-steel-500 mt-2 leading-relaxed">
               {t('A decision an officer cannot account for is worse than no decision at all. These four properties hold on every page behind this one, and each can be checked from inside the platform.')}
@@ -306,10 +317,10 @@ export function LandingPage({ onEnter }) {
             {TRUST_PRINCIPLES.map((p, i) => (
               <div key={p.title} className="rounded-xl border border-steel-200 p-5">
                 <div className="flex items-start gap-3">
-                  <span className="text-[11px] font-bold text-saffron-600 tabular-nums shrink-0 mt-0.5">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="text-[11px] font-bold text-govt-600 tabular-nums shrink-0 mt-0.5">{String(i + 1).padStart(2, '0')}</span>
                   <div>
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="p-1.5 rounded-lg bg-saffron-50 text-saffron-600 shrink-0"><p.icon className="w-3.5 h-3.5" /></span>
+                      <span className="p-1.5 rounded-lg bg-govt-50 text-govt-600 shrink-0"><p.icon className="w-3.5 h-3.5" /></span>
                       <h3 className="text-sm font-bold text-navy-900">{t(p.title)}</h3>
                     </div>
                     <p className="text-xs text-steel-600 leading-relaxed">{t(p.text)}</p>
@@ -322,26 +333,26 @@ export function LandingPage({ onEnter }) {
       </section>
 
       {/* Final CTA */}
-      <section className="bg-navy-900 text-white">
+      <section className="bg-govt-900 text-white">
         <div className="max-w-4xl mx-auto px-6 py-16 text-center">
           <h2 className="text-2xl font-bold">{t('Ready to enter the secure workspace?')}</h2>
-          <p className="text-navy-300 text-sm mt-2 max-w-xl mx-auto">
+          <p className="text-govt-200 text-sm mt-2 max-w-xl mx-auto">
             {t('Sign in with your officer role to access risk intelligence, case workflows and the AI copilot — all subject to role-based access control and mandatory human approval.')}
           </p>
           <button
             onClick={onEnter}
-            className="inline-flex items-center gap-2 text-sm font-semibold bg-saffron-500 hover:bg-saffron-400 text-navy-900 px-5 py-3 rounded-xl transition-colors mt-6"
+            className="inline-flex items-center gap-2 text-sm font-semibold bg-gradient-to-b from-govt-600 to-govt-700 hover:from-govt-500 hover:to-govt-600 text-white px-5 py-3 rounded-xl transition-colors mt-6"
           >
             {t('Enter Secure Workspace')} <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </section>
 
-      <footer className="bg-navy-950 text-navy-400 text-[11px]">
+      <footer className="bg-govt-900 text-govt-300 text-[11px]">
         <div className="max-w-6xl mx-auto px-6 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-white/10 pb-5">
-          <span>{t('Last reviewed and updated')}: <span className="text-navy-300 tabular-nums">17 {t('August')} 2026</span></span>
+          <span>{t('Last reviewed and updated')}: <span className="text-govt-200 tabular-nums">17 {t('August')} 2026</span></span>
           <span className="flex items-center gap-4">
-            <span>{t('Visitors today (simulated)')}: <span className="text-navy-300 tabular-nums">4,812</span></span>
+            <span>{t('Visitors today (simulated)')}: <span className="text-govt-200 tabular-nums">4,812</span></span>
             <span className="hidden sm:inline text-white/15">|</span>
             <span className="hidden sm:inline">{t('Built in line with GIGW, W3C and WCAG 2.1 accessibility guidelines')}</span>
           </span>
@@ -355,11 +366,14 @@ export function LandingPage({ onEnter }) {
   )
 }
 
-function HeroStat({ label, value }) {
+function HeroStat({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-xl border border-white/15 bg-white/5 px-3.5 py-3">
-      <div className="text-lg font-bold tabular-nums">{value}</div>
-      <div className="text-[10.5px] text-navy-300 mt-0.5">{label}</div>
+    <div className="group rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm px-3.5 py-3.5 transition-all hover:bg-white/10 hover:border-white/25 hover:-translate-y-0.5">
+      <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-intel-400/20 text-intel-300 mb-2 group-hover:bg-intel-400/30 transition-colors">
+        <Icon className="w-3.5 h-3.5" />
+      </span>
+      <div className="text-xl font-bold tabular-nums leading-none">{value}</div>
+      <div className="text-[10.5px] text-govt-200 mt-1.5">{label}</div>
     </div>
   )
 }

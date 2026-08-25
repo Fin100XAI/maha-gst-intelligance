@@ -17,7 +17,7 @@ export function Card({ title, subtitle, actions, className = '', children, padde
 
 export function SectionHeader({ eyebrow, title, description, actions }) {
   return (
-    <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5">
+    <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5 bg-white rounded-xl border border-steel-200 shadow-card px-5 py-4">
       <div>
         {eyebrow && <div className="text-[11px] font-bold uppercase tracking-wider text-saffron-600 mb-1">{eyebrow}</div>}
         <h1 className="text-xl font-bold text-navy-900">{title}</h1>

@@ -84,9 +84,20 @@ export default function RevenueIntelligence() {
 
   const filteredTrend = useMemo(() => sliceTrendByDateRange(STATE_REVENUE_TREND, filters.dateRange), [filters.dateRange])
 
+  // STATE_REVENUE_TREND has no per-district breakdown, so once a district or division
+  // is picked, totals must come from the district-level dataset (which does carry that
+  // breakdown) instead of silently staying pinned to the full-state trend figures.
+  const districtScoped = filters.district !== 'All Districts' || filters.division !== 'All Divisions'
+
   // ---- KPI derivations ----
-  const totalRevenueCr = useMemo(() => filteredTrend.reduce((s, m) => s + m.actual, 0), [filteredTrend])
-  const totalTargetCr = useMemo(() => filteredTrend.reduce((s, m) => s + m.target, 0), [filteredTrend])
+  const totalRevenueCr = useMemo(
+    () => districtScoped ? filteredDistricts.reduce((s, d) => s + d.actualCr, 0) : filteredTrend.reduce((s, m) => s + m.actual, 0),
+    [districtScoped, filteredDistricts, filteredTrend]
+  )
+  const totalTargetCr = useMemo(
+    () => districtScoped ? filteredDistricts.reduce((s, d) => s + d.targetCr, 0) : filteredTrend.reduce((s, m) => s + m.target, 0),
+    [districtScoped, filteredDistricts, filteredTrend]
+  )
   const revenueGapCr = totalRevenueCr - totalTargetCr
   const revenueGapPct = totalTargetCr ? Math.round((revenueGapCr / totalTargetCr) * 1000) / 10 : 0
   const districtsInDeficit = filteredDistricts.filter(d => d.gapPct < 0).length
@@ -185,7 +196,13 @@ export default function RevenueIntelligence() {
       </div>
 
       {/* Monthly trend */}
-      <Card title={t('Monthly Revenue Trend')} subtitle={t('State GST collection — target vs actual (₹ Cr) — {0}', t(filters.dateRange))} className="mb-5">
+      <Card
+        title={t('Monthly Revenue Trend')}
+        subtitle={districtScoped
+          ? t('State GST collection — target vs actual (₹ Cr) — {0} · statewide trend, not filtered by district/division', t(filters.dateRange))
+          : t('State GST collection — target vs actual (₹ Cr) — {0}', t(filters.dateRange))}
+        className="mb-5"
+      >
         <TrendLineChart
           data={filteredTrend}
           xKey="month"

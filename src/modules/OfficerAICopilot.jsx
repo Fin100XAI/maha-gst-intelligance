@@ -155,9 +155,10 @@ export default function OfficerAICopilot() {
 
       <AIDisclaimer text={t('AI-generated draft. Officer verification and approval required. All outputs below are advisory suggestions only and must be reviewed, edited and approved by an authorised officer before use.')} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 mt-5">
-        {/* Case Context Panel */}
-        <div className="space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-5 mt-5 lg:items-start">
+        {/* Case Context Panel — stays in view while the answer feed grows, so the
+            action buttons and case search never scroll out of reach. */}
+        <div className="space-y-4 lg:sticky lg:top-[4.5rem]">
           <Card title={t('Case Context')} subtitle={t('Select the working case for this session')}>
             <div className="relative mb-3">
               <Search className="w-3.5 h-3.5 text-steel-400 absolute left-2.5 top-1/2 -translate-y-1/2" />

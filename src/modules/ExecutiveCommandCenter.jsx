@@ -59,6 +59,12 @@ export default function ExecutiveCommandCenter() {
 
   const filteredTrend = useMemo(() => sliceTrendByDateRange(STATE_REVENUE_TREND, filters.dateRange), [filters.dateRange])
 
+  // STATE_REVENUE_TREND has no per-district breakdown, so once a district or division is
+  // selected, the revenue-monitored KPI must come from the district-level dataset (which
+  // does carry that breakdown) instead of staying pinned to the full-state trend figure —
+  // mirrors the fix applied to the same class of bug in Revenue Intelligence.
+  const districtScoped = filters.district !== 'All Districts' || filters.division !== 'All Divisions'
+
   // Case-level datasets (audit/refund/litigation) carry their own district/sector/risk/date
   // fields, so they're filtered directly rather than through the taxpayer-shaped applyGlobalFilters.
   const filteredAuditCasesFull = useMemo(() => AUDIT_CASES.filter(c =>
@@ -131,7 +137,10 @@ export default function ExecutiveCommandCenter() {
     return { highRiskExposureCr, itcRiskCases, refundCasesUnderReview, auditRecoveryPipelineCr }
   }, [filteredTaxpayers, filteredRefundCasesFull, filteredDistrictRevenue])
 
-  const revenueMonitoredCr = useMemo(() => filteredTrend.reduce((s, m) => s + m.actual, 0), [filteredTrend])
+  const revenueMonitoredCr = useMemo(
+    () => districtScoped ? filteredDistrictRevenue.reduce((s, d) => s + d.actualCr, 0) : filteredTrend.reduce((s, m) => s + m.actual, 0),
+    [districtScoped, filteredDistrictRevenue, filteredTrend]
+  )
 
   const lateFilerCount = filteredTaxpayers.filter(t => t.filingStatus === 'Late Filer').length
   const nonFilerCount = filteredTaxpayers.filter(t => t.filingStatus === 'Non-Filer').length
@@ -301,21 +310,20 @@ export default function ExecutiveCommandCenter() {
   return (
     <div>
       {/* Home hero */}
-      <div className="mb-6 rounded-2xl border border-navy-800 bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 px-6 py-7 sm:px-8 sm:py-9 shadow-panel relative overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #ffffff 1px, transparent 0)', backgroundSize: '18px 18px' }} />
+      <div className="mb-6 rounded-2xl border border-steel-200 bg-white px-6 py-7 sm:px-8 sm:py-9 shadow-panel relative overflow-hidden">
         <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="p-1.5 rounded-lg bg-saffron-500/90"><Landmark className="w-4 h-4 text-navy-900" /></span>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-saffron-300">{t('Government of Maharashtra · GST Department')}</span>
+              <span className="p-1.5 rounded-lg bg-govt-900/90"><Landmark className="w-4 h-4 text-white" /></span>
+              <span className="text-[11px] font-bold uppercase tracking-widest text-govt-700">{t('Government of Maharashtra · GST Department')}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{t('Maha GST Intelligence')}</h1>
-            <p className="text-sm text-navy-200 mt-1.5 max-w-2xl">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-navy-900 tracking-tight">{t('Maha GST Intelligence')}</h1>
+            <p className="text-sm text-steel-600 mt-1.5 max-w-2xl">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => { setBriefGenerated(true); briefRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}
-              className="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-2.5 rounded-lg bg-saffron-500 hover:bg-saffron-400 text-navy-900 shadow-panel"
+              className="inline-flex items-center gap-2 text-xs font-semibold px-3.5 py-2.5 rounded-lg bg-govt-900 hover:bg-govt-800 text-white shadow-panel"
             >
               <Sparkles className="w-4 h-4" /> {t('Generate Commissioner Brief')}
             </button>
@@ -510,7 +518,7 @@ export default function ExecutiveCommandCenter() {
           <div className="mb-4">
             <div className="flex items-baseline justify-between">
               <span className="text-[11px] font-semibold text-steel-500 uppercase tracking-wide">{t('Revenue Realisation')}</span>
-              <span className="text-2xl font-bold text-navy-900 tabular-nums">{revenueRealisationPct}%</span>
+              <span className={`text-2xl font-bold tabular-nums ${revenueRealisationPct >= 90 ? 'text-maharisk-low' : revenueRealisationPct >= 75 ? 'text-maharisk-medium' : 'text-maharisk-critical'}`}>{revenueRealisationPct}%</span>
             </div>
             <div className="text-[11px] text-steel-500 mb-1.5">{t('₹{0} Cr collected of ₹{1} Cr target ({2})', lastMonth.actual.toLocaleString('en-IN'), lastMonth.target.toLocaleString('en-IN'), lastMonth.month)}</div>
             <div className="h-2.5 rounded-full bg-steel-100 border border-steel-200 overflow-hidden">
@@ -629,7 +637,7 @@ function StatRow({ icon: Icon, tone, label, value, sub }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2">
           <span className="text-xs font-medium" style={{ color: t.accent }}>{label}</span>
-          <span className="text-base font-bold text-navy-900 tabular-nums">{value}</span>
+          <span className="text-base font-bold tabular-nums" style={{ color: t.accent }}>{value}</span>
         </div>
         <div className="text-[10.5px] text-steel-500">{sub}</div>
       </div>

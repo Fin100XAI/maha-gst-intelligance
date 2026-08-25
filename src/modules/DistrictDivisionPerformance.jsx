@@ -95,14 +95,14 @@ export default function DistrictDivisionPerformance() {
       g.actualCr += d.actualCr
       g.auditRecoveryCr += d.auditRecoveryCr
       g.workloadSum += d.officerWorkload
-      g.riskTaxpayers += d.riskTaxpayers
+      g.riskTaxpayers += scopedRiskCounts ? scopedRiskCounts[d.district] : d.riskTaxpayers
       g.nonFilers += d.nonFilers
       g.count += 1
     })
     return Object.values(groups)
       .map(g => ({ ...g, avgWorkload: Math.round(g.workloadSum / g.count), performanceRatio: Math.round((g.actualCr / g.targetCr) * 1000) / 10 }))
       .sort((a, b) => b.performanceRatio - a.performanceRatio)
-  }, [filteredDistricts])
+  }, [filteredDistricts, scopedRiskCounts])
 
   const districtOfficers = useMemo(
     () => selectedDistrict ? OFFICERS.filter(o => o.district === selectedDistrict.district) : [],
@@ -268,7 +268,7 @@ export default function DistrictDivisionPerformance() {
               <Stat label={t('Actual')} value={`₹${selectedDistrict.actualCr.toLocaleString('en-IN')} ${t('Cr')}`} />
               <Stat label={t('Target Gap')} value={`${selectedDistrict.gapPct > 0 ? '+' : ''}${selectedDistrict.gapPct}%`} tone={selectedDistrict.gapPct >= 0 ? 'good' : 'bad'} />
               <Stat label={t('Audit Recovery')} value={`₹${selectedDistrict.auditRecoveryCr} ${t('Cr')}`} />
-              <Stat label={t('Risk Taxpayers')} value={selectedDistrict.riskTaxpayers} />
+              <Stat label={t('Risk Taxpayers')} value={scopedRiskCounts ? scopedRiskCounts[selectedDistrict.district] : selectedDistrict.riskTaxpayers} />
               <Stat label={t('Non-Filers')} value={selectedDistrict.nonFilers} />
               <Stat label={t('Officer Workload')} value={`${selectedDistrict.officerWorkload}%`} />
               <Stat label={t('Case Ageing')} value={`${selectedDistrict.caseAgeingDays} ${t('days')}`} />

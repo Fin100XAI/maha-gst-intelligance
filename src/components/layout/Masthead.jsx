@@ -29,20 +29,17 @@ export function Masthead() {
 
   return (
     <div className="shrink-0">
-      <div className="relative flex flex-wrap items-center gap-3 overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 px-4 py-2.5 sm:px-5">
+      <div className="relative flex flex-wrap items-center gap-3 overflow-hidden bg-govt-900 px-4 py-2.5 sm:px-5">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '28px 28px' }}
         />
-        <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-saffron-400 to-saffron-600 flex items-center justify-center shrink-0 ring-1 ring-white/25">
-          <Landmark className="w-5 h-5 text-navy-900" />
+        <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center shrink-0 ring-1 ring-white/25">
+          <Landmark className="w-5 h-5 text-rail-900" />
         </div>
         <div className="relative min-w-0 flex-1">
-          <p className="truncate text-[10px] font-semibold tracking-[0.12em] text-white/70 uppercase">
-            {t('Government of Maharashtra · Office of the State GST Commissioner')}
-          </p>
-          <h1 className="mt-0.5 truncate text-[17px] leading-tight font-bold tracking-tight text-white">
+          <h1 className="truncate text-[17px] leading-tight font-bold tracking-tight text-white">
             {t('Maha GST Intelligence')}
           </h1>
           <p className="mt-0.5 line-clamp-1 max-w-3xl text-[11px] leading-snug text-white/65">
@@ -58,7 +55,7 @@ export function Masthead() {
         </div>
       </div>
       {/* The single piece of ornament in the shell — marks where the department's identity ends and the working surfaces begin. */}
-      <div aria-hidden className="h-[3px] bg-gradient-to-r from-saffron-500 via-saffron-400 to-saffron-600" />
+      <div aria-hidden className="h-[3px] bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600" />
     </div>
   )
 }

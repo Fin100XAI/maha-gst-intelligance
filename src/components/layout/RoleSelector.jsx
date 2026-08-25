@@ -37,19 +37,19 @@ export function RoleSelector() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-br from-navy-900 via-navy-800 to-navy-900 flex items-center justify-center p-4 sm:p-6">
+    <div className="h-screen overflow-hidden bg-govt-900 flex items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-4xl h-full flex flex-col">
         <div className="flex justify-end gap-2 mb-2 shrink-0">
           <FontSizeControl className="hidden sm:flex bg-white/10 border-white/15" />
           <LanguageSwitcher className="bg-white/10 border-white/15" />
         </div>
         <div className="flex flex-col items-center text-center mb-3 shrink-0">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-saffron-400 to-saffron-600 flex items-center justify-center mb-2.5 shadow-panel">
-            <Landmark className="w-6 h-6 text-navy-900" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center mb-2.5 shadow-panel">
+            <Landmark className="w-6 h-6 text-rail-900" />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{t('Maha GST Intelligence')}</h1>
-          <p className="text-navy-200 text-xs sm:text-sm mt-1.5 max-w-xl hidden sm:block">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
-          <p className="text-navy-400 text-[10px] mt-2 uppercase tracking-widest font-semibold">{t('Secure Access · Role-Based Sign-In')}</p>
+          <p className="text-govt-100 text-xs sm:text-sm mt-1.5 max-w-xl hidden sm:block">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
+          <p className="text-govt-300 text-[10px] mt-2 uppercase tracking-widest font-semibold">{t('Secure Access · Role-Based Sign-In')}</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-2xl p-5 flex flex-col flex-1 min-h-0">
@@ -60,7 +60,7 @@ export function RoleSelector() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder={t('e.g. Rohan Deshmukh')}
-                className="mt-1 w-full px-3 py-1.5 text-sm rounded-lg border border-steel-200 focus:outline-none focus:ring-2 focus:ring-navy-300"
+                className="mt-1 w-full px-3 py-1.5 text-sm rounded-lg border border-steel-200 focus:outline-none focus:ring-2 focus:ring-govt-300"
               />
             </div>
           )}
@@ -75,9 +75,9 @@ export function RoleSelector() {
                 <button
                   key={role}
                   onClick={() => { setSelected(role); setName('') }}
-                  className={`text-left flex items-start gap-3 p-2.5 rounded-xl border transition-all ${active ? 'border-navy-600 bg-navy-50 ring-2 ring-navy-200' : 'border-steel-200 hover:border-navy-300 hover:bg-steel-50'}`}
+                  className={`text-left flex items-start gap-3 p-2.5 rounded-xl border transition-all ${active ? 'border-govt-600 bg-govt-50 ring-2 ring-govt-200' : 'border-steel-200 hover:border-govt-300 hover:bg-steel-50'}`}
                 >
-                  <span className={`p-2 rounded-lg shrink-0 ${active ? 'bg-navy-700 text-white' : 'bg-steel-100 text-steel-600'}`}><Icon className="w-4 h-4" /></span>
+                  <span className={`p-2 rounded-lg shrink-0 ${active ? 'bg-govt-700 text-white' : 'bg-steel-100 text-steel-600'}`}><Icon className="w-4 h-4" /></span>
                   <span>
                     <span className="block text-sm font-semibold text-navy-900">{t(role)}</span>
                     <span className="block text-[11px] text-steel-500 mt-0.5 leading-snug">{t(meta.desc)}</span>
@@ -93,7 +93,7 @@ export function RoleSelector() {
               <select
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="mt-1 w-full px-3 py-1.5 text-sm rounded-lg border border-steel-200 focus:outline-none focus:ring-2 focus:ring-navy-300 bg-white"
+                className="mt-1 w-full px-3 py-1.5 text-sm rounded-lg border border-steel-200 focus:outline-none focus:ring-2 focus:ring-govt-300 bg-white"
               >
                 <option value="">{t('Select your officer record…')}</option>
                 {officerByRole(selected).map(o => (
@@ -107,7 +107,7 @@ export function RoleSelector() {
           <button
             onClick={enter}
             disabled={!selected || (CASE_SCOPED_ROLES.includes(selected) && !name)}
-            className="mt-3 w-full flex items-center justify-center gap-1.5 bg-navy-800 hover:bg-navy-900 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm py-2.5 rounded-xl transition-colors shrink-0"
+            className="mt-3 w-full flex items-center justify-center gap-1.5 bg-gradient-to-b from-govt-600 to-govt-700 hover:from-govt-500 hover:to-govt-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm py-2.5 rounded-xl transition-colors shrink-0"
           >
             {t('Enter Secure Workspace')} <ChevronRight className="w-4 h-4" />
           </button>

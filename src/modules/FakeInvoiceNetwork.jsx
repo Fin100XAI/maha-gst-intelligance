@@ -232,7 +232,7 @@ export default function FakeInvoiceNetwork() {
       <div ref={graphRef} className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 mb-6">
         <Card title={t('Detected Clusters')} subtitle={t('Select a cluster to view its network.')} padded={false}>
           <div className="max-h-[460px] overflow-y-auto divide-y divide-steel-100">
-            {NETWORK_CLUSTERS.map(c => {
+            {filteredClusters.map(c => {
               const active = c.id === selectedCluster.id
               const flow = c.edges.reduce((s, e) => s + e.valueLakh, 0)
               return (

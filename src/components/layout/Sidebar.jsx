@@ -21,15 +21,15 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
 
   return (
     <div className="fixed inset-0 z-40 lg:hidden">
-      <div className="absolute inset-0 bg-navy-950/50 backdrop-blur-[2px]" onClick={onCloseMobile} aria-hidden />
-      <aside className="relative flex h-full w-72 flex-col bg-navy-900 text-white shadow-panel">
+      <div className="absolute inset-0 bg-govt-900/50 backdrop-blur-[2px]" onClick={onCloseMobile} aria-hidden />
+      <aside className="relative flex h-full w-72 flex-col bg-govt-900 text-white shadow-panel">
         <div className="flex items-center gap-2.5 h-16 px-5 border-b border-white/10 shrink-0">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-saffron-400 to-saffron-600 flex items-center justify-center shrink-0">
-            <Landmark className="w-5 h-5 text-navy-900" />
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center shrink-0">
+            <Landmark className="w-5 h-5 text-rail-900" />
           </div>
           <div className="min-w-0 flex-1 leading-tight">
             <div className="text-sm font-bold tracking-wide">MAHA GST</div>
-            <div className="text-[10px] text-navy-200 tracking-wider">INTELLIGENCE</div>
+            <div className="text-[10px] text-govt-200 tracking-wider">INTELLIGENCE</div>
           </div>
           <button className="p-1.5 rounded-lg hover:bg-white/10" onClick={onCloseMobile} aria-label="Close navigation">
             <X className="w-4 h-4" />
@@ -50,12 +50,12 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
                   aria-expanded={isExpanded}
                   className="flex w-full items-center gap-1.5 px-2.5 py-1.5 rounded-md hover:bg-white/5 transition-colors"
                 >
-                  <ChevronDown className={`w-3 h-3 shrink-0 transition-transform duration-200 ${isActiveGroup ? 'text-saffron-300' : 'text-navy-400'} ${!isExpanded ? '-rotate-90' : ''}`} />
-                  <span className={`flex-1 text-left text-[10px] font-bold uppercase tracking-widest ${isActiveGroup ? 'text-saffron-300' : 'text-navy-300'}`}>
+                  <ChevronDown className={`w-3 h-3 shrink-0 transition-transform duration-200 ${isActiveGroup ? 'text-gold-300' : 'text-govt-400'} ${!isExpanded ? '-rotate-90' : ''}`} />
+                  <span className={`flex-1 text-left text-[10px] font-bold uppercase tracking-widest ${isActiveGroup ? 'text-gold-300' : 'text-govt-300'}`}>
                     {t(group.label)}
                   </span>
                   {!isExpanded && items.some(m => badges[m.id]?.count > 0) && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-saffron-400 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold-400 shrink-0" />
                   )}
                 </button>
                 {isExpanded && (
@@ -72,18 +72,18 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
                             title={!allowed ? `${t('Restricted for your role')} (${t(role)})` : undefined}
                             onClick={() => { if (!allowed) return; setActiveModule(m.id); onCloseMobile?.() }}
                             className={`group relative w-full flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors ${
-                              !allowed ? 'cursor-not-allowed opacity-50' : active ? 'bg-white text-navy-900 font-semibold' : 'text-navy-100 hover:bg-white/10'
+                              !allowed ? 'cursor-not-allowed opacity-50' : active ? 'bg-white text-navy-900 font-semibold' : 'text-govt-100 hover:bg-white/10'
                             }`}
                           >
                             <span
                               aria-hidden
-                              className={`absolute top-1/2 -left-1 h-5 w-[3px] -translate-y-1/2 rounded-full bg-gradient-to-b from-saffron-400 to-saffron-600 origin-center transition-transform duration-200 ${active ? 'scale-y-100' : 'scale-y-0'}`}
+                              className={`absolute top-1/2 -left-1 h-5 w-[3px] -translate-y-1/2 rounded-full bg-gradient-to-b from-gold-400 to-gold-600 origin-center transition-transform duration-200 ${active ? 'scale-y-100' : 'scale-y-0'}`}
                             />
-                            <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-navy-700' : 'text-navy-300 group-hover:text-white'}`} />
+                            <Icon className={`w-4 h-4 shrink-0 ${active ? 'text-govt-700' : 'text-govt-300 group-hover:text-white'}`} />
                             <span className="flex-1 text-left truncate">{t(m.label)}</span>
-                            {!allowed && <Lock className="w-3 h-3 text-navy-400 shrink-0" />}
+                            {!allowed && <Lock className="w-3 h-3 text-govt-400 shrink-0" />}
                             {allowed && badge?.count > 0 && (
-                              <span className={`shrink-0 rounded-full px-1.5 py-px text-[10px] font-bold tabular-nums ${badge.urgent ? 'bg-maharisk-critical text-white' : 'bg-saffron-500/90 text-navy-900'}`}>
+                              <span className={`shrink-0 rounded-full px-1.5 py-px text-[10px] font-bold tabular-nums ${badge.urgent ? 'bg-maharisk-critical text-white' : 'bg-gold-500/90 text-rail-900'}`}>
                                 {badge.count > 99 ? '99+' : badge.count}
                               </span>
                             )}
@@ -98,7 +98,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
           })}
         </nav>
 
-        <div className="px-4 py-3 border-t border-white/10 text-[10px] text-navy-300 leading-relaxed shrink-0">
+        <div className="px-4 py-3 border-t border-white/10 text-[10px] text-govt-300 leading-relaxed shrink-0">
           {t('Government of Maharashtra · State GST Department')}<br />{t('Revenue Assurance & Compliance Intelligence Infrastructure')}
         </div>
       </aside>

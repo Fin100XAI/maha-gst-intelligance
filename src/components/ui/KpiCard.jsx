@@ -33,7 +33,7 @@ export function KpiCard({ label, value, unit, trend, trendLabel, tone = 'navy', 
         )}
       </div>
       <div className="mt-1.5 flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-navy-900 tabular-nums">{value}</span>
+        <span className="text-2xl font-bold tabular-nums" style={{ color: t.accent }}>{value}</span>
         {unit && <span className="text-xs font-medium text-steel-500">{unit}</span>}
       </div>
       {(trend !== undefined && trend !== null) && (

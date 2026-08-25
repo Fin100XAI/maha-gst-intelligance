@@ -40,7 +40,7 @@ export function TopNav() {
   const select = id => { setActiveModule(id); closeNow() }
 
   return (
-    <nav aria-label="Primary navigation" className="relative z-30 hidden lg:block border-b border-white/10 bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900">
+    <nav aria-label="Primary navigation" className="relative z-30 hidden lg:block border-b border-white/10 bg-govt-900">
       <div className="px-4 sm:px-5">
         <div className="flex flex-wrap items-center gap-0.5 py-1.5">
             {NAV_GROUPS.map(group => {
@@ -59,7 +59,7 @@ export function TopNav() {
                     aria-expanded={isOpen}
                     onClick={() => (isOpen ? closeNow() : setOpenId(group.id))}
                     className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] whitespace-nowrap transition-colors duration-150 ${
-                      isActive || isOpen ? 'bg-white/15 font-semibold text-white' : 'font-medium text-navy-200 hover:bg-white/10 hover:text-white'
+                      isActive || isOpen ? 'bg-white/15 font-semibold text-white' : 'font-medium text-govt-200 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <span>{t(group.label)}</span>
@@ -68,10 +68,10 @@ export function TopNav() {
                         {badgeSum > 99 ? '99+' : badgeSum}
                       </span>
                     )}
-                    <ChevronDown className={`w-3 h-3 text-navy-300 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-3 h-3 text-govt-300 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
                     <span
                       aria-hidden
-                      className={`absolute inset-x-1.5 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-saffron-400 to-saffron-600 origin-center transition-transform duration-200 ${isActive ? 'scale-x-100' : 'scale-x-0'}`}
+                      className={`absolute inset-x-1.5 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-gold-400 to-gold-600 origin-center transition-transform duration-200 ${isActive ? 'scale-x-100' : 'scale-x-0'}`}
                     />
                   </button>
 
@@ -83,7 +83,7 @@ export function TopNav() {
                         items.length > 5 ? 'w-[38rem] grid grid-cols-2 gap-0.5' : 'w-[19rem] grid grid-cols-1 gap-0.5'
                       }`}
                     >
-                      <p className="col-span-full px-2 pt-1 pb-1.5 text-[10px] font-bold tracking-wider text-navy-700 uppercase">{t(group.label)}</p>
+                      <p className="col-span-full px-2 pt-1 pb-1.5 text-[10px] font-bold tracking-wider text-govt-700 uppercase">{t(group.label)}</p>
                       {items.map(m => {
                         const Icon = MODULE_ICONS[m.id]
                         const allowed = canAccessModule(role, m.id)
@@ -97,16 +97,16 @@ export function TopNav() {
                             title={!allowed ? `${t('Restricted for your role')} (${t(role)})` : undefined}
                             onClick={() => allowed && select(m.id)}
                             className={`w-full flex items-start gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors ${
-                              !allowed ? 'cursor-not-allowed opacity-50' : active ? 'bg-navy-50 ring-1 ring-navy-200/60' : 'hover:bg-steel-50'
+                              !allowed ? 'cursor-not-allowed opacity-50' : active ? 'bg-govt-50 ring-1 ring-govt-200/60' : 'hover:bg-steel-50'
                             }`}
                           >
-                            <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${active ? 'text-navy-700' : 'text-steel-400'}`} />
+                            <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${active ? 'text-govt-700' : 'text-steel-400'}`} />
                             <span className="min-w-0 flex-1">
                               <span className="flex items-center gap-1.5">
                                 <span className={`truncate text-[13px] ${active ? 'font-semibold text-navy-900' : 'font-medium text-navy-800'}`}>{t(m.label)}</span>
                                 {!allowed && <Lock className="w-3 h-3 text-steel-400 shrink-0" />}
                                 {allowed && badge?.count > 0 && (
-                                  <span className={`shrink-0 rounded-full px-1.5 py-px text-[10px] font-bold tabular-nums ${badge.urgent ? 'bg-maharisk-critical text-white' : 'bg-saffron-100 text-saffron-800 ring-1 ring-saffron-200'}`}>
+                                  <span className={`shrink-0 rounded-full px-1.5 py-px text-[10px] font-bold tabular-nums ${badge.urgent ? 'bg-maharisk-critical text-white' : 'bg-gold-100 text-gold-700 ring-1 ring-gold-200'}`}>
                                     {badge.count}
                                   </span>
                                 )}

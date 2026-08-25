@@ -32,7 +32,7 @@ export function ScoreGauge({ score, size = 140, strokeWidth = 12, label = 'Compo
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-navy-900 tabular-nums">{score}</span>
+          <span className="text-3xl font-bold tabular-nums" style={{ color: band.color }}>{score}</span>
           <span className="text-[10px] text-steel-500">{t('of 100')}</span>
         </div>
       </div>
