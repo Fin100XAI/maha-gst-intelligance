@@ -8,8 +8,8 @@ import { RiskBarChart } from '../components/ui/Charts.jsx'
 import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
-import { useApp } from '../context/AppContext.jsx'
-import { COMPLIANCE_ALERTS, EARLY_WARNING_TYPES, taxpayerById } from '../data/mockData.js'
+import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
+import { COMPLIANCE_ALERTS, EARLY_WARNING_TYPES, taxpayerById, REFERENCE_DATE } from '../data/mockData.js'
 import { riskCategoryFromScore } from '../data/risk.js'
 import { generateComplianceNudge } from '../data/ai.js'
 import { t } from '../i18n/index.js'
@@ -22,7 +22,7 @@ const STATUS_OPTIONS = ['All Statuses', 'Open', 'Outreach Sent', 'Officer Review
 const TYPE_OPTIONS = ['All Alert Types', ...EARLY_WARNING_TYPES.map(w => w.type)]
 
 function buildWeeklyBuckets(alerts) {
-  const today = new Date(2026, 7, 17)
+  const today = REFERENCE_DATE
   const bucketCount = 6
   const bucketSize = 8 // days per bucket, ~48 day window
   const buckets = Array.from({ length: bucketCount }, (_, i) => {
@@ -51,18 +51,11 @@ export default function ComplianceEarlyWarning() {
 
   const effectiveStatus = alert => statusOverrides[alert.id] || alert.status
 
-  // ---- Global-filter-aware alert matching (alerts are not taxpayer-shaped) ----
-  const matchesGlobalFilters = a => {
-    if (filters.district !== 'All Districts' && a.district !== filters.district) return false
-    if (filters.sector !== 'All Sectors' && a.sector !== filters.sector) return false
-    if (filters.riskLevel !== 'All Risk Levels' && riskCategoryFromScore(a.riskScore) !== filters.riskLevel) return false
-    if (filters.search && filters.search.trim()) {
-      const q = filters.search.toLowerCase()
-      const hay = `${a.gstin} ${a.tradeName}`.toLowerCase()
-      if (!hay.includes(q)) return false
-    }
-    return true
-  }
+  // Alerts are not taxpayer-shaped, so they go through the shared case filter.
+  // This previously ignored division, and ignored the date range even though
+  // every alert carries a `raisedOn` date — so narrowing to "Last 3 Months"
+  // changed nothing on this screen.
+  const matchesGlobalFilters = a => applyCaseFilters(a, filters, 'raisedOn')
 
   const globallyFiltered = useMemo(() => COMPLIANCE_ALERTS.filter(matchesGlobalFilters), [filters])
 
@@ -128,7 +121,7 @@ export default function ComplianceEarlyWarning() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <KpiCard label={t('Total Open Alerts')} value={totalOpen} tone="red" icon={Bell} />
         <KpiCard label={t('Officer Review Queue')} value={reviewQueueSize} tone="saffron" icon={UserCheck} />
-        <KpiCard label={t('Resolved This Month')} value={resolvedThisMonth} tone="green" icon={CheckCircle2} />
+        <KpiCard label={t('Resolved')} value={resolvedThisMonth} tone="green" icon={CheckCircle2} />
         <KpiCard label={t('Alert Types Active')} value={activeTypeCount} unit={t('of {0}', EARLY_WARNING_TYPES.length)} tone="steel" icon={ListFilter} />
       </div>
 
@@ -235,7 +228,7 @@ export default function ComplianceEarlyWarning() {
                   const tp = taxpayerById(selectedAlert.taxpayerId)
                   if (tp) setDrilldownTaxpayer(tp)
                 }}
-                className="text-xs font-semibold px-3 py-2 rounded-lg bg-navy-700 text-white hover:bg-navy-800"
+                className="text-xs font-semibold px-3 py-2 rounded-lg bg-ink-700 text-white hover:bg-ink-800"
               >
                 {t('View Taxpayer 360')}
               </button>

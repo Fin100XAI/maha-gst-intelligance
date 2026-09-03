@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { ChevronDown, Lock } from 'lucide-react'
-import { MODULES, canAccessModule, useApp } from '../../context/AppContext.jsx'
+import { MODULES, NAV_MODULES, canAccessModule, useApp } from '../../context/AppContext.jsx'
 import { MODULE_ICONS, useSidebarBadges, NAV_GROUPS } from './moduleMeta.js'
 import { t } from '../../i18n/index.js'
 
@@ -44,7 +44,7 @@ export function TopNav() {
       <div className="px-4 sm:px-5">
         <div className="flex flex-wrap items-center gap-0.5 py-1.5">
             {NAV_GROUPS.map(group => {
-              const items = MODULES.filter(m => m.group === group.id)
+              const items = NAV_MODULES.filter(m => m.group === group.id)
               if (items.length === 0) return null
               const isActive = group.id === activeGroupId
               const isOpen = openId === group.id

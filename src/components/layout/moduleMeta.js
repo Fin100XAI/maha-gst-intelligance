@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import {
-  LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck,
+  LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer,
   Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
-  FileBarChart2
+  FileBarChart2, BadgeCheck
 } from 'lucide-react'
 import {
   KPI_SUMMARY, NETWORK_CLUSTERS, EWAY_RECORDS, AUDIT_CASES,
@@ -10,6 +10,7 @@ import {
 } from '../../data/mockData.js'
 
 export const MODULE_ICONS = {
+  'recovery-window': Timer,
   'command-center': LayoutDashboard,
   'revenue-intelligence': TrendingUp,
   'taxpayer-360': UserSearch,
@@ -24,7 +25,8 @@ export const MODULE_ICONS = {
   'litigation': Gavel,
   'early-warning': BellRing,
   'ai-governance': ShieldCheck,
-  'reports': FileBarChart2
+  'reports': FileBarChart2,
+  'official-statistics': BadgeCheck
 }
 
 // Numeric counts shown on navigation — each one a queue that plausibly demands

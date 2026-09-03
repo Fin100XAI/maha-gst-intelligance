@@ -9,6 +9,7 @@ import { RoleSelector } from './components/layout/RoleSelector.jsx'
 import { LandingPage } from './components/layout/LandingPage.jsx'
 import { RoleGate } from './components/layout/RoleGate.jsx'
 
+import RevenueRecoveryWindow from './modules/RevenueRecoveryWindow.jsx'
 import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
 import RevenueIntelligence from './modules/RevenueIntelligence.jsx'
 import Taxpayer360 from './modules/Taxpayer360.jsx'
@@ -24,8 +25,10 @@ import LitigationIntelligence from './modules/LitigationIntelligence.jsx'
 import ComplianceEarlyWarning from './modules/ComplianceEarlyWarning.jsx'
 import AIGovernanceSecurity from './modules/AIGovernanceSecurity.jsx'
 import ReportsBriefingNotes from './modules/ReportsBriefingNotes.jsx'
+import OfficialStatistics from './modules/OfficialStatistics.jsx'
 
 const MODULE_COMPONENTS = {
+  'recovery-window': RevenueRecoveryWindow,
   'command-center': ExecutiveCommandCenter,
   'revenue-intelligence': RevenueIntelligence,
   'taxpayer-360': Taxpayer360,
@@ -40,15 +43,15 @@ const MODULE_COMPONENTS = {
   'litigation': LitigationIntelligence,
   'early-warning': ComplianceEarlyWarning,
   'ai-governance': AIGovernanceSecurity,
-  'reports': ReportsBriefingNotes
+  'reports': ReportsBriefingNotes,
+  'official-statistics': OfficialStatistics
 }
 
 function Shell() {
-  const { role, activeModule } = useApp()
+  const { role, activeModule, entered, enterPlatform } = useApp()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [entered, setEntered] = useState(false)
 
-  if (!entered) return <LandingPage onEnter={() => setEntered(true)} />
+  if (!entered) return <LandingPage onEnter={enterPlatform} />
   if (!role) return <RoleSelector />
 
   const ActiveComponent = MODULE_COMPONENTS[activeModule] || ExecutiveCommandCenter

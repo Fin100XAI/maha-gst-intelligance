@@ -8,10 +8,10 @@ export function AIOutputPanel({ output }) {
   if (!output) return null
   const body = output.summary || output.checklist || output.questions
   return (
-    <div className="rounded-xl border border-navy-200 bg-gradient-to-br from-navy-50/70 to-white overflow-hidden">
+    <div className="rounded-xl border border-navy-200 bg-gradient-to-br from-navy-50/70 to-surface overflow-hidden">
       <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-navy-100 bg-navy-50/60">
         <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-lg bg-navy-700 text-white"><Sparkles className="w-3.5 h-3.5" /></span>
+          <span className="p-1.5 rounded-lg bg-ink-700 text-white"><Sparkles className="w-3.5 h-3.5" /></span>
           <div>
             <div className="text-sm font-semibold text-navy-900">{output.title}</div>
             <div className="text-[11px] text-steel-500">{t('AI Copilot — simulated output')}</div>

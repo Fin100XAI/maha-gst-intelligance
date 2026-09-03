@@ -35,12 +35,15 @@ const MODULE_RESTRICTION_NOTES = {
   'Read-only Policy Viewer': ['Reports & Briefing Notes (read-only)']
 }
 
+// These are the controls a production deployment must evidence — NOT controls
+// this build has passed. They previously read "Complete", which asserted a
+// security posture no part of this demonstration has.
 const VAPT_CHECKLIST = [
-  { item: 'Access control review', status: 'Complete' },
-  { item: 'Data encryption audit', status: 'Complete' },
-  { item: 'Penetration testing', status: 'Complete' },
-  { item: 'Incident response drill', status: 'Scheduled' },
-  { item: 'Third-party API security assessment', status: 'Complete' }
+  { item: 'Access control review', status: 'Required' },
+  { item: 'Data encryption audit', status: 'Required' },
+  { item: 'Penetration testing', status: 'Required' },
+  { item: 'Incident response drill', status: 'Required' },
+  { item: 'Third-party API security assessment', status: 'Required' }
 ]
 
 const gm = AI_GOVERNANCE_METRICS
@@ -67,7 +70,7 @@ export default function AIGovernanceSecurity() {
       <SectionHeader
         eyebrow={t('Governance · AI Oversight & Security')}
         title={t('AI Governance & Security')}
-        description={t('Oversight console for AI-assisted decision support across the platform — model usage, human override rates, role-based access control, and audit trail integrity. AI systems here operate strictly in an advisory capacity under mandatory human review.')}
+        description={t('Governance metrics on this screen describe the AI layer itself and are not narrowed by the taxpayer filters above; only the audit trail responds to the search box. Oversight console for AI-assisted decision support across the platform — model usage, human override rates, role-based access control, and audit trail integrity. AI systems here operate strictly in an advisory capacity under mandatory human review.')}
         actions={<ExportBar moduleLabel="AI Governance & Security" />}
       />
 
@@ -251,19 +254,19 @@ export default function AIGovernanceSecurity() {
             {gm.encryptionStatus}
           </GovItem>
           <GovItem icon={Network} title={t('API integration security')}>
-            {t('All AI Copilot and reporting integrations are routed through the departmental secure gateway with mutual TLS, request signing, and role-scoped API tokens; no taxpayer data is transmitted to external, uncontrolled endpoints.')}
+            {t('This demonstration has no integrations and makes no network calls. Production requirement: route all AI Copilot and reporting integrations through the departmental secure gateway with mutual TLS, request signing and role-scoped API tokens, and transmit no taxpayer data to external, uncontrolled endpoints.')}
           </GovItem>
           <GovItem icon={ShieldCheck} title={t('DPDP-aligned data handling')}>
-            {t('Taxpayer personal and financial data is processed strictly for stated revenue-assurance and compliance purposes, consistent with the Digital Personal Data Protection Act, 2023, with purpose limitation, access logging and retention controls in place.')}
+            {t('No real taxpayer data is present in this demonstration — every record is generated. Production requirement: process taxpayer personal and financial data strictly for stated revenue-assurance and compliance purposes, consistent with the Digital Personal Data Protection Act, 2023, with purpose limitation, access logging and retention controls.')}
           </GovItem>
           <GovItem icon={Gauge} title={t('Bias / false-positive monitoring')}>
-            {t('AI-flagged cases are continuously sampled for officer review (see False Positive Review panel above); confirmed false-positive rate is tracked to detect systemic bias or drift in specific sectors or districts.')}
+            {t('No sampling programme runs in this demonstration; the rate shown above is an illustrative placeholder. Production requirement: sample AI-flagged cases continuously for officer review and track the confirmed false-positive rate to detect systemic bias or drift by sector and district.')}
           </GovItem>
           <GovItem icon={FlaskConical} title={t('Model drift monitoring')}>
             {gm.driftStatus}
           </GovItem>
           <GovItem icon={ShieldAlert} title={t('Red-team testing status')}>
-            {t('Last red-team adversarial test conducted on {0}, covering prompt-injection, data-exfiltration and adversarial-input scenarios against the AI Copilot layer.', gm.lastRedTeamTest)}
+            {gm.lastRedTeamTest}
           </GovItem>
           <GovItem icon={FileSearch} title={t('CERT-In / VAPT readiness')}>
             {gm.vaptStatus}

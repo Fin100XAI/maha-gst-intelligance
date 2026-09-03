@@ -29,7 +29,7 @@ export function WhyFlaggedPanel({ taxpayer }) {
                   <span className="text-steel-500">+{e.weightContribution}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/70 border border-steel-200 mt-0.5 overflow-hidden">
-                  <div className="h-full bg-navy-600" style={{ width: `${Math.min(100, e.weightContribution * 4)}%` }} />
+                  <div className="h-full bg-ink-600" style={{ width: `${Math.min(100, e.weightContribution)}%` }} />
                 </div>
               </div>
             </div>

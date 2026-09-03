@@ -109,7 +109,7 @@ registerMessages('mr', {
 
   /* == Sector Intelligence — sector picker ================================= */
   'Sector Picker': 'क्षेत्र निवडक',
-  'Select a sector for a detailed intelligence panel': 'सविस्तर बुद्धिमत्ता पटलासाठी एक क्षेत्र निवडा',
+  'Select a sector for a detailed intelligence panel': 'सविस्तर इंटेलिजन्स पटलासाठी एक क्षेत्र निवडा',
 
   /* == Sector Intelligence — sector profile panel =========================== */
   '{0} — Sector Profile': '{0} — क्षेत्र प्रोफाइल',

@@ -1,4 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+
+// Colour families that flip between light and dark are declared as CSS variables
+// rather than literal hex, so a theme switch is one block of variable
+// reassignments in index.css instead of a `dark:` variant on every element.
+// The channel triplets live in index.css; `<alpha-value>` keeps Tailwind's
+// slash-opacity syntax (`bg-steel-50/60`) working.
+const themed = (family, shades) =>
+  Object.fromEntries(shades.map(s => [s, `rgb(var(--c-${family}-${s}) / <alpha-value>)`]))
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
@@ -12,19 +21,24 @@ export default {
         sans: ['"Inter"', '"Noto Sans Devanagari"', '"Noto Sans"', '"Segoe UI"', 'system-ui', 'sans-serif']
       },
       colors: {
-        navy: {
-          50: '#eef2f8',
-          100: '#d6e0ee',
-          200: '#adc1dd',
-          300: '#7e9cc6',
-          400: '#4f76ac',
-          500: '#305a91',
-          600: '#204575',
-          700: '#17335a',
-          800: '#0f2340',
-          900: '#0a1830',
-          950: '#060f20'
-        },
+        // Headings, body text, subtle tinted panels and borders. Inverts wholesale
+        // under the dark theme: navy-900 is the darkest ink in light and the
+        // brightest in dark, so `text-navy-900` stays "the strongest heading colour"
+        // in both. Never use it for a solid surface carrying white text — that's
+        // what `ink` is for.
+        navy: themed('navy', [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]),
+        // Neutral surfaces, secondary text and borders. Inverts the same way.
+        steel: themed('steel', [50, 100, 200, 300, 400, 500, 600, 700, 800, 900]),
+        // The card/panel ground. `bg-white` is remapped to this same token in
+        // index.css, so plain `bg-white` keeps working; `surface` exists for the
+        // places a *literal* white slips past that remap — gradient stops such
+        // as `via-white`, which are a different utility entirely.
+        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+        // Solid surfaces that always carry white text — primary buttons, active
+        // pills, progress fills, the modal scrim. This family does NOT invert:
+        // its dark ramp is retuned to stay white-text-legible on a dark page
+        // rather than flipped, which is why it can't just be `navy`.
+        ink: themed('ink', [500, 600, 700, 800, 900, 950]),
         saffron: {
           50: '#fff8ec',
           100: '#ffedc9',
@@ -37,18 +51,6 @@ export default {
           800: '#93390d',
           900: '#792f0e'
         },
-        steel: {
-          50: '#f5f6f8',
-          100: '#e8eaee',
-          200: '#d3d7de',
-          300: '#b0b7c3',
-          400: '#8791a3',
-          500: '#697289',
-          600: '#545c71',
-          700: '#454b5c',
-          800: '#3b404d',
-          900: '#343843'
-        },
         maharisk: {
           low: '#1f8a4c',
           medium: '#d99a15',
@@ -58,6 +60,7 @@ export default {
         // BMC Intelligence institutional palette — used for the header, landing
         // page and sign-in screen only, so those surfaces read as one shared
         // brand system with the corporation's other intelligence platforms.
+        // Fixed in both themes: these bands are dark to begin with.
         govt: {
           50: '#eef4ff',
           100: '#dae7ff',
@@ -105,8 +108,8 @@ export default {
         }
       },
       boxShadow: {
-        card: '0 1px 2px 0 rgba(15,35,64,0.06), 0 1px 3px 0 rgba(15,35,64,0.08)',
-        panel: '0 4px 16px -4px rgba(15,35,64,0.12), 0 2px 4px -2px rgba(15,35,64,0.08)'
+        card: 'var(--shadow-card)',
+        panel: 'var(--shadow-panel)'
       }
     }
   },

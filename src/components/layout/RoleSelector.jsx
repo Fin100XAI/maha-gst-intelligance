@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Landmark, ShieldCheck, Gavel, Receipt, Search, Bot, FileBarChart2, Crown, Users, ChevronRight } from 'lucide-react'
-import { useApp, MODULES, canAccessModule } from '../../context/AppContext.jsx'
+import { ShieldCheck, Gavel, Receipt, Search, Bot, FileBarChart2, Crown, Users, ChevronRight } from 'lucide-react'
+import { useApp, NAV_MODULES, canAccessModule } from '../../context/AppContext.jsx'
 import { OFFICER_ROLES, officerByRole } from '../../data/mockData.js'
 import { t } from '../../i18n/index.js'
+import { Logo } from './Logo.jsx'
 import { LanguageSwitcher } from './LanguageSwitcher.jsx'
 import { FontSizeControl } from './FontSizeControl.jsx'
+import { ThemeSwitcher } from './ThemeSwitcher.jsx'
 
 // These two roles are scoped to "cases assigned to me" elsewhere in the app —
 // so identity here must resolve to a real officer record, not free text.
@@ -32,7 +34,7 @@ export function RoleSelector() {
     setRole(selected)
     // command-center (the module's default landing state) isn't visible to every
     // role — land instead on the first module this role can actually see.
-    const firstAccessible = MODULES.find(m => canAccessModule(selected, m.id))
+    const firstAccessible = NAV_MODULES.find(m => canAccessModule(selected, m.id))
     setActiveModule(firstAccessible ? firstAccessible.id : 'command-center')
   }
 
@@ -41,12 +43,11 @@ export function RoleSelector() {
       <div className="w-full max-w-4xl h-full flex flex-col">
         <div className="flex justify-end gap-2 mb-2 shrink-0">
           <FontSizeControl className="hidden sm:flex bg-white/10 border-white/15" />
+          <ThemeSwitcher className="bg-white/10 border-white/15" />
           <LanguageSwitcher className="bg-white/10 border-white/15" />
         </div>
         <div className="flex flex-col items-center text-center mb-3 shrink-0">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center mb-2.5 shadow-panel">
-            <Landmark className="w-6 h-6 text-rail-900" />
-          </div>
+          <Logo size="xl" className="mb-2.5 shadow-panel" />
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{t('Maha GST Intelligence')}</h1>
           <p className="text-govt-100 text-xs sm:text-sm mt-1.5 max-w-xl hidden sm:block">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
           <p className="text-govt-300 text-[10px] mt-2 uppercase tracking-widest font-semibold">{t('Secure Access · Role-Based Sign-In')}</p>

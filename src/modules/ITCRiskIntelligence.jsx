@@ -161,7 +161,7 @@ export default function ITCRiskIntelligence() {
                 onClick={() => handleCategoryChange(c.id)}
                 className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                   active
-                    ? 'bg-navy-700 border-navy-700 text-white'
+                    ? 'bg-ink-700 border-ink-700 text-white'
                     : 'bg-white border-steel-200 text-steel-600 hover:border-navy-300 hover:text-navy-700'
                 }`}
               >

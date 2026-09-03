@@ -351,7 +351,7 @@ export const MR_LEXICON = {
   'call centre': 'संपर्क केंद्र',
 
   /* == Measurement, analysis and intelligence ============================= */
-  intelligence: 'बुद्धिमत्ता',
+  intelligence: 'इंटेलिजन्स',
   insight: 'अंतर्दृष्टी',
   insights: 'अंतर्दृष्टी',
   analysis: 'विश्लेषण',

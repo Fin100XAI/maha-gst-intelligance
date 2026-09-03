@@ -1,15 +1,30 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react'
 
 // Executive summary KPI tile. `trend` is a signed number (%).
-// `tone` selects a soft Google Material–style light background + matching accent color.
+// `tone` selects a soft Google Material–style background + matching accent color.
+//
+// The values are CSS variables rather than literal hex because this object is
+// imported as a plain object by six modules — including a module-level helper
+// in DistrictDivisionPerformance that runs outside any component — so it can't
+// become a hook. Handing `var(...)` to an inline `style` lets the browser
+// resolve the colour against the active theme on every paint, which means a
+// theme flip recolours every tile with no re-render at all. The light and dark
+// values for each token live in index.css.
 export const TONE_STYLES = {
-  navy: { bg: '#E8F0FE', border: '#D2E3FC', accent: '#1A73E8', iconBg: '#FFFFFFB3' },
-  saffron: { bg: '#FEF7E0', border: '#FDE293', accent: '#B06000', iconBg: '#FFFFFFB3' },
-  amber: { bg: '#FEF7E0', border: '#FDE293', accent: '#B06000', iconBg: '#FFFFFFB3' },
-  orange: { bg: '#FEEFE3', border: '#FCD9B6', accent: '#C4530D', iconBg: '#FFFFFFB3' },
-  green: { bg: '#E6F4EA', border: '#CEEAD6', accent: '#188038', iconBg: '#FFFFFFB3' },
-  red: { bg: '#FCE8E6', border: '#F6C6C4', accent: '#C5221F', iconBg: '#FFFFFFB3' },
-  steel: { bg: '#F1F3F4', border: '#E1E3E6', accent: '#5F6368', iconBg: '#FFFFFFB3' }
+  navy: { bg: 'var(--tone-navy-bg)', border: 'var(--tone-navy-border)', accent: 'var(--tone-navy-accent)', iconBg: 'var(--tone-icon-bg)' },
+  saffron: { bg: 'var(--tone-amber-bg)', border: 'var(--tone-amber-border)', accent: 'var(--tone-amber-accent)', iconBg: 'var(--tone-icon-bg)' },
+  amber: { bg: 'var(--tone-amber-bg)', border: 'var(--tone-amber-border)', accent: 'var(--tone-amber-accent)', iconBg: 'var(--tone-icon-bg)' },
+  orange: { bg: 'var(--tone-orange-bg)', border: 'var(--tone-orange-border)', accent: 'var(--tone-orange-accent)', iconBg: 'var(--tone-icon-bg)' },
+  green: { bg: 'var(--tone-green-bg)', border: 'var(--tone-green-border)', accent: 'var(--tone-green-accent)', iconBg: 'var(--tone-icon-bg)' },
+  red: { bg: 'var(--tone-red-bg)', border: 'var(--tone-red-border)', accent: 'var(--tone-red-accent)', iconBg: 'var(--tone-icon-bg)' },
+  steel: { bg: 'var(--tone-steel-bg)', border: 'var(--tone-steel-border)', accent: 'var(--tone-steel-accent)', iconBg: 'var(--tone-icon-bg)' }
+}
+
+// Convenience accessor for call sites that read the map inside a component.
+// It returns the same variable-backed map — the hook shape exists so those
+// call sites don't have to care whether the tones are static or theme-driven.
+export function useToneStyles() {
+  return TONE_STYLES
 }
 
 export function KpiCard({ label, value, unit, trend, trendLabel, tone = 'navy', icon: Icon, onClick }) {

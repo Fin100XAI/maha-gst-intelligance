@@ -3,10 +3,13 @@ import { t } from '../../i18n/index.js'
 // Circular composite-score ring — score/100 with a status label underneath,
 // the same "single number that tells you how the state is doing" idea as a
 // weighted health-index gauge, coloured by band rather than a flat accent.
+// Band colours are CSS variables so the ring follows the active theme; they are
+// applied through `style` rather than as SVG presentation attributes, since a
+// bare `stroke="var(--x)"` attribute is not resolved by the browser.
 const BANDS = [
-  { min: 80, label: 'Healthy', color: '#1f8a4c', bg: '#e6f4ea' },
-  { min: 60, label: 'Degraded', color: '#d99a15', bg: '#fdf1de' },
-  { min: 0, label: 'Critical', color: '#c41e3a', bg: '#fbe9e7' }
+  { min: 80, label: 'Healthy', color: 'var(--gauge-healthy)', bg: 'var(--gauge-healthy-bg)' },
+  { min: 60, label: 'Degraded', color: 'var(--gauge-degraded)', bg: 'var(--gauge-degraded-bg)' },
+  { min: 0, label: 'Critical', color: 'var(--gauge-critical)', bg: 'var(--gauge-critical-bg)' }
 ]
 
 function bandFor(score) {
@@ -23,12 +26,12 @@ export function ScoreGauge({ score, size = 140, strokeWidth = 12, label = 'Compo
     <div className="flex flex-col items-center gap-2">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#e8eaee" strokeWidth={strokeWidth} />
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" strokeWidth={strokeWidth} style={{ stroke: 'var(--gauge-track)' }} />
           <circle
             cx={size / 2} cy={size / 2} r={radius} fill="none"
-            stroke={band.color} strokeWidth={strokeWidth} strokeLinecap="round"
+            strokeWidth={strokeWidth} strokeLinecap="round"
             strokeDasharray={circumference} strokeDashoffset={offset}
-            style={{ transition: 'stroke-dashoffset 0.6s ease-out' }}
+            style={{ stroke: band.color, transition: 'stroke-dashoffset 0.6s ease-out' }}
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">

@@ -2,6 +2,7 @@
 // no external model calls are made. Every output is advisory only.
 
 import { explainRiskScore } from './risk.js'
+import { REFERENCE_DATE_ISO } from './mockData.js'
 
 const STANDARD_LIMITATION = 'AI-generated output is a decision-support draft based on available filing and transaction data. It does not constitute a legal finding, penalty, or enforcement action. Authorised officer verification and approval is mandatory before any action is taken.'
 
@@ -16,13 +17,17 @@ export function generateExecutiveBrief(kpi, districtRevenue, alerts) {
   const topDistricts = [...districtRevenue].sort((a, b) => b.riskTaxpayers - a.riskTaxpayers).slice(0, 3)
   return {
     title: 'Commissioner Daily Brief — AI-Generated Draft',
-    generatedOn: '2026-08-17',
+    generatedOn: REFERENCE_DATE_ISO,
     confidence: 'High',
+    // The brief is deliberately a whole-book statement and does NOT follow the
+    // header filters — but it renders directly beneath KPI cards that DO. Saying
+    // so in the first line is what stops the two from reading as a contradiction.
     summary: [
-      `State GST revenue monitored stands at ₹${kpi.revenueMonitoredCr.toLocaleString('en-IN')} Cr across ${kpi.totalTaxpayers} tracked taxpayers, with an estimated high-risk revenue exposure of ₹${kpi.highRiskExposureCr} Cr.`,
+      `Scope: whole modelled book, as at the reporting date. These figures are not narrowed by the header filters applied to the cards above.`,
+      `GST revenue modelled over the 24-month trend totals ₹${kpi.revenueMonitoredCr.toLocaleString('en-IN')} Cr across ${kpi.totalTaxpayers} modelled taxpayers, with an estimated high-risk revenue exposure of ₹${kpi.highRiskExposureCr} Cr.`,
       `${kpi.nonFilers} taxpayers are currently non-filers; ${kpi.criticalRisk} entities are rated Critical risk and ${kpi.highRisk} High risk, warranting prioritised officer attention.`,
-      `Highest risk-taxpayer concentration is observed in ${topDistricts.map(d => d.district).join(', ')}. Audit recovery pipeline currently stands at ₹${kpi.auditRecoveryPipelineCr} Cr across active cases.`,
-      `${alerts} compliance early-warning alerts remain open and unresolved as of today, primarily linked to non-filing and sudden revenue decline patterns.`
+      `Highest risk-taxpayer concentration is observed in ${topDistricts.map(d => d.district).join(', ')}. Audit recovery pipeline stands at ₹${kpi.auditRecoveryPipelineCr} Cr across active cases.`,
+      `${alerts} compliance early-warning alerts remain open and unresolved as at the reporting date, primarily linked to non-filing and sudden revenue decline patterns.`
     ],
     evidenceUsed: ['State revenue trend (24 months)', 'Taxpayer risk register', 'District-wise audit recovery pipeline', 'Compliance early-warning feed'],
     humanReviewRequired: true,
@@ -69,11 +74,18 @@ export function generateAuditChecklist(caseItem) {
   }
 }
 
+// The statutory period here is NOT invented and must not be edited casually.
+// ASMT-10 is the scrutiny notice under Section 61 of the CGST Act; Rule 99(2)
+// of the CGST Rules gives the registered person THIRTY days from service of the
+// notice (or such further period as the proper officer permits) to reply in
+// FORM GST ASMT-11. This draft previously said fifteen days, which would have
+// understated a taxpayer's statutory entitlement by half.
+// Ref: https://taxinformation.cbic.gov.in/content/html/tax_repository/gst/rules/cgst_rules/active/chapter11/rule99_v1.00.html
 export function draftNotice(caseItem, noticeType = 'ASMT-10 Scrutiny Notice') {
   return {
     title: `AI-Drafted ${noticeType} — ${caseItem.tradeName}`,
     confidence: 'Moderate',
-    draft: `To,\n${caseItem.tradeName}\nGSTIN: ${caseItem.gstin}\n\nSubject: ${noticeType} — Discrepancy observed in filed returns\n\nOn scrutiny of returns filed for the relevant tax period(s), the following discrepancies/risk indicators have been observed: ${(caseItem.risk?.triggeredRules || []).map(r => r.label).join('; ') || 'refer to case risk summary'}.\n\nYou are hereby requested to furnish an explanation, along with supporting documents, within 15 days of receipt of this notice, failing which further proceedings under the applicable provisions of the MGST/CGST Act may be initiated.\n\n[DRAFT — Requires Officer Review, Edit and Digital Signature]`,
+    draft: `To,\n${caseItem.tradeName}\nGSTIN: ${caseItem.gstin}\n\nSubject: ${noticeType} — Discrepancy observed in filed returns\n\nOn scrutiny of returns filed for the relevant tax period(s), the following discrepancies/risk indicators have been observed: ${(caseItem.risk?.triggeredRules || []).map(r => r.label).join('; ') || 'refer to case risk summary'}.\n\nYou are hereby requested to furnish an explanation in FORM GST ASMT-11, along with supporting documents, within thirty days of service of this notice (or such further period as may be permitted), as provided under Rule 99 of the CGST/MGST Rules read with Section 61 of the CGST/MGST Act. Failing this, proceedings under Section 73 or 74, or action under Sections 65, 66 or 67, may be initiated.\n\n[DRAFT — Requires Officer Review, Edit and Digital Signature]`,
     evidenceUsed: ['Case risk explanation', 'Standard notice template library'],
     humanReviewRequired: true,
     limitationNote: STANDARD_LIMITATION

@@ -2,6 +2,176 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------------
+ * Theme tokens.
+ *
+ * The `navy`, `steel` and `ink` families in tailwind.config.js resolve to these
+ * variables, so switching theme is a single attribute flip on <html> rather than
+ * a `dark:` variant on each of the ~1,900 colour utilities across 15 modules.
+ *
+ * Three roles, deliberately separated:
+ *   navy   — ink for text, plus tinted panels/borders. Inverts wholesale.
+ *   steel  — neutral surfaces, secondary text, borders. Inverts wholesale.
+ *   ink    — solid surfaces that always carry WHITE text (primary buttons,
+ *            active pills, progress fills, modal scrim). Does not invert; its
+ *            dark ramp is retuned to stay white-text-legible on a dark page.
+ * ------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  --c-navy-50: 238 242 248;
+  --c-navy-100: 214 224 238;
+  --c-navy-200: 173 193 221;
+  --c-navy-300: 126 156 198;
+  --c-navy-400: 79 118 172;
+  --c-navy-500: 48 90 145;
+  --c-navy-600: 32 69 117;
+  --c-navy-700: 23 51 90;
+  --c-navy-800: 15 35 64;
+  --c-navy-900: 10 24 48;
+  --c-navy-950: 6 15 32;
+
+  --c-steel-50: 245 246 248;
+  --c-steel-100: 232 234 238;
+  --c-steel-200: 211 215 222;
+  --c-steel-300: 176 183 195;
+  --c-steel-400: 135 145 163;
+  --c-steel-500: 105 114 137;
+  --c-steel-600: 84 92 113;
+  --c-steel-700: 69 75 92;
+  --c-steel-800: 59 64 77;
+  --c-steel-900: 52 56 67;
+
+  --c-ink-500: 48 90 145;
+  --c-ink-600: 32 69 117;
+  --c-ink-700: 23 51 90;
+  --c-ink-800: 15 35 64;
+  --c-ink-900: 10 24 48;
+  --c-ink-950: 6 15 32;
+
+  /* The card/panel ground. `bg-white` is remapped to this under the dark theme. */
+  --c-surface: 255 255 255;
+
+  --shadow-card: 0 1px 2px 0 rgba(15, 35, 64, 0.06), 0 1px 3px 0 rgba(15, 35, 64, 0.08);
+  --shadow-panel: 0 4px 16px -4px rgba(15, 35, 64, 0.12), 0 2px 4px -2px rgba(15, 35, 64, 0.08);
+
+  --scrollbar-thumb: #b0b7c3;
+  --scrollbar-thumb-hover: #8791a3;
+
+  /* KPI-tile tones (see KpiCard.jsx) — soft ground + matching accent per status. */
+  --tone-navy-bg: #e8f0fe;
+  --tone-navy-border: #d2e3fc;
+  --tone-navy-accent: #1a73e8;
+  --tone-amber-bg: #fef7e0;
+  --tone-amber-border: #fde293;
+  --tone-amber-accent: #b06000;
+  --tone-orange-bg: #feefe3;
+  --tone-orange-border: #fcd9b6;
+  --tone-orange-accent: #c4530d;
+  --tone-green-bg: #e6f4ea;
+  --tone-green-border: #ccead6;
+  --tone-green-accent: #188038;
+  --tone-red-bg: #fce8e6;
+  --tone-red-border: #f6c6c4;
+  --tone-red-accent: #c5221f;
+  --tone-steel-bg: #f1f3f4;
+  --tone-steel-border: #e1e3e6;
+  --tone-steel-accent: #5f6368;
+  --tone-icon-bg: rgb(255 255 255 / 0.7);
+
+  /* Composite-score ring (ScoreGauge). */
+  --gauge-track: #e8eaee;
+  --gauge-healthy: #1f8a4c;
+  --gauge-healthy-bg: #e6f4ea;
+  --gauge-degraded: #d99a15;
+  --gauge-degraded-bg: #fdf1de;
+  --gauge-critical: #c41e3a;
+  --gauge-critical-bg: #fbe9e7;
+
+  /* Fake-invoice network graph (hand-rolled SVG, not Recharts). */
+  --graph-edge: #a8b0c2;
+  --graph-arrow: #5c6785;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Inverted: navy-900 is still "the strongest heading colour", now near-white. */
+  --c-navy-50: 22 32 47;
+  --c-navy-100: 29 43 61;
+  --c-navy-200: 43 61 85;
+  --c-navy-300: 61 84 112;
+  --c-navy-400: 147 169 198;
+  --c-navy-500: 168 188 214;
+  --c-navy-600: 188 206 229;
+  --c-navy-700: 208 220 237;
+  --c-navy-800: 226 234 245;
+  --c-navy-900: 240 245 251;
+  --c-navy-950: 247 250 253;
+
+  --c-steel-50: 15 19 25;
+  --c-steel-100: 27 33 43;
+  --c-steel-200: 42 50 63;
+  --c-steel-300: 74 84 104;
+  --c-steel-400: 139 149 166;
+  --c-steel-500: 163 173 189;
+  --c-steel-600: 185 194 208;
+  --c-steel-700: 204 212 224;
+  --c-steel-800: 221 227 236;
+  --c-steel-900: 237 241 246;
+
+  /* Retuned, not inverted — ink-700 keeps a 6:1 ratio against white text, and
+     ink-800 (the hover step) is now lighter than ink-700 rather than darker,
+     which is the direction a hover should travel on a dark ground. */
+  --c-ink-500: 79 134 247;
+  --c-ink-600: 59 120 245;
+  --c-ink-700: 29 79 216;
+  --c-ink-800: 47 107 239;
+  --c-ink-900: 26 63 175;
+  --c-ink-950: 5 7 13;
+
+  --c-surface: 23 28 38;
+
+  --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --shadow-panel: 0 4px 16px -4px rgba(0, 0, 0, 0.55), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+
+  --scrollbar-thumb: #3d4756;
+  --scrollbar-thumb-hover: #4f5b6d;
+
+  /* Same six tones, re-cut as deep grounds with a light accent so a KPI tile
+     still reads "green = on target" without glowing white on a dark page. */
+  --tone-navy-bg: #152238;
+  --tone-navy-border: #24395c;
+  --tone-navy-accent: #8ab4f8;
+  --tone-amber-bg: #2a1f0a;
+  --tone-amber-border: #4a3813;
+  --tone-amber-accent: #fdd663;
+  --tone-orange-bg: #2a1a0d;
+  --tone-orange-border: #4a2e17;
+  --tone-orange-accent: #fcad70;
+  --tone-green-bg: #0d2318;
+  --tone-green-border: #1a4030;
+  --tone-green-accent: #81c995;
+  --tone-red-bg: #2a1416;
+  --tone-red-border: #4c2226;
+  --tone-red-accent: #f28b82;
+  --tone-steel-bg: #1a1f28;
+  --tone-steel-border: #2f3644;
+  --tone-steel-accent: #c3c9d4;
+  --tone-icon-bg: rgb(255 255 255 / 0.08);
+
+  --gauge-track: #2a323f;
+  --gauge-healthy: #5bd18b;
+  --gauge-healthy-bg: rgb(31 138 76 / 0.2);
+  --gauge-degraded: #f0c04a;
+  --gauge-degraded-bg: rgb(217 154 21 / 0.2);
+  --gauge-critical: #f58a99;
+  --gauge-critical-bg: rgb(196 30 58 / 0.2);
+
+  --graph-edge: #4a5568;
+  --graph-arrow: #8b95a6;
+}
+
 html, body, #root {
   height: 100%;
 }
@@ -18,11 +188,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #b0b7c3;
+  background: var(--scrollbar-thumb);
   border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #8791a3;
+  background: var(--scrollbar-thumb-hover);
 }
 
 .scrollbar-none::-webkit-scrollbar {
@@ -33,4 +203,101 @@ body {
   .kv-label {
     @apply text-[11px] font-semibold uppercase tracking-wider text-steel-500;
   }
+
+  /* A solid control sitting on one of the always-dark institutional-blue bands
+     (the landing hero, the masthead, the sign-in screen). Those bands are the
+     brand and stay dark in both themes, so this control must stay white too —
+     it can't use `bg-white`, which follows the theme by design. */
+  .on-brand-solid {
+    background-color: #ffffff;
+    color: #0051bb;
+  }
+  .on-brand-solid:hover {
+    background-color: #eef4ff;
+  }
 }
+
+/* ---------------------------------------------------------------------------
+ * Dark-theme remaps for colours that can't be expressed as theme variables.
+ *
+ * Everything below overrides a literal Tailwind utility. The `html[data-theme]`
+ * prefix raises specificity above the utility itself, so source order doesn't
+ * matter and no `!important` is needed.
+ * ------------------------------------------------------------------------- */
+
+/* `bg-white` is the card/panel ground throughout the app, so it follows the
+   theme. The alpha variants (`bg-white/10`, `/15`, `/20`) are deliberately NOT
+   remapped — those sit on the dark govt-900 bands and must stay white. */
+html[data-theme='dark'] .bg-white,
+html[data-theme='dark'] .focus\:bg-white:focus {
+  background-color: rgb(var(--c-surface));
+}
+html[data-theme='dark'] .bg-white\/95 {
+  background-color: rgb(var(--c-surface) / 0.95);
+}
+html[data-theme='dark'] .ring-white {
+  --tw-ring-color: rgb(var(--c-surface));
+}
+
+/* Soft status tints — emerald/amber/orange/red/saffron/gold/govt at the 50-200
+   steps are near-white in light mode and would burn holes in a dark page.
+   Re-expressed as low-alpha washes of the same hue so the semantic reading
+   (green = healthy, red = critical) survives the flip. */
+html[data-theme='dark'] .bg-emerald-50 { background-color: rgb(4 120 87 / 0.18); }
+html[data-theme='dark'] .bg-emerald-100 { background-color: rgb(4 120 87 / 0.26); }
+html[data-theme='dark'] .bg-emerald-200 { background-color: rgb(4 120 87 / 0.34); }
+html[data-theme='dark'] .bg-amber-50 { background-color: rgb(180 83 9 / 0.18); }
+html[data-theme='dark'] .bg-amber-100 { background-color: rgb(180 83 9 / 0.26); }
+html[data-theme='dark'] .bg-orange-50 { background-color: rgb(194 65 12 / 0.18); }
+html[data-theme='dark'] .bg-red-50 { background-color: rgb(190 24 60 / 0.18); }
+html[data-theme='dark'] .bg-red-100 { background-color: rgb(190 24 60 / 0.26); }
+html[data-theme='dark'] .bg-saffron-50 { background-color: rgb(219 106 5 / 0.18); }
+html[data-theme='dark'] .bg-saffron-50\/80 { background-color: rgb(219 106 5 / 0.15); }
+html[data-theme='dark'] .bg-saffron-50\/60 { background-color: rgb(219 106 5 / 0.12); }
+html[data-theme='dark'] .bg-govt-50 { background-color: rgb(29 79 216 / 0.22); }
+html[data-theme='dark'] .bg-gold-50 { background-color: rgb(194 160 30 / 0.16); }
+html[data-theme='dark'] .bg-gold-100 { background-color: rgb(194 160 30 / 0.24); }
+
+/* Status text at the 600-900 steps is tuned for white paper; on a dark ground
+   it drops below readable contrast. Lifted to the 300-400 range of the same hue. */
+html[data-theme='dark'] .text-emerald-600,
+html[data-theme='dark'] .text-emerald-700,
+html[data-theme='dark'] .text-emerald-800,
+html[data-theme='dark'] .text-emerald-900 { color: #6ee7b7; }
+html[data-theme='dark'] .text-amber-800,
+html[data-theme='dark'] .text-amber-900 { color: #fcd34d; }
+html[data-theme='dark'] .text-red-700,
+html[data-theme='dark'] .text-red-900 { color: #fca5a5; }
+html[data-theme='dark'] .text-saffron-600,
+html[data-theme='dark'] .text-saffron-700 { color: #fbbf24; }
+html[data-theme='dark'] .text-govt-600,
+html[data-theme='dark'] .text-govt-700 { color: #8db4fe; }
+html[data-theme='dark'] .text-\[\#C5221F\] { color: #fca5a5; }
+
+/* Recharts chrome. Charts.jsx hands its own charts themed tokens as props, but
+   two modules (Litigation, Sector) build Recharts elements inline with literal
+   hex. Grid lines, axes and ticks are SVG *presentation attributes*, and any
+   CSS declaration outranks a presentation attribute — so styling them by class
+   here catches every chart in the app, inline ones included. Tooltip chrome
+   arrives as an inline style instead, hence the !important. */
+html[data-theme='dark'] .recharts-cartesian-grid line { stroke: #2a323f; }
+html[data-theme='dark'] .recharts-cartesian-axis-line,
+html[data-theme='dark'] .recharts-cartesian-axis-tick-line { stroke: #3d4756; }
+html[data-theme='dark'] .recharts-cartesian-axis-tick-value { fill: #8b95a6; }
+html[data-theme='dark'] .recharts-polar-grid line,
+html[data-theme='dark'] .recharts-polar-grid path { stroke: #2a323f; }
+html[data-theme='dark'] .recharts-polar-angle-axis .recharts-text { fill: #b9c2d0; }
+html[data-theme='dark'] .recharts-polar-radius-axis .recharts-text { fill: #6b7688; }
+html[data-theme='dark'] .recharts-label,
+html[data-theme='dark'] .recharts-legend-wrapper { color: #ccd4e0; fill: #ccd4e0; }
+html[data-theme='dark'] .recharts-default-tooltip {
+  background-color: #171c26 !important;
+  border-color: #2a323f !important;
+}
+html[data-theme='dark'] .recharts-tooltip-label { color: #f0f5fb !important; }
+
+/* Risk-band ink — the four maharisk values are mid-tones picked against white. */
+html[data-theme='dark'] .text-maharisk-low { color: #5bd18b; }
+html[data-theme='dark'] .text-maharisk-medium { color: #f0c04a; }
+html[data-theme='dark'] .text-maharisk-high { color: #f6a06a; }
+html[data-theme='dark'] .text-maharisk-critical { color: #f58a99; }

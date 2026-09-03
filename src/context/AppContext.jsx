@@ -1,5 +1,9 @@
 import { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react'
-import { DISTRICTS, SECTORS, AUDIT_LOG } from '../data/mockData.js'
+// `isWithinDateRange` is used by applyCaseFilters below. It was missing from
+// this import, which is not a build error — an undefined free variable inside a
+// function body only fails when that function runs — so every module filtering
+// a dated case list threw at render.
+import { DISTRICTS, SECTORS, AUDIT_LOG, isWithinDateRange } from '../data/mockData.js'
 import { getLocale, setActiveLocale } from '../i18n/index.js'
 
 const AppContext = createContext(null)
@@ -26,8 +30,34 @@ function readInitialFontScale() {
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * Theme — the third of the three controls GIGW expects an officer to reach on
+ * every screen, alongside text size and language. Applied as `data-theme` on
+ * <html>, which swaps the colour-token block in index.css; nothing downstream
+ * needs a `dark:` variant. Defaults to the OS preference on first visit, and
+ * is remembered per browser thereafter.
+ * ------------------------------------------------------------------------- */
+export const THEMES = ['light', 'dark']
+const THEME_STORAGE_KEY = 'maha-gst.theme'
+
+function readInitialTheme() {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const raw = localStorage.getItem(THEME_STORAGE_KEY)
+      if (THEMES.includes(raw)) return raw
+    }
+  } catch {
+    // Storage unavailable — fall through to the OS preference.
+  }
+  if (typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
+  return 'light'
+}
+
+// Order within a group is the order the menu lists them, and the first entry a
+// role can access is where that role lands after sign-in.
 export const MODULES = [
   { id: 'command-center', label: 'Executive Command Center', group: 'Leadership' },
+  { id: 'recovery-window', label: 'Revenue Recovery Window', group: 'Leadership' },
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue' },
   { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Revenue' },
   { id: 'itc-risk', label: 'ITC Risk Intelligence', group: 'Fraud & Risk' },
@@ -37,14 +67,24 @@ export const MODULES = [
   { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Enforcement' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
   { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
-  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Enforcement' },
+  // Hidden from the navigation menus, but still routable — the Copilot button
+  // in the header is the way in, and every module that links to a case can
+  // still hand off to it. `hidden` only affects what the menus list.
+  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Enforcement', hidden: true },
   { id: 'litigation', label: 'Litigation Intelligence', group: 'Enforcement' },
   { id: 'early-warning', label: 'Compliance Early Warning', group: 'Revenue' },
   { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance' },
-  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' }
+  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' },
+  { id: 'official-statistics', label: 'Official Statistics', group: 'Governance' }
 ]
 
+// The modules the navigation menus and the landing-page grid list. Routing,
+// breadcrumbs and role checks still use MODULES, so a hidden module remains
+// fully reachable and correctly labelled once open.
+export const NAV_MODULES = MODULES.filter(m => !m.hidden)
+
 const RESTRICTED = {
+  'recovery-window': ['Commissioner', 'Joint Commissioner', 'Division Officer'],
   'command-center': ['Commissioner', 'Joint Commissioner'],
   'ai-governance': ['Commissioner', 'Joint Commissioner', 'AI Governance Officer'],
   'audit-scrutiny': ['Commissioner', 'Joint Commissioner', 'Division Officer', 'Audit Officer', 'Investigation Officer'],
@@ -87,6 +127,10 @@ function randomSessionIp() {
 }
 
 export function AppProvider({ children }) {
+  // Whether the officer has passed the landing page. Held here rather than in
+  // Shell so the profile menu can offer a real sign-out that returns to the
+  // landing page, distinct from switching role, which does not.
+  const [entered, setEntered] = useState(false)
   const [role, setRole] = useState(null)
   const [officerName, setOfficerName] = useState('')
   const [activeModule, setActiveModule] = useState('command-center')
@@ -96,6 +140,16 @@ export function AppProvider({ children }) {
   const [sessionIp] = useState(randomSessionIp)
   const [locale, setLocaleState] = useState(getLocale)
   const [fontScale, setFontScale] = useState(readInitialFontScale)
+  const [theme, setTheme] = useState(readInitialTheme)
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme)
+    } catch {
+      // Storage unavailable — the theme still applies for this session.
+    }
+  }, [theme])
 
   useEffect(() => {
     document.body.style.zoom = FONT_SCALES[fontScale]
@@ -105,6 +159,18 @@ export function AppProvider({ children }) {
       // Storage unavailable — the scale still applies for this session.
     }
   }, [fontScale])
+
+  const enterPlatform = useCallback(() => setEntered(true), [])
+
+  // Sign out returns the officer to the landing page and clears their identity.
+  // Switching role (setRole(null)) keeps them inside the platform.
+  const signOut = useCallback(() => {
+    setEntered(false)
+    setRole(null)
+    setOfficerName('')
+    setActiveModule('command-center')
+    setFilters(DEFAULT_FILTERS)
+  }, [])
 
   const setFilter = (key, value) => setFilters(f => ({ ...f, [key]: value }))
   const resetFilters = () => setFilters(DEFAULT_FILTERS)
@@ -134,14 +200,16 @@ export function AppProvider({ children }) {
   }, [role, officerName, sessionIp])
 
   const value = useMemo(() => ({
+    entered, enterPlatform, signOut,
     role, setRole, officerName, setOfficerName,
     activeModule, setActiveModule,
     filters, setFilter, setFilters, resetFilters,
     drilldownTaxpayer, setDrilldownTaxpayer,
     auditLog, logAction,
     locale, setLocale,
-    fontScale, setFontScale
-  }), [role, officerName, activeModule, filters, drilldownTaxpayer, auditLog, logAction, locale, setLocale, fontScale])
+    fontScale, setFontScale,
+    theme, setTheme
+  }), [entered, enterPlatform, signOut, role, officerName, activeModule, filters, drilldownTaxpayer, auditLog, logAction, locale, setLocale, fontScale, theme])
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
@@ -150,6 +218,33 @@ export function useApp() {
   const ctx = useContext(AppContext)
   if (!ctx) throw new Error('useApp must be used within AppProvider')
   return ctx
+}
+
+/* ---------------------------------------------------------------------------
+ * Applies the global header filters to a CASE-shaped record — audit, refund,
+ * litigation and compliance-alert rows, which carry their own district /
+ * division / sector / risk fields rather than a nested `risk` object.
+ *
+ * This exists because those four modules each hand-rolled their own version,
+ * and the four copies had drifted: none checked division, litigation ignored
+ * risk level, and early warning ignored the date range. A filter that silently
+ * matches everything is worse than one that is absent — the officer believes
+ * the queue in front of them is scoped when it is not.
+ *
+ * `dateField` names the record's own date column (openedOn / filedOn / raisedOn).
+ * Pass null for a record type that carries no date.
+ * ------------------------------------------------------------------------- */
+export function applyCaseFilters(record, filters, dateField = null) {
+  if (filters.district !== 'All Districts' && record.district !== filters.district) return false
+  if (filters.division !== 'All Divisions' && record.division !== filters.division) return false
+  if (filters.sector !== 'All Sectors' && record.sector !== filters.sector) return false
+  if (filters.riskLevel !== 'All Risk Levels' && record.riskCategory !== filters.riskLevel) return false
+  if (dateField && !isWithinDateRange(record[dateField], filters.dateRange)) return false
+  if (filters.search && filters.search.trim()) {
+    const q = filters.search.toLowerCase()
+    if (!`${record.gstin} ${record.tradeName}`.toLowerCase().includes(q)) return false
+  }
+  return true
 }
 
 // Applies the global header filters to a taxpayer-shaped record.

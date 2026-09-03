@@ -11,7 +11,7 @@ import { Modal } from '../components/ui/Modal.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
 import { REFUND_CASES, taxpayerById, isWithinDateRange } from '../data/mockData.js'
 import { generateRefundChecklist } from '../data/ai.js'
-import { useApp } from '../context/AppContext.jsx'
+import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
 import { IndianRupee, ShieldAlert, Percent, Repeat, Sparkles, User2, ShieldCheck, UserCheck, Globe, CheckCircle2 } from 'lucide-react'
 
@@ -23,18 +23,9 @@ const STATUS_TONE = {
 
 const REPEAT_CLAIM_THRESHOLD = 1000000 // ₹10 Lakh — proxy threshold for high-value / repeat-pattern claims
 
-function matchesGlobalFilters(rec, filters) {
-  if (filters.district !== 'All Districts' && rec.district !== filters.district) return false
-  if (filters.sector !== 'All Sectors' && rec.sector !== filters.sector) return false
-  if (filters.riskLevel !== 'All Risk Levels' && rec.riskCategory !== filters.riskLevel) return false
-  if (!isWithinDateRange(rec.filedOn, filters.dateRange)) return false
-  if (filters.search && filters.search.trim()) {
-    const q = filters.search.toLowerCase()
-    const hay = `${rec.gstin} ${rec.tradeName}`.toLowerCase()
-    if (!hay.includes(q)) return false
-  }
-  return true
-}
+// Delegates to the shared case filter so this module cannot drift out of
+// step with the others again — division in particular was missing here.
+const matchesGlobalFilters = (rec, filters) => applyCaseFilters(rec, filters, 'filedOn')
 
 function bucketRatio(pct) {
   if (pct < 5) return '0–5%'
@@ -160,7 +151,7 @@ export default function RefundRiskIntelligence() {
       render: r => (
         <button
           onClick={() => openReview(r)}
-          className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-navy-700 text-white hover:bg-navy-800"
+          className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-ink-700 text-white hover:bg-ink-800"
         >
           {t('Review')}
         </button>
@@ -183,9 +174,11 @@ export default function RefundRiskIntelligence() {
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4 px-4 py-2.5 rounded-lg border border-navy-200 bg-navy-50/60">
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-navy-800">
             {scopedToMe ? <UserCheck className="w-3.5 h-3.5" /> : <Globe className="w-3.5 h-3.5" />}
+            {/* Same correction as the Audit module: these counts describe the
+                filtered register below, not the raw dataset. */}
             {scopedToMe
-              ? <>{t('Showing cases assigned to you —')} <strong>{officerName}</strong> {t('({0} of {1} statewide)', REFUND_CASES.filter(c => c.assignedOfficer === officerName).length, REFUND_CASES.length)}</>
-              : <>{t('Showing all {0} refund cases statewide — role-based access allows this for your account', REFUND_CASES.length)}</>}
+              ? <>{t('Showing cases assigned to you —')} <strong>{officerName}</strong> {t('({0} of your {1} cases match the current filters)', filteredCases.length, REFUND_CASES.filter(c => c.assignedOfficer === officerName).length)}</>
+              : <>{t('Your role can access every refund case — showing {0} of {1} that match the current filters', filteredCases.length, REFUND_CASES.length)}</>}
           </span>
           <button
             onClick={() => setShowAllCases(v => !v)}
@@ -271,7 +264,7 @@ export default function RefundRiskIntelligence() {
             <div>
               <button
                 onClick={() => setChecklistOutput(generateRefundChecklist(reviewCase))}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-navy-700 text-white hover:bg-navy-800 mb-3"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-ink-700 text-white hover:bg-ink-800 mb-3"
               >
                 <Sparkles className="w-3.5 h-3.5" /> {t('Generate Refund Verification Checklist')}
               </button>
@@ -319,7 +312,7 @@ export default function RefundRiskIntelligence() {
                   <button
                     disabled={!confirmStatus}
                     onClick={applyPendingStatus}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg bg-navy-700 text-white hover:bg-navy-800 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-lg bg-ink-700 text-white hover:bg-ink-800 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" /> {t('Apply Status Change')}
                   </button>

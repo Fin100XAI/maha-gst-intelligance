@@ -26,9 +26,9 @@ registerMessages('mr', {
   Moderate: 'मध्यम',
 
   /* == E-Way Bill Intelligence ============================================= */
-  'Fraud & Risk · Logistics Intelligence': 'फसवणूक व जोखीम · रसद बुद्धिमत्ता',
+  'Fraud & Risk · Logistics Intelligence': 'फसवणूक व जोखीम · रसद इंटेलिजन्स',
   'Movement-vs-filing intelligence: correlating declared e-way bill movement value against filed returns to surface logistics-linked under-reporting risk across Maharashtra.':
-    'हालचाल-विरुद्ध-विवरणपत्र बुद्धिमत्ता: महाराष्ट्रभर रसदशी संबंधित अल्प-नोंदणी जोखीम उघड करण्यासाठी घोषित ई-वे बिल हालचाल मूल्याची दाखल विवरणपत्रांशी सांगड घालणे.',
+    'हालचाल-विरुद्ध-विवरणपत्र इंटेलिजन्स: महाराष्ट्रभर रसदशी संबंधित अल्प-नोंदणी जोखीम उघड करण्यासाठी घोषित ई-वे बिल हालचाल मूल्याची दाखल विवरणपत्रांशी सांगड घालणे.',
 
   'Total E-Way Bill Value': 'एकूण ई-वे बिल मूल्य',
   'High Movement, Low Filing': 'उच्च हालचाल, अल्प विवरणपत्र भरणा',

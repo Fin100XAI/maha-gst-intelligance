@@ -14,7 +14,7 @@ export function Modal({ open, onClose, title, subtitle, size = 'lg', children, f
   const sizeMap = { md: 'max-w-xl', lg: 'max-w-3xl', xl: 'max-w-5xl', full: 'max-w-7xl' }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-navy-950/50 backdrop-blur-[2px] p-4 sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink-950/50 backdrop-blur-[2px] p-4 sm:p-8">
       <div className={`relative w-full ${sizeMap[size]} bg-white rounded-xl shadow-2xl mt-4 mb-8 animate-[fadeIn_0.15s_ease-out]`}>
         <div className="flex items-start justify-between gap-3 px-6 py-4 border-b border-steel-100 sticky top-0 bg-white rounded-t-xl z-10">
           <div>

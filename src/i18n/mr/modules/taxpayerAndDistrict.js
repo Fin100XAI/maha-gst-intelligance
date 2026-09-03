@@ -12,9 +12,9 @@ import { registerMessages } from '../../locale.js'
 
 registerMessages('mr', {
   /* == Taxpayer 360 — header, pills, search ================================ */
-  'Revenue · Taxpayer Intelligence': 'महसूल · करदाता बुद्धिमत्ता',
+  'Revenue · Taxpayer Intelligence': 'महसूल · करदाता इंटेलिजन्स',
   'Search any GSTIN or trade name for a complete taxpayer intelligence profile — filing behaviour, ITC pattern, refund history, e-way bill activity, network linkages and risk explainability.':
-    'संपूर्ण करदाता बुद्धिमत्ता प्रोफाइलसाठी कोणताही GSTIN किंवा व्यापार नाव शोधा — विवरणपत्र भरण्याची पद्धत, ITC नमुना, परतावा इतिहास, ई-वे बिल क्रियाकलाप, जाळे जोडण्या व जोखीम स्पष्टीकरण.',
+    'संपूर्ण करदाता इंटेलिजन्स प्रोफाइलसाठी कोणताही GSTIN किंवा व्यापार नाव शोधा — विवरणपत्र भरण्याची पद्धत, ITC नमुना, परतावा इतिहास, ई-वे बिल क्रियाकलाप, जाळे जोडण्या व जोखीम स्पष्टीकरण.',
   'Risk signal only': 'केवळ जोखीम संकेत',
   'Officer verification required': 'अधिकारी पडताळणी आवश्यक',
   'No automated adverse action': 'स्वयंचलित प्रतिकूल कारवाई नाही',

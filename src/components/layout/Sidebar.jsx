@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { ChevronDown, Lock, X, Landmark } from 'lucide-react'
-import { MODULES, canAccessModule, useApp } from '../../context/AppContext.jsx'
+import { ChevronDown, Lock, X } from 'lucide-react'
+import { MODULES, NAV_MODULES, canAccessModule, useApp } from '../../context/AppContext.jsx'
 import { MODULE_ICONS, useSidebarBadges, NAV_GROUPS } from './moduleMeta.js'
 import { t } from '../../i18n/index.js'
+import { Logo } from './Logo.jsx'
 
 // Only shown below `lg` — primary navigation on wide screens is the
 // horizontal TopNav bar. A vertical rail behind a hamburger is still the
@@ -24,9 +25,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
       <div className="absolute inset-0 bg-govt-900/50 backdrop-blur-[2px]" onClick={onCloseMobile} aria-hidden />
       <aside className="relative flex h-full w-72 flex-col bg-govt-900 text-white shadow-panel">
         <div className="flex items-center gap-2.5 h-16 px-5 border-b border-white/10 shrink-0">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center shrink-0">
-            <Landmark className="w-5 h-5 text-rail-900" />
-          </div>
+          <Logo size="md" />
           <div className="min-w-0 flex-1 leading-tight">
             <div className="text-sm font-bold tracking-wide">MAHA GST</div>
             <div className="text-[10px] text-govt-200 tracking-wider">INTELLIGENCE</div>
@@ -38,7 +37,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
 
         <nav aria-label="Primary navigation" className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
           {NAV_GROUPS.map(group => {
-            const items = MODULES.filter(m => m.group === group.id)
+            const items = NAV_MODULES.filter(m => m.group === group.id)
             if (items.length === 0) return null
             const isActiveGroup = group.id === activeGroupId
             const isExpanded = expandedGroups.includes(group.id) || isActiveGroup

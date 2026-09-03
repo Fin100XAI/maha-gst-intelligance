@@ -13,7 +13,7 @@ export function PillTabs({ tabs, active, onChange }) {
             onClick={() => onChange(t.key)}
             className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border whitespace-nowrap transition-colors ${
               isActive
-                ? 'bg-navy-700 border-navy-700 text-white shadow-sm'
+                ? 'bg-ink-700 border-ink-700 text-white shadow-sm'
                 : 'bg-white border-steel-200 text-steel-600 hover:border-navy-300 hover:text-navy-700'
             }`}
           >

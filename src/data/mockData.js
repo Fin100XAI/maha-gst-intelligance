@@ -76,14 +76,19 @@ function genGSTIN(stateCode, idx) {
   return `${stateCode}${pan}${1 + (idx % 9)}Z${idx % 2 === 0 ? 'A' : 'B'}`
 }
 
+// Single "as-of" reference point every dated record and filter is measured
+// against. This is THE date the platform speaks as of — it was previously
+// copied as a literal into eight files, so moving it meant eight edits and any
+// missed one silently disagreed with the masthead. Everything now derives from
+// here; change this line and the whole platform moves with it.
+export const REFERENCE_DATE = new Date(2026, 8, 3)
+export const REFERENCE_DATE_ISO = REFERENCE_DATE.toISOString().slice(0, 10)
+
 function randomDateWithin(daysBack) {
-  const d = new Date(2026, 7, 17)
+  const d = new Date(REFERENCE_DATE)
   d.setDate(d.getDate() - ri(0, daysBack))
   return d.toISOString().slice(0, 10)
 }
-
-// Single "as-of" reference point every dated record and filter is measured against.
-export const REFERENCE_DATE = new Date(2026, 7, 17)
 
 const DATE_RANGE_WINDOW_DAYS = { 'Last 3 Months': 90, 'Last 6 Months': 180, 'Last 12 Months': 365 }
 
@@ -115,7 +120,7 @@ for (let i = 0; i < TAXPAYER_COUNT; i++) {
   const name = `${pick(NAME_ROOTS)} ${pick(LEGAL_SUFFIX)}`
   const tradeName = name.split(' ').slice(0, 2).join(' ')
   const registrationDate = randomDateWithin(ri(90, 3650))
-  const monthsSinceReg = Math.max(1, Math.round((new Date(2026, 7, 17) - new Date(registrationDate)) / (1000 * 60 * 60 * 24 * 30)))
+  const monthsSinceReg = Math.max(1, Math.round((REFERENCE_DATE - new Date(registrationDate)) / (1000 * 60 * 60 * 24 * 30)))
   const isNew = monthsSinceReg <= 12
 
   // Flagged pool: ~28% of taxpayers draw from elevated-probability signal generation
@@ -217,14 +222,17 @@ OFFICER_ROLES.forEach(role => {
   for (let i = 0; i < count; i++) {
     officerIdx++
     const district = pick(DISTRICTS)
+    const assigned = role === 'Audit Officer' || role === 'Refund Officer' || role === 'Investigation Officer' ? ri(4, 22) : ri(0, 6)
     OFFICERS.push({
       id: `OFF-${pad(officerIdx, 4)}`,
       name: `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`,
       role,
       district: district.name,
       division: district.division,
-      assignedCases: role === 'Audit Officer' || role === 'Refund Officer' || role === 'Investigation Officer' ? ri(4, 22) : ri(0, 6),
-      casesClosedMTD: ri(2, 18),
+      assignedCases: assigned,
+      // Bounded by the assigned count — drawn independently, an officer could
+      // show more cases closed this month than were ever assigned to them.
+      casesClosedMTD: assigned === 0 ? 0 : ri(0, assigned),
       avgResolutionDays: ri(9, 45)
     })
   }
@@ -323,6 +331,7 @@ export const AUDIT_CASES = TAXPAYERS
     gstin: t.gstin,
     tradeName: t.tradeName,
     district: t.district,
+    division: t.division,
     sector: t.sector,
     stage: pick(AUDIT_STAGES),
     riskScore: t.risk.score,
@@ -350,6 +359,7 @@ export const REFUND_CASES = TAXPAYERS
     tradeName: t.tradeName,
     sector: t.sector,
     district: t.district,
+    division: t.division,
     claimedAmount: t.refundClaimed,
     refundToTurnoverPct: Math.round((t.refundClaimed / t.monthlyTurnover) * 1000) / 10,
     filedOn: randomDateWithin(200),
@@ -393,18 +403,31 @@ export const LITIGATION_CASES = TAXPAYERS
     tradeName: t.tradeName,
     sector: t.sector,
     district: t.district,
+    division: t.division,
     issue: pick(LEGAL_ISSUES),
     stage: t.appealStatus,
     disputedAmount: Math.round(t.estimatedRevenueExposure * rf(0.5, 1.4)),
     filedOn: randomDateWithin(700),
     ageingDays: ri(30, 900),
+    riskCategory: t.risk.category,
     adverseOutcomeRisk: pick(['Low', 'Medium', 'High']),
     departmentPosition: pick(['Strong', 'Moderate', 'Weak — documentation gap', 'Weak — precedent unfavourable'])
   }))
 
+// Decided appeals only — a success rate computed over cases still pending
+// would move every time a case is filed, which is not what the figure means.
+const DECIDED_STAGES = ['Order Confirmed', 'Order Reversed', 'Remanded']
+const decidedAppeals = LITIGATION_CASES.filter(c => DECIDED_STAGES.includes(c.stage))
+
 export const LITIGATION_SUMMARY = {
   totalAppeals: LITIGATION_CASES.length,
-  departmentSuccessRatePct: 61,
+  decidedAppeals: decidedAppeals.length,
+  // Derived, not asserted. This was previously a hardcoded 61%, which the case
+  // list underneath it did not support — the headline and the table it sat on
+  // top of were describing two different things.
+  departmentSuccessRatePct: decidedAppeals.length
+    ? Math.round((decidedAppeals.filter(c => c.stage === 'Order Confirmed').length / decidedAppeals.length) * 100)
+    : 0,
   reversedOrders: LITIGATION_CASES.filter(c => c.stage === 'Order Reversed').length,
   pendingHighValue: LITIGATION_CASES.filter(c => c.disputedAmount > 5000000).length,
   recoveryLockedCr: Math.round(LITIGATION_CASES.reduce((s, c) => s + c.disputedAmount, 0) / 10000000)
@@ -476,10 +499,15 @@ export const COMPLIANCE_ALERTS = TAXPAYERS
     gstin: t.gstin,
     tradeName: t.tradeName,
     district: t.district,
+    division: t.division,
     sector: t.sector,
     type: w.type,
-    raisedOn: randomDateWithin(45),
+    // Spans ~8 months rather than 45 days. At 45 the whole set fell inside the
+    // narrowest available window, so the date-range filter on Compliance Early
+    // Warning was wired correctly but could never exclude a single row.
+    raisedOn: randomDateWithin(240),
     riskScore: t.risk.score,
+    riskCategory: t.risk.category,
     recommendedAction: w.recommendedAction,
     status: pick(['Open', 'Outreach Sent', 'Officer Reviewing', 'Resolved'])
   })))
@@ -541,24 +569,37 @@ export const AUDIT_LOG = Array.from({ length: 60 }, (_, i) => {
 })
 
 // ---------- AI Governance metrics ----------
+// NOTE: every value in this object is an illustrative placeholder. Nothing here
+// is measured — there is no model, no gateway, no scheduled audit. The screen
+// that renders it (AI Governance & Security) is the one a reviewer consults to
+// judge whether the platform can be trusted, so each assurance below is worded
+// as a specimen of what the control WOULD state, not as a current status.
 export const AI_GOVERNANCE_METRICS = {
+  // Previously 4820 / 3312 / 641 / 37, which did not reconcile: approved +
+  // rejected + pending left 830 recommendations unaccounted for while the three
+  // cards read as an exhaustive split of the total. These now add up.
   recommendationsGenerated: 4820,
   officerApproved: 3312,
   rejectedSuggestions: 641,
+  pendingGovernanceReview: 867,
   falsePositiveReviewed: 214,
   falsePositiveConfirmed: 58,
-  pendingGovernanceReview: 37,
   modelConfidenceDistribution: [
     { band: 'Very High', pct: 22 },
     { band: 'High', pct: 34 },
     { band: 'Moderate', pct: 29 },
     { band: 'Low', pct: 15 }
   ],
-  driftStatus: 'Stable — within control band (last checked 2026-08-15)',
-  lastRedTeamTest: '2026-07-22',
-  vaptStatus: 'Compliant — last VAPT cycle 2026-06-30, next due 2026-12-30',
-  encryptionStatus: 'AES-256 at rest, TLS 1.3 in transit',
-  dataMinimisation: 'Enabled — PII masked in AI Copilot prompts by default'
+  // These five were previously written as live status assertions — "Compliant",
+  // "Enabled", "AES-256 at rest, TLS 1.3 in transit", with specific audit dates.
+  // This build is a static front-end with no backend, no model and no gateway,
+  // so none of them were true of anything. Each is now stated as the control the
+  // production system would have to evidence, with no claim that it is in place.
+  driftStatus: 'Not monitored in this demonstration — production requires a drift check against a control band each cycle',
+  lastRedTeamTest: 'Not conducted — production requires adversarial testing for prompt-injection and data-exfiltration before go-live',
+  vaptStatus: 'Not assessed — production requires a CERT-In empanelled VAPT cycle and certificate before deployment',
+  encryptionStatus: 'Not applicable to this demonstration (no backend or stored data) — production target is AES-256 at rest and TLS 1.3 in transit',
+  dataMinimisation: 'Not implemented — production requires PII masking in AI Copilot prompts by default'
 }
 
 export const REPORT_TYPES = [

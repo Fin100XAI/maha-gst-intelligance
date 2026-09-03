@@ -15,6 +15,16 @@ export function Card({ title, subtitle, actions, className = '', children, padde
   )
 }
 
+// The per-module provenance block — an "Illustrative data" badge, the as-of
+// date, and an optional longer `note` — used to sit here and therefore appeared
+// on all 17 module headers. Removed: repeated on every screen it was visual
+// noise directly under the filter bar, and it pushed the actual content of each
+// module below the fold.
+//
+// Provenance is NOT lost. The masthead carries "Demonstration Environment ·
+// Simulated data" alongside the as-of date on every screen, permanently; AI
+// outputs still carry their own limitation notes; and exported briefings still
+// append their provenance line. This removed the repetition, not the disclosure.
 export function SectionHeader({ eyebrow, title, description, actions }) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-5 bg-white rounded-xl border border-steel-200 shadow-card px-5 py-4">

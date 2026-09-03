@@ -11,7 +11,7 @@ import { registerMessages } from '../../locale.js'
 
 registerMessages('mr', {
   /* == ITC Risk Intelligence — section header & KPIs ======================= */
-  'Fraud & Risk · ITC Intelligence': 'फसवणूक व जोखीम · ITC बुद्धिमत्ता',
+  'Fraud & Risk · ITC Intelligence': 'फसवणूक व जोखीम · ITC इंटेलिजन्स',
   'Anomaly detection across input tax credit behaviour — abnormal spikes, high-risk supplier linkage, circular trading suspicion, e-way bill mismatch and sector deviation.':
     'इनपुट टॅक्स क्रेडिट वर्तनातील विसंगती शोध — असामान्य वाढ, उच्च-जोखीम पुरवठादार संबंध, वर्तुळाकार व्यापार संशय, ई-वे बिल विसंगती व क्षेत्र विचलन.',
   'Total ITC Exposure (filtered)': 'एकूण ITC जोखीम रक्कम (गाळलेली)',
@@ -73,7 +73,7 @@ registerMessages('mr', {
   'Verification checklist': 'पडताळणी तपासणी यादी',
 
   /* == Fake Invoice Network — section header & KPIs ========================= */
-  'Fraud & Risk · Network Intelligence': 'फसवणूक व जोखीम · जाळे बुद्धिमत्ता',
+  'Fraud & Risk · Network Intelligence': 'फसवणूक व जोखीम · जाळे इंटेलिजन्स',
   'No network clusters detected in the current dataset.': 'सध्याच्या माहितीसंचात कोणतेही जाळे समूह आढळले नाहीत.',
   'No circular-trading network clusters found.': 'कोणतेही वर्तुळाकार-व्यापार जाळे समूह सापडले नाहीत.',
   'Graph-based detection of circular invoice trading and linked-entity networks — shared address/contact indicators, short-life entities and estimated flow value between counterparties.':
@@ -86,7 +86,7 @@ registerMessages('mr', {
 
   /* == Non-finding-of-fraud disclaimer banner (split for the <strong> tag) = */
   'Network intelligence is a statistical signal derived from invoice flow, ITC pass-through and linked-entity patterns. It is':
-    'जाळे बुद्धिमत्ता ही चलन प्रवाह, ITC पासथ्रू व जोडलेल्या-संस्था नमुन्यांवरून प्राप्त केलेला सांख्यिकीय संकेत आहे. हे',
+    'जाळे इंटेलिजन्स ही चलन प्रवाह, ITC पासथ्रू व जोडलेल्या-संस्था नमुन्यांवरून प्राप्त केलेला सांख्यिकीय संकेत आहे. हे',
   'not a finding of fraud': 'फसवणुकीचा निष्कर्ष नाही',
   '— every cluster listed here requires verification by the Investigation Team before any enforcement action.':
     '— येथे सूचिबद्ध केलेल्या प्रत्येक समूहाला कोणत्याही अंमलबजावणी कृतीपूर्वी तपास चमूकडून पडताळणी आवश्यक आहे.',
@@ -104,7 +104,7 @@ registerMessages('mr', {
   'Network Graph — {0}': 'जाळे आलेख — {0}',
   "Arrows indicate direction of invoice flow. Click a node to open the taxpayer's full profile.":
     'बाणांनी चलन प्रवाहाची दिशा दर्शवली आहे. करदात्याची संपूर्ण संचिका उघडण्यासाठी एका बिंदूवर क्लिक करा.',
-  'Intelligence Brief': 'बुद्धिमत्ता माहितीपत्र',
+  'Intelligence Brief': 'इंटेलिजन्स माहितीपत्र',
   'Possible circular transaction chain detected based on invoice flow, ITC pass-through, low tax payment, and linked counterparty risk.':
     'चलन प्रवाह, ITC पासथ्रू, कमी कर भरणा व जोडलेल्या प्रतिपक्ष जोखिमेवर आधारित संभाव्य वर्तुळाकार व्यवहार साखळी आढळली.',
   'Shared Registered Address': 'सामायिक नोंदणीकृत पत्ता',

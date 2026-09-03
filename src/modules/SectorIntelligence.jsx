@@ -7,7 +7,7 @@ import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
-import { CHART_COLORS } from '../components/ui/Charts.jsx'
+import { useChartPalette } from '../components/ui/Charts.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
 import { SECTOR_REVENUE, TAXPAYERS } from '../data/mockData.js'
 import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
@@ -21,6 +21,7 @@ const tooltipStyle = {
 
 export default function SectorIntelligence() {
   const { filters } = useApp()
+  const CHART_COLORS = useChartPalette()
   const [selectedSector, setSelectedSector] = useState(
     filters.sector !== 'All Sectors' ? filters.sector : SECTOR_REVENUE[0].sector
   )
@@ -154,7 +155,7 @@ export default function SectorIntelligence() {
         <KpiCard
           label={t('Widest ITC Deviation')}
           value={kpis.widestItcDeviation.sector}
-          unit={t('vs cross-sector median')}
+          unit={t('vs cross-sector average')}
           icon={Gauge}
           tone="steel"
           onClick={() => setSelectedSector(kpis.widestItcDeviation.sector)}
@@ -171,14 +172,14 @@ export default function SectorIntelligence() {
               <Tooltip {...tooltipStyle} />
               <Bar dataKey="revenueLakh" name={t('Revenue (₹L)')} radius={[4, 4, 0, 0]}>
                 {revenueBarData.map((d, i) => (
-                  <Cell key={i} fill={d.sector === selectedSector ? '#f78c0a' : '#204575'} cursor="pointer" onClick={() => setSelectedSector(d.sector)} />
+                  <Cell key={i} fill={d.sector === selectedSector ? CHART_COLORS[1] : CHART_COLORS[0]} cursor="pointer" onClick={() => setSelectedSector(d.sector)} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>
 
-        <Card title={t('Tax vs ITC vs Refund Ratio by Sector')} subtitle={t('Benchmark ratios as % of turnover')}>
+        <Card title={t('Tax vs ITC vs Refund Ratio by Sector')} subtitle={t('Reference benchmark ratios as % of turnover — fixed reference values, not recomputed from the filtered taxpayer pool')}>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={ratioCompareData} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e8eaee" vertical={false} />
@@ -202,7 +203,7 @@ export default function SectorIntelligence() {
               onClick={() => setSelectedSector(s.sector)}
               className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                 selectedSector === s.sector
-                  ? 'bg-navy-700 text-white border-navy-700'
+                  ? 'bg-ink-700 text-white border-ink-700'
                   : 'bg-white text-navy-700 border-steel-200 hover:bg-steel-50'
               }`}
             >
@@ -223,7 +224,7 @@ export default function SectorIntelligence() {
             <div className="grid grid-cols-2 gap-3 text-xs">
               <Stat label={t('Revenue Contribution')} value={`₹${sectorRecord.revenueLakh.toLocaleString('en-IN')}L`} />
               <Stat label={t('Taxpayers in Sector')} value={sectorRecord.taxpayerCount} />
-              <Stat label={t('Tax-to-Turnover')} value={`${(sectorRecord.avgTaxRatio * 100).toFixed(1)}%`} />
+              <Stat label={t('Tax-to-Turnover Benchmark')} value={`${(sectorRecord.avgTaxRatio * 100).toFixed(1)}%`} />
               <Stat label={t('ITC Benchmark')} value={`${(sectorRecord.avgItcRatio * 100).toFixed(1)}%`} />
               <Stat label={t('Refund Benchmark')} value={`${(sectorRecord.avgRefundRatio * 100).toFixed(1)}%`} />
               <Stat label={t('Filing Compliance')} value={`${filingCompliancePct}%`} />
@@ -241,7 +242,7 @@ export default function SectorIntelligence() {
                 <strong className={itcDeviationPct >= 0 ? 'text-maharisk-high' : 'text-maharisk-low'}>
                   {itcDeviationPct >= 0 ? '+' : ''}{itcDeviationPct}%
                 </strong>{' '}
-                {t('from the cross-sector median ({0}%). {1} taxpayers in this sector currently carry a High or Critical risk rating.', (avgItcAcrossSectors * 100).toFixed(1), sectorRecord.highRiskCount)}
+                {t('from the cross-sector average ({0}%). {1} taxpayers in this sector currently carry a High or Critical risk rating.', (avgItcAcrossSectors * 100).toFixed(1), sectorRecord.highRiskCount)}
               </p>
               <div className="mt-2"><HumanReviewBadge label={t('Recommend sector-level scrutiny review')} /></div>
             </div>
@@ -260,7 +261,7 @@ export default function SectorIntelligence() {
                     </div>
                     <div className="h-1.5 rounded-full bg-steel-100 overflow-hidden">
                       <div
-                        className="h-full bg-navy-600"
+                        className="h-full bg-ink-600"
                         style={{ width: `${Math.min(100, (r.count / (topRiskIndicators[0].count || 1)) * 100)}%` }}
                       />
                     </div>

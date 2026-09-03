@@ -9,10 +9,11 @@ import { Modal } from '../components/ui/Modal.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
 import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
+import { useChartPalette } from '../components/ui/Charts.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
 import { LITIGATION_CASES, LEGAL_ISSUES, taxpayerById, isWithinDateRange } from '../data/mockData.js'
 import { summarizeLitigationRisk } from '../data/ai.js'
-import { useApp } from '../context/AppContext.jsx'
+import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
 import { t, getLocale } from '../i18n/index.js'
 import { Scale, TrendingUp, RotateCcw, Lock, AlertOctagon, GraduationCap, FileWarning } from 'lucide-react'
 
@@ -27,17 +28,9 @@ function adverseTone(risk) {
   return risk === 'High' ? 'red' : risk === 'Medium' ? 'amber' : 'green'
 }
 
-function matchesLitigationFilters(lit, filters) {
-  if (filters.district !== 'All Districts' && lit.district !== filters.district) return false
-  if (filters.sector !== 'All Sectors' && lit.sector !== filters.sector) return false
-  if (!isWithinDateRange(lit.filedOn, filters.dateRange)) return false
-  if (filters.search && filters.search.trim()) {
-    const q = filters.search.toLowerCase()
-    const hay = `${lit.gstin} ${lit.tradeName}`.toLowerCase()
-    if (!hay.includes(q)) return false
-  }
-  return true
-}
+// Was missing both division and risk level — a Commissioner filtering to
+// "Pune Division" or "Critical" saw the full litigation pipeline regardless.
+const matchesLitigationFilters = (lit, filters) => applyCaseFilters(lit, filters, 'filedOn')
 
 function documentationRecommendation(litCase) {
   const pos = litCase.departmentPosition
@@ -74,6 +67,7 @@ function documentationRecommendation(litCase) {
 
 export default function LitigationIntelligence() {
   const { filters } = useApp()
+  const chartColors = useChartPalette()
   const [selectedCase, setSelectedCase] = useState(null)
   const [selectedTaxpayer, setSelectedTaxpayer] = useState(null)
 
@@ -159,7 +153,7 @@ export default function LitigationIntelligence() {
       key: 'action', label: '', sortable: false, render: c => (
         <button
           onClick={e => { e.stopPropagation(); setSelectedCase(c) }}
-          className="text-[11px] font-semibold px-2.5 py-1 rounded-md bg-navy-700 text-white hover:bg-navy-800"
+          className="text-[11px] font-semibold px-2.5 py-1 rounded-md bg-ink-700 text-white hover:bg-ink-800"
         >{t('View')}</button>
       )
     }
@@ -178,8 +172,13 @@ export default function LitigationIntelligence() {
         <KpiCard label={t('Total Appeals')} value={summary.totalAppeals} icon={Scale} tone="navy" />
         <KpiCard label={t('Dept. Success Rate')} value={summary.departmentSuccessRatePct} unit="%" icon={TrendingUp} tone="green" />
         <KpiCard label={t('Orders Reversed')} value={summary.reversedOrders} icon={RotateCcw} tone="red" />
-        <KpiCard label={t('Recovery Locked')} value={summary.recoveryLockedCr.toLocaleString('en-IN')} unit={t('Cr')} icon={Lock} tone="saffron" />
-        <KpiCard label={t('High-Value Pending')} value={highValuePending} unit={t('> ₹5Cr')} icon={AlertOctagon} tone="steel" />
+        {/* This sums `disputedAmount` — money under appeal, not money recovered.
+            "Recovery Locked" read as revenue already secured. */}
+        <KpiCard label={t('Amount Under Dispute')} value={summary.recoveryLockedCr.toLocaleString('en-IN')} unit={t('Cr')} icon={Lock} tone="saffron" />
+        {/* HIGH_VALUE_THRESHOLD is 5,000,000 — ₹50 Lakh, not ₹5 Cr. The unit
+            label overstated the threshold tenfold and disagreed with Reports &
+            Briefing Notes, which described the same cut correctly. */}
+        <KpiCard label={t('High-Value Pending')} value={highValuePending} unit={t('> ₹50L')} icon={AlertOctagon} tone="steel" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
@@ -190,7 +189,7 @@ export default function LitigationIntelligence() {
               <XAxis dataKey="issue" tickFormatter={t} tick={{ fontSize: 9, fill: '#8791a3' }} axisLine={{ stroke: '#d3d7de' }} tickLine={false} interval={0} angle={-30} textAnchor="end" height={90} />
               <YAxis tick={{ fontSize: 10, fill: '#8791a3' }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip {...tooltipStyle} labelFormatter={t} />
-              <Bar dataKey="count" name={t('Cases')} fill="#204575" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="count" name={t('Cases')} fill={chartColors[0]} radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Card>

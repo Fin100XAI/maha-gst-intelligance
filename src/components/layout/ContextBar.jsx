@@ -28,7 +28,7 @@ export function ContextBar() {
   const current = MODULES.find(m => m.id === activeModule)
 
   return (
-    <div className="border-b border-steel-200 bg-gradient-to-r from-steel-50 via-white to-steel-50">
+    <div className="border-b border-steel-200 bg-gradient-to-r from-steel-50 via-surface to-steel-50">
       <div className="flex items-center gap-2 px-4 sm:px-5 py-2 text-xs overflow-x-auto scrollbar-none">
         <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-steel-400">{t('Context')}</span>
         <span className="h-3 w-px bg-steel-300 shrink-0" />

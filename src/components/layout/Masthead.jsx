@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Landmark } from 'lucide-react'
 import { t } from '../../i18n/index.js'
+import { Logo } from './Logo.jsx'
 import { useApp } from '../../context/AppContext.jsx'
+import { asOfLabel } from '../ui/DataProvenance.jsx'
 
 // The identity band, above everything — the seal, the department, and the
 // moment the figures were taken. It scrolls away with the page; the search
@@ -35,9 +36,7 @@ export function Masthead() {
           className="pointer-events-none absolute inset-0 opacity-[0.07]"
           style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '28px 28px' }}
         />
-        <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center shrink-0 ring-1 ring-white/25">
-          <Landmark className="w-5 h-5 text-rail-900" />
-        </div>
+        <Logo size="lg" className="relative ring-1 ring-white/25" />
         <div className="relative min-w-0 flex-1">
           <h1 className="truncate text-[17px] leading-tight font-bold tracking-tight text-white">
             {t('Maha GST Intelligence')}
@@ -46,12 +45,18 @@ export function Masthead() {
             {t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}
           </p>
         </div>
-        <div className="relative hidden sm:block text-right shrink-0">
+        {/* "Position as at" must name the date the FIGURES describe, not the
+            wall clock. The dataset is fixed at REFERENCE_DATE, so showing a
+            live ticking timestamp here told an officer the numbers were current
+            to the second when they were in fact weeks old. The clock is still
+            useful — as the session clock, labelled as such. */}
+        <div className="relative text-right shrink-0">
           <p className="text-[9px] font-bold tracking-[0.1em] text-white/60 uppercase">{t('Position as at')}</p>
-          <p className="mt-0.5 text-xs font-semibold text-white tabular-nums">
-            {dateFmt.format(now)}, {timeFmt.format(now)} IST
+          <p className="mt-0.5 text-xs font-semibold text-white tabular-nums">{asOfLabel(locale)}</p>
+          <p className="mt-0.5 hidden text-[10px] text-white/60 tabular-nums sm:block">
+            {t('Session')}: {dateFmt.format(now)}, {timeFmt.format(now)} IST
           </p>
-          <p className="mt-0.5 text-[10px] text-white/60">{t('Demonstration Environment')}</p>
+          <p className="mt-0.5 text-[10px] font-semibold text-gold-300">{t('Demonstration Environment · Simulated data')}</p>
         </div>
       </div>
       {/* The single piece of ornament in the shell — marks where the department's identity ends and the working surfaces begin. */}

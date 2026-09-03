@@ -140,11 +140,11 @@ export default function DistrictDivisionPerformance() {
           <div className="flex items-center gap-1 text-xs">
             <button
               onClick={() => setHeatmapMetric('riskTaxpayers')}
-              className={`px-2.5 py-1 rounded-md border font-medium ${heatmapMetric === 'riskTaxpayers' ? 'bg-navy-700 text-white border-navy-700' : 'bg-white border-steel-200 text-steel-600'}`}
+              className={`px-2.5 py-1 rounded-md border font-medium ${heatmapMetric === 'riskTaxpayers' ? 'bg-ink-700 text-white border-ink-700' : 'bg-white border-steel-200 text-steel-600'}`}
             >{t('Risk Taxpayers')}</button>
             <button
               onClick={() => setHeatmapMetric('gapPct')}
-              className={`px-2.5 py-1 rounded-md border font-medium ${heatmapMetric === 'gapPct' ? 'bg-navy-700 text-white border-navy-700' : 'bg-white border-steel-200 text-steel-600'}`}
+              className={`px-2.5 py-1 rounded-md border font-medium ${heatmapMetric === 'gapPct' ? 'bg-ink-700 text-white border-ink-700' : 'bg-white border-steel-200 text-steel-600'}`}
             >{t('Target Gap %')}</button>
           </div>
         }

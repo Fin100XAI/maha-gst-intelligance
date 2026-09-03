@@ -99,7 +99,7 @@ registerMessages('mr', {
 
   /* == Litigation Intelligence — header, KPI cards ========================== */
   "Appeal and order intelligence across the department's litigation pipeline — legal issue trends, ageing, adverse outcome risk and AI-assisted case review.":
-    'विभागाच्या खटला कार्यप्रवाहातील अपील व आदेश बुद्धिमत्ता — कायदेशीर मुद्द्यांचे कल, वयोमान, प्रतिकूल निष्पत्ती जोखीम आणि AI-सहाय्यित प्रकरण पुनरावलोकन.',
+    'विभागाच्या खटला कार्यप्रवाहातील अपील व आदेश इंटेलिजन्स — कायदेशीर मुद्द्यांचे कल, वयोमान, प्रतिकूल निष्पत्ती जोखीम आणि AI-सहाय्यित प्रकरण पुनरावलोकन.',
   'Total Appeals': 'एकूण अपील',
   'Dept. Success Rate': 'विभागाचा यशस्वी दर',
   'Orders Reversed': 'उलटवलेले आदेश',

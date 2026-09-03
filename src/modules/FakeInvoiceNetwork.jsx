@@ -68,7 +68,10 @@ function ClusterGraph({ cluster, onNodeClick }) {
       <svg viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`} width="100%" height="100%">
         <defs>
           <marker id="fin-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-            <path d="M0,0 L10,5 L0,10 z" fill="#5c6785" />
+            {/* Colours here go through `style` rather than the usual SVG fill/stroke
+                attributes: an attribute won't resolve a var(), so this is what
+                lets the graph follow the light/dark theme like everything else. */}
+            <path d="M0,0 L10,5 L0,10 z" style={{ fill: 'var(--graph-arrow)' }} />
           </marker>
         </defs>
 
@@ -99,9 +102,9 @@ function ClusterGraph({ cluster, onNodeClick }) {
 
           return (
             <g key={i}>
-              <path d={path} fill="none" stroke="#a8b0c2" strokeWidth="1.5" markerEnd="url(#fin-arrow)" />
-              <rect x={labelX - 22} y={labelY - 9} width="44" height="14" rx="4" fill="white" stroke="#d3d7de" />
-              <text x={labelX} y={labelY + 1} textAnchor="middle" fontSize="9" fill="#5c6785" fontWeight="600">
+              <path d={path} fill="none" strokeWidth="1.5" markerEnd="url(#fin-arrow)" style={{ stroke: 'var(--graph-edge)' }} />
+              <rect x={labelX - 22} y={labelY - 9} width="44" height="14" rx="4" style={{ fill: 'rgb(var(--c-surface))', stroke: 'rgb(var(--c-steel-200))' }} />
+              <text x={labelX} y={labelY + 1} textAnchor="middle" fontSize="9" fontWeight="600" style={{ fill: 'var(--graph-arrow)' }}>
                 ₹{edge.valueLakh}L
               </text>
             </g>
@@ -115,12 +118,12 @@ function ClusterGraph({ cluster, onNodeClick }) {
             className="cursor-pointer"
             onClick={() => onNodeClick(node)}
           >
-            <circle r={NODE_R} fill="white" stroke={nodeColor(node)} strokeWidth="3.5" />
+            <circle r={NODE_R} stroke={nodeColor(node)} strokeWidth="3.5" style={{ fill: 'rgb(var(--c-surface))' }} />
             <circle r={5} fill={nodeColor(node)} />
-            <text y={NODE_R + 14} textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#0f2340">
+            <text y={NODE_R + 14} textAnchor="middle" fontSize="10.5" fontWeight="700" style={{ fill: 'rgb(var(--c-navy-900))' }}>
               {node.label.length > 16 ? `${node.label.slice(0, 15)}…` : node.label}
             </text>
-            <text y={NODE_R + 26} textAnchor="middle" fontSize="9" fill="#697289">
+            <text y={NODE_R + 26} textAnchor="middle" fontSize="9" style={{ fill: 'rgb(var(--c-steel-500))' }}>
               {node.role}{node.dormant ? ` · ${t('Dormant')}` : ''}
             </text>
           </g>
@@ -276,7 +279,10 @@ export default function FakeInvoiceNetwork() {
             noClusterMatchesFilters ? (
               <div className="flex flex-wrap items-center gap-2 rounded-lg border border-saffron-300 bg-saffron-50 px-3 py-2.5 mb-4">
                 <Pill tone="amber">{t('No clusters match your current header filters')}</Pill>
-                <span className="text-[11px] text-saffron-900">{t('Showing the full unfiltered cluster list below — adjust or clear the header filters to narrow results.')}</span>
+                {/* This previously read "Showing the full unfiltered cluster list
+                    below" — displayed at exactly the moment both the list and the
+                    summary table below it render empty. */}
+                <span className="text-[11px] text-saffron-900">{t('The cluster list and summary below are therefore empty. The graph still shows the last selected cluster, which is outside your current filters — clear or widen the filters to see matching clusters.')}</span>
               </div>
             ) : !filterNoteDismissed && (
               <div className="flex items-center justify-between gap-2 rounded-lg border border-steel-200 bg-steel-50 px-3 py-2 mb-4">
@@ -337,7 +343,9 @@ export default function FakeInvoiceNetwork() {
         </Card>
       </div>
 
-      <Card title={t('All Detected Clusters')} subtitle={t('Consolidated summary across every network cluster in the current dataset.')}>
+      {/* "All / every … in the current dataset" was printed over `filteredClusters`,
+          so under any header filter the heading claimed more than the table held. */}
+      <Card title={t('Flagged Clusters')} subtitle={t('Consolidated summary across the {0} cluster(s) matching the current filters.', filteredClusters.length)}>
         <DataTable
           columns={clusterTableColumns}
           rows={filteredClusters}

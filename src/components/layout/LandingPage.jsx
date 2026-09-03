@@ -1,14 +1,17 @@
 import {
-  Landmark, ArrowRight, ShieldCheck, Network, ClipboardCheck, Bot,
+  ArrowRight, ShieldCheck, Network, ClipboardCheck, Bot,
   TrendingUp, Lock, Eye, Users, CheckCircle2, Building2, MapPin, LayoutGrid
 } from 'lucide-react'
-import { MODULES } from '../../context/AppContext.jsx'
+import { NAV_MODULES, useApp } from '../../context/AppContext.jsx'
+import { asOfLongLabel } from '../ui/DataProvenance.jsx'
 import { MODULE_ICONS } from './moduleMeta.js'
 import { KPI_SUMMARY, DISTRICTS } from '../../data/mockData.js'
 import { t, tn } from '../../i18n/index.js'
+import { Logo } from './Logo.jsx'
 import { LanguageSwitcher } from './LanguageSwitcher.jsx'
 import { FontSizeControl } from './FontSizeControl.jsx'
-import { TONE_STYLES } from '../ui/KpiCard.jsx'
+import { ThemeSwitcher } from './ThemeSwitcher.jsx'
+import { useToneStyles } from '../ui/KpiCard.jsx'
 
 const VALUE_PROPS = [
   {
@@ -49,13 +52,17 @@ const VALUE_PROPS = [
   }
 ]
 
+// Design principles the platform is built around — not certifications it holds.
+// "DPDP-Aligned Data Handling" in particular read as an achieved compliance
+// status; this build has no backend and stores no real taxpayer data, and the
+// AI Governance screen now states that plainly. The strip must not contradict it.
 const TRUST_BADGES = [
-  'Role-Based Access Control',
-  'Maker-Checker Workflow',
-  'Explainable AI — No Black Box',
-  'DPDP-Aligned Data Handling',
-  'Full Audit Trail',
-  'Human Approval on Every Action'
+  'Role-based access control',
+  'Maker-checker workflow',
+  'Explainable AI — no black box',
+  'Designed for DPDP-aligned data handling',
+  'Full audit trail',
+  'Human approval on every action'
 ]
 
 const TRUST_PRINCIPLES = [
@@ -122,15 +129,15 @@ function tickerItems() {
 
 export function LandingPage({ onEnter }) {
   const ticker = tickerItems()
+  const TONE_STYLES = useToneStyles()
+  const { locale } = useApp()
   return (
     <div className="min-h-screen bg-steel-50">
       {/* Top bar */}
       <div className="sticky top-0 z-20 bg-govt-900/95 backdrop-blur text-white">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-intel-400 to-intel-600 flex items-center justify-center shrink-0">
-              <Landmark className="w-4.5 h-4.5 text-rail-900" />
-            </div>
+            <Logo size="sm" />
             <div className="leading-tight min-w-0">
               <div className="text-sm font-bold tracking-wide truncate">{t('MAHA GST INTELLIGENCE')}</div>
               <div className="text-[10px] text-govt-200 tracking-wider hidden sm:block truncate">{t('GOVERNMENT OF MAHARASHTRA · STATE GST DEPARTMENT')}</div>
@@ -138,6 +145,7 @@ export function LandingPage({ onEnter }) {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <FontSizeControl className="hidden sm:flex bg-white/10 border-white/15" />
+            <ThemeSwitcher className="bg-white/10 border-white/15" />
             <LanguageSwitcher className="bg-white/10 border-white/15" />
             <button
               onClick={onEnter}
@@ -154,8 +162,11 @@ export function LandingPage({ onEnter }) {
           from what they'd find after signing in. */}
       <div className="bg-govt-900 border-b border-white/10 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 h-9 flex items-center gap-3">
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-intel-300 shrink-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-intel-400 animate-pulse" aria-hidden /> {t('Live')}
+          {/* Labelled "Simulated", not "Live" — a pulsing dot next to the word
+              Live is a claim that these counts are arriving in real time from a
+              departmental system. They are fixed values from the seeded dataset. */}
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gold-300 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-gold-400" aria-hidden /> {t('Simulated')}
           </span>
           <div className="flex-1 overflow-hidden">
             <div className="ticker-track flex items-center gap-10 whitespace-nowrap text-[11.5px] text-govt-100">
@@ -190,7 +201,7 @@ export function LandingPage({ onEnter }) {
         {/* A soft ring of light behind the copy — the single ornamental flourish
             that keeps a flat institutional blue from reading as inert. */}
         <div className="absolute -top-24 right-[-6rem] w-[28rem] h-[28rem] rounded-full bg-intel-400/20 blur-3xl pointer-events-none" aria-hidden />
-        <div className="max-w-6xl mx-auto px-6 pt-16 pb-20 relative">
+        <div className="max-w-6xl mx-auto px-6 pt-16 pb-16 relative">
           <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-govt-200 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 mb-6 shadow-[0_1px_0_0_rgb(255_255_255/0.15)_inset]">
             <Building2 className="w-3.5 h-3.5" /> {t('Government of Maharashtra · State GST Department')}
           </div>
@@ -203,7 +214,7 @@ export function LandingPage({ onEnter }) {
           <div className="flex flex-wrap items-center gap-3 mt-8">
             <button
               onClick={onEnter}
-              className="inline-flex items-center gap-2 text-sm font-semibold bg-white text-govt-900 hover:bg-govt-50 px-5 py-3 rounded-xl transition-all shadow-[0_8px_24px_-6px_rgb(0_0_0/0.35)] hover:-translate-y-0.5"
+              className="on-brand-solid inline-flex items-center gap-2 text-sm font-semibold px-5 py-3 rounded-xl transition-all shadow-[0_8px_24px_-6px_rgb(0_0_0/0.35)] hover:-translate-y-0.5"
             >
               {t('Enter Secure Workspace')} <ArrowRight className="w-4 h-4" />
             </button>
@@ -213,14 +224,6 @@ export function LandingPage({ onEnter }) {
             >
               <Eye className="w-4 h-4" /> {t('View Platform Capabilities')}
             </a>
-          </div>
-
-          {/* Hero stats */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-12 max-w-3xl">
-            <HeroStat icon={Landmark} label={t('GST Revenue Monitored')} value={`₹${KPI_SUMMARY.revenueMonitoredCr.toLocaleString('en-IN')} Cr`} />
-            <HeroStat icon={Users} label={t('Taxpayers Tracked')} value={KPI_SUMMARY.totalTaxpayers.toLocaleString('en-IN')} />
-            <HeroStat icon={MapPin} label={t('Districts Covered')} value={DISTRICTS.length} />
-            <HeroStat icon={LayoutGrid} label={t('Intelligence Modules')} value={MODULES.length} />
           </div>
         </div>
       </section>
@@ -237,7 +240,7 @@ export function LandingPage({ onEnter }) {
       </section>
 
       {/* Value props */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="max-w-6xl mx-auto px-6 pb-16">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('What This Platform Does')}</div>
           <h2 className="text-2xl font-bold text-navy-900">{t('Intelligence infrastructure, not another dashboard')}</h2>
@@ -271,7 +274,7 @@ export function LandingPage({ onEnter }) {
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {MODULES.map(m => {
+          {NAV_MODULES.map(m => {
             const Icon = MODULE_ICONS[m.id]
             const c = TONE_STYLES[GROUP_TONE[m.group]]
             return (
@@ -290,8 +293,11 @@ export function LandingPage({ onEnter }) {
       {/* District coverage */}
       <section className="max-w-6xl mx-auto px-6 py-16">
         <div className="text-center max-w-2xl mx-auto mb-8">
-          <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('Statewide Coverage')}</div>
-          <h2 className="text-2xl font-bold text-navy-900">{t('Every district, one consolidated view')}</h2>
+          <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('Coverage In This Demonstration')}</div>
+          <h2 className="text-2xl font-bold text-navy-900">{t('{0} districts modelled, one consolidated view', DISTRICTS.length)}</h2>
+          <p className="text-sm text-steel-500 mt-2 leading-relaxed">
+            {t('This demonstration models {0} of Maharashtra’s 36 districts. The consolidated view is designed to take all 36 without change — what is shown here is a representative subset, not statewide coverage.', DISTRICTS.length)}
+          </p>
         </div>
         <div className="flex flex-wrap justify-center gap-2 max-w-3xl mx-auto">
           {DISTRICTS.map(d => (
@@ -350,7 +356,7 @@ export function LandingPage({ onEnter }) {
 
       <footer className="bg-govt-900 text-govt-300 text-[11px]">
         <div className="max-w-6xl mx-auto px-6 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 border-b border-white/10 pb-5">
-          <span>{t('Last reviewed and updated')}: <span className="text-govt-200 tabular-nums">17 {t('August')} 2026</span></span>
+          <span>{t('Last reviewed and updated')}: <span className="text-govt-200 tabular-nums">{asOfLongLabel(locale)}</span></span>
           <span className="flex items-center gap-4">
             <span>{t('Visitors today (simulated)')}: <span className="text-govt-200 tabular-nums">4,812</span></span>
             <span className="hidden sm:inline text-white/15">|</span>
@@ -366,14 +372,3 @@ export function LandingPage({ onEnter }) {
   )
 }
 
-function HeroStat({ icon: Icon, label, value }) {
-  return (
-    <div className="group rounded-xl border border-white/15 bg-white/5 backdrop-blur-sm px-3.5 py-3.5 transition-all hover:bg-white/10 hover:border-white/25 hover:-translate-y-0.5">
-      <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-intel-400/20 text-intel-300 mb-2 group-hover:bg-intel-400/30 transition-colors">
-        <Icon className="w-3.5 h-3.5" />
-      </span>
-      <div className="text-xl font-bold tabular-nums leading-none">{value}</div>
-      <div className="text-[10.5px] text-govt-200 mt-1.5">{label}</div>
-    </div>
-  )
-}

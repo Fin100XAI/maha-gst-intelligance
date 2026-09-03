@@ -12,24 +12,25 @@ import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
 import {
   KPI_SUMMARY, STATE_REVENUE_TREND, DISTRICT_REVENUE, SECTOR_REVENUE,
-  TAXPAYERS, COMPLIANCE_ALERTS, REFUND_CASES, AUDIT_CASES, LITIGATION_CASES, LITIGATION_SUMMARY,
-  isWithinDateRange, sliceTrendByDateRange
+  TAXPAYERS, DISTRICTS, COMPLIANCE_ALERTS, REFUND_CASES, AUDIT_CASES, LITIGATION_CASES, LITIGATION_SUMMARY,
+  isWithinDateRange, sliceTrendByDateRange, REFERENCE_DATE
 } from '../data/mockData.js'
 import { RISK_COLORS, riskCategoryFromScore } from '../data/risk.js'
 import { generateExecutiveBrief } from '../data/ai.js'
+import { scaleContext } from '../data/official.js'
 import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
 import {
   ShieldAlert, Sparkles, Landmark, TrendingDown, TrendingUp,
   MapPin, Bell, Users, FileWarning, Gauge, IndianRupee, UserPlus, Factory, BarChart3,
-  Activity, ClipboardCheck
+  Activity, ClipboardCheck, BadgeCheck
 } from 'lucide-react'
 
-const REFERENCE_DATE = new Date(2026, 7, 17)
 const caseAgeDays = openedOn => Math.max(0, Math.round((REFERENCE_DATE - new Date(openedOn)) / (1000 * 60 * 60 * 24)))
 
 export default function ExecutiveCommandCenter() {
-  const { filters } = useApp()
+  const { filters, setActiveModule } = useApp()
+  const officialScale = scaleContext(TAXPAYERS.length, DISTRICTS.length)
   const [selectedTaxpayer, setSelectedTaxpayer] = useState(null)
   const [selectedDistrict, setSelectedDistrict] = useState(null)
   const [briefGenerated, setBriefGenerated] = useState(false)
@@ -338,6 +339,26 @@ export default function ExecutiveCommandCenter() {
         actions={<ExportBar moduleLabel="Executive Command Center" />}
       />
 
+      {/* Official published context, immediately above the simulated KPI row.
+          The cards below look exactly like real departmental figures; setting
+          the actual published scale next to them is what stops a reader taking
+          them for the state's book. */}
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2.5 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3">
+        <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 shrink-0">
+          <BadgeCheck className="w-3.5 h-3.5" /> {t('Official figures')}
+        </span>
+        <span className="text-[12px] text-steel-700 leading-relaxed flex-1">
+          {t('Maharashtra has {0} registered SGST dealers (as at 1 April 2025). This demonstration models {1}. The cards below are generated data, not departmental collection figures.',
+            officialScale.officialDealersDisplay, officialScale.modelledTaxpayers.toLocaleString('en-IN'))}
+        </span>
+        <button
+          onClick={() => setActiveModule('official-statistics')}
+          className="text-[11px] font-semibold text-emerald-800 hover:underline whitespace-nowrap shrink-0"
+        >
+          {t('View sources')} →
+        </button>
+      </div>
+
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
         <KpiCard label={t('GST Revenue Monitored')} value={revenueMonitoredCr.toLocaleString('en-IN')} unit={t('₹ Cr')} tone="navy" icon={Landmark} />
@@ -389,8 +410,8 @@ export default function ExecutiveCommandCenter() {
       {/* Statewide Statistics — horizontal pill-tab pattern */}
       <Card
         className="mb-5"
-        title={t('Statewide Statistics')}
-        subtitle={t("One consolidated statistics panel — switch views the way the department's own public Statistics page does")}
+        title={isFilteredView ? t('Statistics — Filtered View') : t('Statewide Statistics')}
+        subtitle={t('One consolidated statistics panel. Every view below reflects the header filters currently applied.')}
         actions={<span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-steel-400"><BarChart3 className="w-3.5 h-3.5" /> {t('{0} records', STAT_ROWS[statTab].length)}</span>}
       >
         <PillTabs tabs={STAT_TABS} active={statTab} onChange={setStatTab} />
@@ -548,7 +569,7 @@ export default function ExecutiveCommandCenter() {
               <div key={c.id} className="flex items-center gap-2">
                 <span className="text-[11px] text-navy-700 w-32 truncate shrink-0">{c.tradeName}</span>
                 <div className="flex-1 h-1.5 rounded-full bg-steel-100 overflow-hidden">
-                  <div className="h-full bg-navy-600" style={{ width: `${c.riskScore}%` }} />
+                  <div className="h-full bg-ink-600" style={{ width: `${c.riskScore}%` }} />
                 </div>
                 <span className="text-[11px] font-semibold text-navy-900 w-6 text-right shrink-0">{c.riskScore}</span>
               </div>
@@ -560,7 +581,9 @@ export default function ExecutiveCommandCenter() {
       {/* Top risk clusters table */}
       <Card
         title={t('Top 10 Highest-Risk Taxpayers')}
-        subtitle={t('Statewide risk ranking — click a row for the full Taxpayer 360 profile')}
+        subtitle={isFilteredView
+          ? t('Risk ranking within the current filtered view — click a row for the full Taxpayer 360 profile')
+          : t('Statewide risk ranking — click a row for the full Taxpayer 360 profile')}
         className="mb-5"
         actions={topRiskTaxpayers.some(t => t.risk.category === 'High' || t.risk.category === 'Critical') ? <HumanReviewBadge /> : null}
       >
@@ -582,7 +605,7 @@ export default function ExecutiveCommandCenter() {
           actions={
             <button
               onClick={() => setBriefGenerated(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-navy-700 text-white hover:bg-navy-800"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-ink-700 text-white hover:bg-ink-800"
             >
               <Sparkles className="w-3.5 h-3.5" /> {t('Generate')}
             </button>

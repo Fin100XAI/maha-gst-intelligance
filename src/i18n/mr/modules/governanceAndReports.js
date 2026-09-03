@@ -92,19 +92,19 @@ registerMessages('mr', {
   'IP / Device': 'IP / उपकरण',
   Status: 'स्थिती',
   Live: 'थेट',
-  'AI Copilot Prompt / Output Log': 'AI सहवैमानिक सूचना / निर्गत नोंद',
+  'AI Copilot Prompt / Output Log': 'AI को-पायलट सूचना / निर्गत नोंद',
   'Every draft, summary, checklist or translation the AI Copilot has generated, with the officer and case it was generated for':
-    'AI सहवैमानिकाने तयार केलेला प्रत्येक मसुदा, सारांश, तपासणी यादी किंवा भाषांतर, संबंधित अधिकारी व प्रकरणासह',
+    'AI को-पायलटाने तयार केलेला प्रत्येक मसुदा, सारांश, तपासणी यादी किंवा भाषांतर, संबंधित अधिकारी व प्रकरणासह',
   '{0} logged outputs': '{0} नोंदवलेले निर्गत',
-  'Search AI Copilot activity...': 'AI सहवैमानिक कार्यविवरण शोधा...',
+  'Search AI Copilot activity...': 'AI को-पायलट कार्यविवरण शोधा...',
   'No AI Copilot activity logged yet this session. Generate a draft, checklist, or summary from Officer AI Copilot to see it appear here.':
-    'या सत्रात अद्याप कोणतेही AI सहवैमानिक कार्य नोंदवले गेलेले नाही. अधिकारी AI सहवैमानिकावरून मसुदा, तपासणी यादी किंवा सारांश तयार करा म्हणजे ते येथे दिसेल.',
+    'या सत्रात अद्याप कोणतेही AI को-पायलट कार्य नोंदवले गेलेले नाही. अधिकारी AI को-पायलटावरून मसुदा, तपासणी यादी किंवा सारांश तयार करा म्हणजे ते येथे दिसेल.',
   Officer: 'अधिकारी',
   'AI Output Generated': 'तयार केलेले AI निर्गत',
   'Context Module': 'संदर्भ घटक',
   'Case / GSTIN': 'प्रकरण / GSTIN',
   'Prompt/output content itself is not persisted in this log by design (data minimisation) — only the fact that a generation occurred, by whom, for which case, and when. This satisfies the governance requirement for AI Copilot usage logging distinct from the general system audit trail above.':
-    'रचनेनुसार (माहिती अल्पीकरण) सूचना/निर्गत मजकूर स्वतः या नोंदीत साठवला जात नाही — केवळ निर्मिती घडली ही वस्तुस्थिती, कोणी, कोणत्या प्रकरणासाठी व केव्हा हेच नोंदवले जाते. हे वरील सर्वसाधारण प्रणाली लेखापरीक्षा मागोव्यापेक्षा वेगळी असलेली AI सहवैमानिक वापर नोंदणीची कारभार आवश्यकता पूर्ण करते.',
+    'रचनेनुसार (माहिती अल्पीकरण) सूचना/निर्गत मजकूर स्वतः या नोंदीत साठवला जात नाही — केवळ निर्मिती घडली ही वस्तुस्थिती, कोणी, कोणत्या प्रकरणासाठी व केव्हा हेच नोंदवले जाते. हे वरील सर्वसाधारण प्रणाली लेखापरीक्षा मागोव्यापेक्षा वेगळी असलेली AI को-पायलट वापर नोंदणीची कारभार आवश्यकता पूर्ण करते.',
 
   /* == Model Explainability & Data Governance panel ========================= */
   'Model Explainability & Data Governance': 'प्रारूप स्पष्टीकरणीयता व माहिती कारभार',
@@ -116,7 +116,7 @@ registerMessages('mr', {
   'Encryption status': 'कूटबद्धता स्थिती',
   'API integration security': 'API एकात्मीकरण सुरक्षा',
   'All AI Copilot and reporting integrations are routed through the departmental secure gateway with mutual TLS, request signing, and role-scoped API tokens; no taxpayer data is transmitted to external, uncontrolled endpoints.':
-    'सर्व AI सहवैमानिक व अहवाल एकात्मीकरणे परस्पर TLS, विनंती स्वाक्षरी व भूमिका-व्याप्त API टोकनसह विभागीय सुरक्षित प्रवेशद्वारामार्गे मार्गस्थ केली जातात; कोणतीही करदाता माहिती बाह्य, अनियंत्रित अंतिमबिंदूंकडे प्रसारित केली जात नाही.',
+    'सर्व AI को-पायलट व अहवाल एकात्मीकरणे परस्पर TLS, विनंती स्वाक्षरी व भूमिका-व्याप्त API टोकनसह विभागीय सुरक्षित प्रवेशद्वारामार्गे मार्गस्थ केली जातात; कोणतीही करदाता माहिती बाह्य, अनियंत्रित अंतिमबिंदूंकडे प्रसारित केली जात नाही.',
   'DPDP-aligned data handling': 'DPDP-अनुरूप माहिती हाताळणी',
   'Taxpayer personal and financial data is processed strictly for stated revenue-assurance and compliance purposes, consistent with the Digital Personal Data Protection Act, 2023, with purpose limitation, access logging and retention controls in place.':
     'करदात्याची वैयक्तिक व वित्तीय माहिती डिजिटल वैयक्तिक माहिती संरक्षण अधिनियम, २०२३ शी सुसंगत, केवळ नमूद महसूल हमी व अनुपालन प्रयोजनांसाठी हाताळली जाते, ज्यात प्रयोजन मर्यादा, प्रवेश नोंदणी व साठवण नियंत्रणे लागू आहेत.',
@@ -126,7 +126,7 @@ registerMessages('mr', {
   'Model drift monitoring': 'प्रारूप विचलन निरीक्षण',
   'Red-team testing status': 'रेड-टीम चाचणी स्थिती',
   'Last red-team adversarial test conducted on {0}, covering prompt-injection, data-exfiltration and adversarial-input scenarios against the AI Copilot layer.':
-    'AI सहवैमानिक स्तरावर सूचना-अंतःक्षेपण, माहिती-वहन व प्रतिकूल-निविष्टी परिस्थितींचा समावेश असलेली शेवटची रेड-टीम प्रतिकूल चाचणी {0} रोजी घेण्यात आली.',
+    'AI को-पायलट स्तरावर सूचना-अंतःक्षेपण, माहिती-वहन व प्रतिकूल-निविष्टी परिस्थितींचा समावेश असलेली शेवटची रेड-टीम प्रतिकूल चाचणी {0} रोजी घेण्यात आली.',
   'CERT-In / VAPT readiness': 'CERT-In / VAPT सज्जता',
   'Access control review': 'प्रवेश नियंत्रण पुनरावलोकन',
   'Data encryption audit': 'माहिती कूटबद्धता लेखापरीक्षा',

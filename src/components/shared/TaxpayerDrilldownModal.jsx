@@ -6,7 +6,7 @@ import { TrendLineChart } from '../ui/Charts.jsx'
 import { AIOutputPanel } from '../ui/AIOutputPanel.jsx'
 import { ExportBar } from '../ui/ExportBar.jsx'
 import { summarizeTaxpayer } from '../../data/ai.js'
-import { TAXPAYERS, NOTICES, SECTORS, MONTHS } from '../../data/mockData.js'
+import { TAXPAYERS, NOTICES, SECTORS, MONTHS, REFERENCE_DATE_ISO } from '../../data/mockData.js'
 import { useApp } from '../../context/AppContext.jsx'
 import { t } from '../../i18n/index.js'
 import { Building2, MapPin, Calendar, Phone, Mail, Sparkles } from 'lucide-react'
@@ -165,7 +165,7 @@ export function TaxpayerDrilldownModal({ taxpayer, open, onClose }) {
             <ul className="space-y-2 text-xs">
               <TimelineItem date={taxpayer.registrationDate} text={t('GST Registration granted')} />
               {taxpayerNotices.map(n => <TimelineItem key={n.id} date={n.issuedOn} text={t('{0} issued — status: {1}', n.type, t(n.status))} />)}
-              <TimelineItem date="2026-08-17" text={t('Current compliance history: {0}', taxpayer.complianceHistory)} />
+              <TimelineItem date={REFERENCE_DATE_ISO} text={t('Current compliance history: {0}', taxpayer.complianceHistory)} />
             </ul>
           </div>
           <div>
@@ -181,8 +181,8 @@ export function TaxpayerDrilldownModal({ taxpayer, open, onClose }) {
             <div className="flex gap-2">
               <input value={note} onChange={e => setNote(e.target.value)} placeholder={t('Add an officer note...')} className="flex-1 text-xs px-3 py-2 rounded-lg border border-steel-200" />
               <button
-                onClick={() => { if (note.trim()) { setNotes(n => [...n, { by: 'Current Officer', text: note, on: '2026-08-17' }]); setNote('') } }}
-                className="text-xs font-semibold px-3 py-2 rounded-lg bg-navy-700 text-white hover:bg-navy-800"
+                onClick={() => { if (note.trim()) { setNotes(n => [...n, { by: 'Current Officer', text: note, on: REFERENCE_DATE_ISO }]); setNote('') } }}
+                className="text-xs font-semibold px-3 py-2 rounded-lg bg-ink-700 text-white hover:bg-ink-800"
               >{t('Add Note')}</button>
             </div>
           </div>
