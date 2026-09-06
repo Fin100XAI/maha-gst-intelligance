@@ -269,6 +269,11 @@ function yieldOf(ordered) {
   }
 }
 
+/* Officer counts come from the capacity engine rather than being restated here.
+ * They were computed independently and disagreed — 24 officers at 3 days
+ * against 25 at 3.5 — so two screens answered "what can a week buy" with
+ * different numbers. The ordering comparison below is this module's own; the
+ * establishment it runs on is not. */
 export const OFFICER_YIELD = {
   fieldOfficerCount,
   weeklyCaseCapacity,

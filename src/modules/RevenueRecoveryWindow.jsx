@@ -228,9 +228,8 @@ export default function RevenueRecoveryWindow() {
       {/* ---- The operational payoff: same officers, different ordering ---- */}
       <Card
         className="mb-6"
-        title={t('Officer Capacity — What The Same Week Buys')}
-        subtitle={t('{0} field officers, {1} officer-days per case, {2} cases workable this week. The only variable changed is the order they are worked in.',
-          OFFICER_YIELD.fieldOfficerCount, OFFICER_YIELD.officerDaysPerCase, OFFICER_YIELD.weeklyCaseCapacity)}
+        title={t('Ordering — what the same week buys')}
+        subtitle={t('A like-for-like comparison of two orderings over one week of work — the only variable changed is the order cases are worked in. Establishment and eligibility are modelled properly in Officer Capacity & Deployment; this screen isolates the effect of ordering alone and should not be read as a capacity plan.')}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <YieldPanel
