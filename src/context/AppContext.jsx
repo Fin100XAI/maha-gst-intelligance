@@ -75,7 +75,8 @@ export const MODULES = [
   { id: 'early-warning', label: 'Compliance Early Warning', group: 'Risk Discovery' },
   { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Risk Discovery' },
   // ---- Missed Revenue ----
-  { id: 'retrospective', label: 'Retrospective Intelligence', group: 'Missed Revenue' },
+  { id: 'missed-revenue', label: 'Missed Revenue Discovery', group: 'Missed Revenue' },
+  { id: 'counterfactual', label: 'Counterfactual Case Intelligence', group: 'Missed Revenue' },
   // ---- Legal Standing ----
   { id: 'precedent', label: 'Precedent Intelligence', group: 'Legal Standing' },
   { id: 'litigation', label: 'Litigation Intelligence', group: 'Legal Standing' },

@@ -96,7 +96,7 @@ export const CONDITIONS = [
     valueLabel: 'already lost to queue dwell',
     decision: 'Set a maximum queue age for high-value signals, and staff to it.',
     owner: 'Commissioner',
-    target: 'retrospective'
+    target: 'counterfactual'
   },
   {
     id: 'decay',
@@ -141,7 +141,7 @@ export const CONDITIONS = [
     valueLabel: 'represented, not recoverable',
     decision: 'Establish the period and applicable section on the highest-value few before deciding whether to reopen.',
     owner: 'Divisional Joint Commissioner',
-    target: 'retrospective'
+    target: 'missed-revenue'
   }
 ]
   .filter(c => !c.suppressIf || !c.suppressIf())

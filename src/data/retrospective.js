@@ -298,3 +298,80 @@ export const SEPARATION_TEST = (() => {
     ]
   }
 })()
+
+/* ---------------------------------------------------------------------------
+ * PER-CASE BUILDERS
+ *
+ * The portfolio figures above answer "how much". These answer "which case, and
+ * why" — which is what an officer actually needs before reopening anything or
+ * defending a decision not to.
+ * ------------------------------------------------------------------------- */
+import { findComparables } from './similarity.js'
+import { buildCaseTwin } from './caseTwin.js'
+
+const REOPEN_CHECKS = [
+  { id: 'period', label: 'Establish the tax period and applicable section', why: 'Nothing can be reopened until the period is fixed, and the section decides how long there is to do it.' },
+  { id: 'limitation', label: 'Compute the limitation date for that period', why: 'A period already expired cannot be revisited whatever the evidence shows.' },
+  { id: 'evidence', label: 'Retrieve the evidence the closure rested on', why: 'The officer who closed it may have had a reason that never reached the system.' },
+  { id: 'quantify', label: 'Re-quantify the exposure against current returns', why: 'The figure below is a risk-model estimate, not an assessed demand.' }
+]
+
+/* Missed Revenue — one review candidate, explained.
+ *
+ * Deliberately NOT a classification. It states what fired, what the department
+ * did, what is comparable in the concluded record, and what has to be checked
+ * before anybody reopens anything. */
+export function buildRevisitBrief(gstin) {
+  const c = REVISIT_CANDIDATES.find(r => r.gstin === gstin)
+  if (!c) return null
+  const twin = buildCaseTwin(gstin)
+  const comparables = findComparables(gstin, 4)
+
+  return {
+    ...c,
+    // What fired, with the weight each rule carries.
+    signals: (twin?.position.triggeredRules || []).map(r => ({ label: r.label, weight: r.weight })),
+    // What the department did about it — the whole point of the screen.
+    departmentAction: c.basis === 'closed_with_signal'
+      ? 'An audit case was opened and closed while these rules were still firing.'
+      : 'No notice was ever issued against this taxpayer despite these rules firing.',
+    proceedings: twin ? twin.proceedings.notices.length + twin.proceedings.audit.length : 0,
+    comparables,
+    checks: REOPEN_CHECKS,
+    // The refusal, restated per case so it cannot be missed on any one of them.
+    notAClassification: 'This is a review candidate, not a classification. Nothing here proposes Section 74 treatment: the department holds one concluded Section 74 proceeding, and no resemblance model can be built on a single example. Reclassification carries a longer limitation period and a heavier penalty and must be decided by an officer on the evidence, not suggested by a screen.'
+  }
+}
+
+/* Counterfactual — one case, four worlds.
+ *
+ * Same action at different times, never a different action. The scenarios are
+ * the decay curve evaluated at four days; what a different escalation route
+ * would have produced is a causal claim this platform cannot make. */
+export function buildCounterfactual(gstin) {
+  const c = COUNTERFACTUALS.find(r => r.gstin === gstin)
+  if (!c) return null
+  const at = day => Math.round(c.exposure * recoverabilityFor(day))
+
+  const scenarios = [
+    { id: 'ideal', label: 'Acted the day the behaviour occurred', day: 0, value: at(0), feasible: false, note: 'Not achievable — the return that reveals it has not been filed yet. Shown as the ceiling.' },
+    { id: 'floor', label: 'Acted the day the signal first became visible', day: c.detectionFloorDays, value: at(c.detectionFloorDays), feasible: true, note: 'The earliest the department could have known. This is the realistic best case.' },
+    { id: 'thirty', label: 'Acted within 30 days of the signal', day: c.detectionFloorDays + 30, value: at(c.detectionFloorDays + 30), feasible: true, note: 'A service standard the department could set and staff to.' },
+    { id: 'actual', label: 'What actually happened', day: c.totalLagDays, value: at(c.totalLagDays), feasible: true, actual: true, note: `The case waited ${c.queueDwellDays} days in the queue after the signal appeared.` }
+  ]
+  const best = scenarios.find(s => s.id === 'floor')
+  const actual = scenarios.find(s => s.actual)
+
+  return {
+    ...c,
+    scenarios,
+    forgoneVsFeasible: best.value - actual.value,
+    // Evidence for the comparison, drawn from concluded proceedings rather
+    // than asserted.
+    comparables: findComparables(gstin, 4),
+    boundary: 'Every scenario above is the same action taken on a different day. None of them models a different action — escalation to another section, a provisional attachment, a different forum — because that is a causal claim about a route never taken, and it needs outcome histories across comparable cases where each route was actually followed.'
+  }
+}
+
+export const REVISIT_INDEX = REVISIT_CANDIDATES.map(c => ({ gstin: c.gstin, tradeName: c.tradeName, exposure: c.exposure, division: c.division }))
+export const COUNTERFACTUAL_INDEX = COUNTERFACTUALS.map(c => ({ gstin: c.gstin, tradeName: c.tradeName, lostToQueue: c.lostToQueue, division: c.division }))
