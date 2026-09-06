@@ -57,7 +57,7 @@ const DECLINE = {
   precedent: {
     reason: 'This requires the departmental archive of previous orders, appellate decisions and their outcomes.',
     missingFeed: 'bo',
-    wouldNeed: 'The order and appeal corpus, indexed and retrievable with citations. Matching on sector alone — which is all the current data supports — is not comparable precedent and should not be presented as such. What can be answered without it is in Precedent Intelligence: the binding authority on the questions of law in play, and this department’s own concluded outcomes on the same question where enough of them exist to be worth stating.'
+    wouldNeed: 'The order and appeal corpus, indexed and retrievable to paragraph. Matching on sector alone — which is all the current data supports — is not comparable precedent and must not be presented as one. The brief above already carries what can be grounded without that corpus: any binding or persuasive authority on a question of law this case turns on, and the department’s own record on the same question where enough proceedings have concluded to state one.'
   },
   reply: {
     reason: 'No reply document is held against this case. The platform has the notice and its status, but not the taxpayer’s submission or its annexures.',

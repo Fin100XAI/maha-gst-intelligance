@@ -8,6 +8,7 @@ import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
 import { TAXPAYERS } from '../data/mockData.js'
 import { TWIN_INDEX, SOURCE_SYSTEMS } from '../data/caseTwin.js'
 import { QUESTIONS, answerQuestion, COPILOT_NOTE } from '../data/copilot.js'
+import { ActionBrief } from '../components/shared/ActionBrief.jsx'
 import { t } from '../i18n/index.js'
 
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
@@ -99,6 +100,10 @@ export default function OfficerAICopilot() {
               </div>
             </div>
           )}
+
+          {/* The seven elements an officer needs before acting, assembled in
+              one place rather than scattered across seven screens. */}
+          {active && <ActionBrief gstin={active} />}
 
           <Card title={t('Ask about this case')} subtitle={t('Grounded questions return cited statements. The three marked below cannot be grounded on the feeds currently connected.')}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

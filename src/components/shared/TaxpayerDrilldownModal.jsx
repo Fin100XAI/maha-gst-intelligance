@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Modal } from '../ui/Modal.jsx'
 import { RiskBadge, Pill } from '../ui/RiskBadge.jsx'
 import { StatutoryFlag, StatutoryVerdict } from '../ui/StatutoryFlag.jsx'
+import { ActionBrief } from './ActionBrief.jsx'
 import { WhyFlaggedPanel } from '../ui/WhyFlagged.jsx'
 import { TrendLineChart } from '../ui/Charts.jsx'
 import { AIOutputPanel } from '../ui/AIOutputPanel.jsx'
@@ -72,6 +73,7 @@ export function TaxpayerDrilldownModal({ taxpayer, open, onClose }) {
           notices listed further down include ones on periods that have expired,
           and nothing else on this modal would have said so. */}
       <StatutoryVerdict gstin={taxpayer.gstin} />
+      <div className="mb-3"><ActionBrief gstin={taxpayer.gstin} /></div>
       <div className="flex flex-wrap items-center gap-2 mb-2 text-[11px] text-steel-500">
         <Pill tone="navy">{t('Risk signal only')}</Pill>
         <Pill tone="amber">{t('Officer verification required')}</Pill>
