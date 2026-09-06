@@ -66,6 +66,7 @@ export const MODULES = [
   { id: 'itc-risk', label: 'ITC Risk Intelligence', group: 'Fraud & Risk' },
   { id: 'fake-invoice', label: 'Fake Invoice Network', group: 'Fraud & Risk' },
   { id: 'network-enforcement', label: 'Network Enforcement', group: 'Fraud & Risk' },
+  { id: 'unknown-risk', label: 'Unknown Risk Discovery', group: 'Fraud & Risk' },
   { id: 'eway-bill', label: 'E-Way Bill Intelligence', group: 'Fraud & Risk' },
   { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Fraud & Risk' },
   { id: 'case-priority', label: 'Case Priority Engine', group: 'Enforcement' },
