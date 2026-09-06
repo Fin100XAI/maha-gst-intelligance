@@ -46,6 +46,13 @@ registerMessages('mr', {
   'Revenue Assurance & Compliance Intelligence Infrastructure': 'महसूल हमी व अनुपालन इंटेलिजन्स प्रणाली',
 
   /* == Navigation groups (also used on the landing page capability grid) === */
+  'Revenue at Risk': 'जोखमीतील महसूल',
+  'Act This Week': 'या आठवड्यातील कार्यवाही',
+  'Risk Discovery': 'जोखीम शोध',
+  'Missed Revenue': 'निसटलेला महसूल',
+  'Legal Standing': 'विधी स्थिती',
+  'Case Evidence': 'प्रकरण पुरावा',
+  'Assurance & Performance': 'आश्वासन व कामगिरी',
   Commissionerate: 'आयुक्तालय',
   'Registration & Returns': 'नोंदणी व विवरणपत्रे',
   'Audit & Assessment': 'लेखापरीक्षण व निर्धारण',
