@@ -33,6 +33,7 @@ export const MODULE_ICONS = {
   'revenue-protection': ShieldCheckIcon,
   'missed-revenue': History,
   'counterfactual': GitCompare,
+  'engine-stack': Layers,
   'early-warning': BellRing,
   'ai-governance': ShieldCheck,
   'reports': FileBarChart2,
