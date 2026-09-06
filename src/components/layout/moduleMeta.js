@@ -59,10 +59,11 @@ export function useSidebarBadges() {
 }
 
 export const NAV_GROUPS = [
-  { id: 'Leadership', label: 'Leadership' },
-  { id: 'Revenue', label: 'Revenue' },
-  { id: 'Fraud & Risk', label: 'Fraud & Risk' },
-  { id: 'Enforcement', label: 'Enforcement' },
-  { id: 'Benchmarking', label: 'Benchmarking' },
-  { id: 'Governance', label: 'Governance' }
+  { id: 'Commissionerate', label: 'Commissionerate' },
+  { id: 'Registration & Returns', label: 'Registration & Returns' },
+  { id: 'Audit & Assessment', label: 'Audit & Assessment' },
+  { id: 'Investigation & Enforcement', label: 'Investigation & Enforcement' },
+  { id: 'Refund & Recovery', label: 'Refund & Recovery' },
+  { id: 'Legal & Appeals', label: 'Legal & Appeals' },
+  { id: 'Analytics & Governance', label: 'Analytics & Governance' }
 ]

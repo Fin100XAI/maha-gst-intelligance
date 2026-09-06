@@ -89,12 +89,13 @@ const TRUST_PRINCIPLES = [
 ]
 
 const GROUP_TONE = {
-  Leadership: 'navy',
-  Revenue: 'green',
-  'Fraud & Risk': 'red',
-  Enforcement: 'orange',
-  Benchmarking: 'saffron',
-  Governance: 'steel'
+  Commissionerate: 'navy',
+  'Registration & Returns': 'green',
+  'Audit & Assessment': 'saffron',
+  'Investigation & Enforcement': 'red',
+  'Refund & Recovery': 'orange',
+  'Legal & Appeals': 'navy',
+  'Analytics & Governance': 'steel'
 }
 
 // One line per module — what an officer actually finds on that page, not a restatement of its name.

@@ -56,35 +56,39 @@ function readInitialTheme() {
 // Order within a group is the order the menu lists them, and the first entry a
 // role can access is where that role lands after sign-in.
 export const MODULES = [
-  { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Leadership' },
-  { id: 'retrospective', label: 'Retrospective Intelligence', group: 'Leadership' },
-  { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Leadership' },
-  { id: 'command-center', label: 'Executive Command Center', group: 'Leadership' },
-  { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Leadership' },
-  { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Leadership' },
-  { id: 'case-twin', label: 'Case Digital Twin', group: 'Revenue' },
-  { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue' },
-  { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Revenue' },
-  { id: 'itc-risk', label: 'ITC Risk Intelligence', group: 'Fraud & Risk' },
-  { id: 'fake-invoice', label: 'Fake Invoice Network', group: 'Fraud & Risk' },
-  { id: 'network-enforcement', label: 'Network Enforcement', group: 'Fraud & Risk' },
-  { id: 'unknown-risk', label: 'Unknown Risk Discovery', group: 'Fraud & Risk' },
-  { id: 'eway-bill', label: 'E-Way Bill Intelligence', group: 'Fraud & Risk' },
-  { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Fraud & Risk' },
-  { id: 'case-priority', label: 'Case Priority Engine', group: 'Enforcement' },
-  { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Enforcement' },
-  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
-  { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
-  // Hidden from the navigation menus, but still routable — the Copilot button
-  // in the header is the way in, and every module that links to a case can
-  // still hand off to it. `hidden` only affects what the menus list.
-  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Enforcement', hidden: true },
-  { id: 'litigation', label: 'Litigation Intelligence', group: 'Enforcement' },
-  { id: 'precedent', label: 'Precedent Intelligence', group: 'Enforcement' },
-  { id: 'early-warning', label: 'Compliance Early Warning', group: 'Revenue' },
-  { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance' },
-  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' },
-  { id: 'official-statistics', label: 'Official Statistics', group: 'Governance' }
+  // ---- Commissionerate ----
+  { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Commissionerate' },
+  { id: 'command-center', label: 'Executive Command Center', group: 'Commissionerate' },
+  { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Commissionerate' },
+  { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Commissionerate' },
+  { id: 'retrospective', label: 'Retrospective Intelligence', group: 'Commissionerate' },
+  // ---- Registration & Returns ----
+  { id: 'case-twin', label: 'Case Digital Twin', group: 'Registration & Returns' },
+  { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Registration & Returns' },
+  { id: 'early-warning', label: 'Compliance Early Warning', group: 'Registration & Returns' },
+  { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Registration & Returns' },
+  // ---- Audit & Assessment ----
+  { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Audit & Assessment' },
+  { id: 'case-priority', label: 'Case Priority Engine', group: 'Audit & Assessment' },
+  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Audit & Assessment', hidden: true },
+  // ---- Investigation & Enforcement ----
+  { id: 'fake-invoice', label: 'Fake Invoice Network', group: 'Investigation & Enforcement' },
+  { id: 'network-enforcement', label: 'Network Enforcement', group: 'Investigation & Enforcement' },
+  { id: 'unknown-risk', label: 'Unknown Risk Discovery', group: 'Investigation & Enforcement' },
+  { id: 'itc-risk', label: 'ITC Risk Intelligence', group: 'Investigation & Enforcement' },
+  { id: 'eway-bill', label: 'E-Way Bill Intelligence', group: 'Investigation & Enforcement' },
+  // ---- Refund & Recovery ----
+  { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Refund & Recovery' },
+  { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Refund & Recovery' },
+  // ---- Legal & Appeals ----
+  { id: 'litigation', label: 'Litigation Intelligence', group: 'Legal & Appeals' },
+  { id: 'precedent', label: 'Precedent Intelligence', group: 'Legal & Appeals' },
+  // ---- Analytics & Governance ----
+  { id: 'district-performance', label: 'District & Division Performance', group: 'Analytics & Governance' },
+  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Analytics & Governance' },
+  { id: 'ai-governance', label: 'AI Governance & Security', group: 'Analytics & Governance' },
+  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Analytics & Governance' },
+  { id: 'official-statistics', label: 'Official Statistics', group: 'Analytics & Governance' }
 ]
 
 // The modules the navigation menus and the landing-page grid list. Routing,
