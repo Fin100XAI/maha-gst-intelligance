@@ -15,6 +15,7 @@ import CapacityOptimisation from './modules/CapacityOptimisation.jsx'
 import NetworkEnforcement from './modules/NetworkEnforcement.jsx'
 import UnknownRiskDiscovery from './modules/UnknownRiskDiscovery.jsx'
 import RevenueProtectionCommandCentre from './modules/RevenueProtectionCommandCentre.jsx'
+import RetrospectiveIntelligence from './modules/RetrospectiveIntelligence.jsx'
 import RevenueRecoveryWindow from './modules/RevenueRecoveryWindow.jsx'
 import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
 import CaseDigitalTwin from './modules/CaseDigitalTwin.jsx'
@@ -42,6 +43,7 @@ const MODULE_COMPONENTS = {
   'network-enforcement': NetworkEnforcement,
   'unknown-risk': UnknownRiskDiscovery,
   'revenue-protection': RevenueProtectionCommandCentre,
+  'retrospective': RetrospectiveIntelligence,
   'recovery-window': RevenueRecoveryWindow,
   'command-center': ExecutiveCommandCenter,
   'case-twin': CaseDigitalTwin,
