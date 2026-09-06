@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ShieldCheck, Gavel, Receipt, Search, Bot, FileBarChart2, Crown, Users, ChevronRight, KeyRound, AlertTriangle } from 'lucide-react'
+import { ShieldCheck, Gavel, Receipt, Search, Bot, FileBarChart2, Crown, Users, ChevronRight, KeyRound, AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import { useApp, NAV_MODULES, canAccessModule, ROLE_SECTIONS, DEMO_ACCESS_CODE, DEMO_GATE_NOTE } from '../../context/AppContext.jsx'
 import { OFFICER_ROLES, officerByRole } from '../../data/mockData.js'
 import { t } from '../../i18n/index.js'
@@ -28,6 +28,7 @@ export function RoleSelector() {
   const [selected, setSelected] = useState(null)
   const [name, setName] = useState('')
   const [code, setCode] = useState('')
+  const [showCode, setShowCode] = useState(false)
   const [error, setError] = useState('')
 
   const enter = () => {
@@ -88,15 +89,15 @@ export function RoleSelector() {
       </div>
 
       {/* Right: the sign-in itself. */}
-      <div className="lg:w-1/2 bg-steel-50 flex-1 min-h-0 overflow-y-auto">
-        <div className="max-w-lg mx-auto px-6 sm:px-8 py-6 flex flex-col min-h-full">
+      <div className="lg:w-1/2 bg-steel-50 flex-1 min-h-0 overflow-hidden">
+        <div className="max-w-lg mx-auto px-6 sm:px-8 py-5 flex flex-col h-full">
           <div className="shrink-0">
             <h2 className="text-lg font-bold text-navy-900">{t('Officer Sign-In')}</h2>
             <p className="text-[12.5px] text-steel-600 mt-0.5">{t('Select your role, then enter the access code.')}</p>
           </div>
 
           {!CASE_SCOPED_ROLES.includes(selected) && (
-            <div className="mt-4 shrink-0">
+            <div className="mt-3 shrink-0">
               <label className="text-xs font-semibold text-steel-500">{t('Officer Name (optional)')}</label>
               <input
                 value={name}
@@ -107,8 +108,8 @@ export function RoleSelector() {
             </div>
           )}
 
-          <div className="text-xs font-semibold text-steel-500 mt-4 mb-2 shrink-0">{t('Select Role to Continue')}</div>
-          <div className="grid sm:grid-cols-2 gap-2 content-start">
+          <div className="text-xs font-semibold text-steel-500 mt-3 mb-1.5 shrink-0">{t('Select Role to Continue')}</div>
+          <div className="grid grid-cols-2 gap-1.5 content-start shrink-0">
             {OFFICER_ROLES.map(role => {
               const meta = ROLE_META[role]
               const Icon = meta.icon
@@ -117,13 +118,11 @@ export function RoleSelector() {
                 <button
                   key={role}
                   onClick={() => { setSelected(role); setName('') }}
-                  className={`text-left flex items-start gap-3 p-2.5 rounded-xl border transition-all bg-white ${active ? 'border-govt-600 bg-govt-50 ring-2 ring-govt-200' : 'border-steel-200 hover:border-govt-300 hover:bg-steel-50'}`}
+                  title={t(meta.desc)}
+                  className={`text-left flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all bg-white ${active ? 'border-govt-600 bg-govt-50 ring-2 ring-govt-200' : 'border-steel-200 hover:border-govt-300 hover:bg-steel-50'}`}
                 >
-                  <span className={`p-2 rounded-lg shrink-0 ${active ? 'bg-govt-700 text-white' : 'bg-steel-100 text-steel-600'}`}><Icon className="w-4 h-4" /></span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-navy-900">{t(role)}</span>
-                    <span className="block text-[11px] text-steel-500 mt-0.5 leading-snug">{t(meta.desc)}</span>
-                  </span>
+                  <span className={`p-1.5 rounded-md shrink-0 ${active ? 'bg-govt-700 text-white' : 'bg-steel-100 text-steel-600'}`}><Icon className="w-3.5 h-3.5" /></span>
+                  <span className="text-[12.5px] font-semibold text-navy-900 leading-tight">{t(role)}</span>
                 </button>
               )
             })}
@@ -146,7 +145,7 @@ export function RoleSelector() {
           )}
 
           {selected && (
-            <div className="mt-3 rounded-lg border border-steel-200 bg-steel-50/70 px-3.5 py-2.5">
+            <div className="mt-2.5 rounded-lg border border-steel-200 bg-steel-50/70 px-3 py-2 shrink-0">
               <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{t('Sections this role opens')}</div>
               <div className="flex flex-wrap gap-1">
                 {ROLE_SECTIONS[selected] === 'all'
@@ -158,12 +157,13 @@ export function RoleSelector() {
             </div>
           )}
 
-          <label className="block mt-3">
+          <label className="block mt-2.5 shrink-0">
             <span className="text-[11px] font-semibold text-steel-600 flex items-center gap-1.5">
               <KeyRound className="w-3.5 h-3.5 text-steel-400" />{t('Demonstration access code')}
             </span>
+            <span className="relative block mt-1">
             <input
-              type="password"
+              type={showCode ? 'text' : 'password'}
               value={code}
               name="maha-demo-access-code"
               autoComplete="new-password"
@@ -175,10 +175,20 @@ export function RoleSelector() {
               onChange={e => { setCode(e.target.value); if (error) setError('') }}
               onKeyDown={e => { if (e.key === 'Enter') enter() }}
               placeholder={t('Enter the access code')}
-              className={`mt-1 w-full px-3 py-1.5 text-sm rounded-lg border focus:outline-none focus:ring-2 bg-white ${
+              className={`w-full px-3 py-2 pr-10 text-sm rounded-lg border focus:outline-none focus:ring-2 bg-white ${
                 error ? 'border-red-300 focus:ring-red-300' : 'border-steel-200 focus:ring-govt-300'
               }`}
             />
+            <button
+              type="button"
+              onClick={() => setShowCode(v => !v)}
+              aria-label={showCode ? t('Hide access code') : t('Show access code')}
+              title={showCode ? t('Hide access code') : t('Show access code')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-steel-400 hover:text-navy-700 hover:bg-steel-100"
+            >
+              {showCode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+            </span>
             {error && (
               <span className="flex items-center gap-1.5 text-[11px] text-[#C5221F] mt-1">
                 <AlertTriangle className="w-3 h-3 shrink-0" />{error}
@@ -189,12 +199,12 @@ export function RoleSelector() {
           <button
             onClick={enter}
             disabled={!selected || !code || (CASE_SCOPED_ROLES.includes(selected) && !name)}
-            className="mt-3 w-full flex items-center justify-center gap-1.5 bg-gradient-to-b from-govt-600 to-govt-700 hover:from-govt-500 hover:to-govt-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm py-2.5 rounded-xl transition-colors shrink-0"
+            className="mt-2.5 w-full flex items-center justify-center gap-1.5 shrink-0 bg-gradient-to-b from-govt-600 to-govt-700 hover:from-govt-500 hover:to-govt-600 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm py-2.5 rounded-xl transition-colors shrink-0"
           >
             {t('Enter Secure Workspace')} <ChevronRight className="w-4 h-4" />
           </button>
 
-          <p className="text-[10.5px] text-steel-400 mt-3 leading-relaxed">
+          <p className="text-[10px] text-steel-400 mt-2.5 leading-snug shrink-0">
             {t('Demonstration environment using simulated data. Role-based section access, maker-checker workflow and audit logging run throughout the platform.')}{' '}
             <span className="text-amber-700">{DEMO_GATE_NOTE}</span>
           </p>
