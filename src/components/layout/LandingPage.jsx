@@ -104,7 +104,6 @@ const GROUP_TONE = {
 const MODULE_DESCRIPTIONS = {
   'command-center': 'Whole state on one screen, ordered by what needs a decision today.',
   'revenue-intelligence': 'Collection against target across every district, sector and tax head.',
-  'taxpayer-360': 'One profile per GSTIN — filings, payments, ITC and risk in one place.',
   'itc-risk': 'Input tax credit claims scored against filing and payment behaviour.',
   'fake-invoice': 'Graph view of circular trading, shell entities and pass-through chains.',
   'eway-bill': 'Transit records checked against filings for mismatches and route anomalies.',

@@ -24,7 +24,6 @@ import RevenueRecoveryWindow from './modules/RevenueRecoveryWindow.jsx'
 import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
 import CaseDigitalTwin from './modules/CaseDigitalTwin.jsx'
 import RevenueIntelligence from './modules/RevenueIntelligence.jsx'
-import Taxpayer360 from './modules/Taxpayer360.jsx'
 import ITCRiskIntelligence from './modules/ITCRiskIntelligence.jsx'
 import FakeInvoiceNetwork from './modules/FakeInvoiceNetwork.jsx'
 import EWayBillIntelligence from './modules/EWayBillIntelligence.jsx'
@@ -56,7 +55,6 @@ const MODULE_COMPONENTS = {
   'command-center': ExecutiveCommandCenter,
   'case-twin': CaseDigitalTwin,
   'revenue-intelligence': RevenueIntelligence,
-  'taxpayer-360': Taxpayer360,
   'itc-risk': ITCRiskIntelligence,
   'fake-invoice': FakeInvoiceNetwork,
   'eway-bill': EWayBillIntelligence,

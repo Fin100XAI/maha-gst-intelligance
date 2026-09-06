@@ -15,7 +15,6 @@ export const MODULE_ICONS = {
   'command-center': LayoutDashboard,
   'case-twin': Layers,
   'revenue-intelligence': TrendingUp,
-  'taxpayer-360': UserSearch,
   'itc-risk': ShieldAlert,
   'fake-invoice': Network,
   'eway-bill': Truck,

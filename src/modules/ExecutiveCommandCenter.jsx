@@ -5,7 +5,7 @@ import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.js
 import { Modal } from '../components/ui/Modal.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
-import { TrendLineChart, RiskBarChart, RiskDonutChart, HealthRadarChart } from '../components/ui/Charts.jsx'
+import { RiskDonutChart, HealthRadarChart } from '../components/ui/Charts.jsx'
 import { ScoreGauge } from '../components/ui/ScoreGauge.jsx'
 import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
@@ -40,7 +40,6 @@ export default function ExecutiveCommandCenter() {
 
   const lastMonth = STATE_REVENUE_TREND.at(-1)
   const revenueGapCr = lastMonth.actual - lastMonth.target
-  const revenueGapPct = Math.round((revenueGapCr / lastMonth.target) * 1000) / 10
 
   const isFilteredView = filters.district !== 'All Districts' || filters.division !== 'All Divisions'
     || filters.sector !== 'All Sectors' || filters.riskLevel !== 'All Risk Levels'
@@ -98,13 +97,6 @@ export default function ExecutiveCommandCenter() {
     return Object.entries(counts).map(([name, value]) => ({ name, value }))
   }, [filteredTaxpayers])
 
-  const sectorChartData = useMemo(
-    () => [...SECTOR_REVENUE]
-      .filter(s => filters.sector === 'All Sectors' || s.sector === filters.sector)
-      .sort((a, b) => b.revenueLakh - a.revenueLakh)
-      .map(s => ({ sector: s.sector, revenueLakh: s.revenueLakh })),
-    [filters.sector]
-  )
 
   const topRiskTaxpayers = useMemo(
     () => [...filteredTaxpayers].sort((a, b) => b.risk.score - a.risk.score).slice(0, 10),
@@ -428,31 +420,6 @@ export default function ExecutiveCommandCenter() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-        {/* Revenue trend */}
-        <Card
-          className="lg:col-span-2"
-          title={t('State Revenue Trend — Target vs Actual')}
-          subtitle={t('{0}-month collection performance (₹ Cr) — {1}', filteredTrend.length, t(filters.dateRange))}
-          actions={
-            <span
-              className="text-xs font-semibold px-2.5 py-1 rounded-full border"
-              style={revenueGapCr >= 0 ? { backgroundColor: TONE_STYLES.green.bg, borderColor: TONE_STYLES.green.border, color: TONE_STYLES.green.accent } : { backgroundColor: TONE_STYLES.red.bg, borderColor: TONE_STYLES.red.border, color: TONE_STYLES.red.accent }}
-            >
-              {revenueGapCr >= 0 ? <TrendingUp className="w-3 h-3 inline mr-1" /> : <TrendingDown className="w-3 h-3 inline mr-1" />}
-              {t('Gap:')} {revenueGapCr >= 0 ? '+' : ''}₹{revenueGapCr.toLocaleString('en-IN')} Cr ({revenueGapPct}%)
-            </span>
-          }
-        >
-          <TrendLineChart
-            data={filteredTrend}
-            xKey="month"
-            series={[
-              { key: 'target', label: t('Target (₹ Cr)'), color: '#8791a3', dashed: true },
-              { key: 'actual', label: t('Actual (₹ Cr)'), color: '#204575' }
-            ]}
-          />
-        </Card>
-
         {/* Risk distribution */}
         <Card title={t('Taxpayer Risk Distribution')} subtitle={isFilteredView ? t('{0} taxpayers matching current filters', filteredTaxpayers.length) : t('{0} taxpayers monitored statewide', filteredTaxpayers.length)}>
           <RiskDonutChart
@@ -504,13 +471,8 @@ export default function ExecutiveCommandCenter() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-        {/* Sector revenue */}
-        <Card className="lg:col-span-2" title={t('Sector-Wise Revenue Contribution')} subtitle={t('Tax collected by sector (₹ Lakh)')}>
-          <RiskBarChart data={sectorChartData} xKey="sector" barKey="revenueLakh" colorFn={() => '#204575'} />
-        </Card>
-
         {/* Matters requiring attention */}
-        <Card title={t('Matters Requiring Attention')} subtitle={t('{0} open', priorityAlerts.length)}>
+        <Card className="lg:col-span-2" title={t('Matters Requiring Attention')} subtitle={t('{0} open', priorityAlerts.length)}>
           <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
             {priorityAlerts.map(a => {
               const category = riskCategoryFromScore(a.riskScore)

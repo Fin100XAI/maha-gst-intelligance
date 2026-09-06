@@ -83,7 +83,6 @@ export const MODULES = [
   { id: 'litigation', label: 'Litigation Intelligence', group: 'Legal Standing' },
   // ---- Case Evidence ----
   { id: 'case-twin', label: 'Case Digital Twin', group: 'Case Evidence' },
-  { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Case Evidence' },
   // ---- Benchmarking ----
   { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
