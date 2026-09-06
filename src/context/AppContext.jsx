@@ -4,7 +4,7 @@ import { createContext, useContext, useMemo, useState, useCallback, useEffect } 
 // function body only fails when that function runs — so every module filtering
 // a dated case list threw at render.
 import { DISTRICTS, SECTORS, AUDIT_LOG, isWithinDateRange } from '../data/mockData.js'
-import { getLocale, setActiveLocale } from '../i18n/index.js'
+import { getLocale, setActiveLocale, getLocaleInfo } from '../i18n/index.js'
 
 const AppContext = createContext(null)
 
@@ -204,6 +204,15 @@ export function AppProvider({ children }) {
   const [locale, setLocaleState] = useState(getLocale)
   const [fontScale, setFontScale] = useState(readInitialFontScale)
   const [theme, setTheme] = useState(readInitialTheme)
+
+  /* The document language has to follow the active locale, or a screen reader
+   * announces Devanagari with English pronunciation rules. This was never
+   * applied — LOCALE_INFO carried htmlLang but only the switcher buttons used
+   * it, so the page has claimed to be English in every locale since Marathi
+   * was added. */
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', getLocaleInfo().htmlLang)
+  }, [locale])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)

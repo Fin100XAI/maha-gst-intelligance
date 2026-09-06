@@ -15,6 +15,7 @@
 // before the first `t()` call, which importing this module guarantees.
 import './compose.js'
 import './mr/index.js'
+import './hi/index.js'
 
 export {
   DEFAULT_LOCALE,

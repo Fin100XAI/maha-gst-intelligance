@@ -22,18 +22,19 @@
  * and then update a piece of real React state.
  * ------------------------------------------------------------------------- */
 
-export const LOCALES = ['en', 'mr']
+export const LOCALES = ['en', 'mr', 'hi']
 
 export const LOCALE_INFO = {
   en: { id: 'en', nativeName: 'English', englishName: 'English', htmlLang: 'en-IN', abbreviation: 'ENG' },
-  mr: { id: 'mr', nativeName: 'मराठी', englishName: 'Marathi', htmlLang: 'mr-IN', abbreviation: 'मरा' }
+  mr: { id: 'mr', nativeName: 'मराठी', englishName: 'Marathi', htmlLang: 'mr-IN', abbreviation: 'मरा' },
+  hi: { id: 'hi', nativeName: 'हिंदी', englishName: 'Hindi', htmlLang: 'hi-IN', abbreviation: 'हिं' }
 }
 
 export const DEFAULT_LOCALE = 'en'
 export const LOCALE_STORAGE_KEY = 'maha-gst.locale'
 
 function isLocale(value) {
-  return value === 'en' || value === 'mr'
+  return LOCALES.includes(value)
 }
 
 function readInitialLocale() {
@@ -74,7 +75,7 @@ export function setActiveLocale(locale) {
  * Message catalogue
  * ------------------------------------------------------------------------- */
 
-const catalogues = { en: new Map(), mr: new Map() }
+const catalogues = Object.fromEntries(LOCALES.map(l => [l, new Map()]))
 
 /** Registers a block of translations. Later registrations win. */
 export function registerMessages(locale, entries) {
