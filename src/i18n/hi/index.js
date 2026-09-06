@@ -11,3 +11,4 @@
 import './shell.js'
 import './modules/statutoryAndRecovery.js'
 import './modules/revenueProtection.js'
+import './modules/capacityAndDeployment.js'
