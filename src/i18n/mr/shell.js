@@ -52,7 +52,6 @@ registerMessages('mr', {
   'Missed Revenue': 'निसटलेला महसूल',
   'Legal Standing': 'विधी स्थिती',
   'Case Evidence': 'प्रकरण पुरावा',
-  'Governance & Assurance': 'कारभार व आश्वासन',
   Commissionerate: 'आयुक्तालय',
   'Registration & Returns': 'नोंदणी व विवरणपत्रे',
   'Audit & Assessment': 'लेखापरीक्षण व निर्धारण',

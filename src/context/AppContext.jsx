@@ -87,10 +87,10 @@ export const MODULES = [
   // ---- Benchmarking ----
   { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
-  // ---- Governance & Assurance ----
-  { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance & Assurance' },
-  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance & Assurance' },
-  { id: 'official-statistics', label: 'Official Statistics', group: 'Governance & Assurance' }
+  // ---- Governance ----
+  { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance' },
+  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' },
+  { id: 'official-statistics', label: 'Official Statistics', group: 'Governance' }
 ]
 
 // The modules the navigation menus and the landing-page grid list. Routing,

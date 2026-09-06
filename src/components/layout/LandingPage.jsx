@@ -96,7 +96,7 @@ const GROUP_TONE = {
   'Legal Standing': 'green',
   'Case Evidence': 'steel',
   'Benchmarking': 'navy',
-  'Governance & Assurance': 'steel'
+  'Governance': 'steel'
 }
 
 // One line per module — what an officer actually finds on that page, not a restatement of its name.
