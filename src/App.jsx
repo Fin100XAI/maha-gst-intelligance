@@ -9,6 +9,7 @@ import { RoleSelector } from './components/layout/RoleSelector.jsx'
 import { LandingPage } from './components/layout/LandingPage.jsx'
 import { RoleGate } from './components/layout/RoleGate.jsx'
 
+import StatutoryTimeIntelligence from './modules/StatutoryTimeIntelligence.jsx'
 import RevenueRecoveryWindow from './modules/RevenueRecoveryWindow.jsx'
 import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
 import RevenueIntelligence from './modules/RevenueIntelligence.jsx'
@@ -28,6 +29,7 @@ import ReportsBriefingNotes from './modules/ReportsBriefingNotes.jsx'
 import OfficialStatistics from './modules/OfficialStatistics.jsx'
 
 const MODULE_COMPONENTS = {
+  'statutory-time': StatutoryTimeIntelligence,
   'recovery-window': RevenueRecoveryWindow,
   'command-center': ExecutiveCommandCenter,
   'revenue-intelligence': RevenueIntelligence,

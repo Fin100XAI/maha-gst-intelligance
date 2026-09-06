@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import {
-  LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer,
+  LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer, Gavel as GavelIcon,
   Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
   FileBarChart2, BadgeCheck
 } from 'lucide-react'
@@ -10,6 +10,7 @@ import {
 } from '../../data/mockData.js'
 
 export const MODULE_ICONS = {
+  'statutory-time': GavelIcon,
   'recovery-window': Timer,
   'command-center': LayoutDashboard,
   'revenue-intelligence': TrendingUp,

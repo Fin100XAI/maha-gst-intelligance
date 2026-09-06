@@ -56,6 +56,7 @@ function readInitialTheme() {
 // Order within a group is the order the menu lists them, and the first entry a
 // role can access is where that role lands after sign-in.
 export const MODULES = [
+  { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Leadership' },
   { id: 'command-center', label: 'Executive Command Center', group: 'Leadership' },
   { id: 'recovery-window', label: 'Revenue Recovery Window', group: 'Leadership' },
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue' },
@@ -84,6 +85,7 @@ export const MODULES = [
 export const NAV_MODULES = MODULES.filter(m => !m.hidden)
 
 const RESTRICTED = {
+  'statutory-time': ['Commissioner', 'Joint Commissioner', 'Division Officer', 'Audit Officer'],
   'recovery-window': ['Commissioner', 'Joint Commissioner', 'Division Officer'],
   'command-center': ['Commissioner', 'Joint Commissioner'],
   'ai-governance': ['Commissioner', 'Joint Commissioner', 'AI Governance Officer'],
