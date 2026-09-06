@@ -46,35 +46,69 @@ export function RoleSelector() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-govt-900 flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-4xl h-full flex flex-col">
-        <div className="flex justify-end gap-2 mb-2 shrink-0">
+    <div className="h-screen overflow-hidden flex flex-col lg:flex-row">
+      {/* Left: identity and what the officer is signing into. Carries the
+          simulated-data statement so it is read before sign-in, not after. */}
+      <div className="lg:w-1/2 bg-govt-900 text-white flex flex-col justify-between px-6 sm:px-10 py-6 shrink-0 lg:h-full">
+        <div className="flex justify-end gap-2">
           <FontSizeControl className="hidden sm:flex bg-white/10 border-white/15" />
           <ThemeSwitcher className="bg-white/10 border-white/15" />
           <LanguageSwitcher className="bg-white/10 border-white/15" />
         </div>
-        <div className="flex flex-col items-center text-center mb-3 shrink-0">
-          <Logo size="xl" className="mb-2.5 shadow-panel" />
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">{t('Maha GST Intelligence')}</h1>
-          <p className="text-govt-100 text-xs sm:text-sm mt-1.5 max-w-xl hidden sm:block">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
-          <p className="text-govt-300 text-[10px] mt-2 uppercase tracking-widest font-semibold">{t('Secure Access · Role-Based Sign-In')}</p>
+
+        <div className="max-w-md mx-auto lg:mx-0 py-4">
+          <Logo size="xl" className="mb-4 shadow-panel" />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">{t('Maha GST Intelligence')}</h1>
+          <p className="text-govt-200 text-[11px] tracking-widest uppercase font-semibold mt-2">
+            {t('Government of Maharashtra · State GST Department')}
+          </p>
+          <p className="text-govt-100 text-sm mt-4 leading-relaxed hidden sm:block">
+            {t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}
+          </p>
+
+          <ul className="mt-6 space-y-2.5 hidden sm:block">
+            {[
+              t('Access follows the role held, and every action is logged against the officer who took it.'),
+              t('Every figure states the system it came from and whether it is simulated.'),
+              t('The platform makes no call to the open internet for its figures, models or maps.')
+            ].map((line, i) => (
+              <li key={i} className="flex items-start gap-2.5 text-[12.5px] text-govt-100 leading-relaxed">
+                <ShieldCheck className="w-4 h-4 text-govt-300 shrink-0 mt-0.5" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-5 flex flex-col flex-1 min-h-0">
+        <div className="rounded-lg bg-white/5 border border-white/10 px-4 py-3 hidden lg:block">
+          <p className="text-[11px] text-govt-200 leading-relaxed">
+            {t('Demonstration environment. Every taxpayer, return, notice and case in this platform is simulated; the statute, notifications and published collection figures are real.')}
+          </p>
+        </div>
+      </div>
+
+      {/* Right: the sign-in itself. */}
+      <div className="lg:w-1/2 bg-steel-50 flex-1 min-h-0 overflow-y-auto">
+        <div className="max-w-lg mx-auto px-6 sm:px-8 py-6 flex flex-col min-h-full">
+          <div className="shrink-0">
+            <h2 className="text-lg font-bold text-navy-900">{t('Officer Sign-In')}</h2>
+            <p className="text-[12.5px] text-steel-600 mt-0.5">{t('Select your role, then enter the access code.')}</p>
+          </div>
+
           {!CASE_SCOPED_ROLES.includes(selected) && (
-            <div className="mb-3 shrink-0">
+            <div className="mt-4 shrink-0">
               <label className="text-xs font-semibold text-steel-500">{t('Officer Name (optional)')}</label>
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder={t('e.g. Rohan Deshmukh')}
-                className="mt-1 w-full px-3 py-1.5 text-sm rounded-lg border border-steel-200 focus:outline-none focus:ring-2 focus:ring-govt-300"
+                className="mt-1 w-full px-3 py-2 text-sm rounded-lg border border-steel-200 bg-white focus:outline-none focus:ring-2 focus:ring-govt-300"
               />
             </div>
           )}
 
-          <div className="text-xs font-semibold text-steel-500 mb-2 shrink-0">{t('Select Role to Continue')}</div>
-          <div className="grid sm:grid-cols-2 gap-2 flex-1 min-h-0 overflow-y-auto pr-1 content-start">
+          <div className="text-xs font-semibold text-steel-500 mt-4 mb-2 shrink-0">{t('Select Role to Continue')}</div>
+          <div className="grid sm:grid-cols-2 gap-2 content-start">
             {OFFICER_ROLES.map(role => {
               const meta = ROLE_META[role]
               const Icon = meta.icon
@@ -83,10 +117,10 @@ export function RoleSelector() {
                 <button
                   key={role}
                   onClick={() => { setSelected(role); setName('') }}
-                  className={`text-left flex items-start gap-3 p-2.5 rounded-xl border transition-all ${active ? 'border-govt-600 bg-govt-50 ring-2 ring-govt-200' : 'border-steel-200 hover:border-govt-300 hover:bg-steel-50'}`}
+                  className={`text-left flex items-start gap-3 p-2.5 rounded-xl border transition-all bg-white ${active ? 'border-govt-600 bg-govt-50 ring-2 ring-govt-200' : 'border-steel-200 hover:border-govt-300 hover:bg-steel-50'}`}
                 >
                   <span className={`p-2 rounded-lg shrink-0 ${active ? 'bg-govt-700 text-white' : 'bg-steel-100 text-steel-600'}`}><Icon className="w-4 h-4" /></span>
-                  <span>
+                  <span className="min-w-0">
                     <span className="block text-sm font-semibold text-navy-900">{t(role)}</span>
                     <span className="block text-[11px] text-steel-500 mt-0.5 leading-snug">{t(meta.desc)}</span>
                   </span>
@@ -94,7 +128,6 @@ export function RoleSelector() {
               )
             })}
           </div>
-
           {CASE_SCOPED_ROLES.includes(selected) && (
             <div className="mt-3 shrink-0">
               <label className="text-xs font-semibold text-steel-500">{t('You are signing in as')}</label>
@@ -132,6 +165,13 @@ export function RoleSelector() {
             <input
               type="password"
               value={code}
+              name="maha-demo-access-code"
+              autoComplete="new-password"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              data-1p-ignore
+              data-lpignore="true"
               onChange={e => { setCode(e.target.value); if (error) setError('') }}
               onKeyDown={e => { if (e.key === 'Enter') enter() }}
               placeholder={t('Enter the access code')}
@@ -154,7 +194,7 @@ export function RoleSelector() {
             {t('Enter Secure Workspace')} <ChevronRight className="w-4 h-4" />
           </button>
 
-          <p className="text-[10.5px] text-steel-400 text-center mt-2.5 leading-relaxed shrink-0 hidden sm:block">
+          <p className="text-[10.5px] text-steel-400 mt-3 leading-relaxed">
             {t('Demonstration environment using simulated data. Role-based section access, maker-checker workflow and audit logging run throughout the platform.')}{' '}
             <span className="text-amber-700">{DEMO_GATE_NOTE}</span>
           </p>
