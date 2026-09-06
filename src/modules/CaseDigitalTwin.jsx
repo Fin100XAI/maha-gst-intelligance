@@ -10,6 +10,7 @@ import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
 import { TAXPAYERS } from '../data/mockData.js'
 import { buildCaseTwin, TWIN_INDEX, SOURCE_SYSTEMS } from '../data/caseTwin.js'
+import { ComparableCases } from '../components/shared/ComparableCases.jsx'
 import { t } from '../i18n/index.js'
 
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
@@ -226,6 +227,10 @@ export default function CaseDigitalTwin() {
                   </div>
                 </div>
               </Card>
+
+              {/* The other half of the twin: not just what this case IS, but
+                  what happened in the concluded proceedings most like it. */}
+              <ComparableCases gstin={active} />
 
               {/* Coverage is stated honestly — a section that is empty because a
                   feed is absent must not read as a section that is empty because
