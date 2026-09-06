@@ -62,6 +62,7 @@ export function useSidebarBadges() {
 }
 
 export const NAV_GROUPS = [
+  { id: 'Command Centre', label: 'Command Centre' },
   { id: 'Revenue at Risk', label: 'Revenue at Risk' },
   { id: 'Act This Week', label: 'Act This Week' },
   { id: 'Risk Discovery', label: 'Risk Discovery' },

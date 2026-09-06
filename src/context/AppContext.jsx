@@ -56,9 +56,10 @@ function readInitialTheme() {
 // Order within a group is the order the menu lists them, and the first entry a
 // role can access is where that role lands after sign-in.
 export const MODULES = [
+  // ---- Command Centre ----
+  { id: 'command-center', label: 'Executive Command Center', group: 'Command Centre' },
+  { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Command Centre' },
   // ---- Revenue at Risk ----
-  { id: 'command-center', label: 'Executive Command Center', group: 'Revenue at Risk' },
-  { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Revenue at Risk' },
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue at Risk' },
   { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Revenue at Risk' },
   { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Revenue at Risk' },
@@ -126,7 +127,7 @@ export const DEMO_GATE_NOTE =
 export const ROLE_SECTIONS = {
   'Commissioner': 'all',
   'Joint Commissioner': 'all',
-  'Division Officer': ['Revenue at Risk', 'Act This Week', 'Risk Discovery', 'Missed Revenue', 'Case Evidence', 'Benchmarking'],
+  'Division Officer': ['Command Centre', 'Revenue at Risk', 'Act This Week', 'Risk Discovery', 'Missed Revenue', 'Case Evidence', 'Benchmarking'],
   'Audit Officer': ['Act This Week', 'Case Evidence', 'Legal Standing', 'Missed Revenue'],
   'Refund Officer': ['Risk Discovery', 'Case Evidence'],
   'Investigation Officer': ['Risk Discovery', 'Act This Week', 'Case Evidence'],

@@ -46,6 +46,7 @@ registerMessages('mr', {
   'Revenue Assurance & Compliance Intelligence Infrastructure': 'महसूल हमी व अनुपालन इंटेलिजन्स प्रणाली',
 
   /* == Navigation groups (also used on the landing page capability grid) === */
+  'Command Centre': 'नियंत्रण कक्ष',
   'Revenue at Risk': 'जोखमीतील महसूल',
   'Act This Week': 'या आठवड्यातील कार्यवाही',
   'Risk Discovery': 'जोखीम शोध',

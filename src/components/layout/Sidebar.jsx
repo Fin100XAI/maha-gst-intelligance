@@ -8,7 +8,7 @@ import { Logo } from './Logo.jsx'
 // Only shown below `lg` — primary navigation on wide screens is the
 // horizontal TopNav bar. A vertical rail behind a hamburger is still the
 // right shape on a phone, where sixteen names across one line is unusable.
-const DEFAULT_EXPANDED = ['Revenue at Risk']
+const DEFAULT_EXPANDED = ['Command Centre']
 
 export function Sidebar({ mobileOpen, onCloseMobile }) {
   const { activeModule, setActiveModule, role } = useApp()

@@ -89,6 +89,7 @@ const TRUST_PRINCIPLES = [
 ]
 
 const GROUP_TONE = {
+  'Command Centre': 'navy',
   'Revenue at Risk': 'red',
   'Act This Week': 'orange',
   'Risk Discovery': 'saffron',
