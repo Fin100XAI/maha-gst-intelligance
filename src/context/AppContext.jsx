@@ -59,6 +59,7 @@ export const MODULES = [
   { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Leadership' },
   { id: 'command-center', label: 'Executive Command Center', group: 'Leadership' },
   { id: 'recovery-window', label: 'Revenue Recovery Window', group: 'Leadership' },
+  { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Leadership' },
   { id: 'case-twin', label: 'Case Digital Twin', group: 'Revenue' },
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue' },
   { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Revenue' },

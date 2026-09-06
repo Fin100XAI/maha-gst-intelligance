@@ -111,6 +111,7 @@ const MODULE_DESCRIPTIONS = {
   'district-performance': 'Every district and division scored on collection, compliance and enforcement.',
   'officer-copilot': 'Drafts, summarises and translates — and never issues or blocks on its own.',
   litigation: 'Pending cases, order outcomes and exposure tracked through appeal stages.',
+  capacity: 'A week of officer capacity allocated against binding territorial and role eligibility, surfacing what nobody can reach and why.',
   precedent: 'Prior decisions weighted by the forum that gave them and whether they still stand — not by how similar the facts look.',
   'early-warning': 'Non-filers and slipping compliance flagged before the shortfall compounds.',
   'ai-governance': 'Model logs, override history and the guardrails every recommendation runs through.',
