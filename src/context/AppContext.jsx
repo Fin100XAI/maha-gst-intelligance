@@ -75,6 +75,7 @@ export const MODULES = [
   // still hand off to it. `hidden` only affects what the menus list.
   { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Enforcement', hidden: true },
   { id: 'litigation', label: 'Litigation Intelligence', group: 'Enforcement' },
+  { id: 'precedent', label: 'Precedent Intelligence', group: 'Enforcement' },
   { id: 'early-warning', label: 'Compliance Early Warning', group: 'Revenue' },
   { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance' },
   { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' },

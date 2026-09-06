@@ -231,7 +231,7 @@ function hash(str) {
 }
 
 // Weighted toward recent years, as a live caseload would be.
-const FY_POOL = ['2021-22', '2022-23', '2022-23', '2022-23', '2023-24', '2023-24', '2023-24', '2024-25']
+const FY_POOL = ['2018-19', '2019-20', '2021-22', '2022-23', '2022-23', '2022-23', '2023-24', '2023-24', '2023-24', '2024-25']
 const NOTICE_ISSUED_STAGES = ['Notice Drafted', 'Hearing', 'Recovery', 'Closed']
 
 export const LIMITATION_REGISTER = AUDIT_CASES.map(c => {
