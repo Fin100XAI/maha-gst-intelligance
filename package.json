@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "audit": "node scripts/audit.mjs",
+    "verify": "node scripts/audit.mjs && vite build"
   },
   "dependencies": {
     "lucide-react": "^0.462.0",
