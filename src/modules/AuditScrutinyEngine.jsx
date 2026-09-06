@@ -8,6 +8,7 @@ import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { WhyFlaggedPanel } from '../components/ui/WhyFlagged.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
+import { StatutoryFlag, StatutoryReviewBanner, StatutoryVerdict } from '../components/ui/StatutoryFlag.jsx'
 import { AUDIT_CASES, AUDIT_STAGES, taxpayerById, isWithinDateRange, REFERENCE_DATE } from '../data/mockData.js'
 import { generateAuditChecklist, compareSimilarCases, summarizeTaxpayer, draftNotice } from '../data/ai.js'
 import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
@@ -111,7 +112,10 @@ export default function AuditScrutinyEngine() {
       sortValue: r => r.tradeName,
       render: r => (
         <div>
-          <div className="font-semibold text-navy-900">{r.tradeName}</div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-navy-900">{r.tradeName}</span>
+            <StatutoryFlag gstin={r.gstin} />
+          </div>
           <div className="text-[11px] text-steel-500">{r.gstin}</div>
         </div>
       )
@@ -156,6 +160,14 @@ export default function AuditScrutinyEngine() {
         title={t('Audit & Scrutiny Engine')}
         description={t('Risk-ranked audit case prioritisation and pipeline management — from case identification through hearing and recovery, with AI-assisted checklists, notices and mandatory officer approval at every stage transition.')}
         actions={<ExportBar moduleLabel={t('Audit & Scrutiny Engine')} />}
+      />
+
+      {/* The Case Digital Twin's statutory verdict, propagated to the queue.
+          Without it this screen shows a time-barred case as live work with an
+          officer assigned and a next stage to advance to. */}
+      <StatutoryReviewBanner
+        records={filteredCases.filter(c => c.stage !== 'Closed')}
+        context={t('open audit cases')}
       />
 
       {isFieldOfficer && (
@@ -263,6 +275,9 @@ export default function AuditScrutinyEngine() {
       >
         {selectedCase && (
           <div className="space-y-5">
+            {/* Placed above the stage controls deliberately: this is the moment
+                an officer decides to advance the case. */}
+            <StatutoryVerdict gstin={selectedCase.gstin} />
             <div className="flex flex-wrap items-center gap-2">
               <RiskBadge category={selectedCase.riskCategory} score={selectedCase.riskScore} />
               <Pill tone="navy">{t(selectedCase.stage)}</Pill>

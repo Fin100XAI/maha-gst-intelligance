@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Modal } from '../ui/Modal.jsx'
 import { RiskBadge, Pill } from '../ui/RiskBadge.jsx'
+import { StatutoryFlag, StatutoryVerdict } from '../ui/StatutoryFlag.jsx'
 import { WhyFlaggedPanel } from '../ui/WhyFlagged.jsx'
 import { TrendLineChart } from '../ui/Charts.jsx'
 import { AIOutputPanel } from '../ui/AIOutputPanel.jsx'
@@ -64,8 +65,13 @@ export function TaxpayerDrilldownModal({ taxpayer, open, onClose }) {
 
   return (
     <Modal open={open} onClose={onClose} size="xl" title={
-      <span className="flex items-center gap-2">{taxpayer.tradeName} <RiskBadge category={taxpayer.risk.category} score={taxpayer.risk.score} /></span>
+      <span className="flex items-center gap-2">{taxpayer.tradeName} <RiskBadge category={taxpayer.risk.category} score={taxpayer.risk.score} /> <StatutoryFlag gstin={taxpayer.gstin} /></span>
     } subtitle={`${taxpayer.gstin} · ${taxpayer.legalName}`}>
+      {/* This modal is opened from most case screens, so the twin's statutory
+          verdict is stated here once rather than repeated on each of them. The
+          notices listed further down include ones on periods that have expired,
+          and nothing else on this modal would have said so. */}
+      <StatutoryVerdict gstin={taxpayer.gstin} />
       <div className="flex flex-wrap items-center gap-2 mb-2 text-[11px] text-steel-500">
         <Pill tone="navy">{t('Risk signal only')}</Pill>
         <Pill tone="amber">{t('Officer verification required')}</Pill>
@@ -239,3 +245,4 @@ function TimelineItem({ date, text }) {
     </li>
   )
 }
+

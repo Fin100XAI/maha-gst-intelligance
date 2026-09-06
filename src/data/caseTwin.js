@@ -281,3 +281,73 @@ export const TWIN_INDEX = TAXPAYERS
     if (ax !== bx) return ax - bx
     return b.exposure - a.exposure
   })
+
+/* ---------------------------------------------------------------------------
+ * STATUTORY POSITION INDEX
+ *
+ * The twin's single most consequential judgment, made available to every screen
+ * that lists a proceeding — without building a whole twin per table row, which
+ * is why this is a Map rather than a call.
+ *
+ * WHY THIS EXISTS
+ *
+ * The twin and the operational screens read the same underlying records, so
+ * their raw fields cannot disagree. What they disagreed about was the verdict:
+ * 7 of the 8 taxpayers whose limitation period has expired still carry open
+ * audit cases and unconcluded notices. The twin says "review for closure — the
+ * statutory period has expired"; the audit queue showed the same case as live
+ * work with an officer assigned and a next stage to advance to.
+ *
+ * That is not a cosmetic inconsistency. An officer working one of those cases
+ * is spending capacity on a demand that can no longer lawfully be raised, and
+ * nothing on the screen told them so. Propagating this one verdict is worth
+ * more than routing every field through the twin, because it is the only
+ * judgment that changes what an officer does today.
+ * ------------------------------------------------------------------------- */
+export const STATUTORY_INDEX = new Map(
+  LIMITATION_REGISTER.map(r => [r.gstin, {
+    gstin: r.gstin,
+    fy: r.fy,
+    section: r.section,
+    sectionLabel: r.section.replace('s', 'Section '),
+    bindingDate: r.bindingDate,
+    bindingLabel: r.bindingLabel,
+    daysRemaining: r.daysRemaining,
+    daysOverdue: r.daysRemaining < 0 ? Math.abs(r.daysRemaining) : 0,
+    barred: r.daysRemaining < 0,
+    critical: r.daysRemaining >= 0 && r.daysRemaining <= 30,
+    urgency: r.urgency,
+    contested: !!r.contested,
+    exposure: r.exposure,
+    // Written as the officer needs to read it, not as a status code.
+    verdict: r.daysRemaining < 0
+      ? `The ${r.bindingLabel.toLowerCase()} deadline of ${r.bindingDate} for ${r.fy} under ${r.section.replace('s', 'Section ')} passed ${Math.abs(r.daysRemaining)} days ago. No demand can now be raised for this period.`
+      : `${r.daysRemaining} days remain to the ${r.bindingLabel.toLowerCase()} deadline of ${r.bindingDate} for ${r.fy} under ${r.section.replace('s', 'Section ')}.`
+  }])
+)
+
+export const statutoryPositionFor = gstin => STATUTORY_INDEX.get(gstin) || null
+
+/* Summarise a list of open proceedings against the statutory clock. Returns
+ * null when there is nothing to warn about, so a caller can render nothing
+ * rather than an all-clear banner nobody needs. */
+export function statutoryReviewOf(records, gstinOf = r => r.gstin) {
+  const seen = new Set()
+  const barred = []
+  const critical = []
+  records.forEach(rec => {
+    const g = gstinOf(rec)
+    const pos = STATUTORY_INDEX.get(g)
+    if (!pos || seen.has(g)) return
+    seen.add(g)
+    if (pos.barred) barred.push({ ...pos, record: rec })
+    else if (pos.critical) critical.push({ ...pos, record: rec })
+  })
+  if (!barred.length && !critical.length) return null
+  return {
+    barred,
+    critical,
+    barredExposure: barred.reduce((s, b) => s + b.exposure, 0),
+    criticalExposure: critical.reduce((s, c) => s + c.exposure, 0)
+  }
+}

@@ -11,6 +11,7 @@ import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { useChartPalette } from '../components/ui/Charts.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
+import { StatutoryReviewBanner } from '../components/ui/StatutoryFlag.jsx'
 import { LITIGATION_CASES, LEGAL_ISSUES, taxpayerById, isWithinDateRange } from '../data/mockData.js'
 import { summarizeLitigationRisk } from '../data/ai.js'
 import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
@@ -167,6 +168,8 @@ export default function LitigationIntelligence() {
         description={t("Appeal and order intelligence across the department's litigation pipeline — legal issue trends, ageing, adverse outcome risk and AI-assisted case review.")}
         actions={<ExportBar />}
       />
+
+      <StatutoryReviewBanner records={filteredCases} context={t('litigation cases')} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <KpiCard label={t('Total Appeals')} value={summary.totalAppeals} icon={Scale} tone="navy" />
