@@ -16,8 +16,8 @@ const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
 
 const TABS = [
-  { key: 'timing', label: 'What earlier action was worth', icon: Clock },
-  { key: 'revisit', label: 'Put down while still live', icon: RotateCcw },
+  { key: 'timing', label: 'Counterfactual — what earlier action was worth', icon: Clock },
+  { key: 'revisit', label: 'Missed revenue — revisit candidates', icon: RotateCcw },
   { key: 'fraud', label: 'Why the resemblance model is refused', icon: Lock }
 ]
 
@@ -30,7 +30,7 @@ export default function RetrospectiveIntelligence() {
       <SectionHeader
         eyebrow={t('Leadership · Retrospective')}
         title={t('Retrospective Intelligence')}
-        description={t('What earlier action would have been worth, and which cases were put down while something in them was still live. Looking backwards at the department’s own handling rather than at taxpayers.')}
+        description={t('Missed Revenue Discovery and Counterfactual Case Intelligence. What earlier action would have been worth, which cases were put down while something in them was still live, and — measured rather than asserted — why the fraud-resemblance model is refused.')}
         actions={<ExportBar moduleLabel="Retrospective Intelligence" />}
       />
 

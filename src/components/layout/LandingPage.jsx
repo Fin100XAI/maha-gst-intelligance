@@ -116,7 +116,7 @@ const MODULE_DESCRIPTIONS = {
   'case-twin': 'One assembled view of a taxpayer, every fact carrying the system it came from and the date it was true.',
   'case-priority': 'Cases ranked by recoverable value per officer-day rather than by risk score, with the movement explained.',
   'official-statistics': 'Published figures from CBIC, PIB and mahagst.gov.in, kept separate from the simulated operational records.',
-  retrospective: 'What earlier action would have been worth, and which cases were put down while something in them was still live.',
+  retrospective: 'Missed revenue and counterfactuals — what earlier action would have been worth, and which cases were put down while something in them was still live.',
   'revenue-protection': 'What the department is about to lose, what can still be protected, and which actions this week protect the most.',
   'unknown-risk': 'Screens only the taxpayers no encoded rule touches, looking for patterns the rulebook does not yet contain.',
   'network-enforcement': 'Which entity actually stops a chain, whether officers exist in every division it crosses, and what delay costs.',
