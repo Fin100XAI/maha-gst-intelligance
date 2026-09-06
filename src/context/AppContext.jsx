@@ -81,14 +81,15 @@ export const MODULES = [
   // ---- Case Evidence ----
   { id: 'case-twin', label: 'Case Digital Twin', group: 'Case Evidence' },
   { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Case Evidence' },
-  // ---- Assurance & Performance ----
-  { id: 'command-center', label: 'Executive Command Center', group: 'Assurance & Performance' },
-  { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Assurance & Performance' },
-  { id: 'district-performance', label: 'District & Division Performance', group: 'Assurance & Performance' },
-  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Assurance & Performance' },
-  { id: 'ai-governance', label: 'AI Governance & Security', group: 'Assurance & Performance' },
-  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Assurance & Performance' },
-  { id: 'official-statistics', label: 'Official Statistics', group: 'Assurance & Performance' }
+  // ---- Analytics & Benchmarking ----
+  { id: 'command-center', label: 'Executive Command Center', group: 'Analytics & Benchmarking' },
+  { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Analytics & Benchmarking' },
+  { id: 'district-performance', label: 'District & Division Performance', group: 'Analytics & Benchmarking' },
+  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Analytics & Benchmarking' },
+  // ---- Governance & Assurance ----
+  { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance & Assurance' },
+  { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance & Assurance' },
+  { id: 'official-statistics', label: 'Official Statistics', group: 'Governance & Assurance' }
 ]
 
 // The modules the navigation menus and the landing-page grid list. Routing,

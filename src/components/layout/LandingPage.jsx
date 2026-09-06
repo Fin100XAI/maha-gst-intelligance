@@ -95,7 +95,8 @@ const GROUP_TONE = {
   'Missed Revenue': 'navy',
   'Legal Standing': 'green',
   'Case Evidence': 'steel',
-  'Assurance & Performance': 'navy'
+  'Analytics & Benchmarking': 'navy',
+  'Governance & Assurance': 'steel'
 }
 
 // One line per module — what an officer actually finds on that page, not a restatement of its name.

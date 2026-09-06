@@ -65,5 +65,6 @@ export const NAV_GROUPS = [
   { id: 'Missed Revenue', label: 'Missed Revenue' },
   { id: 'Legal Standing', label: 'Legal Standing' },
   { id: 'Case Evidence', label: 'Case Evidence' },
-  { id: 'Assurance & Performance', label: 'Assurance & Performance' }
+  { id: 'Analytics & Benchmarking', label: 'Analytics & Benchmarking' },
+  { id: 'Governance & Assurance', label: 'Governance & Assurance' }
 ]
