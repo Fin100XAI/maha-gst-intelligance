@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer, Gavel as GavelIcon,
   Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
-  FileBarChart2, BadgeCheck, Layers
+  FileBarChart2, BadgeCheck, Layers, ListOrdered
 } from 'lucide-react'
 import {
   KPI_SUMMARY, NETWORK_CLUSTERS, EWAY_RECORDS, AUDIT_CASES,
@@ -20,6 +20,7 @@ export const MODULE_ICONS = {
   'fake-invoice': Network,
   'eway-bill': Truck,
   'refund-risk': Receipt,
+  'case-priority': ListOrdered,
   'audit-scrutiny': ClipboardCheck,
   'sector-intelligence': Factory,
   'district-performance': Map,

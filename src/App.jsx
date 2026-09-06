@@ -19,6 +19,7 @@ import ITCRiskIntelligence from './modules/ITCRiskIntelligence.jsx'
 import FakeInvoiceNetwork from './modules/FakeInvoiceNetwork.jsx'
 import EWayBillIntelligence from './modules/EWayBillIntelligence.jsx'
 import RefundRiskIntelligence from './modules/RefundRiskIntelligence.jsx'
+import CasePriorityEngine from './modules/CasePriorityEngine.jsx'
 import AuditScrutinyEngine from './modules/AuditScrutinyEngine.jsx'
 import SectorIntelligence from './modules/SectorIntelligence.jsx'
 import DistrictDivisionPerformance from './modules/DistrictDivisionPerformance.jsx'
@@ -40,6 +41,7 @@ const MODULE_COMPONENTS = {
   'fake-invoice': FakeInvoiceNetwork,
   'eway-bill': EWayBillIntelligence,
   'refund-risk': RefundRiskIntelligence,
+  'case-priority': CasePriorityEngine,
   'audit-scrutiny': AuditScrutinyEngine,
   'sector-intelligence': SectorIntelligence,
   'district-performance': DistrictDivisionPerformance,

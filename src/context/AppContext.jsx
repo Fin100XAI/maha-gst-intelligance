@@ -66,6 +66,7 @@ export const MODULES = [
   { id: 'fake-invoice', label: 'Fake Invoice Network', group: 'Fraud & Risk' },
   { id: 'eway-bill', label: 'E-Way Bill Intelligence', group: 'Fraud & Risk' },
   { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Fraud & Risk' },
+  { id: 'case-priority', label: 'Case Priority Engine', group: 'Enforcement' },
   { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Enforcement' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
   { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
