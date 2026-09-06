@@ -57,6 +57,7 @@ function readInitialTheme() {
 // role can access is where that role lands after sign-in.
 export const MODULES = [
   // ---- Revenue at Risk ----
+  { id: 'command-center', label: 'Executive Command Center', group: 'Revenue at Risk' },
   { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Revenue at Risk' },
   { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Revenue at Risk' },
   { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Revenue at Risk' },
@@ -82,7 +83,6 @@ export const MODULES = [
   { id: 'case-twin', label: 'Case Digital Twin', group: 'Case Evidence' },
   { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Case Evidence' },
   // ---- Analytics & Benchmarking ----
-  { id: 'command-center', label: 'Executive Command Center', group: 'Analytics & Benchmarking' },
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Analytics & Benchmarking' },
   { id: 'district-performance', label: 'District & Division Performance', group: 'Analytics & Benchmarking' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Analytics & Benchmarking' },

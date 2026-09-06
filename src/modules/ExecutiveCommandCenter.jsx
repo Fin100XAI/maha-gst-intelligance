@@ -10,6 +10,7 @@ import { ScoreGauge } from '../components/ui/ScoreGauge.jsx'
 import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
+import { PlatformMap } from '../components/shared/PlatformMap.jsx'
 import {
   KPI_SUMMARY, STATE_REVENUE_TREND, DISTRICT_REVENUE, SECTOR_REVENUE,
   TAXPAYERS, DISTRICTS, COMPLIANCE_ALERTS, REFUND_CASES, AUDIT_CASES, LITIGATION_CASES, LITIGATION_SUMMARY,
@@ -338,6 +339,10 @@ export default function ExecutiveCommandCenter() {
         description={t('Consolidated view of revenue performance, fraud risk exposure and compliance posture across Maharashtra for the Commissioner and senior leadership.')}
         actions={<ExportBar moduleLabel="Executive Command Center" />}
       />
+
+      {/* The whole platform on one screen, each row carrying the figure its own
+          engine produces. This is the map the rest of the menu expands. */}
+      <PlatformMap onOpen={setActiveModule} />
 
       {/* Official published context, immediately above the simulated KPI row.
           The cards below look exactly like real departmental figures; setting
