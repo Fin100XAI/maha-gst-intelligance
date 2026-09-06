@@ -95,7 +95,7 @@ const GROUP_TONE = {
   'Missed Revenue': 'navy',
   'Legal Standing': 'green',
   'Case Evidence': 'steel',
-  'Analytics & Benchmarking': 'navy',
+  'Benchmarking': 'navy',
   'Governance & Assurance': 'steel'
 }
 

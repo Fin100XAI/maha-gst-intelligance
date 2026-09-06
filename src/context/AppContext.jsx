@@ -84,9 +84,9 @@ export const MODULES = [
   // ---- Case Evidence ----
   { id: 'case-twin', label: 'Case Digital Twin', group: 'Case Evidence' },
   { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Case Evidence' },
-  // ---- Analytics & Benchmarking ----
-  { id: 'district-performance', label: 'District & Division Performance', group: 'Analytics & Benchmarking' },
-  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Analytics & Benchmarking' },
+  // ---- Benchmarking ----
+  { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
+  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
   // ---- Governance & Assurance ----
   { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance & Assurance' },
   { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance & Assurance' },
