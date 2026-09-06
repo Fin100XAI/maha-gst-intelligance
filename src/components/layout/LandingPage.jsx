@@ -1,6 +1,6 @@
 import {
   ArrowRight, ShieldCheck, Network, ClipboardCheck, Bot,
-  TrendingUp, Lock, Eye, Users, CheckCircle2, Building2, MapPin, LayoutGrid
+  TrendingUp, Lock, Eye, Users, CheckCircle2, MapPin, LayoutGrid
 } from 'lucide-react'
 import { NAV_MODULES, useApp } from '../../context/AppContext.jsx'
 import { asOfLongLabel } from '../ui/DataProvenance.jsx'
@@ -158,7 +158,6 @@ export function LandingPage({ onEnter }) {
             <Logo size="sm" />
             <div className="leading-tight min-w-0">
               <div className="text-sm font-bold tracking-wide truncate">{t('MAHA GST INTELLIGENCE')}</div>
-              <div className="text-[10px] text-govt-200 tracking-wider hidden sm:block truncate">{t('GOVERNMENT OF MAHARASHTRA · STATE GST DEPARTMENT')}</div>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -220,9 +219,6 @@ export function LandingPage({ onEnter }) {
             that keeps a flat institutional blue from reading as inert. */}
         <div className="absolute -top-24 right-[-6rem] w-[28rem] h-[28rem] rounded-full bg-intel-400/20 blur-3xl pointer-events-none" aria-hidden />
         <div className="max-w-6xl mx-auto px-6 pt-16 pb-16 relative">
-          <div className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-wider uppercase text-govt-200 bg-white/10 border border-white/20 rounded-full px-3 py-1.5 mb-6 shadow-[0_1px_0_0_rgb(255_255_255/0.15)_inset]">
-            <Building2 className="w-3.5 h-3.5" /> {t('Government of Maharashtra · State GST Department')}
-          </div>
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight max-w-3xl leading-[1.1]">
             <span className="text-intel-300">{t('Revenue Assurance, Fraud Risk')}</span>{t(' & Compliance Intelligence Infrastructure for Maharashtra GST')}
           </h1>
@@ -382,7 +378,7 @@ export function LandingPage({ onEnter }) {
           </span>
         </div>
         <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>{t('Government of Maharashtra · State GST Department — Revenue Assurance & Compliance Intelligence Infrastructure')}</span>
+          <span>{t('Revenue Assurance & Compliance Intelligence Infrastructure')}</span>
           <span>{t('Demonstration environment · All figures are simulated')}</span>
         </div>
       </footer>

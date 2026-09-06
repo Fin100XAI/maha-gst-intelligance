@@ -225,10 +225,6 @@ export default function ExecutiveCommandCenter() {
       <div className="mb-6 rounded-2xl border border-steel-200 bg-white px-6 py-7 sm:px-8 sm:py-9 shadow-panel relative overflow-hidden">
         <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="p-1.5 rounded-lg bg-govt-900/90"><Landmark className="w-4 h-4 text-white" /></span>
-              <span className="text-[11px] font-bold uppercase tracking-widest text-govt-700">{t('Government of Maharashtra · GST Department')}</span>
-            </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-navy-900 tracking-tight">{t('Maha GST Intelligence')}</h1>
             <p className="text-sm text-steel-600 mt-1.5 max-w-2xl">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
           </div>

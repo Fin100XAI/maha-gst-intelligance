@@ -60,9 +60,6 @@ export function RoleSelector() {
         <div className="max-w-md mx-auto lg:mx-0 py-4">
           <Logo size="xl" className="mb-4 shadow-panel" />
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight leading-tight">{t('Maha GST Intelligence')}</h1>
-          <p className="text-govt-200 text-[11px] tracking-widest uppercase font-semibold mt-2">
-            {t('Government of Maharashtra · State GST Department')}
-          </p>
           <p className="text-govt-100 text-sm mt-4 leading-relaxed hidden sm:block">
             {t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}
           </p>

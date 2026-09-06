@@ -98,7 +98,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
         </nav>
 
         <div className="px-4 py-3 border-t border-white/10 text-[10px] text-govt-300 leading-relaxed shrink-0">
-          {t('Government of Maharashtra · State GST Department')}<br />{t('Revenue Assurance & Compliance Intelligence Infrastructure')}
+          {t('Revenue Assurance & Compliance Intelligence Infrastructure')}
         </div>
       </aside>
     </div>
