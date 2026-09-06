@@ -16,6 +16,9 @@ export function TopNav() {
   const { activeModule, setActiveModule, role } = useApp()
   const badges = useSidebarBadges()
   const [openId, setOpenId] = useState(null)
+  // The row scrolls horizontally, which clips anything absolutely positioned
+  // inside it. The panel is therefore fixed and anchored to its trigger's rect.
+  const [anchor, setAnchor] = useState(null)
   const openTimer = useRef(null)
   const closeTimer = useRef(null)
 
@@ -27,22 +30,26 @@ export function TopNav() {
     openTimer.current = null
     closeTimer.current = null
   }
-  const scheduleOpen = id => {
+  const scheduleOpen = (id, el) => {
     clearTimers()
-    if (openId !== null) { setOpenId(id); return }
-    openTimer.current = setTimeout(() => setOpenId(id), OPEN_DELAY_MS)
+    const place = () => {
+      if (el) { const r = el.getBoundingClientRect(); setAnchor({ left: r.left, top: r.bottom }) }
+      setOpenId(id)
+    }
+    if (openId !== null) { place(); return }
+    openTimer.current = setTimeout(place, OPEN_DELAY_MS)
   }
   const scheduleClose = () => {
     clearTimers()
     closeTimer.current = setTimeout(() => setOpenId(null), CLOSE_DELAY_MS)
   }
-  const closeNow = () => { clearTimers(); setOpenId(null) }
+  const closeNow = () => { clearTimers(); setOpenId(null); setAnchor(null) }
   const select = id => { setActiveModule(id); closeNow() }
 
   return (
     <nav aria-label="Primary navigation" className="relative z-30 hidden lg:block border-b border-white/10 bg-govt-900">
       <div className="px-4 sm:px-5">
-        <div className="flex flex-wrap items-center gap-0.5 py-1.5">
+        <div className="flex flex-nowrap items-center gap-0.5 py-1.5 overflow-x-auto scrollbar-none">
             {NAV_GROUPS.map(group => {
               const items = NAV_MODULES.filter(m => m.group === group.id && canAccessModule(role, m.id))
               if (items.length === 0) return null
@@ -52,12 +59,12 @@ export function TopNav() {
               const urgent = items.some(m => badges[m.id]?.urgent && badges[m.id]?.count > 0)
 
               return (
-                <div key={group.id} className="relative" onMouseEnter={() => scheduleOpen(group.id)} onMouseLeave={scheduleClose}>
+                <div key={group.id} className="relative shrink-0" onMouseEnter={e => scheduleOpen(group.id, e.currentTarget)} onMouseLeave={scheduleClose}>
                   <button
                     type="button"
                     aria-haspopup="true"
                     aria-expanded={isOpen}
-                    onClick={() => (isOpen ? closeNow() : setOpenId(group.id))}
+                    onClick={e => { if (isOpen) { closeNow() } else { const r = e.currentTarget.closest('div').getBoundingClientRect(); setAnchor({ left: r.left, top: r.bottom }); setOpenId(group.id) } }}
                     className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] whitespace-nowrap transition-colors duration-150 ${
                       isActive || isOpen ? 'bg-white/15 font-semibold text-white' : 'font-medium text-govt-200 hover:bg-white/10 hover:text-white'
                     }`}
@@ -79,7 +86,8 @@ export function TopNav() {
                     <div
                       onMouseEnter={clearTimers}
                       onMouseLeave={scheduleClose}
-                      className={`absolute top-full left-0 z-40 rounded-b-xl border border-t-0 border-steel-200 bg-white shadow-panel p-2 ${
+                      style={anchor ? { left: Math.min(anchor.left, window.innerWidth - (items.length > 5 ? 620 : 320)), top: anchor.top } : undefined}
+                      className={`fixed z-40 rounded-b-xl border border-t-0 border-steel-200 bg-white shadow-panel p-2 ${
                         items.length > 5 ? 'w-[38rem] grid grid-cols-2 gap-0.5' : 'w-[19rem] grid grid-cols-1 gap-0.5'
                       }`}
                     >
