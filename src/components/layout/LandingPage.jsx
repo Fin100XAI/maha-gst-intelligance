@@ -111,6 +111,7 @@ const MODULE_DESCRIPTIONS = {
   'district-performance': 'Every district and division scored on collection, compliance and enforcement.',
   'officer-copilot': 'Drafts, summarises and translates — and never issues or blocks on its own.',
   litigation: 'Pending cases, order outcomes and exposure tracked through appeal stages.',
+  'revenue-protection': 'What the department is about to lose, what can still be protected, and which actions this week protect the most.',
   'unknown-risk': 'Screens only the taxpayers no encoded rule touches, looking for patterns the rulebook does not yet contain.',
   'network-enforcement': 'Which entity actually stops a chain, whether officers exist in every division it crosses, and what delay costs.',
   capacity: 'A week of officer capacity allocated against binding territorial and role eligibility, surfacing what nobody can reach and why.',

@@ -56,6 +56,7 @@ function readInitialTheme() {
 // Order within a group is the order the menu lists them, and the first entry a
 // role can access is where that role lands after sign-in.
 export const MODULES = [
+  { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Leadership' },
   { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Leadership' },
   { id: 'command-center', label: 'Executive Command Center', group: 'Leadership' },
   { id: 'recovery-window', label: 'Revenue Recovery Window', group: 'Leadership' },
