@@ -1,4 +1,4 @@
-import { AlertOctagon, AlertTriangle, Eye, ChevronRight, Info } from 'lucide-react'
+import { AlertOctagon, AlertTriangle, Eye, ChevronRight, Info, Gavel } from 'lucide-react'
 import { Card } from '../ui/Card.jsx'
 import { CONDITIONS, SEVERITY, BOARD_SUMMARY, BOARD_NOTE } from '../../data/commandBoard.js'
 import { t } from '../../i18n/index.js'
@@ -6,100 +6,111 @@ import { t } from '../../i18n/index.js'
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
 
 const STYLE = {
-  critical: { bar: 'bg-[#C5221F]', chip: 'bg-[#C5221F] text-white', border: 'border-red-300', bg: 'bg-red-50/50', Icon: AlertOctagon, icon: 'text-[#C5221F]' },
-  high: { bar: 'bg-orange-500', chip: 'bg-orange-500 text-white', border: 'border-orange-200', bg: 'bg-orange-50/40', Icon: AlertTriangle, icon: 'text-orange-600' },
-  watch: { bar: 'bg-amber-400', chip: 'bg-amber-400 text-navy-900', border: 'border-amber-200', bg: 'bg-amber-50/40', Icon: Eye, icon: 'text-amber-600' }
+  critical: { bar: 'bg-[#C5221F]', chip: 'bg-[#C5221F] text-white', border: 'border-red-300', head: 'bg-red-50', bg: 'bg-white', Icon: AlertOctagon, icon: 'text-[#C5221F]', text: 'text-[#C5221F]' },
+  high: { bar: 'bg-orange-500', chip: 'bg-orange-500 text-white', border: 'border-orange-200', head: 'bg-orange-50', bg: 'bg-white', Icon: AlertTriangle, icon: 'text-orange-600', text: 'text-orange-700' },
+  watch: { bar: 'bg-amber-400', chip: 'bg-amber-400 text-navy-900', border: 'border-amber-200', head: 'bg-amber-50', bg: 'bg-white', Icon: Eye, icon: 'text-amber-600', text: 'text-amber-700' }
 }
+const ORDER = ['critical', 'high', 'watch']
+const maxValue = Math.max(...CONDITIONS.map(c => c.value), 1)
 
-/* An operations board, not a directory. Every line is a condition somebody has
- * to act on or consciously accept, carrying the decision it demands and who
- * takes it — a line with no decision attached is a statistic, and statistics
- * belong on the analytics screens. */
+/* A triage board, not a list. Three columns by irreversibility, each condition
+ * a card carrying the decision it demands and who takes it — a line with no
+ * decision attached is a statistic, and statistics belong on the analytics
+ * screens. */
 export function CommandBoard({ onOpen }) {
   const B = BOARD_SUMMARY
+  const total = B.irreversibleValue + B.atRiskValue || 1
+  const lostPct = (B.irreversibleValue / total) * 100
+
   return (
-    <div className="mb-4 space-y-3">
-      {/* Status strip. Irreversible loss stated apart from what is still in play. */}
-      <div className="rounded-xl border border-steel-200 bg-white shadow-card overflow-hidden">
-        <div className="flex flex-wrap items-stretch">
-          <div className="flex-1 min-w-[200px] px-5 py-3.5 border-r border-steel-100">
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400 mb-1">{t('Irreversible — already lost')}</div>
-            <div className="text-[26px] font-bold text-[#C5221F] tabular-nums leading-none">{cr(B.irreversibleValue)}</div>
-            <div className="text-[11px] text-steel-500 mt-1">{t('no action recovers this')}</div>
+    <Card
+      title={t('Active conditions')}
+      subtitle={t('Grouped by irreversibility, not by value. {0} of the {1} need a decision at Commissioner level.', B.commissionerDecisions, CONDITIONS.length)}
+    >
+      {/* One bar, two facts: how much is already gone against how much is still
+          in play. The proportion is the point, not either figure alone. */}
+      <div className="mb-4">
+        <div className="flex h-11 rounded-lg overflow-hidden border border-steel-200">
+          <div className="bg-[#C5221F] flex items-center px-3 min-w-0" style={{ width: `${lostPct}%` }}>
+            <span className="text-[11.5px] font-bold text-white tabular-nums truncate">{cr(B.irreversibleValue)}</span>
           </div>
-          <div className="flex-1 min-w-[200px] px-5 py-3.5 border-r border-steel-100">
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400 mb-1">{t('Still in play')}</div>
-            <div className="text-[26px] font-bold text-navy-900 tabular-nums leading-none">{cr(B.atRiskValue)}</div>
-            <div className="text-[11px] text-steel-500 mt-1">{t('protectable if acted on')}</div>
+          <div className="bg-navy-700 flex items-center justify-end px-3 min-w-0 flex-1">
+            <span className="text-[11.5px] font-bold text-white tabular-nums truncate">{cr(B.atRiskValue)}</span>
           </div>
-          <div className="flex items-center gap-2 px-5 py-3.5">
-            <Sev n={B.critical} label={t('Critical')} k="critical" />
-            <Sev n={B.high} label={t('High')} k="high" />
-            <Sev n={B.watch} label={t('Watch')} k="watch" />
-          </div>
-          <div className="px-5 py-3.5 border-l border-steel-100 flex flex-col justify-center min-w-[150px]">
-            <div className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400">{t('Need your decision')}</div>
-            <div className="text-[22px] font-bold text-navy-900 tabular-nums leading-none mt-0.5">{B.commissionerDecisions}</div>
-          </div>
+        </div>
+        <div className="flex justify-between mt-1.5">
+          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#C5221F]">
+            {t('Irreversible — {0}% of the total', Math.round(lostPct))}
+          </span>
+          <span className="text-[10.5px] font-semibold uppercase tracking-wider text-navy-700">{t('Still in play')}</span>
         </div>
       </div>
 
-      <Card
-        title={t('Active conditions')}
-        subtitle={t('Ordered by irreversibility, not by value. Each line carries the decision it needs and who takes it.')}
-        padded={false}
-      >
-        <div className="divide-y divide-steel-100">
-          {CONDITIONS.map(c => {
-            const st = STYLE[c.severity]
-            const Icon = st.Icon
-            return (
-              <button
-                key={c.id}
-                onClick={() => onOpen(c.target)}
-                className={`w-full text-left flex items-stretch hover:bg-navy-50/40 transition-colors ${st.bg}`}
-              >
-                <span className={`w-1 shrink-0 ${st.bar}`} />
-                <span className="flex-1 min-w-0 px-4 py-3.5 block">
-                  <span className="flex flex-wrap items-center gap-2 mb-1">
-                    <span className={`text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${st.chip}`}>
-                      {SEVERITY[c.severity].label}
-                    </span>
-                    <Icon className={`w-3.5 h-3.5 shrink-0 ${st.icon}`} />
-                    <span className="text-[13px] font-bold text-navy-900">{c.condition}</span>
-                  </span>
-                  <span className="block text-[12px] text-steel-700 leading-relaxed mb-2">{c.detail}</span>
-                  <span className="block text-[11.5px] text-navy-800 leading-relaxed">
-                    <strong>{t('Decision')}:</strong> {c.decision}
-                  </span>
-                  <span className="inline-flex items-center gap-2 mt-1.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-steel-100 text-steel-600">{c.owner}</span>
-                  </span>
-                </span>
-                <span className="shrink-0 w-[150px] px-4 py-3.5 flex flex-col justify-center items-end border-l border-steel-100/70">
-                  <span className="text-[15px] font-bold text-navy-900 tabular-nums">{cr(c.value)}</span>
-                  <span className="text-[10.5px] text-steel-500 text-right leading-snug">{c.valueLabel}</span>
-                  <ChevronRight className="w-4 h-4 text-steel-300 mt-1" />
-                </span>
-              </button>
-            )
-          })}
-        </div>
-        <div className="px-5 py-3 border-t border-steel-100 bg-steel-50/60 flex items-start gap-2.5">
-          <Info className="w-3.5 h-3.5 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[11px] text-steel-600 leading-relaxed">{BOARD_NOTE}</p>
-        </div>
-      </Card>
-    </div>
-  )
-}
+      {/* Triage columns. */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        {ORDER.map(sev => {
+          const st = STYLE[sev]
+          const items = CONDITIONS.filter(c => c.severity === sev)
+          const Icon = st.Icon
+          const groupValue = items.reduce((s, c) => s + c.value, 0)
+          return (
+            <div key={sev} className={`rounded-xl border overflow-hidden ${st.border}`}>
+              <div className={`px-3.5 py-2.5 ${st.head} border-b ${st.border}`}>
+                <div className="flex items-center gap-2">
+                  <Icon className={`w-4 h-4 shrink-0 ${st.icon}`} />
+                  <span className="text-[12px] font-bold text-navy-900">{SEVERITY[sev].label}</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${st.chip}`}>{items.length}</span>
+                  <span className="ml-auto text-[12px] font-bold text-navy-900 tabular-nums">{cr(groupValue)}</span>
+                </div>
+                <p className="text-[10.5px] text-steel-600 leading-snug mt-1">{SEVERITY[sev].meaning}</p>
+              </div>
 
-function Sev({ n, label, k }) {
-  const st = STYLE[k]
-  return (
-    <div className={`rounded-lg border px-2.5 py-1.5 text-center min-w-[56px] ${st.border} ${st.bg}`}>
-      <div className="text-[18px] font-bold text-navy-900 tabular-nums leading-none">{n}</div>
-      <div className="text-[9px] font-bold uppercase tracking-wider text-steel-500 mt-0.5">{label}</div>
-    </div>
+              <div className="divide-y divide-steel-100">
+                {items.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => onOpen(c.target)}
+                    title={c.detail}
+                    className="w-full text-left px-3.5 py-3 hover:bg-navy-50/50 transition-colors block"
+                  >
+                    <span className="flex items-start gap-1.5 mb-1.5">
+                      <span className="text-[12.5px] font-bold text-navy-900 leading-snug flex-1">{c.condition}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-steel-300 shrink-0 mt-0.5" />
+                    </span>
+
+                    {/* Value, and the same value as a bar against the largest
+                        condition on the board — so scale reads without arithmetic. */}
+                    <span className="flex items-center gap-2 mb-2">
+                      <span className={`text-[13px] font-bold tabular-nums ${st.text}`}>{cr(c.value)}</span>
+                      <span className="text-[10px] text-steel-500 truncate">{c.valueLabel}</span>
+                    </span>
+                    <span className="block h-1.5 rounded-full bg-steel-100 overflow-hidden mb-2.5">
+                      <span className={`block h-full ${st.bar}`} style={{ width: `${Math.max((c.value / maxValue) * 100, 2)}%` }} />
+                    </span>
+
+                    <span className="block rounded-md bg-steel-50 border border-steel-200 px-2.5 py-2">
+                      <span className="block text-[9px] font-bold uppercase tracking-wider text-steel-400 mb-0.5">{t('Decision')}</span>
+                      <span className="block text-[11.5px] text-navy-800 leading-relaxed">{c.decision}</span>
+                    </span>
+
+                    <span className="inline-flex items-center gap-1.5 mt-2">
+                      <Gavel className="w-3 h-3 text-steel-400 shrink-0" />
+                      <span className={`text-[10px] font-semibold uppercase tracking-wider ${c.owner === 'Commissioner' ? 'text-navy-800' : 'text-steel-500'}`}>
+                        {c.owner}
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 mt-4 flex items-start gap-2.5">
+        <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
+        <p className="text-[11.5px] text-steel-600 leading-relaxed">{BOARD_NOTE}</p>
+      </div>
+    </Card>
   )
 }

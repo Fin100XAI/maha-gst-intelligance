@@ -340,9 +340,6 @@ export default function ExecutiveCommandCenter() {
         actions={<ExportBar moduleLabel="Executive Command Center" />}
       />
 
-      {/* Operational conditions, not a directory. What is happening, how
-          irreversible it is, and what decision it needs. */}
-      <CommandBoard onOpen={setActiveModule} />
 
       {/* Official published context, immediately above the simulated KPI row.
           The cards below look exactly like real departmental figures; setting
@@ -631,6 +628,10 @@ export default function ExecutiveCommandCenter() {
       </div>
 
       {/* District detail modal */}
+      {/* Closing the screen: the conditions that need a decision, after the
+          performance picture that explains them. */}
+      <CommandBoard onOpen={setActiveModule} />
+
       <Modal
         open={!!selectedDistrict}
         onClose={() => setSelectedDistrict(null)}
