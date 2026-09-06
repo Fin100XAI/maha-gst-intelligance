@@ -189,6 +189,54 @@ export function RecoveryCurveChart({ data, height = 300 }) {
 }
 
 // Composite-index radar — each axis 0-100, e.g. weighted health-index components.
+/* Value over a real time axis, not an evenly-spaced list of labels.
+ *
+ * The horizons are 0/30/60/90/180/365, which are not evenly spaced. Plotting
+ * them categorically makes the 185 days between 180 and 365 occupy the same
+ * width as the 30 between 30 and 60, which flattens the curve and hides that
+ * most of the loss happens early — the opposite of what the chart exists to
+ * show. So the axis is numeric and the points sit where they actually fall.
+ *
+ * Stacked, because remaining + lost is a constant: the total does not change,
+ * only its composition, and the area turning from green to red IS the message. */
+export function TimeHorizonChart({ data, height = 240, remainingKey, lostKey, remainingLabel, lostLabel, ticks }) {
+  const { tokens, adapt, tooltip, legendStyle } = useChartTheme()
+  const green = adapt('#1f8a4c')
+  const red = adapt('#c41e3a')
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <AreaChart data={data} margin={{ top: 6, right: 12, left: -14, bottom: 0 }}>
+        <defs>
+          <linearGradient id="thcRemain" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={green} stopOpacity={0.55} />
+            <stop offset="100%" stopColor={green} stopOpacity={0.12} />
+          </linearGradient>
+          <linearGradient id="thcLost" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={red} stopOpacity={0.6} />
+            <stop offset="100%" stopColor={red} stopOpacity={0.2} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke={tokens.grid} vertical={false} />
+        <XAxis
+          dataKey="day"
+          type="number"
+          domain={[0, 365]}
+          ticks={ticks}
+          tickFormatter={d => (d === 0 ? 'today' : `${d}d`)}
+          tick={{ fontSize: 10, fill: tokens.tick }}
+          axisLine={{ stroke: tokens.axisLine }}
+          tickLine={false}
+        />
+        <YAxis tick={{ fontSize: 10, fill: tokens.tick }} axisLine={false} tickLine={false} unit=" Cr" width={54} />
+        <Tooltip {...tooltip} labelFormatter={d => (d === 0 ? 'Today' : `Day ${d}`)} formatter={v => [`Rs ${v} Cr`]} />
+        <Legend wrapperStyle={legendStyle} />
+        <Area type="monotone" dataKey={remainingKey} name={remainingLabel} stackId="1" stroke={green} strokeWidth={2} fill="url(#thcRemain)" />
+        <Area type="monotone" dataKey={lostKey} name={lostLabel} stackId="1" stroke={red} strokeWidth={2} fill="url(#thcLost)" />
+      </AreaChart>
+    </ResponsiveContainer>
+  )
+}
+
 export function HealthRadarChart({ data, height = 260, color }) {
   const { tokens, palette, adapt, tooltip } = useChartTheme()
   const stroke = adapt(color) || palette[0]

@@ -298,7 +298,7 @@ export const HEADLINE_METHOD_NOTE =
  * Value at day N is therefore the decayed value, floored to zero once the
  * statutory deadline has passed. Cumulative loss is what is gone by then.
  * ------------------------------------------------------------------------- */
-export const HORIZONS = [30, 60, 90, 180, 365]
+export const HORIZONS = [0, 30, 60, 90, 180, 365]
 
 const ageOf = gstin => {
   const rec = recByGstin.get(gstin)
@@ -341,7 +341,7 @@ export const HORIZON_PROFILE = HORIZONS.map(day => {
   })
   return {
     day,
-    label: `${day}d`,
+    label: day === 0 ? 'today' : `${day}d`,
     remainingCr: Math.round((remaining / 10000000) * 100) / 100,
     lostCr: Math.round(((lostToLimitation + lostToDecay) / 10000000) * 100) / 100,
     lostToLimitationCr: Math.round((lostToLimitation / 10000000) * 100) / 100,

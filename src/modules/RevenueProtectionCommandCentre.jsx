@@ -2,7 +2,7 @@ import { ShieldCheck, Calculator, Ban, Lock, Info, AlertTriangle, Clock, Scale, 
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
-import { TrendLineChart } from '../components/ui/Charts.jsx'
+import { TimeHorizonChart } from '../components/ui/Charts.jsx'
 import {
   COMMAND_SUMMARY, BY_MECHANISM, TOP_ACTIONS, TOP_ACTIONS_NOTE,
   PENDING_CAPABILITIES, HEADLINE_METHOD_NOTE,
@@ -12,7 +12,8 @@ import {
 import { t } from '../i18n/index.js'
 
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
-const crShort = n => `₹${(n / 10000000).toFixed(1)}`
+const HORIZON_TICKS = HORIZON_PROFILE.map(h => h.day)
+const HORIZON_TILES = HORIZON_PROFILE.filter(h => h.day > 0)
 
 /* The flagship. Its hard part is arithmetic, not layout: the same rupee is
  * counted by four engines, and a command centre that adds up its own modules
@@ -111,17 +112,17 @@ export default function RevenueProtectionCommandCentre() {
           subtitle={t('What survives, and what is gone, if nothing is done.')}
           className="lg:col-span-2"
         >
-          <TrendLineChart
+          <TimeHorizonChart
             data={HORIZON_PROFILE}
-            xKey="label"
-            height={230}
-            series={[
-              { key: 'remainingCr', label: t('Still recoverable (₹ Cr)'), color: '#1f8a4c' },
-              { key: 'lostCr', label: t('Cumulatively lost (₹ Cr)'), color: '#c41e3a' }
-            ]}
+            height={240}
+            ticks={HORIZON_TICKS}
+            remainingKey="remainingCr"
+            lostKey="lostCr"
+            remainingLabel={t('Still recoverable')}
+            lostLabel={t('Lost — cumulative')}
           />
           <div className="grid grid-cols-5 gap-2 mt-2">
-            {HORIZON_PROFILE.map(h => (
+            {HORIZON_TILES.map(h => (
               <div key={h.day} className="rounded-lg border border-steel-200 bg-white px-2 py-2 text-center">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400">{h.label}</div>
                 <div className="text-[13px] font-bold text-[#C5221F] tabular-nums mt-0.5">−{h.lostCr}</div>
