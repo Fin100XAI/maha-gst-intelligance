@@ -63,11 +63,11 @@ export const MODULES = [
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue at Risk' },
   { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Revenue at Risk' },
   { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Revenue at Risk' },
-  // ---- Act This Week ----
-  { id: 'case-priority', label: 'Case Priority Engine', group: 'Act This Week' },
-  { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Act This Week' },
-  { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Act This Week' },
-  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Act This Week', hidden: true },
+  // ---- Case Priority ----
+  { id: 'case-priority', label: 'Case Priority Engine', group: 'Case Priority' },
+  { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Case Priority' },
+  { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Case Priority' },
+  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Case Priority', hidden: true },
   // ---- Risk Discovery ----
   { id: 'unknown-risk', label: 'Unknown Risk Discovery', group: 'Risk Discovery' },
   { id: 'network-enforcement', label: 'Network Intelligence', group: 'Risk Discovery' },
@@ -125,10 +125,10 @@ export const DEMO_GATE_NOTE =
 export const ROLE_SECTIONS = {
   'Commissioner': 'all',
   'Joint Commissioner': 'all',
-  'Division Officer': ['Command Centre', 'Revenue at Risk', 'Act This Week', 'Risk Discovery', 'Missed Revenue', 'Benchmarking'],
-  'Audit Officer': ['Act This Week', 'Legal Standing', 'Missed Revenue'],
+  'Division Officer': ['Command Centre', 'Revenue at Risk', 'Case Priority', 'Risk Discovery', 'Missed Revenue', 'Benchmarking'],
+  'Audit Officer': ['Case Priority', 'Legal Standing', 'Missed Revenue'],
   'Refund Officer': ['Risk Discovery', 'Missed Revenue'],
-  'Investigation Officer': ['Risk Discovery', 'Act This Week', 'Missed Revenue'],
+  'Investigation Officer': ['Risk Discovery', 'Case Priority', 'Missed Revenue'],
   'AI Governance Officer': ['Governance', 'Data Resources'],
   'Read-only Policy Viewer': ['Governance']
 }

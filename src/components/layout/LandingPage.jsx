@@ -91,7 +91,7 @@ const TRUST_PRINCIPLES = [
 const GROUP_TONE = {
   'Command Centre': 'navy',
   'Revenue at Risk': 'red',
-  'Act This Week': 'orange',
+  'Case Priority': 'orange',
   'Risk Discovery': 'saffron',
   'Missed Revenue': 'navy',
   'Legal Standing': 'green',

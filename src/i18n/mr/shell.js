@@ -48,7 +48,7 @@ registerMessages('mr', {
   /* == Navigation groups (also used on the landing page capability grid) === */
   'Command Centre': 'नियंत्रण कक्ष',
   'Revenue at Risk': 'जोखमीतील महसूल',
-  'Act This Week': 'या आठवड्यातील कार्यवाही',
+  'Case Priority': 'प्रकरण प्राधान्य',
   'Risk Discovery': 'जोखीम शोध',
   'Missed Revenue': 'निसटलेला महसूल',
   'Legal Standing': 'विधी स्थिती',
