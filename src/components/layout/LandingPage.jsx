@@ -112,7 +112,7 @@ const MODULE_DESCRIPTIONS = {
   'officer-copilot': 'Drafts, summarises and translates — and never issues or blocks on its own.',
   litigation: 'Pending cases, order outcomes and exposure tracked through appeal stages.',
   'statutory-time': 'Every proceeding against its statutory clock — what is barred, what expires within thirty days, and what it is worth.',
-  'recovery-window': 'How much of a demand is still collectable, and how fast that falls while the case waits.',
+  'recovery-window': 'Revenue at risk — how much of a demand is still collectable, and how fast that falls while the case waits.',
   'case-twin': 'One assembled view of a taxpayer, every fact carrying the system it came from and the date it was true.',
   'case-priority': 'Cases ranked by recoverable value per officer-day rather than by risk score, with the movement explained.',
   'official-statistics': 'Published figures from CBIC, PIB and mahagst.gov.in, kept separate from the simulated operational records.',

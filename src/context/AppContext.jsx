@@ -60,7 +60,7 @@ export const MODULES = [
   { id: 'retrospective', label: 'Retrospective Intelligence', group: 'Leadership' },
   { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Leadership' },
   { id: 'command-center', label: 'Executive Command Center', group: 'Leadership' },
-  { id: 'recovery-window', label: 'Revenue Recovery Window', group: 'Leadership' },
+  { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Leadership' },
   { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Leadership' },
   { id: 'case-twin', label: 'Case Digital Twin', group: 'Revenue' },
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue' },

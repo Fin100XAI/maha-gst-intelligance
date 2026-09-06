@@ -18,7 +18,7 @@ const lakh = n => `₹${(n / 100000).toFixed(1)} L`
 const TABS = [
   { key: 'timing', label: 'Counterfactual — what earlier action was worth', icon: Clock },
   { key: 'revisit', label: 'Missed revenue — revisit candidates', icon: RotateCcw },
-  { key: 'fraud', label: 'Why the resemblance model is refused', icon: Lock }
+  { key: 'fraud', label: 'Outcome learning — why it is refused', icon: Lock }
 ]
 
 export default function RetrospectiveIntelligence() {
@@ -206,7 +206,7 @@ function FraudView() {
         <Lock className="w-5 h-5 text-[#C5221F] shrink-0 mt-0.5" />
         <div>
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
-            {t('Refused — and not because the sample is small.')}
+            {t('Outcome-Learning Engine and fraud resemblance — refused, and not because the sample is small.')}
           </div>
           <p className="text-[12.5px] text-steel-700 leading-relaxed">{S.verdict}</p>
         </div>
