@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer, Gavel as GavelIcon,
   Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
-  FileBarChart2, BadgeCheck
+  FileBarChart2, BadgeCheck, Layers
 } from 'lucide-react'
 import {
   KPI_SUMMARY, NETWORK_CLUSTERS, EWAY_RECORDS, AUDIT_CASES,
@@ -13,6 +13,7 @@ export const MODULE_ICONS = {
   'statutory-time': GavelIcon,
   'recovery-window': Timer,
   'command-center': LayoutDashboard,
+  'case-twin': Layers,
   'revenue-intelligence': TrendingUp,
   'taxpayer-360': UserSearch,
   'itc-risk': ShieldAlert,
