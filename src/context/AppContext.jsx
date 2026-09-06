@@ -65,6 +65,7 @@ export const MODULES = [
   { id: 'taxpayer-360', label: 'Taxpayer 360', group: 'Revenue' },
   { id: 'itc-risk', label: 'ITC Risk Intelligence', group: 'Fraud & Risk' },
   { id: 'fake-invoice', label: 'Fake Invoice Network', group: 'Fraud & Risk' },
+  { id: 'network-enforcement', label: 'Network Enforcement', group: 'Fraud & Risk' },
   { id: 'eway-bill', label: 'E-Way Bill Intelligence', group: 'Fraud & Risk' },
   { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Fraud & Risk' },
   { id: 'case-priority', label: 'Case Priority Engine', group: 'Enforcement' },

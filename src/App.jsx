@@ -12,6 +12,7 @@ import { RoleGate } from './components/layout/RoleGate.jsx'
 import StatutoryTimeIntelligence from './modules/StatutoryTimeIntelligence.jsx'
 import PrecedentIntelligence from './modules/PrecedentIntelligence.jsx'
 import CapacityOptimisation from './modules/CapacityOptimisation.jsx'
+import NetworkEnforcement from './modules/NetworkEnforcement.jsx'
 import RevenueRecoveryWindow from './modules/RevenueRecoveryWindow.jsx'
 import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
 import CaseDigitalTwin from './modules/CaseDigitalTwin.jsx'
@@ -36,6 +37,7 @@ const MODULE_COMPONENTS = {
   'statutory-time': StatutoryTimeIntelligence,
   'precedent': PrecedentIntelligence,
   'capacity': CapacityOptimisation,
+  'network-enforcement': NetworkEnforcement,
   'recovery-window': RevenueRecoveryWindow,
   'command-center': ExecutiveCommandCenter,
   'case-twin': CaseDigitalTwin,
