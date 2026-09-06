@@ -87,5 +87,5 @@ registerMessages('hi', {
   'The hard constraint. Division is territorial and absolute; role determines the case type an officer may take.':
     'यह कठोर बाधा है। विभाग क्षेत्रीय एवं निरपवाद है; अधिकारी किस प्रकार का प्रकरण ले सकता है यह पद तय करता है।',
   'An officer-week is {0} case-days after non-case work is removed. A case needing more than that is indivisible and cannot be placed inside a one-week horizon at all, however many officers are added.':
-    'प्रकरणेतर कार्य हटाने के बाद अधिकारी-सप्ताह अर्थात {0} प्रकरण-दिवस। इससे अधिक चाहने वाला प्रकरण अविभाज्य है और कितने भी अधिकारी जोड़े जाएँ, एक सप्ताह की सीमा में उसे रखा ही नहीं जा सकता।'
+    'प्रकरण से इतर कार्य हटाने के बाद अधिकारी-सप्ताह अर्थात {0} प्रकरण-दिवस। इससे अधिक चाहने वाला प्रकरण अविभाज्य है और कितने भी अधिकारी जोड़े जाएँ, एक सप्ताह की सीमा में उसे रखा ही नहीं जा सकता।'
 })
