@@ -218,7 +218,7 @@ export function LandingPage({ onEnter }) {
         <div className="absolute -top-24 right-[-6rem] w-[28rem] h-[28rem] rounded-full bg-intel-400/20 blur-3xl pointer-events-none" aria-hidden />
         <div className="max-w-6xl mx-auto px-6 pt-16 pb-16 relative">
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight max-w-3xl leading-[1.1]">
-            <span className="text-intel-300">{t('Revenue Assurance, Fraud Risk')}</span>{t(' & Compliance Intelligence Infrastructure for Maharashtra GST')}
+            <span className="text-intel-300">{t('Revenue Assurance, Fraud Risk')}</span>{t(' & Compliance Intelligence Infrastructure for GST')}
           </h1>
           <p className="text-govt-100 text-sm sm:text-lg max-w-2xl mt-5 leading-relaxed">
             {t('A unified intelligence platform for the Commissioner, senior officers, audit teams and refund teams — turning filings, payments, ITC claims, e-way bills and litigation into explainable, action-ready risk signals. Built for revenue protection and taxpayer fairness alike.')}

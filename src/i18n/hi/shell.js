@@ -18,8 +18,8 @@ registerMessages('hi', {
   /* == Product and shell ================================================== */
   'Maha GST Intelligence': 'महा GST इंटेलिजेंस',
   'MAHA GST INTELLIGENCE': 'महा GST इंटेलिजेंस',
-  'Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST':
-    'महाराष्ट्र GST के लिए राजस्व आश्वासन, कपट जोखिम एवं अनुपालन आसूचना अवसंरचना',
+  'Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for GST':
+    'GST हेतु राजस्व आश्वासन, कपट जोखिम एवं अनुपालन आसूचना अवसंरचना',
   'Revenue Assurance & Compliance Intelligence Infrastructure': 'राजस्व आश्वासन एवं अनुपालन आसूचना अवसंरचना',
   'Officer Sign-In': 'अधिकारी साइन-इन',
   'Enter Secure Workspace': 'सुरक्षित कार्यक्षेत्र में प्रवेश',

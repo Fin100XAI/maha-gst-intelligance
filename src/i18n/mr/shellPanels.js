@@ -22,8 +22,7 @@ import { registerMessages } from '../locale.js'
 registerMessages('mr', {
   /* == Landing page ======================================================= */
   'Revenue Assurance, Fraud Risk': 'महसूल आश्वासन, फसवणूक जोखीम',
-  ' & Compliance Intelligence Infrastructure for Maharashtra GST':
-    ' व अनुपालन इंटेलिजन्स पायाभूत सुविधा — महाराष्ट्र GST साठी',
+  ' & Compliance Intelligence Infrastructure for GST': ' व अनुपालन इंटेलिजन्स पायाभूत सुविधा — GST साठी',
 
   /* == Role gate ========================================================== */
   'Select your role, then enter the access code.': 'आपले पद निवडा, नंतर प्रवेश संकेतांक टाका.',

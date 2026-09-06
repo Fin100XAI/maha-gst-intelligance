@@ -12,8 +12,8 @@ import { registerMessages } from '../locale.js'
 registerMessages('mr', {
   /* == Masthead ============================================================ */
   'Government of Maharashtra · Office of the State GST Commissioner': 'महाराष्ट्र शासन · राज्य वस्तू व सेवा कर आयुक्त कार्यालय',
-  'Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST':
-    'महाराष्ट्र वस्तू व सेवा करासाठी महसूल हमी, फसवणूक जोखीम व अनुपालन इंटेलिजन्स प्रणाली',
+  'Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for GST':
+    'GST साठी महसूल हमी, फसवणूक जोखीम व अनुपालन इंटेलिजन्स प्रणाली',
   'Position as at': 'स्थिती दिनांक',
   'Demonstration Environment': 'प्रात्यक्षिक वातावरण',
   'Demonstration Environment · Simulated data': 'प्रात्यक्षिक वातावरण · नमुना आकडेवारी',

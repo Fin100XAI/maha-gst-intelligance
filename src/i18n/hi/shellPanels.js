@@ -37,8 +37,7 @@ registerMessages('hi', {
 
   /* == Landing page ======================================================= */
   'Revenue Assurance, Fraud Risk': 'राजस्व आश्वासन, कपट जोखिम',
-  ' & Compliance Intelligence Infrastructure for Maharashtra GST':
-    ' एवं अनुपालन इंटेलिजेंस अवसंरचना — महाराष्ट्र GST हेतु',
+  ' & Compliance Intelligence Infrastructure for GST': ' एवं अनुपालन इंटेलिजेंस अवसंरचना — GST हेतु',
   'A unified intelligence platform for the Commissioner, senior officers, audit teams and refund teams — turning filings, payments, ITC claims, e-way bills and litigation into explainable, action-ready risk signals. Built for revenue protection and taxpayer fairness alike.':
     'आयुक्त, वरिष्ठ अधिकारियों, लेखापरीक्षा दलों एवं प्रतिदाय दलों के लिए एक एकीकृत इंटेलिजेंस मंच — जो विवरणियों, भुगतानों, ITC दावों, ई-वे बिलों और मुकदमों को स्पष्टीकरण-योग्य, कार्रवाई-योग्य जोखिम संकेतों में बदलता है। राजस्व संरक्षण और करदाता के प्रति निष्पक्षता, दोनों के लिए बनाया गया।',
   'View Platform Capabilities': 'मंच की क्षमताएँ देखें',

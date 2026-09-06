@@ -42,7 +42,7 @@ export function Masthead() {
             {t('Maha GST Intelligence')}
           </h1>
           <p className="mt-0.5 line-clamp-1 max-w-3xl text-[11px] leading-snug text-white/65">
-            {t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}
+            {t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for GST')}
           </p>
         </div>
         {/* "Position as at" must name the date the FIGURES describe, not the

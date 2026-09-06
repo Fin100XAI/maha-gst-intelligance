@@ -226,7 +226,7 @@ export default function ExecutiveCommandCenter() {
         <div className="relative flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-navy-900 tracking-tight">{t('Maha GST Intelligence')}</h1>
-            <p className="text-sm text-steel-600 mt-1.5 max-w-2xl">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for Maharashtra GST')}</p>
+            <p className="text-sm text-steel-600 mt-1.5 max-w-2xl">{t('Revenue Assurance, Fraud Risk & Compliance Intelligence Infrastructure for GST')}</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
