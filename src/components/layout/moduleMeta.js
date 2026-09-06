@@ -68,7 +68,6 @@ export const NAV_GROUPS = [
   { id: 'Risk Discovery', label: 'Risk Discovery' },
   { id: 'Missed Revenue', label: 'Missed Revenue' },
   { id: 'Legal Standing', label: 'Legal Standing' },
-  { id: 'Case Evidence', label: 'Case Evidence' },
   { id: 'Benchmarking', label: 'Benchmarking' },
   { id: 'Data Resources', label: 'Data Resources' },
   { id: 'Governance', label: 'Governance' }

@@ -102,6 +102,24 @@ groups.forEach(g => {
   if (!land.includes(`'${g}'`)) fail('registration', `group "${g}" has no GROUP_TONE`)
 })
 
+/* Role access is declared by section name. Renaming or retiring a section
+ * silently revokes access for every role still naming the old one, because the
+ * section gate runs before the module gate — the role simply stops seeing
+ * screens, with no error anywhere. This has nearly happened twice. */
+const roleBlock = ctx.slice(ctx.indexOf('ROLE_SECTIONS = {'), ctx.indexOf('}', ctx.indexOf('ROLE_SECTIONS = {')))
+for (const m of roleBlock.matchAll(/'([^']+)':\s*\[([^\]]*)\]/g)) {
+  m[2].split(',').map(x => x.trim().replace(/^'|'$/g, '')).filter(Boolean).forEach(sec => {
+    if (!groups.includes(sec)) {
+      fail('role-access', `role "${m[1]}" grants section "${sec}", which no module belongs to — that role silently loses those screens`)
+    }
+  })
+}
+// And every live section should be reachable by somebody.
+const granted = new Set([...roleBlock.matchAll(/'([^']+)'/g)].map(x => x[1]))
+groups.forEach(g => {
+  if (!granted.has(g) && !/'all'/.test(roleBlock)) fail('role-access', `section "${g}" is granted to no role`)
+})
+
 // ---- 4. Undeclared identifiers in modules --------------------------------
 const BUILTINS = new Set(['console','window','document','Math','Object','Array','String','Number','Boolean','JSON','Date','Set','Map','Intl','isFinite','isNaN','parseInt','parseFloat','React','require','process','structuredClone'])
 fs.readdirSync(MODULES_DIR).filter(f => f.endsWith('.jsx')).forEach(f => {

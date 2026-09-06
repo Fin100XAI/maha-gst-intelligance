@@ -77,13 +77,12 @@ export const MODULES = [
   { id: 'early-warning', label: 'Compliance Early Warning', group: 'Risk Discovery' },
   { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Risk Discovery' },
   // ---- Missed Revenue ----
+  { id: 'case-twin', label: 'Case Digital Twin', group: 'Missed Revenue' },
   { id: 'missed-revenue', label: 'Missed Revenue Discovery', group: 'Missed Revenue' },
   { id: 'counterfactual', label: 'Counterfactual Case Intelligence', group: 'Missed Revenue' },
   // ---- Legal Standing ----
   { id: 'precedent', label: 'Precedent Intelligence', group: 'Legal Standing' },
   { id: 'litigation', label: 'Litigation Intelligence', group: 'Legal Standing' },
-  // ---- Case Evidence ----
-  { id: 'case-twin', label: 'Case Digital Twin', group: 'Case Evidence' },
   // ---- Benchmarking ----
   { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
@@ -127,10 +126,10 @@ export const DEMO_GATE_NOTE =
 export const ROLE_SECTIONS = {
   'Commissioner': 'all',
   'Joint Commissioner': 'all',
-  'Division Officer': ['Command Centre', 'Revenue at Risk', 'Act This Week', 'Risk Discovery', 'Missed Revenue', 'Case Evidence', 'Benchmarking'],
-  'Audit Officer': ['Act This Week', 'Case Evidence', 'Legal Standing', 'Missed Revenue'],
-  'Refund Officer': ['Risk Discovery', 'Case Evidence'],
-  'Investigation Officer': ['Risk Discovery', 'Act This Week', 'Case Evidence'],
+  'Division Officer': ['Command Centre', 'Revenue at Risk', 'Act This Week', 'Risk Discovery', 'Missed Revenue', 'Benchmarking'],
+  'Audit Officer': ['Act This Week', 'Legal Standing', 'Missed Revenue'],
+  'Refund Officer': ['Risk Discovery', 'Missed Revenue'],
+  'Investigation Officer': ['Risk Discovery', 'Act This Week', 'Missed Revenue'],
   'AI Governance Officer': ['Governance', 'Data Resources'],
   'Read-only Policy Viewer': ['Governance']
 }

@@ -95,7 +95,6 @@ const GROUP_TONE = {
   'Risk Discovery': 'saffron',
   'Missed Revenue': 'navy',
   'Legal Standing': 'green',
-  'Case Evidence': 'steel',
   'Benchmarking': 'navy',
   'Data Resources': 'green',
   'Governance': 'steel'
