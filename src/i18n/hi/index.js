@@ -16,6 +16,7 @@
 import './shell.js'
 import './dataValues.js'
 import './shellPanels.js'
+import './landingCopy.js'
 import './modules/executiveAndRevenue.js'
 import './modules/auditAndLitigation.js'
 import './modules/itcEwayAndRefund.js'

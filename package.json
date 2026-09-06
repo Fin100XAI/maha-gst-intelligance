@@ -10,6 +10,7 @@
     "audit": "node scripts/audit.mjs",
     "vocab": "node scripts/vocabulary.mjs",
     "coverage": "node scripts/coverage.mjs",
+    "prose": "node scripts/prose.mjs",
     "verify": "node scripts/audit.mjs && node scripts/vocabulary.mjs && vite build"
   },
   "dependencies": {
