@@ -43,7 +43,7 @@
  * as exactly that.
  * ------------------------------------------------------------------------- */
 
-import { TAXPAYERS, AUDIT_CASES, NOTICES } from './mockData.js'
+import { TAXPAYERS, AUDIT_CASES, NOTICES, LITIGATION_CASES } from './mockData.js'
 import { RECOVERY_CASES, recoverabilityFor } from './recovery.js'
 import { LIMITATION_REGISTER } from './statutory.js'
 
@@ -197,3 +197,104 @@ export const FRAUD_LABEL_STATE = {
   ],
   honestPosition: 'This is the capability most worth having and the one furthest from being possible. It is left unbuilt rather than approximated, because an approximate version would produce confident Section 74 review candidates from noise, and an officer would act on them.'
 }
+
+/* ---------------------------------------------------------------------------
+ * 2c. THE SEPARATION TEST — why the model is refused, measured rather than argued
+ *
+ * The Section 74 label count is one, so the obvious next move is to change the
+ * positive class to something with more rows. The right substitute is not
+ * "charged as fraud" but "SUSTAINED on appeal", because charging habits are not
+ * wins — a demand raised under Section 74 and then reversed teaches the model
+ * to reproduce a mistake. That class has eight members, above any reasonable
+ * minimum, so the capability looked buildable.
+ *
+ * It is not, and the reason is worth more than the capability would have been.
+ *
+ * Before building a resemblance model, the positive class has to actually
+ * differ from the population it will be used to screen. If cases the department
+ * won look like cases in general, then "resembles a case we won" is true of
+ * everything, every candidate scores alike, and the ranking that comes out is
+ * noise wearing the authority of a model. So the separation is measured here,
+ * per feature, and reported whatever it says.
+ *
+ * On this data it says the features do not separate. Mean rules firing is
+ * identical between the sustained class and the baseline. The remaining gaps
+ * are small on a sample of eight and sit inside what eight cases could produce
+ * by chance.
+ *
+ * THE CONSEQUENCE FOR THE PILOT IS THE USEFUL PART
+ *
+ * If the features did separate weakly, more rows would fix it. They do not
+ * separate at all, so more rows will not: a thousand cases described by these
+ * same fields would give a thousand cases that still look alike. What is
+ * missing is not sample size but the evidence actually relied on in each
+ * order — what was produced, what was accepted, what the taxpayer could not
+ * explain. Risk scores and ratios describe a taxpayer. They do not describe why
+ * a demand held up.
+ * ------------------------------------------------------------------------- */
+import { NETWORK_CLUSTERS } from './mockData.js'
+const LITIGATION_CASES_LOCAL = LITIGATION_CASES
+
+const SUSTAINED = 'Order Confirmed'
+const NOT_SUSTAINED = ['Order Reversed', 'Remanded']
+const clusterGstins = new Set(NETWORK_CLUSTERS.flatMap(c => c.nodes.map(n => n.gstin)))
+
+const SEP_FEATURES = [
+  { id: 'risk', label: 'Risk score', of: t => t.risk.score },
+  { id: 'rules', label: 'Risk rules firing', of: t => (t.risk.triggeredRules || []).length },
+  { id: 'itc', label: 'ITC claimed / turnover', of: t => (t.monthlyTurnover > 0 ? t.itcClaimed / t.monthlyTurnover : 0) },
+  { id: 'tax', label: 'Tax paid / turnover', of: t => (t.monthlyTurnover > 0 ? t.taxPaid / t.monthlyTurnover : 0) },
+  { id: 'network', label: 'Member of a detected chain', of: t => (clusterGstins.has(t.gstin) ? 1 : 0) }
+]
+
+const mean = xs => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0)
+const sd = xs => {
+  if (xs.length < 2) return 0
+  const m = mean(xs)
+  return Math.sqrt(xs.reduce((s, x) => s + (x - m) ** 2, 0) / (xs.length - 1))
+}
+
+export const SEPARATION_TEST = (() => {
+  const litOf = stageTest => LITIGATION_CASES_LOCAL.filter(stageTest).map(l => byGstin.get(l.gstin)).filter(Boolean)
+  const pos = litOf(l => l.stage === SUSTAINED)
+  const neg = litOf(l => NOT_SUSTAINED.includes(l.stage))
+  const all = LITIGATION_CASES_LOCAL.map(l => byGstin.get(l.gstin)).filter(Boolean)
+
+  const features = SEP_FEATURES.map(f => {
+    const p = pos.map(f.of)
+    const b = all.map(f.of)
+    const mP = mean(p)
+    const mB = mean(b)
+    // Standardised difference against the baseline spread. Anything under ~0.5
+    // is not a signal a screen could be built on.
+    const pooled = sd(b) || 1e-9
+    const effect = Math.abs(mP - mB) / pooled
+    return {
+      id: f.id,
+      label: f.label,
+      sustainedMean: Math.round(mP * 1000) / 1000,
+      baselineMean: Math.round(mB * 1000) / 1000,
+      effectSize: Math.round(effect * 100) / 100,
+      separates: effect >= 0.5
+    }
+  })
+
+  return {
+    positiveClass: SUSTAINED,
+    positiveN: pos.length,
+    contrastN: neg.length,
+    baselineN: all.length,
+    features,
+    separatingCount: features.filter(f => f.separates).length,
+    // The verdict, derived rather than asserted.
+    usable: features.filter(f => f.separates).length > 0 && neg.length >= 5,
+    verdict: 'The features do not separate. Cases the department won look like cases in general on every feature measured, so a model asking "does this resemble a case we won" would answer yes to nearly everything and rank the rest by noise.',
+    whyMoreRowsWontHelp: 'A weak separation would be a sample-size problem and more cases would fix it. No separation is a feature problem, and a thousand cases described by these same fields would still look alike. The fields describe a taxpayer; they do not describe why a demand held up.',
+    contrastWarning: `Only ${neg.length} proceedings were not sustained, so nothing can be learned about what distinguishes a win from a loss. A model trained on wins alone learns what cases look like, not what winning looks like.`,
+    whatIsActuallyNeeded: [
+      'The evidence relied on in each order — what was produced, what was accepted, and what the taxpayer could not explain. This is the only field that describes why a demand held up rather than who the taxpayer was.',
+      'A contrast class of comparable size. Wins alone cannot teach discrimination; the reversals and remands are where the signal about what fails actually lives.',
+      'The ground on which each case was decided, so outcomes turning on limitation or procedure are separated from those decided on merits. Mixing them trains the model on two different questions at once.'
+    ]
+  }
+})()

@@ -8,7 +8,7 @@ import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
 import {
   COUNTERFACTUALS, COUNTERFACTUAL_SUMMARY, COUNTERFACTUAL_NOTE, LAG_OWNERSHIP_NOTE,
-  REVISIT_CANDIDATES, REVISIT_SUMMARY, REVISIT_NOTE, FRAUD_LABEL_STATE
+  REVISIT_CANDIDATES, REVISIT_SUMMARY, REVISIT_NOTE, FRAUD_LABEL_STATE, SEPARATION_TEST
 } from '../data/retrospective.js'
 import { t } from '../i18n/index.js'
 
@@ -18,7 +18,7 @@ const lakh = n => `₹${(n / 100000).toFixed(1)} L`
 const TABS = [
   { key: 'timing', label: 'What earlier action was worth', icon: Clock },
   { key: 'revisit', label: 'Put down while still live', icon: RotateCcw },
-  { key: 'fraud', label: 'Fraud resemblance — not built', icon: Lock }
+  { key: 'fraud', label: 'Why the resemblance model is refused', icon: Lock }
 ]
 
 export default function RetrospectiveIntelligence() {
@@ -191,29 +191,89 @@ function RevisitView() {
 
 /* ------------------------------------------------------------------ */
 
-/* A capability deliberately not built, with the count that blocks it. */
+/* A capability refused, with the measurement that refuses it.
+ *
+ * The label count was the first argument. The separation test is the better
+ * one, because it is empirical and because its conclusion is different: the
+ * problem is not sample size. */
 function FraudView() {
   const F = FRAUD_LABEL_STATE
+  const S = SEPARATION_TEST
+
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-red-300 bg-red-50/60 px-5 py-4 flex items-start gap-3">
         <Lock className="w-5 h-5 text-[#C5221F] shrink-0 mt-0.5" />
         <div>
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
-            {t('Not built. The register contains {0} Section 74 case.', F.s74Count)}
+            {t('Refused — and not because the sample is small.')}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{F.reason}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{S.verdict}</p>
         </div>
       </div>
 
-      <Card title={t('The label count, which is the whole argument')}>
+      {/* The test, shown in full. */}
+      <Card
+        title={t('The separation test')}
+        subtitle={t('Before a resemblance model can be built, the cases it learns from must actually differ from the cases it will screen. Measured here per feature, and reported whatever it says.')}
+      >
+        <div className="flex flex-wrap gap-x-8 gap-y-2 mb-3">
+          <Figure label={t('Positive class')} value={`${S.positiveN}`} sub={t('sustained on appeal')} />
+          <Figure label={t('Contrast class')} value={`${S.contrastN}`} sub={t('reversed or remanded')} tone="red" />
+          <Figure label={t('Baseline')} value={`${S.baselineN}`} sub={t('all litigation')} />
+          <Figure label={t('Features that separate')} value={`${S.separatingCount} / ${S.features.length}`} sub={t('none reach 0.5')} tone="red" />
+        </div>
+
+        <DataTable
+          columns={[
+            { key: 'label', label: t('Feature') },
+            { key: 'sustainedMean', label: t('Cases we won'), align: 'right' },
+            { key: 'baselineMean', label: t('All cases'), align: 'right' },
+            {
+              key: 'effectSize', label: t('Effect size'), align: 'right',
+              render: r => <span className={`tabular-nums font-semibold ${r.separates ? 'text-emerald-700' : 'text-steel-500'}`}>{r.effectSize}</span>
+            },
+            {
+              key: 'separates', label: t('Usable signal?'),
+              render: r => r.separates ? <Pill tone="green">{t('Yes')}</Pill> : <Pill tone="steel">{t('No')}</Pill>
+            }
+          ]}
+          rows={S.features}
+          searchable={false}
+          pageSize={6}
+        />
+        <p className="text-[11.5px] text-steel-600 leading-relaxed mt-3">
+          {t('Effect size is the gap between the two means measured against the spread of the population. Below roughly 0.5 there is nothing a screen could stand on. Risk rules firing come out at exactly zero — cases the department won fire the same number of rules as cases in general.')}
+        </p>
+      </Card>
+
+      {/* The consequence, which is the actually useful output. */}
+      <Card title={t('Why more cases would not fix this')}>
+        <p className="text-[12.5px] text-navy-800 leading-relaxed mb-3">{S.whyMoreRowsWontHelp}</p>
+        <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3 mb-3">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('And the contrast class is empty in practice')}</div>
+          <p className="text-[12px] text-navy-800 leading-relaxed">{S.contrastWarning}</p>
+        </div>
+        <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1.5">{t('What is actually needed')}</div>
+        <ul className="space-y-2">
+          {S.whatIsActuallyNeeded.map((w, i) => (
+            <li key={i} className="flex items-start gap-2.5 text-[12.5px] text-navy-800 leading-relaxed">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-navy-100 text-navy-700 text-[10px] font-bold flex items-center justify-center tabular-nums mt-0.5">{i + 1}</span>
+              <span>{w}</span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      {/* The original Section 74 count, kept as the secondary argument. */}
+      <Card title={t('The Section 74 label count, for completeness')} subtitle={t('The first reason this was refused, before the separation test gave a better one.')}>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {Object.entries(F.sectionCounts).map(([sec, n]) => (
             <div key={sec} className={`rounded-lg border px-3.5 py-3 ${sec === 's74' ? 'border-red-300 bg-red-50/60' : 'border-steel-200 bg-steel-50'}`}>
               <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{sec.replace('s', 'Section ')}</div>
               <div className="text-2xl font-bold text-navy-900 tabular-nums">{n}</div>
               <p className="text-[11px] text-steel-600 mt-1">
-                {sec === 's74' ? t('The positive class. {0} needed at minimum.', F.minimumNeeded) : t('The population to be screened.')}
+                {sec === 's74' ? t('The positive class, if fraud charging were the label.') : t('The population to be screened.')}
               </p>
             </div>
           ))}
@@ -222,22 +282,22 @@ function FraudView() {
           <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('Why the stakes forbid an approximation')}</div>
           <p className="text-[12px] text-navy-800 leading-relaxed">{F.stakes}</p>
         </div>
-      </Card>
-
-      <Card title={t('What would unlock it')} subtitle={t('Not simply “more data” — these three specifically.')}>
-        <ul className="space-y-2.5">
-          {F.whatWouldUnlockIt.map((w, i) => (
-            <li key={i} className="flex items-start gap-2.5 text-[12.5px] text-navy-800 leading-relaxed">
-              <span className="shrink-0 w-5 h-5 rounded-full bg-navy-100 text-navy-700 text-[10px] font-bold flex items-center justify-center tabular-nums mt-0.5">{i + 1}</span>
-              <span>{w}</span>
-            </li>
-          ))}
-        </ul>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 mt-3 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
           <p className="text-[12px] text-steel-700 leading-relaxed">{F.honestPosition}</p>
         </div>
       </Card>
+    </div>
+  )
+}
+
+function Figure({ label, value, sub, tone }) {
+  const color = tone === 'red' ? 'text-[#C5221F]' : 'text-navy-900'
+  return (
+    <div>
+      <div className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400">{label}</div>
+      <div className={`text-[20px] font-bold tabular-nums leading-none ${color}`}>{value}</div>
+      <div className="text-[11px] text-steel-500 mt-1">{sub}</div>
     </div>
   )
 }
