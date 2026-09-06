@@ -90,15 +90,15 @@ export function RoleSelector() {
 
       {/* Right: the sign-in itself. */}
       <div className="lg:w-1/2 bg-steel-50 flex-1 min-h-0 overflow-hidden">
-        <div className="max-w-lg mx-auto px-6 sm:px-8 py-5 flex flex-col h-full">
+        <div className="max-w-xl mx-auto px-6 sm:px-8 py-4 flex flex-col h-full">
           <div className="shrink-0">
-            <h2 className="text-lg font-bold text-navy-900">{t('Officer Sign-In')}</h2>
-            <p className="text-[12.5px] text-steel-600 mt-0.5">{t('Select your role, then enter the access code.')}</p>
+            <h2 className="text-base font-bold text-navy-900">{t('Officer Sign-In')}</h2>
+            <p className="text-[12px] text-steel-600 mt-0.5">{t('Select your role, then enter the access code.')}</p>
           </div>
 
           {!CASE_SCOPED_ROLES.includes(selected) && (
-            <div className="mt-3 shrink-0">
-              <label className="text-xs font-semibold text-steel-500">{t('Officer Name (optional)')}</label>
+            <div className="mt-2.5 shrink-0">
+              <label className="text-[11px] font-semibold text-steel-500">{t('Officer Name (optional)')}</label>
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
@@ -108,8 +108,8 @@ export function RoleSelector() {
             </div>
           )}
 
-          <div className="text-xs font-semibold text-steel-500 mt-3 mb-1.5 shrink-0">{t('Select Role to Continue')}</div>
-          <div className="grid grid-cols-2 gap-1.5 content-start shrink-0">
+          <div className="text-[11px] font-semibold text-steel-500 mt-2.5 mb-1.5 shrink-0">{t('Select Role to Continue')}</div>
+          <div className="grid grid-cols-2 gap-1.5 content-start flex-1 min-h-0 overflow-y-auto pr-1">
             {OFFICER_ROLES.map(role => {
               const meta = ROLE_META[role]
               const Icon = meta.icon
@@ -118,11 +118,13 @@ export function RoleSelector() {
                 <button
                   key={role}
                   onClick={() => { setSelected(role); setName('') }}
-                  title={t(meta.desc)}
-                  className={`text-left flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-all bg-white ${active ? 'border-govt-600 bg-govt-50 ring-2 ring-govt-200' : 'border-steel-200 hover:border-govt-300 hover:bg-steel-50'}`}
+                  className={`text-left flex items-start gap-2 px-2.5 py-2 rounded-lg border transition-all bg-white ${active ? 'border-govt-600 bg-govt-50 ring-2 ring-govt-200' : 'border-steel-200 hover:border-govt-300 hover:bg-steel-50'}`}
                 >
                   <span className={`p-1.5 rounded-md shrink-0 ${active ? 'bg-govt-700 text-white' : 'bg-steel-100 text-steel-600'}`}><Icon className="w-3.5 h-3.5" /></span>
-                  <span className="text-[12.5px] font-semibold text-navy-900 leading-tight">{t(role)}</span>
+                  <span className="min-w-0">
+                    <span className="block text-[12.5px] font-semibold text-navy-900 leading-tight">{t(role)}</span>
+                    <span className="block text-[10.5px] text-steel-500 leading-snug mt-0.5">{t(meta.desc)}</span>
+                  </span>
                 </button>
               )
             })}
