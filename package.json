@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "audit": "node scripts/audit.mjs",
     "vocab": "node scripts/vocabulary.mjs",
+    "coverage": "node scripts/coverage.mjs",
     "verify": "node scripts/audit.mjs && node scripts/vocabulary.mjs && vite build"
   },
   "dependencies": {
