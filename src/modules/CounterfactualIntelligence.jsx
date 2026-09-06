@@ -8,6 +8,8 @@ import {
   COUNTERFACTUALS, COUNTERFACTUAL_SUMMARY, COUNTERFACTUAL_NOTE,
   LAG_OWNERSHIP_NOTE, buildCounterfactual
 } from '../data/retrospective.js'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
+import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
 
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
@@ -19,10 +21,12 @@ export default function CounterfactualIntelligence() {
   const [query, setQuery] = useState('')
   const [gstin, setGstin] = useState(COUNTERFACTUALS[0]?.gstin || null)
 
+  const { filters } = useApp()
+  const scoped = useMemo(() => COUNTERFACTUALS.filter(c => applyScopeFilters(c, filters)), [filters])
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return COUNTERFACTUALS.filter(c => !q || `${c.gstin} ${c.tradeName}`.toLowerCase().includes(q)).slice(0, 60)
-  }, [query])
+    return scoped.filter(c => !q || `${c.gstin} ${c.tradeName}`.toLowerCase().includes(q)).slice(0, 60)
+  }, [query, scoped])
 
   const cf = useMemo(() => (gstin ? buildCounterfactual(gstin) : null), [gstin])
   const queuePct = Math.round((S.lostToQueueCr / (S.lostToQueueCr + S.lostToDetectionCr || 1)) * 100)
@@ -55,6 +59,8 @@ export default function CounterfactualIntelligence() {
         </div>
         <p className="text-[11.5px] text-steel-600 leading-relaxed">{LAG_OWNERSHIP_NOTE}</p>
       </Card>
+
+      <FilterScope shown={scoped.length} total={COUNTERFACTUALS.length} unit={t('cases')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
         <Card padded={false} className="h-fit">

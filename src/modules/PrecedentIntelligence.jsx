@@ -6,11 +6,12 @@ import { Pill } from '../components/ui/RiskBadge.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
-import { useApp } from '../context/AppContext.jsx'
+import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
 import {
   FORUMS, STATUS, LEGAL_QUESTIONS,
   questionStatus, casesTurningOn, DEPARTMENTAL_PRECEDENT, CORPUS_STATE
 } from '../data/precedent.js'
+import { FilterScope, FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { t } from '../i18n/index.js'
 
 // Pill has no orange; conflicting authority reads as amber in the badge set.
@@ -56,9 +57,19 @@ export default function PrecedentIntelligence() {
 /* ------------------------------------------------------------------ */
 
 function QuestionsView({ logAction }) {
+  const { filters } = useApp()
   const q = LEGAL_QUESTIONS[0]
   const status = useMemo(() => questionStatus(q.id), [q.id])
-  const affected = useMemo(() => casesTurningOn(q.id), [q.id])
+  const all = useMemo(() => casesTurningOn(q.id), [q.id])
+  // The authorities are law and do not narrow. Only the caseload does.
+  const affected = useMemo(() => {
+    const rows = all.filter(r => applyScopeFilters(r, filters))
+    return Object.assign(rows, {
+      exposureCr: Math.round((rows.reduce((s, r) => s + r.exposure, 0) / 10000000) * 100) / 100,
+      ifStruckDown: all.ifStruckDown,
+      ifUpheld: all.ifUpheld
+    })
+  }, [all, filters])
   const tone = TONE_STYLES[status.tone] || TONE_STYLES.amber
 
   return (
@@ -102,6 +113,8 @@ function QuestionsView({ logAction }) {
             .map(a => <AuthorityRow key={a.id} a={a} onOpen={() => logAction(`Opened authority ${a.id}`, 'Precedent Intelligence')} />)}
         </div>
       </Card>
+
+      <FilterScope shown={affected.length} total={all.length} unit={t('affected proceedings')} />
 
       {/* The link from the legal question to the actual caseload. */}
       <Card

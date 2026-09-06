@@ -10,6 +10,7 @@ import {
   CAPACITY_RESULT, CAPACITY_ASSUMPTIONS, CAPACITY_METHOD_NOTE,
   CAPACITY_RESIDUAL_NOTE, RESIDUAL_REASONS, CASE_TYPES, NET_DAYS_PER_OFFICER
 } from '../data/capacity.js'
+import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { t } from '../i18n/index.js'
 
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
@@ -40,6 +41,8 @@ export default function CapacityOptimisation() {
         description={t('A week of officer capacity allocated against eligibility that is territorially and functionally binding, with limitation-critical work assigned before anything else competes for it. The finding is the residual — what nobody eligible can reach, and which specific constraint is responsible.')}
         actions={<ExportBar moduleLabel="Officer Capacity & Deployment" />}
       />
+
+      <FilterNotApplicable reason={t('The allocation is a single statewide optimisation under territorial and role eligibility. Narrowing its input would re-run it on a subset and change every figure — a different answer presented as the same one — so it is computed across all divisions and the division breakdown below is where a single division is read.')} />
 
       {/* The single most important thing on the screen: aggregate utilisation
           says there is room, and aggregate utilisation is wrong. */}

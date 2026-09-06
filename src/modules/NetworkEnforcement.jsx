@@ -9,6 +9,7 @@ import {
   NETWORK_PLANS, NETWORK_ACTION_SUMMARY, LEAD_INDICATORS,
   CUT_METHOD_NOTE, COORDINATION_NOTE, EVIDENCE_CAVEAT
 } from '../data/networkAction.js'
+import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { t } from '../i18n/index.js'
 
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
@@ -35,6 +36,8 @@ export default function NetworkEnforcement() {
         description={t('A detected chain is not yet an enforceable case. This works out which node actually stops the circulation, whether officers exist in every division the chain touches, and what is lost when they cannot move on the same day.')}
         actions={<ExportBar moduleLabel="Network Enforcement" />}
       />
+
+      <FilterNotApplicable reason={t('A chain is one economic unit spanning several divisions, and every cluster here crosses at least one boundary. Filtering to a single division would truncate the chains at that boundary and make them appear to end — the same failure the pilot extract specification warns against — so chains are always shown whole.')} />
 
       {/* The loss that already happened, stated before anything the department
           can still influence. Ordering it first is the honest ordering. */}

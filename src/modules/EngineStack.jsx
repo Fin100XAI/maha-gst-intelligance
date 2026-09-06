@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Layers, GitBranch, ClipboardList, Info, CheckCircle2, AlertTriangle, XCircle, Bot } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
@@ -39,6 +40,8 @@ export default function EngineStack() {
         description={t('Fifteen intelligence engines mapped against the fields the department can supply today, each classified by technique and given a verdict backed by something checkable. The purpose is to separate what can be built and validated from what would be a promise.')}
         actions={<ExportBar moduleLabel="Engine Stack & Data Readiness" />}
       />
+
+      <FilterNotApplicable reason={t('It reports on the platform’s engines and the fields available to them, which are properties of the data as a whole rather than of any district or sector.')} />
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <KpiCard label={t('Built')} value={S.built} unit={t('of {0} engines', S.total)} tone="green" icon={CheckCircle2} />

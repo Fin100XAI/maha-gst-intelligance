@@ -1,5 +1,6 @@
 import { BadgeCheck, ExternalLink, Scale, FlaskConical, AlertTriangle } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { TAXPAYERS, DISTRICTS } from '../data/mockData.js'
@@ -24,6 +25,8 @@ export default function OfficialStatistics() {
         title={t('Official Statistics')}
         description={t('Published government figures, carried here with their source, their period and the date they were read. These are the only real numbers in the platform — every other figure on every other screen is generated demonstration data.')}
       />
+
+      <FilterNotApplicable reason={t('The figures here are published statewide totals from CBIC, PIB and mahagst.gov.in, and cannot be narrowed to a division or sector without misrepresenting them.')} />
 
       {/* Scale context — the reality check the rest of the demo needs. */}
       <div className="mb-6 rounded-xl border p-5" style={{ backgroundColor: amber.bg, borderColor: amber.border }}>

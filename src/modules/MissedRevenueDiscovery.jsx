@@ -11,6 +11,8 @@ import {
   buildRevisitBrief, FRAUD_LABEL_STATE, SEPARATION_TEST
 } from '../data/retrospective.js'
 import { OUTCOMES } from '../data/similarity.js'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
+import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
 
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
@@ -59,10 +61,12 @@ function CandidatesView() {
   const [query, setQuery] = useState('')
   const [gstin, setGstin] = useState(REVISIT_CANDIDATES[0]?.gstin || null)
 
+  const { filters } = useApp()
+  const scoped = useMemo(() => REVISIT_CANDIDATES.filter(c => applyScopeFilters(c, filters)), [filters])
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return REVISIT_CANDIDATES.filter(c => !q || `${c.gstin} ${c.tradeName}`.toLowerCase().includes(q)).slice(0, 60)
-  }, [query])
+    return scoped.filter(c => !q || `${c.gstin} ${c.tradeName}`.toLowerCase().includes(q)).slice(0, 60)
+  }, [query, scoped])
 
   const brief = useMemo(() => (gstin ? buildRevisitBrief(gstin) : null), [gstin])
 
@@ -77,6 +81,8 @@ function CandidatesView() {
           <p className="text-[12.5px] text-steel-700 leading-relaxed">{REVISIT_NOTE}</p>
         </div>
       </div>
+
+      <FilterScope shown={scoped.length} total={REVISIT_CANDIDATES.length} unit={t('review candidates')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
         <Card padded={false} className="h-fit">

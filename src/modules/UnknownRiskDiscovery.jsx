@@ -1,5 +1,8 @@
 import { Radar, ShieldQuestion, Layers, AlertTriangle, Info, CheckCircle2 } from 'lucide-react'
+import { useMemo } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
+import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
@@ -19,6 +22,10 @@ const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
  * the taxpayers they miss. */
 export default function UnknownRiskDiscovery() {
   const S = DISCOVERY_SUMMARY
+  const { filters } = useApp()
+  // The screen and the null-result proof are both statewide properties of the
+  // rulebook; only the candidate list is a set of taxpayers to narrow.
+  const shown = useMemo(() => DISCOVERIES.filter(d => applyScopeFilters(d, filters)), [filters])
 
   return (
     <div>
@@ -36,7 +43,9 @@ export default function UnknownRiskDiscovery() {
         <KpiCard label={t('Exposure carried')} value={(S.discoveredExposure / 10000000).toFixed(2)} unit={t('₹ Cr across candidates')} tone="steel" icon={AlertTriangle} />
       </div>
 
-      {SILENCE_EXPLAINED.silent ? <NullResult /> : <Findings />}
+      <FilterScope shown={shown.length} total={DISCOVERIES.length} unit={t('review candidates')} />
+
+      {SILENCE_EXPLAINED.silent ? <NullResult /> : <Findings rows={shown} />}
 
       <Card title={t('Method')} className="mt-4">
         <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{DISCOVERY_METHOD_NOTE}</p>
@@ -135,7 +144,7 @@ function NullResult() {
 }
 
 /* Renders when the screen has something to report — on a real extract. */
-function Findings() {
+function Findings({ rows = DISCOVERIES }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-amber-300 bg-amber-50/60 px-5 py-4 flex items-start gap-3">
@@ -197,7 +206,7 @@ function Findings() {
             { key: 'maxZ', label: t('Deviation'), align: 'right', render: r => <span className="tabular-nums font-semibold">{r.maxZ}</span> },
             { key: 'exposure', label: t('Exposure'), align: 'right', render: r => `₹${(r.exposure / 100000).toFixed(1)} L` }
           ]}
-          rows={DISCOVERIES}
+          rows={rows}
           pageSize={12}
         />
       </Card>

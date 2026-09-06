@@ -268,6 +268,25 @@ export function applyCaseFilters(record, filters, dateField = null) {
 }
 
 // Applies the global header filters to a taxpayer-shaped record.
+/* Applies only the dimensions a record actually carries.
+ *
+ * applyCaseFilters assumes district, division, sector and riskCategory are all
+ * present. Several of the newer engines emit rows that carry a division and a
+ * sector but no risk band, and running them through the stricter helper made a
+ * risk-level filter exclude every row rather than none — a filter that empties
+ * a screen because the field is absent, not because nothing matched. */
+export function applyScopeFilters(record, filters) {
+  if (record.district !== undefined && filters.district !== 'All Districts' && record.district !== filters.district) return false
+  if (record.division !== undefined && filters.division !== 'All Divisions' && record.division !== filters.division) return false
+  if (record.sector !== undefined && filters.sector !== 'All Sectors' && record.sector !== filters.sector) return false
+  if (record.riskCategory !== undefined && filters.riskLevel !== 'All Risk Levels' && record.riskCategory !== filters.riskLevel) return false
+  if (filters.search && filters.search.trim()) {
+    const q = filters.search.toLowerCase()
+    if (!`${record.gstin || ''} ${record.tradeName || ''}`.toLowerCase().includes(q)) return false
+  }
+  return true
+}
+
 export function applyGlobalFilters(taxpayer, filters) {
   if (filters.district !== 'All Districts' && taxpayer.district !== filters.district) return false
   if (filters.division !== 'All Divisions' && taxpayer.division !== filters.division) return false

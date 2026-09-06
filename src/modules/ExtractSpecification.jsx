@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FileSpreadsheet, AlertTriangle, Scale, Ruler, ChevronDown, ChevronRight, Info } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
@@ -30,6 +31,8 @@ export default function ExtractSpecification() {
         description={t('The field-level column list for the 500-case pilot, addressed to GSTN, NIC and the divisions. Each field carries its format, its source, whether it is mandatory and which engine it unlocks — so a data owner can see what their column is for rather than being asked for whatever they have.')}
         actions={<ExportBar moduleLabel="Pilot Extract Specification" />}
       />
+
+      <FilterNotApplicable reason={t('It is a column specification for a data request, not a view over taxpayer records.')} />
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <KpiCard label={t('Files requested')} value={S.fileCount} unit={t('one per entity type')} tone="navy" icon={FileSpreadsheet} />

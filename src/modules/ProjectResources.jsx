@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Library, Scale, Gavel, Globe, Sigma, Package, ExternalLink, CircleCheck, CircleAlert } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
@@ -34,6 +35,8 @@ export default function ProjectResources() {
         description={t('The law this platform encodes, the judgments it relies on, the published figures it cites, the statistical methods it applies and the software it runs on — with a plain statement of which records are simulated and which are real.')}
         actions={<ExportBar moduleLabel="Project Resources" />}
       />
+
+      <FilterNotApplicable reason={t('It lists the sources, methods and software the platform is built on.')} />
 
       <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 mb-4">
         <KpiCard label={t('Statutory sources')} value={S.legal} unit={t('encoded, not summarised')} tone="navy" icon={Scale} />

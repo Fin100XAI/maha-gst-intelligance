@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -73,6 +74,8 @@ export default function AIGovernanceSecurity() {
         description={t('Governance metrics on this screen describe the AI layer itself and are not narrowed by the taxpayer filters above; only the audit trail responds to the search box. Oversight console for AI-assisted decision support across the platform — model usage, human override rates, role-based access control, and audit trail integrity. AI systems here operate strictly in an advisory capacity under mandatory human review.')}
         actions={<ExportBar moduleLabel="AI Governance & Security" />}
       />
+
+      <FilterNotApplicable reason={t('It shows system and model activity, which is logged against officers and actions rather than against taxpayers.')} />
 
       {/* Compliance banner */}
       <div className="rounded-xl border-2 border-saffron-300 bg-saffron-50 px-5 py-4 mb-5">

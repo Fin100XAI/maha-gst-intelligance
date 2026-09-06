@@ -9,6 +9,10 @@ import {
   HORIZON_PROFILE, HORIZON_NOTE, PROTECTION_FUNNEL, FUNNEL_NOTE,
   BY_DIVISION, LEGAL_REVIEW
 } from '../data/commandCentre.js'
+import { useMemo } from 'react'
+import { FilterScope, FilterNotApplicable } from '../components/ui/FilterScope.jsx'
+import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
+import { AT_RISK } from '../data/commandCentre.js'
 import { t } from '../i18n/index.js'
 
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
@@ -20,6 +24,12 @@ const HORIZON_TILES = HORIZON_PROFILE.filter(h => h.day > 0)
  * prints a headline several times larger than the money at stake. */
 export default function RevenueProtectionCommandCentre() {
   const S = COMMAND_SUMMARY
+  const { filters } = useApp()
+  // The headline is recomputed over the filtered union rather than left
+  // statewide above filtered rows — a divisional filter with a statewide
+  // headline is the specific inconsistency this screen exists to avoid.
+  const scoped = useMemo(() => AT_RISK.filter(r => applyScopeFilters(r, filters)), [filters])
+  const scopedValue = useMemo(() => scoped.reduce((a, r) => a + r.value, 0), [scoped])
   const unreachableActions = TOP_ACTIONS.filter(a => !a.reachable).length
 
   return (
@@ -31,14 +41,16 @@ export default function RevenueProtectionCommandCentre() {
         actions={<ExportBar moduleLabel="Revenue Protection Command Centre" />}
       />
 
+      <FilterScope shown={scoped.length} total={AT_RISK.length} unit={t('at-risk cases')} />
+
       {/* ---------- HERO ---------- */}
       <div className="rounded-2xl border border-navy-200 bg-gradient-to-br from-navy-50 via-white to-steel-50 shadow-card overflow-hidden mb-4">
         <div className="px-6 pt-6 pb-5 flex flex-wrap items-end gap-x-10 gap-y-5">
           <div>
             <div className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-govt-600 mb-2">{t('Revenue Protection Opportunity')}</div>
-            <div className="text-[52px] font-bold text-navy-900 tabular-nums leading-[0.95]">{cr(S.protectableValue)}</div>
+            <div className="text-[52px] font-bold text-navy-900 tabular-nums leading-[0.95]">{cr(scoped.length === AT_RISK.length ? S.protectableValue : scopedValue)}</div>
             <div className="text-[12.5px] text-steel-600 mt-2">
-              {t('across {0} cases · each counted once, however many mechanisms flag it', S.protectableCases)}
+              {t('across {0} cases · each counted once, however many mechanisms flag it', scoped.length)}
             </div>
           </div>
           <div className="ml-auto grid grid-cols-2 sm:grid-cols-4 gap-x-7 gap-y-4">
