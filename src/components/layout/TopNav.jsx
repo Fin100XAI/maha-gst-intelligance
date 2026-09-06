@@ -44,7 +44,7 @@ export function TopNav() {
       <div className="px-4 sm:px-5">
         <div className="flex flex-wrap items-center gap-0.5 py-1.5">
             {NAV_GROUPS.map(group => {
-              const items = NAV_MODULES.filter(m => m.group === group.id)
+              const items = NAV_MODULES.filter(m => m.group === group.id && canAccessModule(role, m.id))
               if (items.length === 0) return null
               const isActive = group.id === activeGroupId
               const isOpen = openId === group.id

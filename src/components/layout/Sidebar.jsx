@@ -37,7 +37,7 @@ export function Sidebar({ mobileOpen, onCloseMobile }) {
 
         <nav aria-label="Primary navigation" className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
           {NAV_GROUPS.map(group => {
-            const items = NAV_MODULES.filter(m => m.group === group.id)
+            const items = NAV_MODULES.filter(m => m.group === group.id && canAccessModule(role, m.id))
             if (items.length === 0) return null
             const isActiveGroup = group.id === activeGroupId
             const isExpanded = expandedGroups.includes(group.id) || isActiveGroup

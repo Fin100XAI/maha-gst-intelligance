@@ -102,6 +102,47 @@ export const MODULES = [
 // fully reachable and correctly labelled once open.
 export const NAV_MODULES = MODULES.filter(m => !m.hidden)
 
+/* ---------------------------------------------------------------------------
+ * DEMONSTRATION ACCESS GATE — NOT AUTHENTICATION
+ *
+ * This constant is compiled into the JavaScript bundle and is readable by
+ * anyone who opens the browser's developer tools. It is a gate that keeps a
+ * demonstration from being wandered into, and it is nothing more than that.
+ *
+ * It must never be described as authentication or security, and no real
+ * departmental credential should ever be used here. Real access control needs a
+ * server that holds the secret, verifies it, and issues a session the client
+ * cannot forge — none of which exists in a build with no backend.
+ * ------------------------------------------------------------------------- */
+export const DEMO_ACCESS_CODE = 'Maha@2027'
+export const DEMO_GATE_NOTE =
+  'This access code is compiled into the page and can be read by anyone who opens developer tools. It keeps the demonstration from being wandered into; it is not authentication and must never be treated as such.'
+
+/* Which sections of the platform each role sees.
+ *
+ * Section-level rather than module-level, because that is how the department
+ * actually delegates — an audit officer is given the audit function, not a list
+ * of twenty-nine screens. Module-level restrictions below still apply on top.
+ */
+export const ROLE_SECTIONS = {
+  'Commissioner': 'all',
+  'Joint Commissioner': 'all',
+  'Division Officer': ['Revenue at Risk', 'Act This Week', 'Risk Discovery', 'Missed Revenue', 'Case Evidence', 'Benchmarking'],
+  'Audit Officer': ['Act This Week', 'Case Evidence', 'Legal Standing', 'Missed Revenue'],
+  'Refund Officer': ['Risk Discovery', 'Case Evidence'],
+  'Investigation Officer': ['Risk Discovery', 'Act This Week', 'Case Evidence'],
+  'AI Governance Officer': ['Governance', 'Data Resources'],
+  'Read-only Policy Viewer': ['Governance']
+}
+
+export function canAccessSection(role, section) {
+  if (!role) return false
+  const allowed = ROLE_SECTIONS[role]
+  if (!allowed) return true
+  if (allowed === 'all') return true
+  return allowed.includes(section)
+}
+
 const RESTRICTED = {
   'statutory-time': ['Commissioner', 'Joint Commissioner', 'Division Officer', 'Audit Officer'],
   'recovery-window': ['Commissioner', 'Joint Commissioner', 'Division Officer'],
@@ -114,6 +155,10 @@ const RESTRICTED = {
 export function canAccessModule(role, moduleId) {
   if (!role) return false
   if (role === 'Read-only Policy Viewer') return moduleId === 'reports'
+  // The section gate runs first: hiding a section in the menu while the router
+  // still serves its screens is not access control, it is a tidier menu.
+  const mod = MODULES.find(m => m.id === moduleId)
+  if (mod && !canAccessSection(role, mod.group)) return false
   const allowed = RESTRICTED[moduleId]
   if (!allowed) return true
   return allowed.includes(role)
