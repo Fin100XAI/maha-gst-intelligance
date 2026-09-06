@@ -64,6 +64,7 @@ registerMessages('mr', {
   'Fraud & Risk': 'फसवणूक व जोखीम',
   Enforcement: 'अंमलबजावणी',
   Benchmarking: 'तुलनात्मक मूल्यमापन',
+  'Data Resources': 'डेटा संसाधने',
   Governance: 'कारभार',
 
   /* == Module titles (15) — used in TopNav dropdowns, mobile sidebar, and

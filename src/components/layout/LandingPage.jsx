@@ -96,6 +96,7 @@ const GROUP_TONE = {
   'Legal Standing': 'green',
   'Case Evidence': 'steel',
   'Benchmarking': 'navy',
+  'Data Resources': 'green',
   'Governance': 'steel'
 }
 

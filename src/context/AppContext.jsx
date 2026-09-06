@@ -87,12 +87,13 @@ export const MODULES = [
   // ---- Benchmarking ----
   { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
+  // ---- Data Resources ----
+  { id: 'engine-stack', label: 'Engine Stack & Data Readiness', group: 'Data Resources' },
+  { id: 'extract-spec', label: 'Pilot Extract Specification', group: 'Data Resources' },
+  { id: 'official-statistics', label: 'Official Statistics', group: 'Data Resources' },
   // ---- Governance ----
-  { id: 'engine-stack', label: 'Engine Stack & Data Readiness', group: 'Governance' },
-  { id: 'extract-spec', label: 'Pilot Extract Specification', group: 'Governance' },
   { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance' },
   { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' },
-  { id: 'official-statistics', label: 'Official Statistics', group: 'Governance' }
 ]
 
 // The modules the navigation menus and the landing-page grid list. Routing,
