@@ -16,7 +16,6 @@ export const MODULE_ICONS = {
   'case-twin': Layers,
   'revenue-intelligence': TrendingUp,
   'itc-risk': ShieldAlert,
-  'fake-invoice': Network,
   'eway-bill': Truck,
   'refund-risk': Receipt,
   'case-priority': ListOrdered,
@@ -50,7 +49,7 @@ export function useSidebarBadges() {
     const pendingLitigation = LITIGATION_CASES.filter(c => c.stage !== 'Order Confirmed' && c.stage !== 'Order Reversed').length
     return {
       'itc-risk': { count: KPI_SUMMARY.itcRiskCases, urgent: false },
-      'fake-invoice': { count: NETWORK_CLUSTERS.length, urgent: true },
+      'network-enforcement': { count: NETWORK_CLUSTERS.length, urgent: true },
       'eway-bill': { count: eWayAnomalies, urgent: false },
       'refund-risk': { count: KPI_SUMMARY.refundCasesUnderReview, urgent: false },
       'audit-scrutiny': { count: activeAuditCases, urgent: false },

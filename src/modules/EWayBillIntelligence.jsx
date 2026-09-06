@@ -13,7 +13,7 @@ import { t } from '../i18n/index.js'
 import { Truck, AlertTriangle, Ban, Route, Eye } from 'lucide-react'
 
 // Records only carry district/sector/gstin/tradeName directly — resolve the full taxpayer
-// record to also honour division/taxpayerType/riskLevel, same pattern as FakeInvoiceNetwork.
+// record to also honour division/taxpayerType/riskLevel, same pattern as the cluster detection view.
 function matchesGlobalFilters(rec, filters) {
   if (!isWithinDateRange(rec.generatedOn, filters.dateRange)) return false
   const taxpayer = taxpayerById(rec.taxpayerId)

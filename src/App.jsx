@@ -25,7 +25,6 @@ import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
 import CaseDigitalTwin from './modules/CaseDigitalTwin.jsx'
 import RevenueIntelligence from './modules/RevenueIntelligence.jsx'
 import ITCRiskIntelligence from './modules/ITCRiskIntelligence.jsx'
-import FakeInvoiceNetwork from './modules/FakeInvoiceNetwork.jsx'
 import EWayBillIntelligence from './modules/EWayBillIntelligence.jsx'
 import RefundRiskIntelligence from './modules/RefundRiskIntelligence.jsx'
 import CasePriorityEngine from './modules/CasePriorityEngine.jsx'
@@ -56,7 +55,6 @@ const MODULE_COMPONENTS = {
   'case-twin': CaseDigitalTwin,
   'revenue-intelligence': RevenueIntelligence,
   'itc-risk': ITCRiskIntelligence,
-  'fake-invoice': FakeInvoiceNetwork,
   'eway-bill': EWayBillIntelligence,
   'refund-risk': RefundRiskIntelligence,
   'case-priority': CasePriorityEngine,

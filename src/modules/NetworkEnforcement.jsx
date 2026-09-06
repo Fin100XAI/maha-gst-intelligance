@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Network, Scissors, MapPin, AlertTriangle, ShieldAlert, Info, CheckCircle2, XCircle } from 'lucide-react'
+import { Network, Scissors, MapPin, AlertTriangle, ShieldAlert, Info, CheckCircle2, XCircle, Share2 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
@@ -10,12 +10,14 @@ import {
   CUT_METHOD_NOTE, COORDINATION_NOTE, EVIDENCE_CAVEAT
 } from '../data/networkAction.js'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
+import { ClusterDetection } from '../components/shared/ClusterDetection.jsx'
 import { t } from '../i18n/index.js'
 
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
 
 const TABS = [
+  { key: 'detect', label: 'Detected chains', icon: Share2 },
   { key: 'where', label: 'Where to act', icon: Scissors },
   { key: 'can', label: 'Whether we can act', icon: MapPin },
   { key: 'method', label: 'Method and limits', icon: Info }
@@ -25,19 +27,19 @@ const TABS = [
  * what comes after, and what a graph view structurally cannot: where to cut,
  * whether the department can execute it, and what coordination failure costs. */
 export default function NetworkEnforcement() {
-  const [tab, setTab] = useState('where')
+  const [tab, setTab] = useState('detect')
   const S = NETWORK_ACTION_SUMMARY
 
   return (
     <div>
       <SectionHeader
         eyebrow={t('Fraud & Risk · Enforcement Sequencing')}
-        title={t('Network Enforcement')}
-        description={t('A detected chain is not yet an enforceable case. This works out which node actually stops the circulation, whether officers exist in every division the chain touches, and what is lost when they cannot move on the same day.')}
-        actions={<ExportBar moduleLabel="Network Enforcement" />}
+        title={t('Network Intelligence')}
+        description={t('Circular invoice chains, from detection through to action. The graph shows what was found; the tabs after it work out which entity actually stops the circulation, whether officers exist in every division the chain crosses, and what is lost when they cannot move on the same day.')}
+        actions={<ExportBar moduleLabel="Network Intelligence" />}
       />
 
-      <FilterNotApplicable reason={t('A chain is one economic unit spanning several divisions, and every cluster here crosses at least one boundary. Filtering to a single division would truncate the chains at that boundary and make them appear to end — the same failure the pilot extract specification warns against — so chains are always shown whole.')} />
+      {tab !== 'detect' && <FilterNotApplicable reason={t('A chain is one economic unit spanning several divisions, and every cluster here crosses at least one boundary. Filtering to a single division would truncate the chains at that boundary and make them appear to end — the same failure the pilot extract specification warns against — so chains are always shown whole.')} />}
 
       {/* The loss that already happened, stated before anything the department
           can still influence. Ordering it first is the honest ordering. */}
@@ -64,6 +66,7 @@ export default function NetworkEnforcement() {
         <PillTabs tabs={TABS.map(x => ({ ...x, label: t(x.label) }))} active={tab} onChange={setTab} />
       </div>
 
+      {tab === 'detect' && <ClusterDetection />}
       {tab === 'where' && <WhereView />}
       {tab === 'can' && <CanView S={S} />}
       {tab === 'method' && <MethodView />}

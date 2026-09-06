@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { SectionHeader, Card } from '../components/ui/Card.jsx'
-import { KpiCard } from '../components/ui/KpiCard.jsx'
-import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
-import { DataTable } from '../components/ui/DataTable.jsx'
-import { ExportBar } from '../components/ui/ExportBar.jsx'
-import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
-import { NETWORK_CLUSTERS, taxpayerById } from '../data/mockData.js'
-import { RISK_COLORS } from '../data/risk.js'
-import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
-import { t } from '../i18n/index.js'
+import { Card } from '../ui/Card.jsx'
+import { KpiCard } from '../ui/KpiCard.jsx'
+import { RiskBadge, Pill, HumanReviewBadge } from '../ui/RiskBadge.jsx'
+import { DataTable } from '../ui/DataTable.jsx'
+import { TaxpayerDrilldownModal } from './TaxpayerDrilldownModal.jsx'
+import { NETWORK_CLUSTERS, taxpayerById } from '../../data/mockData.js'
+import { RISK_COLORS } from '../../data/risk.js'
+import { useApp, applyGlobalFilters } from '../../context/AppContext.jsx'
+import { t } from '../../i18n/index.js'
 import { Network, Users, MapPinned, IndianRupee, ShieldAlert, ArrowRight, X } from 'lucide-react'
 
 // Fast no-op path: when every header filter is at its default value, every cluster matches.
@@ -133,7 +132,7 @@ function ClusterGraph({ cluster, onNodeClick }) {
   )
 }
 
-export default function FakeInvoiceNetwork() {
+export function ClusterDetection() {
   const { filters, logAction } = useApp()
   const [selectedClusterId, setSelectedClusterId] = useState(NETWORK_CLUSTERS[0]?.id ?? null)
   const [selectedTaxpayer, setSelectedTaxpayer] = useState(null)
@@ -205,7 +204,6 @@ export default function FakeInvoiceNetwork() {
   if (!selectedCluster) {
     return (
       <div>
-        <SectionHeader eyebrow={t('Fraud & Risk · Network Intelligence')} title={t('Fake Invoice Network')} description={t('No network clusters detected in the current dataset.')} actions={<ExportBar moduleLabel="Fake Invoice Network" />} />
         <Card><div className="text-sm text-steel-500 py-6 text-center">{t('No circular-trading network clusters found.')}</div></Card>
       </div>
     )
@@ -213,12 +211,6 @@ export default function FakeInvoiceNetwork() {
 
   return (
     <div>
-      <SectionHeader
-        eyebrow={t('Fraud & Risk · Network Intelligence')}
-        title={t('Fake Invoice Network')}
-        description={t('Graph-based detection of circular invoice trading and linked-entity networks — shared address/contact indicators, short-life entities and estimated flow value between counterparties.')}
-        actions={<ExportBar moduleLabel="Fake Invoice Network" />}
-      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <KpiCard label={t('Clusters Detected')} value={kpis.totalClusters.toLocaleString('en-IN')} tone="navy" icon={Network} />

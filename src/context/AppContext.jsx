@@ -70,8 +70,7 @@ export const MODULES = [
   { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Act This Week', hidden: true },
   // ---- Risk Discovery ----
   { id: 'unknown-risk', label: 'Unknown Risk Discovery', group: 'Risk Discovery' },
-  { id: 'fake-invoice', label: 'Fake Invoice Network', group: 'Risk Discovery' },
-  { id: 'network-enforcement', label: 'Network Enforcement', group: 'Risk Discovery' },
+  { id: 'network-enforcement', label: 'Network Intelligence', group: 'Risk Discovery' },
   { id: 'itc-risk', label: 'ITC Risk Intelligence', group: 'Risk Discovery' },
   { id: 'eway-bill', label: 'E-Way Bill Intelligence', group: 'Risk Discovery' },
   { id: 'early-warning', label: 'Compliance Early Warning', group: 'Risk Discovery' },
