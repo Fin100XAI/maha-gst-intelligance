@@ -284,3 +284,140 @@ export const PENDING_CAPABILITIES = [
 
 export const HEADLINE_METHOD_NOTE =
   'The headline counts each taxpayer once, however many mechanisms flag it. Adding the mechanism totals instead would give a figure that is larger, and wrong by exactly the amount shown as double-count avoided. Value whose limitation period has already expired is excluded from the opportunity entirely and reported separately, because no action can recover it and including it would claim credit for money that is gone.'
+
+/* ---------------------------------------------------------------------------
+ * HORIZON PROFILE — "revenue at risk of becoming unrecoverable by day N"
+ *
+ * Two mechanisms destroy value on different clocks, and a forecast that models
+ * only one of them is wrong in both directions.
+ *
+ *   Limitation is a CLIFF. The day after the deadline the demand is worth
+ *   nothing, whatever its merits and whatever the recovery model says.
+ *   Decay is a SLOPE. Credit moves downstream continuously while a case waits.
+ *
+ * Value at day N is therefore the decayed value, floored to zero once the
+ * statutory deadline has passed. Cumulative loss is what is gone by then.
+ * ------------------------------------------------------------------------- */
+export const HORIZONS = [30, 60, 90, 180, 365]
+
+const ageOf = gstin => {
+  const rec = recByGstin.get(gstin)
+  return rec ? rec.daysSinceSignal : null
+}
+
+function valueAtDay(row, day) {
+  const lim = LIMITATION_REGISTER.find(r => r.gstin === row.gstin)
+  // The cliff. Nothing survives it.
+  if (lim && lim.daysRemaining != null && lim.daysRemaining >= 0 && lim.daysRemaining <= day) return 0
+  // The slope.
+  const age = ageOf(row.gstin)
+  if (age == null) return row.value
+  const now = recoverabilityFor(age)
+  if (!now) return 0
+  return row.value * (recoverabilityFor(age + day) / now)
+}
+
+export const HORIZON_PROFILE = HORIZONS.map(day => {
+  let remaining = 0
+  let lostToLimitation = 0
+  let lostToDecay = 0
+  AT_RISK.forEach(row => {
+    const lim = LIMITATION_REGISTER.find(r => r.gstin === row.gstin)
+    const expires = lim && lim.daysRemaining != null && lim.daysRemaining >= 0 && lim.daysRemaining <= day
+    const decayed = (() => {
+      const age = ageOf(row.gstin)
+      if (age == null) return row.value
+      const now = recoverabilityFor(age)
+      return now ? row.value * (recoverabilityFor(age + day) / now) : 0
+    })()
+    if (expires) {
+      // Attribute to the cliff only what the slope had not already taken.
+      lostToDecay += row.value - decayed
+      lostToLimitation += decayed
+    } else {
+      lostToDecay += row.value - decayed
+      remaining += decayed
+    }
+  })
+  return {
+    day,
+    label: `${day}d`,
+    remainingCr: Math.round((remaining / 10000000) * 100) / 100,
+    lostCr: Math.round(((lostToLimitation + lostToDecay) / 10000000) * 100) / 100,
+    lostToLimitationCr: Math.round((lostToLimitation / 10000000) * 100) / 100,
+    lostToDecayCr: Math.round((lostToDecay / 10000000) * 100) / 100
+  }
+})
+
+/* ---------------------------------------------------------------------------
+ * THE PROTECTION FUNNEL
+ *
+ * Where value leaks out between "owed" and "actually protected this week".
+ * Each step is a different kind of loss with a different owner, which is why
+ * they are separated rather than netted into one recovery rate.
+ * ------------------------------------------------------------------------- */
+const grossExposure = TAXPAYERS.reduce((s, t) => s + t.estimatedRevenueExposure, 0)
+const reachable = AT_RISK.filter(r => !r.mechanisms.includes('capacity'))
+const actionedValue = TOP_ACTIONS.filter(a => a.reachable).reduce((s, a) => s + a.protects, 0)
+
+export const PROTECTION_FUNNEL = [
+  {
+    id: 'exposure',
+    label: 'Assessed revenue exposure',
+    value: grossExposure,
+    note: 'Everything the risk engine believes is owed across the modelled population.'
+  },
+  {
+    id: 'recoverable',
+    label: 'Still recoverable today',
+    value: AT_RISK.reduce((s, r) => s + r.value, 0),
+    lossReason: 'Lost to detection lag and downstream utilisation before this week began.',
+    owner: 'Detection speed'
+  },
+  {
+    id: 'reachable',
+    label: 'An eligible officer could work it',
+    value: reachable.reduce((s, r) => s + r.value, 0),
+    lossReason: 'No eligible officer in that division has capacity, or none is posted at all.',
+    owner: 'Deployment'
+  },
+  {
+    id: 'protected',
+    label: 'Protected by acting this week',
+    value: actionedValue,
+    lossReason: 'The remainder is not lost — it is simply not at risk within seven days, and will surface in a later week.',
+    owner: 'Scheduling'
+  }
+].map((step, i, arr) => ({
+  ...step,
+  pctOfStart: grossExposure ? Math.round((step.value / grossExposure) * 1000) / 10 : 0,
+  dropFromPrev: i === 0 ? 0 : arr[i - 1].value - step.value
+}))
+
+/* Concentration — where a Commissioner would send attention first. */
+export const BY_DIVISION = (() => {
+  const g = new Map()
+  AT_RISK.forEach(r => {
+    if (!g.has(r.division)) g.set(r.division, { division: r.division, value: 0, cases: 0, unreachable: 0 })
+    const d = g.get(r.division)
+    d.value += r.value
+    d.cases += 1
+    if (r.mechanisms.includes('capacity')) d.unreachable += 1
+  })
+  return [...g.values()]
+    .map(d => ({ ...d, unreachablePct: d.cases ? Math.round((d.unreachable / d.cases) * 100) : 0 }))
+    .sort((a, b) => b.value - a.value)
+})()
+
+/* Cases where a question of law, not a question of fact, decides the outcome. */
+export const LEGAL_REVIEW = {
+  count: AT_RISK.filter(r => r.mechanisms.includes('contested')).length,
+  value: AT_RISK.filter(r => r.mechanisms.includes('contested')).reduce((s, r) => s + r.value, 0),
+  reason: 'The limitation date depends on Notification 09/2023 or 56/2023. High Courts have divided on their validity and the Supreme Court has reserved judgment, so these turn on a question of law rather than of fact and need a legal view before any order issues.'
+}
+
+export const HORIZON_NOTE =
+  'Two clocks run at once and they behave differently. Limitation is a cliff — the day after the deadline the demand is worth nothing however strong it is. Decay is a slope — credit keeps moving downstream while the case waits. A forecast modelling only decay would miss the cliff entirely; one modelling only deadlines would show value as safe while it quietly erodes. Both are applied here, and the split between them is shown because they call for different responses: the cliff needs a notice issued, the slope needs the case opened sooner.'
+
+export const FUNNEL_NOTE =
+  'Each step loses value to a different cause with a different owner, which is why they are not netted into a single recovery rate. Detection speed governs the first drop, deployment the second, scheduling the third. Only the first two are losses in any real sense — the final step is small because most value is simply not at risk within seven days, not because it has gone.'
