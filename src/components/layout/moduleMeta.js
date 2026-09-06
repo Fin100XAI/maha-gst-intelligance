@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer, Gavel as GavelIcon,
   Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
-  FileBarChart2, BadgeCheck, Layers, ListOrdered, Scale, Users, Scissors, Radar, ShieldCheck as ShieldCheckIcon, History, GitCompare
+  FileBarChart2, BadgeCheck, Layers, ListOrdered, Scale, Users, Scissors, Radar, ShieldCheck as ShieldCheckIcon, History, GitCompare, Library
 } from 'lucide-react'
 import {
   KPI_SUMMARY, NETWORK_CLUSTERS, EWAY_RECORDS, AUDIT_CASES,
@@ -35,6 +35,7 @@ export const MODULE_ICONS = {
   'counterfactual': GitCompare,
   'engine-stack': Layers,
   'extract-spec': FileBarChart2,
+  'project-resources': Library,
   'early-warning': BellRing,
   'ai-governance': ShieldCheck,
   'reports': FileBarChart2,

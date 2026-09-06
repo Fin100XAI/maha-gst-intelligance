@@ -88,6 +88,7 @@ export const MODULES = [
   { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
   // ---- Data Resources ----
+  { id: 'project-resources', label: 'Project Resources', group: 'Data Resources' },
   { id: 'engine-stack', label: 'Engine Stack & Data Readiness', group: 'Data Resources' },
   { id: 'extract-spec', label: 'Pilot Extract Specification', group: 'Data Resources' },
   { id: 'official-statistics', label: 'Official Statistics', group: 'Data Resources' },
