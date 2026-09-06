@@ -120,8 +120,8 @@ export default function AuditScrutinyEngine() {
         </div>
       )
     },
-    { key: 'district', label: t('District') },
-    { key: 'sector', label: t('Sector') },
+    { key: 'district', label: t('District'), render: r => t(r.district) },
+    { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
     {
       key: 'riskScore',
       label: t('Risk'),
@@ -271,7 +271,7 @@ export default function AuditScrutinyEngine() {
         onClose={() => setSelectedCaseId(null)}
         size="xl"
         title={selectedCase ? t('Case {0} — {1}', selectedCase.id, selectedCase.tradeName) : ''}
-        subtitle={selectedCase ? `${selectedCase.gstin} · ${selectedCase.sector} · ${selectedCase.district}` : ''}
+        subtitle={selectedCase ? `${selectedCase.gstin} · ${t(selectedCase.sector)} · ${t(selectedCase.district)}` : ''}
       >
         {selectedCase && (
           <div className="space-y-5">

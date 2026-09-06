@@ -117,7 +117,7 @@ export default function SectorIntelligence() {
         </div>
       )
     },
-    { key: 'district', label: t('District') },
+    { key: 'district', label: t('District'), render: r => t(r.district) },
     { key: 'filingStatus', label: t('Filing Status'), render: row => t(row.filingStatus) },
     {
       key: 'risk', label: t('Risk'), align: 'right', sortValue: row => row.risk.score,
@@ -138,7 +138,7 @@ export default function SectorIntelligence() {
         <KpiCard label={t('Sectors Tracked')} value={sectorStats.length} icon={Layers} tone="navy" />
         <KpiCard
           label={t('Highest-Risk Sector')}
-          value={kpis.highestRiskSector.sector}
+          value={t(kpis.highestRiskSector.sector)}
           unit={t('{0} high-risk', kpis.highestRiskSector.highRiskCount)}
           icon={AlertTriangle}
           tone="red"
@@ -146,7 +146,7 @@ export default function SectorIntelligence() {
         />
         <KpiCard
           label={t('Highest Revenue Sector')}
-          value={kpis.highestRevenueSector.sector}
+          value={t(kpis.highestRevenueSector.sector)}
           unit={`₹${kpis.highestRevenueSector.revenueLakh.toLocaleString('en-IN')}L`}
           icon={TrendingUp}
           tone="saffron"
@@ -154,7 +154,7 @@ export default function SectorIntelligence() {
         />
         <KpiCard
           label={t('Widest ITC Deviation')}
-          value={kpis.widestItcDeviation.sector}
+          value={t(kpis.widestItcDeviation.sector)}
           unit={t('vs cross-sector average')}
           icon={Gauge}
           tone="steel"
@@ -207,7 +207,7 @@ export default function SectorIntelligence() {
                   : 'bg-white text-navy-700 border-steel-200 hover:bg-steel-50'
               }`}
             >
-              {s.sector}
+              {t(s.sector)}
               {s.highRiskCount > 0 && (
                 <span className={`ml-1.5 ${selectedSector === s.sector ? 'text-saffron-300' : 'text-maharisk-high'}`}>
                   · {s.highRiskCount}
@@ -288,7 +288,7 @@ export default function SectorIntelligence() {
                   >
                     <div className="min-w-0">
                       <div className="text-xs font-semibold text-navy-800 truncate">{tp.tradeName}</div>
-                      <div className="text-[11px] text-steel-500 truncate">{tp.district}</div>
+                      <div className="text-[11px] text-steel-500 truncate">{t(tp.district)}</div>
                     </div>
                     <RiskBadge category={tp.risk.category} score={tp.risk.score} size="sm" />
                   </button>

@@ -51,7 +51,7 @@ export default function StatutoryTimeIntelligence() {
       render: r => (
         <div>
           <div className="font-semibold text-navy-800">{r.tradeName}</div>
-          <div className="text-[11px] text-steel-500">{r.gstin} · {r.district}</div>
+          <div className="text-[11px] text-steel-500">{r.gstin} · {t(r.district)}</div>
         </div>
       )
     },
@@ -100,7 +100,7 @@ export default function StatutoryTimeIntelligence() {
       render: r => <span className="font-semibold tabular-nums text-navy-800">{lakh(r.exposure)}</span>
     },
     { key: 'officer', label: t('Responsible officer') },
-    { key: 'division', label: t('Formation') },
+    { key: 'division', label: t('Formation'), render: r => t(r.division) },
     {
       key: 'basis',
       label: t('Basis'),

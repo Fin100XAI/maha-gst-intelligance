@@ -218,7 +218,7 @@ export default function RevenueProtectionCommandCentre() {
               <div key={d.division} className="flex items-center gap-3">
                 <div className="w-44 shrink-0 flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-steel-400 shrink-0" />
-                  <span className="text-[12px] font-medium text-navy-800 truncate">{d.division}</span>
+                  <span className="text-[12px] font-medium text-navy-800 truncate">{t(d.division)}</span>
                 </div>
                 <div className="flex-1 h-7 rounded bg-steel-100 overflow-hidden relative">
                   <div className="h-full bg-govt-600/80" style={{ width: `${(d.value / max) * 100}%` }} />
@@ -278,7 +278,7 @@ export default function RevenueProtectionCommandCentre() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[13px] font-bold text-navy-900">{a.tradeName}</span>
-                  <span className="text-[11.5px] text-steel-500">{a.division}</span>
+                  <span className="text-[11.5px] text-steel-500">{t(a.division)}</span>
                   {!a.reachable && <Pill tone="red">{t('No officer available')}</Pill>}
                   {a.mechanisms.includes('limitation') && a.detail.daysRemaining != null && (
                     <Pill tone="amber">{t('{0} days to deadline', a.detail.daysRemaining)}</Pill>

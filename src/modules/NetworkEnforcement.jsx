@@ -138,7 +138,7 @@ function WhereView() {
                   <div key={n.id} className="flex items-center gap-2 text-[12px] text-navy-800">
                     <XCircle className="w-3.5 h-3.5 text-orange-600 shrink-0" />
                     <span className="font-medium">{n.label}</span>
-                    <span className="text-steel-500">· {n.role}</span>
+                    <span className="text-steel-500">· {t(n.role)}</span>
                   </div>
                 ))}
               </div>
@@ -169,8 +169,8 @@ function WhereView() {
                   {[...p.nodes].sort((a, b) => b.cutScore - a.cutScore).map(n => (
                     <tr key={n.id} className={n.id === p.recommended?.id ? 'bg-emerald-50/50' : ''}>
                       <td className="px-3 py-2 font-medium text-navy-900">{n.label}</td>
-                      <td className="px-3 py-2 text-steel-600">{n.role}</td>
-                      <td className="px-3 py-2 text-steel-600">{n.division || '—'}</td>
+                      <td className="px-3 py-2 text-steel-600">{t(n.role)}</td>
+                      <td className="px-3 py-2 text-steel-600">{n.division ? t(n.division) : '—'}</td>
                       <td className="px-3 py-2 text-right tabular-nums">{lakh(n.incidentRupees)}</td>
                       <td className="px-3 py-2 text-right tabular-nums">{n.leadStrength}</td>
                       <td className="px-3 py-2">

@@ -92,7 +92,7 @@ export default function OfficerAICopilot() {
             <div className="rounded-xl border border-steel-200 bg-white shadow-card px-5 py-4 flex flex-wrap items-center gap-3">
               <div className="min-w-0">
                 <div className="text-base font-bold text-navy-900 truncate">{activeRow.tradeName}</div>
-                <div className="text-[11.5px] text-steel-500">{activeRow.gstin} · {activeRow.district}</div>
+                <div className="text-[11.5px] text-steel-500">{activeRow.gstin} · {t(activeRow.district)}</div>
               </div>
               <div className="flex items-center gap-2 ml-auto">
                 <RiskBadge category={activeRow.riskCategory} score={activeRow.riskScore} size="sm" />

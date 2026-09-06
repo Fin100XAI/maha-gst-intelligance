@@ -93,8 +93,8 @@ export default function ComplianceEarlyWarning() {
         <div className="text-[11px] text-steel-500">{r.gstin}</div>
       </div>
     ) },
-    { key: 'district', label: t('District') },
-    { key: 'sector', label: t('Sector') },
+    { key: 'district', label: t('District'), render: r => t(r.district) },
+    { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
     { key: 'riskScore', label: t('Risk Score'), align: 'right', render: r => <RiskBadge category={riskCategoryFromScore(r.riskScore)} score={r.riskScore} size="sm" /> },
     { key: 'status', label: t('Status'), render: r => <StatusPill status={effectiveStatus(r)} /> },
     { key: 'raisedOn', label: t('Raised On') },
@@ -209,8 +209,8 @@ export default function ComplianceEarlyWarning() {
         {selectedAlert && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
-              <Pill tone="navy">{selectedAlert.district}</Pill>
-              <Pill tone="steel">{selectedAlert.sector}</Pill>
+              <Pill tone="navy">{t(selectedAlert.district)}</Pill>
+              <Pill tone="steel">{t(selectedAlert.sector)}</Pill>
               <Pill tone="amber">{t('Status')}: {t(effectiveStatus(selectedAlert))}</Pill>
               <RiskBadge category={riskCategoryFromScore(selectedAlert.riskScore)} score={selectedAlert.riskScore} />
             </div>

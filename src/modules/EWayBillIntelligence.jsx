@@ -142,7 +142,7 @@ export default function EWayBillIntelligence() {
         </div>
       )
     },
-    { key: 'district', label: t('District') },
+    { key: 'district', label: t('District'), render: r => t(r.district) },
     { key: 'routeType', label: t('Route Type'), render: r => t(r.routeType) },
     { key: 'distanceKm', label: t('Distance (km)'), align: 'right' },
     { key: 'valueLakh', label: t('Value (₹L)'), align: 'right', render: r => r.valueLakh.toFixed(1) },

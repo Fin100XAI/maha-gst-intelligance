@@ -182,8 +182,8 @@ export default function ITCRiskIntelligence() {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {visibleMatches.map(t => (
-                  <ItcRiskCard key={t.id} taxpayer={t} onOpen={() => setSelectedTaxpayer(t)} />
+                {visibleMatches.map(tp => (
+                  <ItcRiskCard key={tp.id} taxpayer={tp} onOpen={() => setSelectedTaxpayer(tp)} />
                 ))}
               </div>
               {visibleCount < categoryMatches.length && (
@@ -229,7 +229,7 @@ function ItcRiskCard({ taxpayer, onOpen }) {
           <RiskBadge category={taxpayer.risk.category} score={taxpayer.risk.score} size="sm" />
         </div>
         <div className="mt-2 text-[11px] text-steel-500">
-          {taxpayer.sector} · {taxpayer.district}
+          {t(taxpayer.sector)} · {t(taxpayer.district)}
         </div>
         <div className="mt-2 flex items-center gap-3 text-xs">
           <div>

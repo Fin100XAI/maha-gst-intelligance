@@ -151,8 +151,8 @@ export default function RevenueIntelligence() {
   const columns = [
     { key: 'gstin', label: t('GSTIN') },
     { key: 'tradeName', label: t('Trade Name') },
-    { key: 'district', label: t('District') },
-    { key: 'sector', label: t('Sector') },
+    { key: 'district', label: t('District'), render: r => t(r.district) },
+    { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
     { key: 'monthlyTurnover', label: t('Turnover'), align: 'right', render: r => `₹${(r.monthlyTurnover / 100000).toFixed(1)}L` },
     { key: 'taxPaid', label: t('Tax Paid'), align: 'right', render: r => `₹${(r.taxPaid / 100000).toFixed(1)}L` },
     { key: 'revenueDropPct', label: t('Revenue Drop %'), align: 'right', render: r => `${r.revenueDropPct}%` },

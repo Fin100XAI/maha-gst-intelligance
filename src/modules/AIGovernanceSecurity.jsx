@@ -202,7 +202,7 @@ export default function AIGovernanceSecurity() {
               )
             },
             { key: 'user', label: t('User') },
-            { key: 'role', label: t('Role') },
+            { key: 'role', label: t('Role'), render: r => t(r.role) },
             { key: 'action', label: t('Action') },
             { key: 'module', label: t('Module') },
             { key: 'caseId', label: t('Case ID') },

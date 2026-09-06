@@ -65,7 +65,7 @@ export default function CasePriorityEngine() {
       render: r => (
         <div>
           <div className="font-semibold text-navy-800">{r.tradeName}</div>
-          <div className="text-[11px] text-steel-500">{r.gstin} · {r.district}</div>
+          <div className="text-[11px] text-steel-500">{r.gstin} · {t(r.district)}</div>
         </div>
       )
     },
@@ -220,7 +220,7 @@ function FactorBreakdown({ c }) {
     <div className="space-y-4">
       <div>
         <div className="text-base font-bold text-navy-900">{c.tradeName}</div>
-        <div className="text-[11.5px] text-steel-500">{c.gstin} · {c.district} · {c.sector}</div>
+        <div className="text-[11.5px] text-steel-500">{c.gstin} · {t(c.district)} · {t(c.sector)}</div>
       </div>
 
       <div className="rounded-lg border border-navy-200 bg-navy-50/60 px-3.5 py-3">

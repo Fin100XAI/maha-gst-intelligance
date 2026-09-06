@@ -162,7 +162,7 @@ function DataView() {
                   )}
                 </div>
                 <div className="text-[11px] text-steel-500 mt-0.5">{d.publisher}</div>
-                <p className="text-[11.5px] text-steel-600 leading-relaxed mt-1">{d.status}</p>
+                <p className="text-[11.5px] text-steel-600 leading-relaxed mt-1">{t(d.status)}</p>
                 <span className="inline-block mt-1.5"><Pill tone="amber">{t('No values held')}</Pill></span>
               </div>
             ))}
@@ -220,7 +220,7 @@ function SoftwareView() {
               <Package className="w-3.5 h-3.5 text-steel-400 shrink-0" />
               <span className="text-[12.5px] font-semibold text-navy-900">{s.name}</span>
               <code className="text-[11px] text-steel-600 bg-steel-100 px-1.5 py-0.5 rounded tabular-nums">{s.version}</code>
-              <span className="text-[11.5px] text-steel-600">{s.role}</span>
+              <span className="text-[11.5px] text-steel-600">{t(s.role)}</span>
               <Pill tone="steel">{s.licence}</Pill>
             </div>
           ))}

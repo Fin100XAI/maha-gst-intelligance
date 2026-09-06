@@ -187,8 +187,8 @@ function Findings({ rows = DISCOVERIES }) {
         <DataTable
           columns={[
             { key: 'tradeName', label: t('Taxpayer') },
-            { key: 'sector', label: t('Sector') },
-            { key: 'division', label: t('Division') },
+            { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
+            { key: 'division', label: t('Division'), render: r => t(r.division) },
             {
               key: 'deviation', label: t('Strongest deviation'),
               render: r => {

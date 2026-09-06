@@ -6,6 +6,7 @@
  */
 import './shell.js'
 import './shared.js'
+import './dataValues.js'
 import './modules/executiveCommandCenter.js'
 import './modules/revenueAndSector.js'
 import './modules/taxpayerAndDistrict.js'
@@ -16,3 +17,4 @@ import './modules/governanceAndReports.js'
 import './modules/auditAndLitigation.js'
 import './modules/statutoryAndProtection.js'
 import './modules/capacityAndDeployment.js'
+import './modules/screenNames.js'

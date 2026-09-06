@@ -47,7 +47,7 @@ export function ComparableCases({ gstin }) {
             <div key={c.gstin} className="px-5 py-4">
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span className="text-[13px] font-bold text-navy-900">{c.tradeName}</span>
-                <span className="text-[11.5px] text-steel-500">{c.division}</span>
+                <span className="text-[11.5px] text-steel-500">{t(c.division)}</span>
                 {c.outcomeMeta && (
                   <Pill tone={c.outcomeMeta.tone === 'green' ? 'green' : c.outcomeMeta.tone === 'red' ? 'red' : 'amber'}>
                     {c.outcomeMeta.label}
@@ -60,7 +60,7 @@ export function ComparableCases({ gstin }) {
               </div>
 
               <div className="flex flex-wrap items-center gap-3 text-[11.5px] text-steel-600 mb-2.5">
-                {c.issue && <span>{c.issue}</span>}
+                {c.issue && <span>{t(c.issue)}</span>}
                 {c.disputedAmount != null && <span className="tabular-nums">{lakh(c.disputedAmount)}</span>}
                 {c.departmentPosition && <span>{t('Position')}: {c.departmentPosition}</span>}
                 {c.ageingDays != null && <span className="tabular-nums">{t('{0} days', c.ageingDays)}</span>}

@@ -113,7 +113,7 @@ function AllocationView({ R }) {
         <DataTable
           columns={[
             { key: 'tradeName', label: t('Taxpayer') },
-            { key: 'division', label: t('Division') },
+            { key: 'division', label: t('Division'), render: r => t(r.division) },
             { key: 'officerName', label: t('Assigned to') },
             { key: 'officerRole', label: t('Role') },
             {
@@ -186,7 +186,7 @@ function ResidualView({ R }) {
             <DataTable
               columns={[
                 { key: 'tradeName', label: t('Taxpayer') },
-                { key: 'division', label: t('Division') },
+                { key: 'division', label: t('Division'), render: r => t(r.division) },
                 { key: 'effortDays', label: t('Days needed'), align: 'right', render: r => r.effortDays.toFixed(1) },
                 { key: 'daysRemaining', label: t('Days to deadline'), align: 'right', render: r => r.daysRemaining == null ? '—' : r.daysRemaining },
                 { key: 'value', label: t('Recoverable'), align: 'right', render: r => lakh(r.recoverableNow != null ? r.recoverableNow : r.exposure * 0.4) }
@@ -206,7 +206,7 @@ function ResidualView({ R }) {
           <DataTable
             columns={[
               { key: 'tradeName', label: t('Taxpayer') },
-              { key: 'division', label: t('Division') },
+              { key: 'division', label: t('Division'), render: r => t(r.division) },
               { key: 'bindingDate', label: t('Deadline passed'), align: 'right' },
               { key: 'daysRemaining', label: t('Days overdue'), align: 'right', render: r => Math.abs(r.daysRemaining) },
               { key: 'exposure', label: t('Exposure forgone'), align: 'right', render: r => lakh(r.exposure) }
@@ -239,7 +239,7 @@ function BindingView({ R }) {
               <div key={p.key} className="rounded-lg border border-red-200 bg-red-50/50 px-3.5 py-3">
                 <div className="flex items-center gap-1.5 mb-1">
                   <MapPin className="w-3.5 h-3.5 text-[#C5221F]" />
-                  <span className="text-[12.5px] font-bold text-navy-900">{p.division}</span>
+                  <span className="text-[12.5px] font-bold text-navy-900">{t(p.division)}</span>
                 </div>
                 <Pill tone="red">{p.typeLabel}</Pill>
                 <div className="flex items-center justify-between text-[12px] mt-2.5 pt-2 border-t border-red-200/70">
@@ -262,7 +262,7 @@ function BindingView({ R }) {
       >
         <DataTable
           columns={[
-            { key: 'division', label: t('Division') },
+            { key: 'division', label: t('Division'), render: r => t(r.division) },
             { key: 'typeLabel', label: t('Case type') },
             { key: 'officerCount', label: t('Officers'), align: 'right' },
             { key: 'supplyDays', label: t('Supply (days)'), align: 'right', render: r => r.supplyDays.toFixed(1) },
@@ -296,7 +296,7 @@ function BindingView({ R }) {
             return (
               <div key={p.key} className="flex items-center gap-3">
                 <div className="w-52 shrink-0 text-[12px] text-navy-800 truncate">
-                  {p.division} <span className="text-steel-400">·</span> {p.typeLabel}
+                  {t(p.division)} <span className="text-steel-400">·</span> {p.typeLabel}
                 </div>
                 <div className="flex-1 h-6 rounded bg-steel-100 overflow-hidden relative">
                   <div className="h-full bg-emerald-500/80" style={{ width: `${(p.marginalOfficerWeekValue / max) * 100}%` }} />

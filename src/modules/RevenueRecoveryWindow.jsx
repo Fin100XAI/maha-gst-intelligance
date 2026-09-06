@@ -97,7 +97,7 @@ export default function RevenueRecoveryWindow() {
       render: r => (
         <div>
           <div className="font-semibold text-navy-800">{r.tradeName}</div>
-          <div className="text-[11px] text-steel-500">{r.gstin} · {r.district}</div>
+          <div className="text-[11px] text-steel-500">{r.gstin} · {t(r.district)}</div>
         </div>
       )
     },

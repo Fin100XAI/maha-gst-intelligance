@@ -158,7 +158,7 @@ export default function DistrictDivisionPerformance() {
                 onClick={() => setSelectedDistrict(d)}
                 className={`rounded-lg p-3 text-left ${shade.bg} ${shade.text} hover:opacity-90 transition-opacity`}
               >
-                <div className="text-xs font-bold truncate">{d.district}</div>
+                <div className="text-xs font-bold truncate">{t(d.district)}</div>
                 <div className="text-[10px] opacity-90 mt-0.5">{t(shade.label)}</div>
                 <div className="text-sm font-bold mt-1.5">
                   {heatmapMetric === 'riskTaxpayers' ? d.riskTaxpayers : `${d.gapPct > 0 ? '+' : ''}${d.gapPct}%`}
@@ -181,8 +181,8 @@ export default function DistrictDivisionPerformance() {
               <button onClick={() => setSelectedDistrict(d)} className="w-full text-left p-4 hover:bg-steel-50/60 transition-colors">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
-                    <div className="text-sm font-bold text-navy-900">{d.district}</div>
-                    <div className="text-[11px] text-steel-500">{d.division}</div>
+                    <div className="text-sm font-bold text-navy-900">{t(d.district)}</div>
+                    <div className="text-[11px] text-steel-500">{t(d.division)}</div>
                   </div>
                   <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full border" style={{ backgroundColor: tone.bg, borderColor: tone.border, color: tone.accent }}>
                     {d.gapPct > 0 ? '+' : ''}{d.gapPct}%
@@ -237,7 +237,7 @@ export default function DistrictDivisionPerformance() {
               {divisionRanking.map((g, i) => (
                 <tr key={g.division} className={`border-b border-steel-100 last:border-0 ${i % 2 === 1 ? 'bg-steel-50/40' : ''}`}>
                   <td className="px-3 py-2.5 font-bold text-navy-800">#{i + 1}</td>
-                  <td className="px-3 py-2.5 font-medium text-navy-800">{g.division}</td>
+                  <td className="px-3 py-2.5 font-medium text-navy-800">{t(g.division)}</td>
                   <td className="px-3 py-2.5 text-right text-navy-800">{g.targetCr.toLocaleString('en-IN')}</td>
                   <td className="px-3 py-2.5 text-right text-navy-800">{g.actualCr.toLocaleString('en-IN')}</td>
                   <td className="px-3 py-2.5 text-right">
@@ -258,8 +258,8 @@ export default function DistrictDivisionPerformance() {
         open={!!selectedDistrict}
         onClose={() => setSelectedDistrict(null)}
         size="lg"
-        title={selectedDistrict?.district}
-        subtitle={selectedDistrict?.division}
+        title={t(selectedDistrict?.district)}
+        subtitle={t(selectedDistrict?.division)}
       >
         {selectedDistrict && (
           <div className="space-y-5">
@@ -284,7 +284,7 @@ export default function DistrictDivisionPerformance() {
                     <div key={o.id} className="flex items-center justify-between px-3 py-2 rounded-lg border border-steel-200 text-xs">
                       <div>
                         <div className="font-semibold text-navy-800">{o.name}</div>
-                        <div className="text-[11px] text-steel-500">{o.role}</div>
+                        <div className="text-[11px] text-steel-500">{t(o.role)}</div>
                       </div>
                       <div className="text-right text-[11px] text-steel-500">
                         <div>{t('{0} assigned · {1} closed MTD', o.assignedCases, o.casesClosedMTD)}</div>
@@ -302,17 +302,17 @@ export default function DistrictDivisionPerformance() {
                 <p className="text-xs text-steel-500">{t('No taxpayers in this district match the current global filters.')}</p>
               )}
               <div className="space-y-1.5">
-                {districtTopRisk.map(t => (
+                {districtTopRisk.map(tp => (
                   <button
-                    key={t.id}
-                    onClick={() => { setSelectedTaxpayer(t) }}
+                    key={tp.id}
+                    onClick={() => { setSelectedTaxpayer(tp) }}
                     className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-steel-200 hover:bg-navy-50/60 text-left"
                   >
                     <div className="min-w-0">
-                      <div className="text-xs font-semibold text-navy-800 truncate">{t.tradeName}</div>
-                      <div className="text-[11px] text-steel-500 truncate">{t.sector} · {t.gstin}</div>
+                      <div className="text-xs font-semibold text-navy-800 truncate">{tp.tradeName}</div>
+                      <div className="text-[11px] text-steel-500 truncate">{t(tp.sector)} · {tp.gstin}</div>
                     </div>
-                    <RiskBadge category={t.risk.category} score={t.risk.score} size="sm" />
+                    <RiskBadge category={tp.risk.category} score={tp.risk.score} size="sm" />
                   </button>
                 ))}
               </div>

@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "audit": "node scripts/audit.mjs",
-    "verify": "node scripts/audit.mjs && vite build"
+    "vocab": "node scripts/vocabulary.mjs",
+    "verify": "node scripts/audit.mjs && node scripts/vocabulary.mjs && vite build"
   },
   "dependencies": {
     "lucide-react": "^0.462.0",

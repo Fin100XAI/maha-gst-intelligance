@@ -211,8 +211,8 @@ export default function ExecutiveCommandCenter() {
         <div className="text-[11px] text-steel-500">{r.gstin}</div>
       </div>
     ) },
-    { key: 'district', label: t('District') },
-    { key: 'sector', label: t('Sector') },
+    { key: 'district', label: t('District'), render: r => t(r.district) },
+    { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
     { key: 'estimatedRevenueExposure', label: t('Exposure'), align: 'right', render: r => `₹${(r.estimatedRevenueExposure / 100000).toFixed(1)}L` },
     { key: 'risk', label: t('Risk'), align: 'right', sortValue: r => r.risk.score, render: r => <RiskBadge category={r.risk.category} score={r.risk.score} /> }
   ]
@@ -343,7 +343,7 @@ export default function ExecutiveCommandCenter() {
                   className={`text-left rounded-lg border ${c.border} ${c.bg} p-3 hover:-translate-y-0.5 hover:shadow-panel transition-all`}
                 >
                   <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-semibold text-navy-900 truncate">{d.district}</span>
+                    <span className="text-xs font-semibold text-navy-900 truncate">{t(d.district)}</span>
                     <MapPin className={`w-3 h-3 ${c.text} shrink-0`} />
                   </div>
                   <div className={`text-lg font-bold mt-1 ${c.text}`}>{d.riskTaxpayers}</div>
@@ -381,9 +381,9 @@ export default function ExecutiveCommandCenter() {
                 >
                   <div className="flex items-center gap-1.5 mb-1">
                     <Pill tone={sev.tone}>{sev.label}</Pill>
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-steel-400">{a.type}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-steel-400">{t(a.type)}</span>
                   </div>
-                  <div className="text-xs font-semibold text-navy-900">{a.tradeName} · {a.district}</div>
+                  <div className="text-xs font-semibold text-navy-900">{a.tradeName} · {t(a.district)}</div>
                   <p className="text-[11px] text-steel-500 mt-0.5 leading-snug">{a.recommendedAction}</p>
                 </button>
               )
@@ -494,8 +494,8 @@ export default function ExecutiveCommandCenter() {
         open={!!selectedDistrict}
         onClose={() => setSelectedDistrict(null)}
         size="md"
-        title={selectedDistrict?.district}
-        subtitle={selectedDistrict?.division}
+        title={t(selectedDistrict?.district)}
+        subtitle={t(selectedDistrict?.division)}
       >
         {selectedDistrict && (
           <div className="grid grid-cols-2 gap-3">

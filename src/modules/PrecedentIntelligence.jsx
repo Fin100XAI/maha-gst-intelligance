@@ -135,7 +135,7 @@ function QuestionsView({ logAction }) {
           columns={[
             { key: 'tradeName', label: t('Taxpayer') },
             { key: 'fy', label: t('Financial year') },
-            { key: 'division', label: t('Division') },
+            { key: 'division', label: t('Division'), render: r => t(r.division) },
             { key: 'bindingDate', label: t('Deadline relied on'), align: 'right' },
             { key: 'exposure', label: t('Exposure'), align: 'right', render: r => `₹${(r.exposure / 100000).toFixed(1)} L` }
           ]}
@@ -219,7 +219,7 @@ function DepartmentalView() {
       >
         <DataTable
           columns={[
-            { key: 'issue', label: t('Question of law') },
+            { key: 'issue', label: t('Question of law'), render: r => t(r.issue) },
             { key: 'totalCases', label: t('Total'), align: 'right' },
             { key: 'concludedCount', label: t('Concluded'), align: 'right' },
             { key: 'confirmed', label: t('Confirmed'), align: 'right' },
@@ -246,7 +246,7 @@ function DepartmentalView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {rows.filter(r => r.weakDocs || r.weakPrecedent).map(r => (
             <div key={r.issue} className="rounded-lg border border-steel-200 bg-white px-3.5 py-3">
-              <div className="text-[12.5px] font-semibold text-navy-900 mb-2">{r.issue}</div>
+              <div className="text-[12.5px] font-semibold text-navy-900 mb-2">{t(r.issue)}</div>
               <div className="space-y-1">
                 {r.weakDocs > 0 && (
                   <div className="flex items-center justify-between text-[11.5px]">

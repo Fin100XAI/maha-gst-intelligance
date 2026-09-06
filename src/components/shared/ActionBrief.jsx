@@ -23,7 +23,7 @@ export function ActionBrief({ gstin }) {
       <div className="px-4 py-2.5 bg-navy-50 border-b border-steel-200 flex items-center gap-2">
         <FileSearch className="w-4 h-4 text-navy-600 shrink-0" />
         <span className="text-[12.5px] font-bold text-navy-900">{t('Evidence-to-action brief')}</span>
-        <span className="text-[11px] text-steel-500 ml-auto">{b.tradeName} · {b.division}</span>
+        <span className="text-[11px] text-steel-500 ml-auto">{b.tradeName} · {t(b.division)}</span>
       </div>
 
       <div className="divide-y divide-steel-100">

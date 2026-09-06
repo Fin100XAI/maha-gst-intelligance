@@ -136,8 +136,8 @@ export default function LitigationIntelligence() {
         </div>
       )
     },
-    { key: 'sector', label: t('Sector') },
-    { key: 'district', label: t('District') },
+    { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
+    { key: 'district', label: t('District'), render: r => t(r.district) },
     { key: 'issue', label: t('Legal Issue'), render: c => <Pill tone="navy">{t(c.issue)}</Pill> },
     { key: 'stage', label: t('Stage'), render: c => t(c.stage) },
     {
@@ -253,7 +253,7 @@ export default function LitigationIntelligence() {
         onClose={() => setSelectedCase(null)}
         size="xl"
         title={selectedCase ? `${selectedCase.id} — ${selectedCase.tradeName}` : ''}
-        subtitle={selectedCase ? `${selectedCase.gstin} · ${selectedCase.sector} · ${selectedCase.district}` : ''}
+        subtitle={selectedCase ? `${selectedCase.gstin} · ${t(selectedCase.sector)} · ${t(selectedCase.district)}` : ''}
       >
         {selectedCase && (
           <div className="space-y-5">

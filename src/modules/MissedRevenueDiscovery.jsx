@@ -131,7 +131,7 @@ function CandidateBrief({ b }) {
           <Pill tone={b.basis === 'closed_with_signal' ? 'red' : 'amber'}>{b.basisLabel}</Pill>
           <span className="ml-auto text-[15px] font-bold text-navy-900 tabular-nums">{lakh(b.exposure)}</span>
         </div>
-        <div className="text-[11.5px] text-steel-500">{b.gstin} · {b.division} · {b.sector}</div>
+        <div className="text-[11.5px] text-steel-500">{b.gstin} · {t(b.division)} · {t(b.sector)}</div>
       </div>
 
       {/* 1 — what fired */}

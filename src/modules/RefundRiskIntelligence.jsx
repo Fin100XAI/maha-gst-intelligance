@@ -120,7 +120,7 @@ export default function RefundRiskIntelligence() {
         </div>
       )
     },
-    { key: 'sector', label: t('Sector') },
+    { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
     { key: 'claimedAmount', label: t('Claimed Amount'), align: 'right', render: r => `₹${(r.claimedAmount / 100000).toFixed(1)} L` },
     { key: 'refundToTurnoverPct', label: t('Refund/Turnover %'), align: 'right', render: r => `${r.refundToTurnoverPct.toFixed(1)}%` },
     {
@@ -235,7 +235,7 @@ export default function RefundRiskIntelligence() {
               <RiskBadge category={reviewCase.riskCategory} score={reviewCase.riskScore} />
               <Pill tone={STATUS_TONE[effectiveStatus(reviewCase)] || 'steel'}>{t(effectiveStatus(reviewCase))}</Pill>
               {reviewCase.exportLinked && <Pill tone="navy">{t('Export-Linked')}</Pill>}
-              <Pill tone="steel">{reviewCase.sector}</Pill>
+              <Pill tone="steel">{t(reviewCase.sector)}</Pill>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">

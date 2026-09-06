@@ -141,7 +141,7 @@ export default function ExtractSpecification() {
                   <Scale className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                   <span className="text-[12px] font-bold text-navy-900">{l.item}</span>
                 </div>
-                <div className="text-[11.5px] font-semibold text-amber-800 mb-1">{l.position}</div>
+                <div className="text-[11.5px] font-semibold text-amber-800 mb-1">{t(l.position)}</div>
                 <p className="text-[11.5px] text-steel-700 leading-relaxed">{l.note}</p>
               </div>
             ))}
