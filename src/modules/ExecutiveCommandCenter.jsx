@@ -4,7 +4,6 @@ import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
-import { PillTabs } from '../components/ui/PillTabs.jsx'
 import { RiskDonutChart, HealthRadarChart } from '../components/ui/Charts.jsx'
 import { ScoreGauge } from '../components/ui/ScoreGauge.jsx'
 import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
@@ -12,7 +11,7 @@ import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
 import { CommandBoard } from '../components/shared/CommandBoard.jsx'
 import {
-  KPI_SUMMARY, STATE_REVENUE_TREND, DISTRICT_REVENUE, SECTOR_REVENUE,
+  KPI_SUMMARY, STATE_REVENUE_TREND, DISTRICT_REVENUE,
   TAXPAYERS, DISTRICTS, COMPLIANCE_ALERTS, REFUND_CASES, AUDIT_CASES, LITIGATION_CASES, LITIGATION_SUMMARY,
   isWithinDateRange, sliceTrendByDateRange, REFERENCE_DATE
 } from '../data/mockData.js'
@@ -23,7 +22,7 @@ import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
 import {
   ShieldAlert, Sparkles, Landmark, TrendingDown, TrendingUp,
-  MapPin, Bell, Users, FileWarning, Gauge, IndianRupee, UserPlus, Factory, BarChart3,
+  MapPin, Bell, Users, FileWarning, Gauge,
   Activity, ClipboardCheck, BadgeCheck
 } from 'lucide-react'
 
@@ -35,11 +34,9 @@ export default function ExecutiveCommandCenter() {
   const [selectedTaxpayer, setSelectedTaxpayer] = useState(null)
   const [selectedDistrict, setSelectedDistrict] = useState(null)
   const [briefGenerated, setBriefGenerated] = useState(false)
-  const [statTab, setStatTab] = useState('revenue')
   const briefRef = useRef(null)
 
   const lastMonth = STATE_REVENUE_TREND.at(-1)
-  const revenueGapCr = lastMonth.actual - lastMonth.target
 
   const isFilteredView = filters.district !== 'All Districts' || filters.division !== 'All Divisions'
     || filters.sector !== 'All Sectors' || filters.riskLevel !== 'All Risk Levels'
@@ -194,49 +191,10 @@ export default function ExecutiveCommandCenter() {
   }, [filteredAuditCasesFull])
 
   // ---- Statewide Statistics (horizontal pill-tab pattern, mirrors mahagst.gov.in's public Statistics page) ----
-  const revenueCollectionRows = useMemo(
-    () => filteredTrend.map(m => ({
-      id: m.month, month: m.month, target: m.target, actual: m.actual, variance: m.actual - m.target
-    })),
-    [filteredTrend]
-  )
 
-  const registeredTaxpayerRows = useMemo(
-    () => filteredDistrictRevenue.map(d => {
-      const districtTaxpayers = filteredTaxpayers.filter(t => t.district === d.district)
-      return {
-        id: d.district,
-        district: d.district,
-        division: d.division,
-        total: districtTaxpayers.length,
-        newRegistrations: districtTaxpayers.filter(t => t.isNewRegistration).length,
-        regular: districtTaxpayers.filter(t => t.filingStatus === 'Regular Filer').length,
-        late: districtTaxpayers.filter(t => t.filingStatus === 'Late Filer').length,
-        nonFiler: districtTaxpayers.filter(t => t.filingStatus === 'Non-Filer').length
-      }
-    }),
-    [filteredDistrictRevenue, filteredTaxpayers]
-  )
 
-  const districtRevenueRows = useMemo(
-    () => filteredDistrictRevenue.map(d => ({ id: d.district, ...d })),
-    [filteredDistrictRevenue]
-  )
 
-  const sectorCollectionRows = useMemo(
-    () => [...SECTOR_REVENUE]
-      .filter(s => filters.sector === 'All Sectors' || s.sector === filters.sector)
-      .sort((a, b) => b.revenueLakh - a.revenueLakh)
-      .map(s => ({ id: s.sector, ...s })),
-    [filters.sector]
-  )
 
-  const STAT_TABS = [
-    { key: 'revenue', label: t('Revenue Collection'), icon: IndianRupee },
-    { key: 'taxpayers', label: t('Registered Taxpayers'), icon: UserPlus },
-    { key: 'district', label: t('District-wise Revenue'), icon: MapPin },
-    { key: 'sector', label: t('Sector-wise Collection'), icon: Factory }
-  ]
 
   const tileTone = riskTaxpayers => {
     const ratio = riskTaxpayers / districtMax
@@ -259,47 +217,7 @@ export default function ExecutiveCommandCenter() {
     { key: 'risk', label: t('Risk'), align: 'right', sortValue: r => r.risk.score, render: r => <RiskBadge category={r.risk.category} score={r.risk.score} /> }
   ]
 
-  const STAT_COLUMNS = {
-    revenue: [
-      { key: 'month', label: t('Month') },
-      { key: 'target', label: t('Target (₹ Cr)'), align: 'right' },
-      { key: 'actual', label: t('Actual (₹ Cr)'), align: 'right' },
-      { key: 'variance', label: t('Variance'), align: 'right', render: r => (
-        <span className={r.variance >= 0 ? 'text-maharisk-low font-semibold' : 'text-maharisk-critical font-semibold'}>
-          {r.variance >= 0 ? '+' : ''}₹{r.variance.toLocaleString('en-IN')} Cr
-        </span>
-      ) }
-    ],
-    taxpayers: [
-      { key: 'district', label: t('District') },
-      { key: 'division', label: t('Division') },
-      { key: 'total', label: t('Total Registered'), align: 'right' },
-      { key: 'newRegistrations', label: t('New Registrations'), align: 'right' },
-      { key: 'regular', label: t('Regular Filers'), align: 'right' },
-      { key: 'late', label: t('Late Filers'), align: 'right' },
-      { key: 'nonFiler', label: t('Non-Filers'), align: 'right', render: r => <span className="text-maharisk-critical font-semibold">{r.nonFiler}</span> }
-    ],
-    district: [
-      { key: 'district', label: t('District') },
-      { key: 'division', label: t('Division') },
-      { key: 'targetCr', label: t('Target (₹ Cr)'), align: 'right' },
-      { key: 'actualCr', label: t('Actual (₹ Cr)'), align: 'right' },
-      { key: 'gapPct', label: t('Gap %'), align: 'right', render: r => (
-        <span className={r.gapPct >= 0 ? 'text-maharisk-low font-semibold' : 'text-maharisk-critical font-semibold'}>
-          {r.gapPct >= 0 ? '+' : ''}{r.gapPct}%
-        </span>
-      ) },
-      { key: 'auditRecoveryCr', label: t('Audit Recovery (₹ Cr)'), align: 'right' }
-    ],
-    sector: [
-      { key: 'sector', label: t('Sector') },
-      { key: 'revenueLakh', label: t('Revenue (₹ Lakh)'), align: 'right' },
-      { key: 'taxpayerCount', label: t('Taxpayers'), align: 'right' },
-      { key: 'highRiskCount', label: t('High-Risk Count'), align: 'right', render: r => r.highRiskCount > 0 ? <Pill tone="red">{r.highRiskCount}</Pill> : <Pill tone="green">0</Pill> }
-    ]
-  }
 
-  const STAT_ROWS = { revenue: revenueCollectionRows, taxpayers: registeredTaxpayerRows, district: districtRevenueRows, sector: sectorCollectionRows }
 
   return (
     <div>
@@ -398,24 +316,6 @@ export default function ExecutiveCommandCenter() {
               </tbody>
             </table>
           </div>
-        </div>
-      </Card>
-
-      {/* Statewide Statistics — horizontal pill-tab pattern */}
-      <Card
-        className="mb-5"
-        title={isFilteredView ? t('Statistics — Filtered View') : t('Statewide Statistics')}
-        subtitle={t('One consolidated statistics panel. Every view below reflects the header filters currently applied.')}
-        actions={<span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-steel-400"><BarChart3 className="w-3.5 h-3.5" /> {t('{0} records', STAT_ROWS[statTab].length)}</span>}
-      >
-        <PillTabs tabs={STAT_TABS} active={statTab} onChange={setStatTab} />
-        <div className="mt-4">
-          <DataTable
-            columns={STAT_COLUMNS[statTab]}
-            rows={STAT_ROWS[statTab]}
-            searchPlaceholder={t('Search this view...')}
-            pageSize={8}
-          />
         </div>
       </Card>
 
