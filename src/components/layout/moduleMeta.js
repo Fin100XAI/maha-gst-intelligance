@@ -34,6 +34,7 @@ export const MODULE_ICONS = {
   'missed-revenue': History,
   'counterfactual': GitCompare,
   'engine-stack': Layers,
+  'extract-spec': FileBarChart2,
   'early-warning': BellRing,
   'ai-governance': ShieldCheck,
   'reports': FileBarChart2,

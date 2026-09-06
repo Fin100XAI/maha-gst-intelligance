@@ -18,6 +18,7 @@ import RevenueProtectionCommandCentre from './modules/RevenueProtectionCommandCe
 import MissedRevenueDiscovery from './modules/MissedRevenueDiscovery.jsx'
 import CounterfactualIntelligence from './modules/CounterfactualIntelligence.jsx'
 import EngineStack from './modules/EngineStack.jsx'
+import ExtractSpecification from './modules/ExtractSpecification.jsx'
 import RevenueRecoveryWindow from './modules/RevenueRecoveryWindow.jsx'
 import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
 import CaseDigitalTwin from './modules/CaseDigitalTwin.jsx'
@@ -48,6 +49,7 @@ const MODULE_COMPONENTS = {
   'missed-revenue': MissedRevenueDiscovery,
   'counterfactual': CounterfactualIntelligence,
   'engine-stack': EngineStack,
+  'extract-spec': ExtractSpecification,
   'recovery-window': RevenueRecoveryWindow,
   'command-center': ExecutiveCommandCenter,
   'case-twin': CaseDigitalTwin,

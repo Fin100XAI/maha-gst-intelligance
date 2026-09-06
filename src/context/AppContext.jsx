@@ -89,6 +89,7 @@ export const MODULES = [
   { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
   // ---- Governance ----
   { id: 'engine-stack', label: 'Engine Stack & Data Readiness', group: 'Governance' },
+  { id: 'extract-spec', label: 'Pilot Extract Specification', group: 'Governance' },
   { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance' },
   { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' },
   { id: 'official-statistics', label: 'Official Statistics', group: 'Governance' }
