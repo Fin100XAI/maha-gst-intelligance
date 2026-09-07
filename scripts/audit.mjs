@@ -161,6 +161,46 @@ fs.readdirSync(MODULES_DIR).filter(f => f.endsWith('.jsx')).forEach(f => {
   missing.forEach(u => fail('undefined-component', `${f} renders <${u}/> which is neither imported nor defined — this compiles and blanks the page`))
 })
 
+/* ---- shadowed translator -------------------------------------------------
+ * `t` is the translator, imported into almost every screen. A local binding
+ * named `t` — a map callback, a style lookup — shadows it, and any t('…') call
+ * in that scope then calls a tab object or a style map as a function. It
+ * compiles cleanly and throws only when that branch renders.
+ *
+ * This has bitten four times: PillTabs mapped `tabs.map(t =>` beside
+ * `{t(t.label)}`; LitigationIntelligence did `const t = TONE_STYLES[...]` above
+ * `{t(docRec.heading)}`, crashing every case modal that carried a
+ * recommendation; ExecutiveCommandCenter and RevenueIntelligence each named
+ * filter callbacks `t` in files full of translated strings.
+ *
+ * A file that imports the translator may not bind `t` to anything else. */
+function allJsx(dir, out = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, e.name)
+    if (e.isDirectory()) allJsx(full, out)
+    else if (e.name.endsWith('.jsx')) out.push(path.relative(ROOT, full).split(path.sep).join('/'))
+  }
+  return out
+}
+const jsxFiles = allJsx(path.join(ROOT, 'src'))
+
+const BINDS_T = [
+  /(?:const|let|var)\s+t\s*=/,          // const t = ...
+  /\.\s*(?:map|filter|find|forEach|some|every|flatMap|sort)\(\s*t\s*(?:=>|\))/, // .map(t => ...
+  /\(\s*t\s*\)\s*=>/,                     // (t) => ...
+  /function\s*\(\s*t\s*[,)]/             // function (t) ...
+]
+jsxFiles.forEach(f => {
+  const src = fs.readFileSync(f, 'utf8')
+  if (!/from\s+'[^']*i18n\/index\.js'/.test(src)) return
+  src.split(/\r?\n/).forEach((line, i) => {
+    if (/^\s*(?:\/\/|\*)/.test(line)) return
+    if (BINDS_T.some(re => re.test(line))) {
+      fail('shadowed-translator', `${f}:${i + 1} binds \`t\` while importing the translator — a t() call in this scope compiles and then throws`)
+    }
+  })
+})
+
 // ---- report ---------------------------------------------------------------
 console.log(`\nengines registered: ${entries.length}   modules: ${mods.length}   groups: ${groups.length}\n`)
 if (warnings.length) {

@@ -9,11 +9,11 @@ import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { WhyFlaggedPanel } from '../components/ui/WhyFlagged.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
-import { REFUND_CASES, taxpayerById, isWithinDateRange } from '../data/mockData.js'
+import { REFUND_CASES, SECTOR_REVENUE, taxpayerById, REFERENCE_DATE } from '../data/mockData.js'
 import { generateRefundChecklist } from '../data/ai.js'
 import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
-import { IndianRupee, ShieldAlert, Percent, Repeat, Sparkles, User2, ShieldCheck, UserCheck, Globe, CheckCircle2 } from 'lucide-react'
+import { IndianRupee, ShieldAlert, Percent, Scale, Sparkles, User2, ShieldCheck, UserCheck, Globe, CheckCircle2, Info } from 'lucide-react'
 
 const STATUS_TONE = {
   'Low Risk': 'green',
@@ -21,18 +21,41 @@ const STATUS_TONE = {
   'Escalate for Scrutiny': 'red'
 }
 
-const REPEAT_CLAIM_THRESHOLD = 1000000 // ₹10 Lakh — proxy threshold for high-value / repeat-pattern claims
+/* The encoded rule for refund intensity — RISK_RULES.refund_ratio — fires where
+ * the refund-to-turnover ratio exceeds twice the sector benchmark. The same
+ * multiple is used here so this screen and the risk score cannot disagree about
+ * what "above the band" means. */
+const BAND_MULTIPLE = 2
+
+const DAY_MS = 1000 * 60 * 60 * 24
+const pctOf = (num, den) => (den > 0 ? Math.round((num / den) * 1000) / 10 : 0)
+const benchmarkFor = sector => SECTOR_REVENUE.find(s => s.sector === sector)
+const benchmarkPctFor = sector => {
+  const bench = benchmarkFor(sector)
+  return bench ? Math.round(bench.avgRefundRatio * 1000) / 10 : null
+}
+const timesBenchmark = c => {
+  const bench = benchmarkPctFor(c.sector)
+  return bench && bench > 0 ? Math.round((c.refundToTurnoverPct / bench) * 100) / 100 : null
+}
+const daysPending = c => Math.max(0, Math.floor((REFERENCE_DATE - new Date(c.filedOn)) / DAY_MS))
 
 // Delegates to the shared case filter so this module cannot drift out of
 // step with the others again — division in particular was missing here.
 const matchesGlobalFilters = (rec, filters) => applyCaseFilters(rec, filters, 'filedOn')
 
-function bucketRatio(pct) {
-  if (pct < 5) return '0–5%'
-  if (pct < 10) return '5–10%'
-  if (pct < 15) return '10–15%'
-  if (pct < 20) return '15–20%'
-  return '20%+'
+/* Bands are relative to the claimant's own sector, not absolute. An absolute
+ * band is meaningless across this population: the benchmark refund ratio runs
+ * from 1% in professional services to 21% in import/export, so a flat "15–20%"
+ * bucket mixes an ordinary exporter with an extreme restaurant claim. */
+const BAND_ORDER = ['Below sector benchmark', '1–2× benchmark', '2–3× benchmark', '3× benchmark and above', 'No sector benchmark on record']
+function bandFor(c) {
+  const times = timesBenchmark(c)
+  if (times == null) return BAND_ORDER[4]
+  if (times < 1) return BAND_ORDER[0]
+  if (times < BAND_MULTIPLE) return BAND_ORDER[1]
+  if (times < 3) return BAND_ORDER[2]
+  return BAND_ORDER[3]
 }
 
 export default function RefundRiskIntelligence() {
@@ -56,36 +79,85 @@ export default function RefundRiskIntelligence() {
     return base.filter(c => matchesGlobalFilters(c, filters))
   }, [filters, scopedToMe, officerName])
 
+  /* What is actually at stake before sanction, and where officer time returns
+   * most. A total claimed value on its own is a measure of how much refund
+   * activity there is, which decides nothing. */
   const kpis = useMemo(() => {
-    const totalClaimedLakh = filteredCases.reduce((s, c) => s + c.claimedAmount, 0) / 100000
-    const highRiskCount = filteredCases.filter(c => c.riskCategory === 'High' || c.riskCategory === 'Critical').length
+    const totalClaimed = filteredCases.reduce((s, c) => s + c.claimedAmount, 0)
+    const undecided = filteredCases.filter(c => effectiveStatus(c) !== 'Low Risk')
+    const undecidedValue = undecided.reduce((s, c) => s + c.claimedAmount, 0)
+    const highRisk = filteredCases.filter(c => c.riskCategory === 'High' || c.riskCategory === 'Critical')
+    const highRiskValue = highRisk.reduce((s, c) => s + c.claimedAmount, 0)
     const avgRatio = filteredCases.length
       ? filteredCases.reduce((s, c) => s + c.refundToTurnoverPct, 0) / filteredCases.length
       : 0
-    const repeatProxyCount = filteredCases.filter(c => c.claimedAmount > REPEAT_CLAIM_THRESHOLD).length
-    return { totalClaimedLakh, highRiskCount, avgRatio, repeatProxyCount }
-  }, [filteredCases])
+    const avgBenchmark = filteredCases.length
+      ? filteredCases.reduce((s, c) => s + (benchmarkPctFor(c.sector) ?? 0), 0) / filteredCases.length
+      : 0
+    const aboveBand = filteredCases.filter(c => {
+      const times = timesBenchmark(c)
+      return times != null && times >= BAND_MULTIPLE
+    })
+    const ages = filteredCases.map(daysPending).sort((a, b) => a - b)
+    return {
+      totalClaimedLakh: totalClaimed / 100000,
+      undecidedCount: undecided.length,
+      undecidedLakh: undecidedValue / 100000,
+      undecidedSharePct: pctOf(undecidedValue, totalClaimed),
+      highRiskCount: highRisk.length,
+      highRiskRatePct: pctOf(highRisk.length, filteredCases.length),
+      highRiskValueSharePct: pctOf(highRiskValue, totalClaimed),
+      avgRatio,
+      avgBenchmark: Math.round(avgBenchmark * 10) / 10,
+      gapPp: Math.round((avgRatio - avgBenchmark) * 10) / 10,
+      aboveBandCount: aboveBand.length,
+      aboveBandLakh: aboveBand.reduce((s, c) => s + c.claimedAmount, 0) / 100000,
+      aboveBandRatePct: pctOf(aboveBand.length, filteredCases.length),
+      medianDaysPending: ages.length ? (ages.length % 2 ? ages[Math.floor(ages.length / 2)] : Math.round((ages[ages.length / 2 - 1] + ages[ages.length / 2]) / 2)) : 0,
+      oldestDaysPending: ages.length ? ages[ages.length - 1] : 0
+    }
+  }, [filteredCases, statusOverrides])
 
-  const sectorChartData = useMemo(() => {
+  /* Sector view against the sector's own benchmark. The previous chart plotted
+   * total claimed value per sector, which ranked sectors by how much refund
+   * they legitimately generate and told an officer nothing about risk. */
+  const sectorAnalysis = useMemo(() => {
     const map = new Map()
     filteredCases.forEach(c => {
-      const entry = map.get(c.sector) || { sector: c.sector, claimedLakh: 0 }
+      const entry = map.get(c.sector) || { id: c.sector, sector: c.sector, claims: 0, claimedLakh: 0, ratioSum: 0, aboveBand: 0 }
+      entry.claims += 1
       entry.claimedLakh += c.claimedAmount / 100000
+      entry.ratioSum += c.refundToTurnoverPct
+      const times = timesBenchmark(c)
+      if (times != null && times >= BAND_MULTIPLE) entry.aboveBand += 1
       map.set(c.sector, entry)
     })
     return [...map.values()]
-      .map(d => ({ ...d, claimedLakh: Math.round(d.claimedLakh * 10) / 10 }))
-      .sort((a, b) => b.claimedLakh - a.claimedLakh)
+      .map(e => {
+        const actual = Math.round((e.ratioSum / e.claims) * 10) / 10
+        const bench = benchmarkPctFor(e.sector)
+        return {
+          ...e,
+          claimedLakh: Math.round(e.claimedLakh * 10) / 10,
+          actualPct: actual,
+          benchmarkPct: bench,
+          gapPp: bench == null ? 0 : Math.round((actual - bench) * 10) / 10,
+          times: bench && bench > 0 ? Math.round((actual / bench) * 100) / 100 : null
+        }
+      })
+      .sort((a, b) => b.gapPp - a.gapPp)
   }, [filteredCases])
 
-  const ratioDistribution = useMemo(() => {
-    const order = ['0–5%', '5–10%', '10–15%', '15–20%', '20%+']
-    const map = new Map(order.map(k => [k, 0]))
+  const bandDistribution = useMemo(() => {
+    const map = new Map(BAND_ORDER.map(k => [k, { band: k, count: 0, claimedLakh: 0 }]))
     filteredCases.forEach(c => {
-      const b = bucketRatio(c.refundToTurnoverPct)
-      map.set(b, (map.get(b) || 0) + 1)
+      const entry = map.get(bandFor(c))
+      entry.count += 1
+      entry.claimedLakh += c.claimedAmount / 100000
     })
-    return order.map(k => ({ band: k, count: map.get(k) }))
+    return BAND_ORDER
+      .map(k => ({ ...map.get(k), claimedLakh: Math.round(map.get(k).claimedLakh * 10) / 10 }))
+      .filter(row => row.count > 0)
   }, [filteredCases])
 
   const openReview = c => {
@@ -108,7 +180,6 @@ export default function RefundRiskIntelligence() {
   }
 
   const columns = [
-    { key: 'id', label: t('Refund ID') },
     {
       key: 'trade',
       label: t('GSTIN / Trade Name'),
@@ -116,13 +187,51 @@ export default function RefundRiskIntelligence() {
       render: r => (
         <div>
           <div className="font-semibold text-navy-900">{r.tradeName}</div>
-          <div className="text-[11px] text-steel-500">{r.gstin}</div>
+          <div className="text-[11px] text-steel-500">{r.id} · {r.gstin}</div>
         </div>
       )
     },
     { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
-    { key: 'claimedAmount', label: t('Claimed Amount'), align: 'right', render: r => `₹${(r.claimedAmount / 100000).toFixed(1)} L` },
-    { key: 'refundToTurnoverPct', label: t('Refund/Turnover %'), align: 'right', render: r => `${r.refundToTurnoverPct.toFixed(1)}%` },
+    { key: 'claimedAmount', label: t('Claimed'), align: 'right', render: r => `₹${(r.claimedAmount / 100000).toFixed(1)} L` },
+    {
+      key: 'refundToTurnoverPct',
+      label: t('Refund / turnover vs sector benchmark'),
+      align: 'right',
+      sortValue: r => timesBenchmark(r) ?? 0,
+      render: r => {
+        const bench = benchmarkPctFor(r.sector)
+        const times = timesBenchmark(r)
+        return (
+          <div className="tabular-nums">
+            <div className={times != null && times >= BAND_MULTIPLE ? 'font-semibold text-[#C5221F]' : 'text-navy-900'}>
+              {t('{0}%', r.refundToTurnoverPct.toFixed(1))}
+            </div>
+            <div className="text-[11px] text-steel-500">
+              {bench == null
+                ? t('no sector benchmark on record')
+                : t('benchmark {0}% · {1}× it', bench, times)}
+            </div>
+          </div>
+        )
+      }
+    },
+    {
+      key: 'daysPending',
+      label: t('Days since filing'),
+      align: 'right',
+      sortValue: r => daysPending(r),
+      render: r => <span className="tabular-nums text-steel-700">{t('{0} days', daysPending(r))}</span>
+    },
+    {
+      key: 'filingStatus',
+      label: t('Claimant filing behaviour'),
+      sortValue: r => taxpayerById(r.taxpayerId)?.filingStatus || '',
+      render: r => {
+        const tp = taxpayerById(r.taxpayerId)
+        if (!tp) return <span className="text-[11px] text-steel-400">{t('not on record')}</span>
+        return <Pill tone={tp.filingStatus === 'Non-Filer' ? 'red' : tp.filingStatus === 'Late Filer' ? 'amber' : 'green'}>{t(tp.filingStatus)}</Pill>
+      }
+    },
     {
       key: 'exportLinked',
       label: t('Export Linked?'),
@@ -160,13 +269,15 @@ export default function RefundRiskIntelligence() {
   ]
 
   const reviewTaxpayer = reviewCase ? taxpayerById(reviewCase.taxpayerId) : null
+  const reviewBenchmark = reviewCase ? benchmarkPctFor(reviewCase.sector) : null
+  const reviewTimes = reviewCase ? timesBenchmark(reviewCase) : null
 
   return (
     <div>
       <SectionHeader
         eyebrow={t('Fraud & Risk · Refund Scrutiny')}
         title={t('Refund Risk Intelligence')}
-        description={t('Risk-ranked refund claim scrutiny — combining refund-to-turnover intensity, export linkage and taxpayer risk profile to prioritise officer review before sanction.')}
+        description={t('Refund claims ranked by risk before sanction. Refund intensity is read against the benchmark for the claimant’s own sector rather than as an absolute percentage — a 15% refund ratio is ordinary in import/export and extreme in professional services.')}
         actions={<ExportBar moduleLabel="Refund Risk Intelligence" />}
       />
 
@@ -190,36 +301,133 @@ export default function RefundRiskIntelligence() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard label={t('Total Refund Claims Value')} value={kpis.totalClaimedLakh.toFixed(1)} unit={t('₹ Lakh')} tone="navy" icon={IndianRupee} />
-        <KpiCard label={t('High-Risk Refunds')} value={kpis.highRiskCount} unit={t('High / Critical')} tone="red" icon={ShieldAlert} />
-        <KpiCard label={t('Avg. Refund-to-Turnover')} value={kpis.avgRatio.toFixed(1)} unit="%" tone="saffron" icon={Percent} />
-        <KpiCard label={t('High-Value Claim Pattern')} value={kpis.repeatProxyCount} unit={t('claims > ₹10L (proxy)')} tone="steel" icon={Repeat} />
+        <KpiCard
+          label={t('Value awaiting a decision')}
+          value={kpis.undecidedLakh.toFixed(1)}
+          unit={t('₹ Lakh across {0} claims — {1}% of the ₹{2} L claimed in scope', kpis.undecidedCount, kpis.undecidedSharePct, kpis.totalClaimedLakh.toFixed(1))}
+          tone="navy"
+          icon={IndianRupee}
+        />
+        <KpiCard
+          label={t('High-risk claims')}
+          value={kpis.highRiskCount}
+          unit={t('of {0} claims ({1}%), holding {2}% of the claimed value', filteredCases.length, kpis.highRiskRatePct, kpis.highRiskValueSharePct)}
+          tone="red"
+          icon={ShieldAlert}
+        />
+        <KpiCard
+          label={t('Refund-to-turnover against sector benchmark')}
+          value={`${kpis.avgRatio.toFixed(1)}%`}
+          unit={kpis.gapPp >= 0
+            ? t('against a {0}% benchmark for this mix of sectors — {1} pp above', kpis.avgBenchmark, Math.abs(kpis.gapPp))
+            : t('against a {0}% benchmark for this mix of sectors — {1} pp below', kpis.avgBenchmark, Math.abs(kpis.gapPp))}
+          tone="saffron"
+          icon={Percent}
+        />
+        <KpiCard
+          label={t('Claims above the sector band')}
+          value={kpis.aboveBandCount}
+          unit={t('at {0}× benchmark or more — {1}% of claims, ₹{2} L; this is the threshold the encoded refund rule uses', BAND_MULTIPLE, kpis.aboveBandRatePct, kpis.aboveBandLakh.toFixed(1))}
+          tone="orange"
+          icon={Scale}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
-        <Card title={t('Refund Claims by Sector')} subtitle={t('Total claimed amount (₹ Lakh) grouped by sector')}>
-          {sectorChartData.length > 0 ? (
-            <RiskBarChart data={sectorChartData} xKey="sector" barKey="claimedLakh" />
+        <Card
+          title={t('Refund intensity by sector, against that sector’s benchmark')}
+          subtitle={t('Bar height is the gap in percentage points between the ratio claimed and the sector benchmark. A positive gap on a sector carrying few claims is variance, not a finding — read the claim count alongside it.')}
+        >
+          {sectorAnalysis.length > 0 ? (
+            <>
+              <RiskBarChart
+                data={sectorAnalysis}
+                xKey="sector"
+                barKey="gapPp"
+                colorFn={d => (d.aboveBand > 0 ? '#c41e3a' : d.gapPp > 0 ? '#d9631c' : '#204575')}
+              />
+              <div className="mt-4">
+                <DataTable
+                  columns={[
+                    { key: 'sector', label: t('Sector'), render: row => t(row.sector) },
+                    { key: 'claims', label: t('Claims'), align: 'right', sortValue: row => row.claims },
+                    { key: 'claimedLakh', label: t('Claimed'), align: 'right', sortValue: row => row.claimedLakh, render: row => t('₹{0} L', row.claimedLakh.toFixed(1)) },
+                    { key: 'actualPct', label: t('Refund / turnover'), align: 'right', sortValue: row => row.actualPct, render: row => t('{0}%', row.actualPct) },
+                    { key: 'benchmarkPct', label: t('Sector benchmark'), align: 'right', sortValue: row => row.benchmarkPct ?? 0, render: row => row.benchmarkPct == null ? '—' : t('{0}%', row.benchmarkPct) },
+                    {
+                      key: 'times', label: t('Multiple of benchmark'), align: 'right',
+                      sortValue: row => row.times ?? 0,
+                      render: row => row.times == null
+                        ? <span className="text-steel-400">—</span>
+                        : <span className={`tabular-nums font-semibold ${row.times >= BAND_MULTIPLE ? 'text-[#C5221F]' : 'text-steel-600'}`}>{t('{0}×', row.times)}</span>
+                    },
+                    { key: 'aboveBand', label: t('Claims above band'), align: 'right', sortValue: row => row.aboveBand }
+                  ]}
+                  rows={sectorAnalysis}
+                  searchable={false}
+                  pageSize={8}
+                />
+              </div>
+            </>
           ) : (
             <div className="text-xs text-steel-500 py-10 text-center">{t('No refund cases match the current filters.')}</div>
           )}
         </Card>
-        <Card title={t('Refund-to-Turnover Ratio Distribution')} subtitle={t('Number of claims by refund-to-turnover band')}>
-          {filteredCases.length > 0 ? (
-            <RiskBarChart data={ratioDistribution} xKey="band" barKey="count" colorFn={d => d.band === '20%+' ? '#c41e3a' : d.band === '15–20%' ? '#d9631c' : '#204575'} />
+        <Card
+          title={t('Claims by multiple of the sector benchmark')}
+          subtitle={t('Bands are relative to the claimant’s own sector, not absolute. The benchmark refund ratio runs from 1% to 21% across these sectors, so a flat percentage band would put an ordinary exporter and an extreme domestic claim in the same bucket.')}
+        >
+          {bandDistribution.length > 0 ? (
+            <>
+              <RiskBarChart
+                data={bandDistribution}
+                xKey="band"
+                barKey="count"
+                colorFn={d => (d.band === BAND_ORDER[3] ? '#c41e3a' : d.band === BAND_ORDER[2] ? '#d9631c' : d.band === BAND_ORDER[4] ? '#697289' : '#204575')}
+              />
+              <div className="mt-3 space-y-1.5">
+                {bandDistribution.map(row => (
+                  <div key={row.band} className="flex items-center justify-between text-[11.5px] text-steel-700">
+                    <span>{t(row.band)}</span>
+                    <span className="tabular-nums">{t('{0} claims · ₹{1} L · {2}% of claims in scope', row.count, row.claimedLakh.toFixed(1), pctOf(row.count, filteredCases.length))}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11.5px] text-steel-500 leading-relaxed mt-3">
+                {t('At {0}× and above, the encoded refund rule fires and contributes to the taxpayer’s risk score — so those claims are already reflected in the Risk column of the register and should not be counted as a second, independent signal.', BAND_MULTIPLE)}
+              </p>
+            </>
           ) : (
             <div className="text-xs text-steel-500 py-10 text-center">{t('No refund cases match the current filters.')}</div>
           )}
         </Card>
       </div>
 
-      <Card title={t('Refund Case Register')} subtitle={t('Filterable via global district / sector / risk filters and free-text search')} actions={<HumanReviewBadge label={t('Officer Review Required')} />}>
+      <Card
+        title={t('Refund Case Register')}
+        subtitle={t('{0} claims in scope. Median claim has been pending {1} days since filing; the oldest, {2} days.', filteredCases.length, kpis.medianDaysPending, kpis.oldestDaysPending)}
+        actions={<HumanReviewBadge label={t('Officer Review Required')} />}
+      >
         <DataTable
           columns={columns}
           rows={filteredCases}
           searchPlaceholder={t('Search by GSTIN or trade name...')}
           emptyLabel={t('No refund cases match the current filters.')}
         />
+        <div className="mt-3 space-y-2">
+          <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
+            <p className="text-[12px] text-steel-700 leading-relaxed">
+              {t('Days since filing is stated without a deadline against it. This platform does not encode the statutory refund timeline — the limitation engine covers assessment proceedings under sections 73, 74 and 74A only — so no claim here is described as overdue, and the ageing column is a workload signal rather than a statutory one.')}
+            </p>
+          </div>
+          <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
+            <p className="text-[12px] text-steel-700 leading-relaxed">
+              {t('Not available on this platform: repeat-claim detection. Identifying a taxpayer claiming refund period after period requires a refund history keyed by GSTIN and period, and this dataset holds one claim per taxpayer. A high-value threshold was previously shown in this position as a proxy for it; a large single claim is not a repeat pattern, so the figure has been removed rather than relabelled.')}
+            </p>
+          </div>
+        </div>
       </Card>
 
       <Modal
@@ -236,6 +444,14 @@ export default function RefundRiskIntelligence() {
               <Pill tone={STATUS_TONE[effectiveStatus(reviewCase)] || 'steel'}>{t(effectiveStatus(reviewCase))}</Pill>
               {reviewCase.exportLinked && <Pill tone="navy">{t('Export-Linked')}</Pill>}
               <Pill tone="steel">{t(reviewCase.sector)}</Pill>
+              {reviewTimes != null && (
+                <Pill tone={reviewTimes >= BAND_MULTIPLE ? 'red' : 'steel'}>{t('{0}× the sector benchmark', reviewTimes)}</Pill>
+              )}
+              {reviewTaxpayer && (
+                <Pill tone={reviewTaxpayer.filingStatus === 'Non-Filer' ? 'red' : reviewTaxpayer.filingStatus === 'Late Filer' ? 'amber' : 'green'}>
+                  {t(reviewTaxpayer.filingStatus)}
+                </Pill>
+              )}
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -243,11 +459,22 @@ export default function RefundRiskIntelligence() {
                 <div className="text-xs font-semibold text-navy-800 uppercase tracking-wide">{t('Claim Details')}</div>
                 <div className="grid grid-cols-2 gap-2">
                   <Stat label={t('Claimed Amount')} value={`₹${(reviewCase.claimedAmount / 100000).toFixed(1)} L`} />
-                  <Stat label={t('Refund / Turnover')} value={`${reviewCase.refundToTurnoverPct.toFixed(1)}%`} />
-                  <Stat label={t('Filed On')} value={reviewCase.filedOn} />
+                  <Stat
+                    label={t('Refund / Turnover')}
+                    value={reviewBenchmark == null
+                      ? t('{0}% — no sector benchmark', reviewCase.refundToTurnoverPct.toFixed(1))
+                      : t('{0}% against {1}% benchmark', reviewCase.refundToTurnoverPct.toFixed(1), reviewBenchmark)}
+                  />
+                  <Stat label={t('Filed On')} value={t('{0} — {1} days ago', reviewCase.filedOn, daysPending(reviewCase))} />
                   <Stat label={t('Assigned Officer')} value={reviewCase.assignedOfficer} />
-                  <Stat label={t('District')} value={reviewCase.district} />
+                  <Stat label={t('District')} value={t(reviewCase.district)} />
                   <Stat label={t('Export Linked')} value={reviewCase.exportLinked ? t('Yes') : t('No')} />
+                  {reviewTaxpayer && (
+                    <>
+                      <Stat label={t('Monthly turnover')} value={`₹${(reviewTaxpayer.monthlyTurnover / 100000).toFixed(1)} L`} />
+                      <Stat label={t('Tax paid / turnover')} value={t('{0}%', (Math.round((reviewTaxpayer.taxPaid / Math.max(1, reviewTaxpayer.monthlyTurnover)) * 1000) / 10))} />
+                    </>
+                  )}
                 </div>
                 <button
                   onClick={() => reviewTaxpayer && setSelectedTaxpayer(reviewTaxpayer)}

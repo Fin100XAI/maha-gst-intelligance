@@ -16,6 +16,12 @@ import { t } from '../i18n/index.js'
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
 
+/* The value a case carries into the allocation. The 0.40 fallback is the
+ * capacity engine's own stated assumption (CAPACITY_ASSUMPTIONS, 'fallback'),
+ * declared once here so no panel on this screen values the same case
+ * differently from the allocation that placed it. */
+const placedValue = c => (c.recoverableNow != null ? c.recoverableNow : c.exposure * 0.4)
+
 const TABS = [
   { key: 'allocation', label: 'This week’s allocation', icon: Users },
   { key: 'residual', label: 'What cannot be worked', icon: AlertTriangle },
@@ -81,14 +87,104 @@ export default function CapacityOptimisation() {
 function AllocationView({ R }) {
   const rows = useMemo(() => R.assignments, [R])
 
+  /* Aggregates over the allocation the capacity engine already produced. The
+   * decision these support is not "is the week full" but "what did statute
+   * consume before anyone chose anything, and where did the leftover land". */
+  const load = useMemo(() => {
+    const mandatory = R.assignments.filter(a => a.phase === 'mandatory')
+    const mandatoryDays = mandatory.reduce((s, a) => s + a.effortDays, 0)
+    const strandedDays = R.officers.reduce((s, o) => s + o.remaining, 0)
+    const officers = R.officers
+      // Deliberately a lean row: the table's search serialises whatever it is
+      // handed, and an officer carries their whole assigned case list.
+      .map(o => ({
+        id: o.id,
+        name: o.name,
+        role: o.role,
+        division: o.division,
+        caseCount: o.assigned.length,
+        daysUsed: Math.round((NET_DAYS_PER_OFFICER - o.remaining) * 10) / 10,
+        daysLeft: Math.round(o.remaining * 10) / 10,
+        valuePlaced: o.assigned.reduce((s, a) => s + placedValue(a), 0)
+      }))
+      .sort((a, b) => b.daysLeft - a.daysLeft)
+    return {
+      mandatoryPlaced: mandatory.length,
+      mandatoryDays: Math.round(mandatoryDays * 10) / 10,
+      mandatorySharePct: R.totalSupplyDays > 0 ? Math.round((mandatoryDays / R.totalSupplyDays) * 100) : 0,
+      strandedDays: Math.round(strandedDays * 10) / 10,
+      idleOfficers: officers.filter(o => o.caseCount === 0).length,
+      officers
+    }
+  }, [R])
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <KpiCard label={t('Field officers')} value={R.officerCount} unit={t('{0} case-days available', R.totalSupplyDays)} tone="navy" icon={Users} />
-        <KpiCard label={t('Cases placed')} value={R.assignedCount} unit={t('of {0} workable', R.poolCount)} tone="green" icon={TrendingUp} />
-        <KpiCard label={t('Capacity spent')} value={R.usedDays} unit={t('of {0} days', R.totalSupplyDays)} tone="steel" icon={Clock} />
-        <KpiCard label={t('Recoverable value placed')} value={(R.achievedValue / 10000000).toFixed(2)} unit={t('₹ Cr this week')} tone="green" icon={Scale} />
+        <KpiCard
+          label={t('Deployable capacity')}
+          value={R.totalSupplyDays}
+          unit={t('case-days · {0} officers at {1} net days', R.officerCount, NET_DAYS_PER_OFFICER)}
+          tone="navy"
+          icon={Users}
+        />
+        <KpiCard
+          label={t('Cases placed')}
+          value={R.assignedCount}
+          unit={t('of {0} workable · {1} days spent', R.poolCount, R.usedDays)}
+          tone="green"
+          icon={TrendingUp}
+        />
+        <KpiCard
+          label={t('Committed by statute')}
+          value={load.mandatoryDays}
+          unit={t('days · {0}% of the week, {1} cases, before anything else competed', load.mandatorySharePct, load.mandatoryPlaced)}
+          tone="red"
+          icon={Clock}
+        />
+        <KpiCard
+          label={t('Recoverable value placed')}
+          value={(R.achievedValue / 10000000).toFixed(2)}
+          unit={t('₹ Cr · {0} left unreachable', cr(R.unworkableValue))}
+          tone="green"
+          icon={Scale}
+        />
       </div>
+
+      {/* The counter-argument to "there is slack, redeploy it". There is slack;
+          it is not reachable, and this says exactly why. */}
+      <Card
+        title={t('Where the unspent capacity sits')}
+        subtitle={t('{0} of {1} officer-days went unspent while {2} cases could not be worked. An unspent day is not a spare day: it either sits in a division with no waiting caseload, or is shorter than the smallest case still waiting in its pool.', load.strandedDays, R.totalSupplyDays, R.unworkableCount)}
+      >
+        {load.idleOfficers > 0 && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-2.5 mb-3 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-[12px] text-navy-800 leading-relaxed">
+              {t('{0} of {1} field officers were assigned no case at all. Before that is read as spare capacity, check the division and role: an officer with a free week and no eligible case in their own division cannot be lent to a pool that is oversubscribed.', load.idleOfficers, R.officerCount)}
+            </p>
+          </div>
+        )}
+        <DataTable
+          columns={[
+            { key: 'name', label: t('Officer') },
+            { key: 'role', label: t('Role'), render: r => t(r.role) },
+            { key: 'division', label: t('Division'), render: r => t(r.division) },
+            { key: 'caseCount', label: t('Cases'), align: 'right' },
+            { key: 'daysUsed', label: t('Days used'), align: 'right', render: r => t('{0} of {1}', r.daysUsed, NET_DAYS_PER_OFFICER) },
+            {
+              key: 'daysLeft', label: t('Days unspent'), align: 'right',
+              render: r => r.daysLeft > 0
+                ? <span className="font-bold tabular-nums text-amber-700">{r.daysLeft}</span>
+                : <span className="text-steel-400">—</span>
+            },
+            { key: 'valuePlaced', label: t('Recoverable placed'), align: 'right', render: r => lakh(r.valuePlaced) }
+          ]}
+          rows={load.officers}
+          pageSize={10}
+          searchPlaceholder={t('Search officers...')}
+        />
+      </Card>
 
       {/* Quality of the allocation, stated as a bound rather than a claim. */}
       <Card
@@ -122,8 +218,22 @@ function AllocationView({ R }) {
                 ? <Pill tone="red">{t('Statutory — {0}d', r.daysRemaining)}</Pill>
                 : <Pill tone="steel">{t('Value per day')}</Pill>
             },
+            {
+              key: 'daysRemaining', label: t('Days to deadline'), align: 'right',
+              sortValue: r => (r.daysRemaining == null ? 99999 : r.daysRemaining),
+              render: r => r.daysRemaining == null
+                ? <span className="text-steel-400" title={t('No limitation record for this taxpayer')}>—</span>
+                : <span className={`tabular-nums ${r.daysRemaining <= 30 ? 'font-bold text-[#C5221F]' : 'text-navy-800'}`}>{r.daysRemaining}</span>
+            },
             { key: 'effortDays', label: t('Days'), align: 'right', render: r => r.effortDays.toFixed(1) },
-            { key: 'recoverableNow', label: t('Recoverable'), align: 'right', render: r => lakh(r.recoverableNow != null ? r.recoverableNow : r.exposure * 0.4) }
+            { key: 'recoverableNow', label: t('Recoverable'), align: 'right', sortValue: r => placedValue(r), render: r => lakh(placedValue(r)) },
+            {
+              // The criterion Phase B actually ranked on, shown so the ordering
+              // can be checked rather than taken on trust.
+              key: 'perDay', label: t('Recoverable per day'), align: 'right',
+              sortValue: r => placedValue(r) / r.effortDays,
+              render: r => <span className="tabular-nums text-steel-700">{lakh(placedValue(r) / r.effortDays)}</span>
+            }
           ]}
           rows={rows}
           pageSize={12}
@@ -150,13 +260,19 @@ function ResidualView({ R }) {
   const byReason = useMemo(() => {
     const groups = {}
     R.unworkable.forEach(u => {
-      if (!groups[u.reason]) groups[u.reason] = { reason: u.reason, cases: [], value: 0, critical: 0 }
+      if (!groups[u.reason]) groups[u.reason] = { reason: u.reason, cases: [], value: 0, critical: 0, days: 0 }
       groups[u.reason].cases.push(u)
-      groups[u.reason].value += u.recoverableNow != null ? u.recoverableNow : u.exposure * 0.4
+      groups[u.reason].value += placedValue(u)
+      groups[u.reason].days += u.effortDays
       if (u.phase === 'mandatory') groups[u.reason].critical += 1
     })
     return Object.values(groups).sort((a, b) => b.value - a.value)
   }, [R])
+
+  const barred = useMemo(() => ({
+    exposure: R.barredExcluded.reduce((s, b) => s + b.exposure, 0),
+    days: Math.round(R.barredExcluded.reduce((s, b) => s + b.effortDays, 0) * 10) / 10
+  }), [R])
 
   return (
     <div className="space-y-4">
@@ -170,7 +286,11 @@ function ResidualView({ R }) {
       {byReason.map(g => {
         const meta = RESIDUAL_REASONS[g.reason]
         return (
-          <Card key={g.reason} title={t(meta.label)} subtitle={t('{0} cases · {1} of recoverable value at stake', g.cases.length, cr(g.value))}>
+          <Card
+            key={g.reason}
+            title={t(meta.label)}
+            subtitle={t('{0} of the {1} unreachable cases · {2} of recoverable value at stake · {3} officer-days would be needed to clear them', g.cases.length, R.unworkableCount, cr(g.value), Math.round(g.days * 10) / 10)}
+          >
             <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3 mb-3">
               <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('What would actually fix this')}</div>
               <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(meta.remedy)}</p>
@@ -188,8 +308,21 @@ function ResidualView({ R }) {
                 { key: 'tradeName', label: t('Taxpayer') },
                 { key: 'division', label: t('Division'), render: r => t(r.division) },
                 { key: 'effortDays', label: t('Days needed'), align: 'right', render: r => r.effortDays.toFixed(1) },
-                { key: 'daysRemaining', label: t('Days to deadline'), align: 'right', render: r => r.daysRemaining == null ? '—' : r.daysRemaining },
-                { key: 'value', label: t('Recoverable'), align: 'right', render: r => lakh(r.recoverableNow != null ? r.recoverableNow : r.exposure * 0.4) }
+                {
+                  key: 'daysRemaining', label: t('Days to deadline'), align: 'right',
+                  sortValue: r => (r.daysRemaining == null ? 99999 : r.daysRemaining),
+                  render: r => r.daysRemaining == null
+                    ? <span className="text-steel-400" title={t('No limitation record for this taxpayer')}>—</span>
+                    : <span className={`tabular-nums ${r.daysRemaining <= 30 ? 'font-bold text-[#C5221F]' : 'text-navy-800'}`}>{r.daysRemaining}</span>
+                },
+                { key: 'value', label: t('Recoverable'), align: 'right', sortValue: r => placedValue(r), render: r => lakh(placedValue(r)) },
+                {
+                  key: 'bestRemaining', label: t('Largest free block'), align: 'right',
+                  sortValue: r => r.bestRemaining || 0,
+                  render: r => r.bestRemaining == null
+                    ? <span className="text-steel-400" title={t('No eligible officer is posted, so no block exists to measure')}>—</span>
+                    : <span className="tabular-nums text-steel-700">{t('{0}d', r.bestRemaining)}</span>
+                }
               ]}
               rows={g.cases}
               pageSize={8}
@@ -201,7 +334,7 @@ function ResidualView({ R }) {
       {R.barredExcluded.length > 0 && (
         <Card
           title={t('Excluded before allocation — already time-barred')}
-          subtitle={t('{0} cases. Not a capacity problem and deliberately not competing for officer days: no demand can lawfully be raised, so an officer-day spent here returns nothing.', R.barredExcluded.length)}
+          subtitle={t('{0} cases carrying {1} of exposure, and {2} officer-days of work that was released to live cases. Not a capacity problem and deliberately not competing for officer days: no demand can lawfully be raised, so an officer-day spent here returns nothing.', R.barredExcluded.length, cr(barred.exposure), barred.days)}
         >
           <DataTable
             columns={[
@@ -209,9 +342,10 @@ function ResidualView({ R }) {
               { key: 'division', label: t('Division'), render: r => t(r.division) },
               { key: 'bindingDate', label: t('Deadline passed'), align: 'right' },
               { key: 'daysRemaining', label: t('Days overdue'), align: 'right', render: r => Math.abs(r.daysRemaining) },
-              { key: 'exposure', label: t('Exposure forgone'), align: 'right', render: r => lakh(r.exposure) }
+              { key: 'exposure', label: t('Exposure forgone'), align: 'right', render: r => lakh(r.exposure) },
+              { key: 'effortDays', label: t('Officer-days released'), align: 'right', render: r => r.effortDays.toFixed(1) }
             ]}
-            rows={t(R.barredExcluded)}
+            rows={R.barredExcluded}
             pageSize={8}
           />
         </Card>
@@ -275,13 +409,30 @@ function BindingView({ R }) {
             },
             { key: 'utilisation', label: t('Utilisation'), align: 'right', render: r => r.utilisation == null ? '—' : `${r.utilisation}%` },
             {
+              // Which pool is about to lose cases to the clock, not merely which
+              // pool is busy. A pool at 0.90 subscription with a limitation-
+              // critical case it cannot reach is the more urgent of the two.
+              key: 'unworkableCount', label: t('Unreachable'), align: 'right',
+              render: r => (
+                <div className="text-right">
+                  <div className="tabular-nums text-navy-800 font-medium">{r.unworkableCount}</div>
+                  {r.unworkableCritical > 0 && (
+                    <div className="text-[10px] font-bold tabular-nums text-[#C5221F]">{t('{0} time-critical', r.unworkableCritical)}</div>
+                  )}
+                </div>
+              )
+            },
+            {
               key: 'marginalOfficerWeekValue', label: t('+1 officer-week unlocks'), align: 'right',
               render: r => r.marginalOfficerWeekValue > 0
-                ? <span className="font-semibold text-emerald-700 tabular-nums">{cr(r.marginalOfficerWeekValue)}</span>
-                : <span className="text-steel-400">—</span>
+                ? <div className="text-right">
+                    <div className="font-semibold text-emerald-700 tabular-nums">{cr(r.marginalOfficerWeekValue)}</div>
+                    <div className="text-[10px] text-steel-500">{t('{0} cases', r.marginalOfficerWeekCases)}</div>
+                  </div>
+                : <span className="text-steel-400" title={t('Nothing waiting here fits inside one more officer-week')}>—</span>
             }
           ]}
-          rows={t(R.pools)}
+          rows={R.pools}
           pageSize={16}
         />
       </Card>

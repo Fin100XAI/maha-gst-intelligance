@@ -5,7 +5,8 @@ import { t } from '../../i18n/index.js'
 //
 // The map callback is `tab`, not `t`. It was `t` until the tab labels started
 // going through the translator, at which point `{t(t.label)}` called the tab
-// object as a function — a crash the bundler compiles happily.
+// object as a function — a crash the bundler compiles happily. scripts/audit.mjs
+// now fails on any file that binds `t` while importing the translator.
 export function PillTabs({ tabs, active, onChange }) {
   return (
     <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none" role="tablist">

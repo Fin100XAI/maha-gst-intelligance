@@ -28,7 +28,10 @@ export function useToneStyles() {
 }
 
 export function KpiCard({ label, value, unit, trend, trendLabel, tone = 'navy', icon: Icon, onClick }) {
-  const t = TONE_STYLES[tone] || TONE_STYLES.navy
+  // Named `styles`, not `t`: a local `t` shadows the translator, and the day
+  // someone adds a t('…') call in this component it breaks at runtime while
+  // compiling cleanly. That has already happened twice in this codebase.
+  const styles = TONE_STYLES[tone] || TONE_STYLES.navy
   const TrendIcon = trend > 0 ? ArrowUpRight : trend < 0 ? ArrowDownRight : Minus
   const trendColor = trend > 0 ? 'text-emerald-700' : trend < 0 ? 'text-[#C5221F]' : 'text-steel-400'
 
@@ -36,19 +39,19 @@ export function KpiCard({ label, value, unit, trend, trendLabel, tone = 'navy', 
     <button
       type="button"
       onClick={onClick}
-      style={{ backgroundColor: t.bg, borderColor: t.border }}
+      style={{ backgroundColor: styles.bg, borderColor: styles.border }}
       className={`relative w-full text-left rounded-xl border p-4 overflow-hidden ${onClick ? 'hover:shadow-panel hover:-translate-y-0.5 transition-all cursor-pointer' : 'cursor-default'}`}
     >
       <div className="flex items-start justify-between">
-        <div className="kv-label" style={{ color: t.accent }}>{label}</div>
+        <div className="kv-label" style={{ color: styles.accent }}>{label}</div>
         {Icon && (
-          <span style={{ backgroundColor: t.iconBg, color: t.accent }} className="p-1.5 rounded-lg shrink-0">
+          <span style={{ backgroundColor: styles.iconBg, color: styles.accent }} className="p-1.5 rounded-lg shrink-0">
             <Icon className="w-3.5 h-3.5" />
           </span>
         )}
       </div>
       <div className="mt-1.5 flex items-baseline gap-1">
-        <span className="text-2xl font-bold tabular-nums" style={{ color: t.accent }}>{value}</span>
+        <span className="text-2xl font-bold tabular-nums" style={{ color: styles.accent }}>{value}</span>
         {unit && <span className="text-xs font-medium text-steel-500">{unit}</span>}
       </div>
       {(trend !== undefined && trend !== null) && (

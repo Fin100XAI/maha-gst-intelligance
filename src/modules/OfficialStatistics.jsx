@@ -1,8 +1,10 @@
-import { BadgeCheck, ExternalLink, Scale, FlaskConical, AlertTriangle } from 'lucide-react'
+import { useMemo } from 'react'
+import { BadgeCheck, ExternalLink, Scale, FlaskConical, AlertTriangle, CalendarClock, ShieldCheck, Ban } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
+import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
-import { TONE_STYLES } from '../components/ui/KpiCard.jsx'
+import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { TAXPAYERS, DISTRICTS } from '../data/mockData.js'
 import {
   OFFICIAL_FIGURES, DATASET_POINTERS, OFFICIAL_RETRIEVED_ON, scaleContext
@@ -18,15 +20,56 @@ export default function OfficialStatistics() {
   const green = TONE_STYLES.green
   const amber = TONE_STYLES.amber
 
+  /* Counts of the published set itself — how many figures, from how many
+   * publishers, over how many scopes, and how many named sources are carried
+   * with nothing read from them. All checkable against official.js. */
+  const D = useMemo(() => ({
+    publishers: [...new Set(OFFICIAL_FIGURES.map(f => f.source.publisher))],
+    scopes: [...new Set(OFFICIAL_FIGURES.map(f => f.scope))],
+    withSource: OFFICIAL_FIGURES.filter(f => f.source?.url).length
+  }), [])
+
   return (
     <div>
       <SectionHeader
         eyebrow={t('Governance · Data Provenance')}
         title={t('Official Statistics')}
         description={t('Published government figures, carried here with their source, their period and the date they were read. These are the only real numbers in the platform — every other figure on every other screen is generated demonstration data.')}
+        actions={<ExportBar moduleLabel="Official Statistics" />}
       />
 
       <FilterNotApplicable reason={t('The figures here are published statewide totals from CBIC, PIB and mahagst.gov.in, and cannot be narrowed to a division or sector without misrepresenting them.')} />
+
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6">
+        <KpiCard
+          label={t('Published figures')}
+          value={OFFICIAL_FIGURES.length}
+          unit={t('from {0} publishers, {1} with a source link', D.publishers.length, D.withSource)}
+          tone="green"
+          icon={BadgeCheck}
+        />
+        <KpiCard
+          label={t('Read on')}
+          value={OFFICIAL_RETRIEVED_ON}
+          unit={t('point-in-time capture, not a live feed')}
+          tone="steel"
+          icon={CalendarClock}
+        />
+        <KpiCard
+          label={t('Named but not read')}
+          value={DATASET_POINTERS.length}
+          unit={t('carried with no figures attached')}
+          tone="amber"
+          icon={AlertTriangle}
+        />
+        <KpiCard
+          label={t('Demonstration scale')}
+          value={t('1 : {0}', scale.taxpayerRatio.toLocaleString('en-IN'))}
+          unit={t('modelled taxpayer to registered dealer')}
+          tone="steel"
+          icon={Scale}
+        />
+      </div>
 
       {/* Scale context — the reality check the rest of the demo needs. */}
       <div className="mb-6 rounded-xl border p-5" style={{ backgroundColor: amber.bg, borderColor: amber.border }}>
@@ -46,10 +89,21 @@ export default function OfficialStatistics() {
         </div>
       </div>
 
+      {/* The rule this screen exists to enforce, stated where it applies. */}
+      <div className="mb-6 rounded-xl border border-navy-200 bg-navy-50/60 px-5 py-4 flex items-start gap-3">
+        <ShieldCheck className="w-5 h-5 text-navy-600 shrink-0 mt-0.5" />
+        <div>
+          <div className="text-[13px] font-bold text-navy-900 mb-1">{t('These {0} figures are never mixed into a computed total', OFFICIAL_FIGURES.length)}</div>
+          <p className="text-[12.5px] text-navy-800 leading-relaxed">
+            {t('No figure on this page is combined with a modelled one, and no modelled record is presented anywhere as an observation. Nothing here is fetched at run time: each figure was read by hand from the publication it links to on {0}, and only an edit to the source file can change it.', OFFICIAL_RETRIEVED_ON)}
+          </p>
+        </div>
+      </div>
+
       <Card
         className="mb-6"
         title={t('Published figures')}
-        subtitle={t('Read on {0}. Each figure links to the publication that states it.', OFFICIAL_RETRIEVED_ON)}
+        subtitle={t('{0} figures over {1} scopes, read on {2}. Each links to the publication that states it and carries the exact date it speaks to.', OFFICIAL_FIGURES.length, D.scopes.length, OFFICIAL_RETRIEVED_ON)}
         padded={false}
       >
         <div className="divide-y divide-steel-100">
@@ -67,13 +121,14 @@ export default function OfficialStatistics() {
                 <div className="text-[11.5px] text-steel-500 mt-0.5">{t(f.period)}</div>
                 <div className="flex flex-wrap items-center gap-2 mt-2">
                   <Pill tone={f.scope === 'Maharashtra' ? 'navy' : 'steel'}>{t(f.scope)}</Pill>
+                  <span className="text-[11px] text-steel-500 tabular-nums">{t('speaks to {0}', f.asAt)}</span>
                   <a
                     href={f.source.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] font-medium text-govt-600 hover:text-govt-700 hover:underline"
                   >
-                    {f.source.publisher} <ExternalLink className="w-3 h-3" />
+                    {t(f.source.publisher)} <ExternalLink className="w-3 h-3" />
                   </a>
                 </div>
               </div>
@@ -84,7 +139,7 @@ export default function OfficialStatistics() {
 
       <Card
         title={t('Sources not yet transcribed')}
-        subtitle={t('Named as authoritative but not read into the platform. Listed with no figures attached — an unread source gets a link, never an estimate.')}
+        subtitle={t('{0} sources named as authoritative but not read into the platform. Listed with no figures attached — an unread source gets a link, never an estimate.', DATASET_POINTERS.length)}
         padded={false}
       >
         <div className="divide-y divide-steel-100">
@@ -95,20 +150,30 @@ export default function OfficialStatistics() {
                 <div className="min-w-0">
                   <div className="text-sm font-semibold text-navy-900">{t(d.label)}</div>
                   <div className="text-[11.5px] text-steel-500 mt-0.5">{t(d.status)}</div>
-                  <a
-                    href={d.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-medium text-govt-600 hover:underline mt-1.5"
-                  >
-                    {d.publisher} <ExternalLink className="w-3 h-3" />
-                  </a>
+                  <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                    <Pill tone="amber">{t('No values held')}</Pill>
+                    <a
+                      href={d.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-medium text-govt-600 hover:underline"
+                    >
+                      {t(d.publisher)} <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </Card>
+
+      <div className="rounded-lg border border-steel-200 bg-steel-50 px-4 py-3 mt-4 flex items-start gap-2.5">
+        <Ban className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
+        <p className="text-[11.5px] text-steel-600 leading-relaxed">
+          {t('A figure with no publication that states it does not belong on this page. A figure republished for a period other than the one it was issued for does not either — the period and the as-at date are what tell an officer whether a number is still the current one.')}
+        </p>
+      </div>
     </div>
   )
 }

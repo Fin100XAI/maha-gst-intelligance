@@ -14,12 +14,50 @@ import { riskCategoryFromScore } from '../data/risk.js'
 import { generateComplianceNudge } from '../data/ai.js'
 import { t } from '../i18n/index.js'
 import {
-  Bell, UserCheck, CheckCircle2, ListFilter, Eye, Users2,
-  ClipboardList, Sparkles
+  Bell, UserCheck, CheckCircle2, Clock, Eye, Users2,
+  ClipboardList, Sparkles, Layers
 } from 'lucide-react'
 
 const STATUS_OPTIONS = ['All Statuses', 'Open', 'Outreach Sent', 'Officer Reviewing', 'Resolved']
 const TYPE_OPTIONS = ['All Alert Types', ...EARLY_WARNING_TYPES.map(w => w.type)]
+
+const DAY_MS = 1000 * 60 * 60 * 24
+const pctOf = (num, den) => (den > 0 ? Math.round((num / den) * 1000) / 10 : 0)
+const cr = n => Math.round((n / 10000000) * 100) / 100
+const ageOf = alert => Math.max(0, Math.floor((REFERENCE_DATE - new Date(alert.raisedOn)) / DAY_MS))
+const exposureOf = alert => taxpayerById(alert.taxpayerId)?.estimatedRevenueExposure ?? 0
+const turnoverOf = alert => taxpayerById(alert.taxpayerId)?.monthlyTurnover ?? 0
+
+/* Exposure summed over ALERTS would double-count every taxpayer carrying more
+ * than one signal, and most of them do. It is summed over distinct taxpayers
+ * instead, which is what the department is actually exposed to. */
+function exposureOfDistinct(alerts) {
+  const seen = new Set()
+  let total = 0
+  alerts.forEach(a => {
+    if (seen.has(a.taxpayerId)) return
+    seen.add(a.taxpayerId)
+    total += exposureOf(a)
+  })
+  return { taxpayers: seen.size, exposure: total }
+}
+
+function medianAge(alerts) {
+  if (!alerts.length) return 0
+  const ages = alerts.map(ageOf).sort((a, b) => a - b)
+  const m = Math.floor(ages.length / 2)
+  return ages.length % 2 ? ages[m] : Math.round((ages[m - 1] + ages[m]) / 2)
+}
+
+/* An early warning has a shelf life. These bands exist because the same alert
+ * means a different thing at 20 days and at 120: one is a nudge, the other is
+ * evidence the nudge was never sent. */
+const AGE_BANDS = [
+  { id: '0-30', label: 'Raised within 30 days', min: 0, max: 30, meaning: 'Still early. Automated outreach resolves most of these without any officer time.' },
+  { id: '31-60', label: '31 to 60 days', min: 31, max: 60, meaning: 'Outreach has had time to work. Where it has not, this is where officer review belongs.' },
+  { id: '61-90', label: '61 to 90 days', min: 61, max: 90, meaning: 'No longer early. A quarter of filing periods has passed and the shortfall has compounded through each of them.' },
+  { id: '90+', label: 'Older than 90 days', min: 91, max: Infinity, meaning: 'Early warning has failed on these. They belong in the enforcement pipeline rather than in an outreach queue.' }
+]
 
 function buildWeeklyBuckets(alerts) {
   const today = REFERENCE_DATE
@@ -32,7 +70,7 @@ function buildWeeklyBuckets(alerts) {
   }).reverse() // oldest first
   alerts.forEach(a => {
     const d = new Date(a.raisedOn)
-    const daysAgo = Math.floor((today - d) / (1000 * 60 * 60 * 24))
+    const daysAgo = Math.floor((today - d) / DAY_MS)
     const idxFromToday = Math.min(bucketCount - 1, Math.max(0, Math.floor(daysAgo / bucketSize)))
     const idx = bucketCount - 1 - idxFromToday
     if (buckets[idx]) buckets[idx].count++
@@ -65,18 +103,124 @@ export default function ComplianceEarlyWarning() {
     return true
   }), [globallyFiltered, typeFilter, statusFilter, statusOverrides])
 
-  // ---- KPIs ----
-  const totalOpen = globallyFiltered.filter(a => effectiveStatus(a) === 'Open').length
-  const reviewQueueSize = globallyFiltered.filter(a => effectiveStatus(a) === 'Officer Reviewing').length
-  const resolvedThisMonth = globallyFiltered.filter(a => effectiveStatus(a) === 'Resolved').length
-  const activeTypeCount = new Set(globallyFiltered.map(a => a.type)).size
+  /* The headline figures. A count of open alerts says how much work is queued;
+   * it says nothing about what is at stake if the queue is not worked, which is
+   * the only reason to prioritise this screen over any other. Both are here. */
+  const kpis = useMemo(() => {
+    const open = globallyFiltered.filter(a => effectiveStatus(a) !== 'Resolved')
+    const openDistinct = exposureOfDistinct(open)
+    const nonFilerOpen = open.filter(a => a.type === 'Non-Filer Alert')
+    const nonFilerDistinct = exposureOfDistinct(nonFilerOpen)
+    const nonFilerTurnover = (() => {
+      const seen = new Set()
+      let total = 0
+      nonFilerOpen.forEach(a => {
+        if (seen.has(a.taxpayerId)) return
+        seen.add(a.taxpayerId)
+        total += turnoverOf(a)
+      })
+      return total
+    })()
+    const stale = open.filter(a => ageOf(a) > 60)
+    const resolved = globallyFiltered.filter(a => effectiveStatus(a) === 'Resolved')
+    const stateResolved = COMPLIANCE_ALERTS.filter(a => effectiveStatus(a) === 'Resolved').length
+    return {
+      total: globallyFiltered.length,
+      openCount: open.length,
+      openSharePct: pctOf(open.length, globallyFiltered.length),
+      openTaxpayers: openDistinct.taxpayers,
+      openExposureCr: cr(openDistinct.exposure),
+      nonFilerCount: nonFilerOpen.length,
+      nonFilerTaxpayers: nonFilerDistinct.taxpayers,
+      nonFilerTurnoverCr: cr(nonFilerTurnover),
+      staleCount: stale.length,
+      staleSharePct: pctOf(stale.length, open.length),
+      staleExposureCr: cr(exposureOfDistinct(stale).exposure),
+      medianOpenAge: medianAge(open),
+      resolvedCount: resolved.length,
+      resolvedRatePct: pctOf(resolved.length, globallyFiltered.length),
+      stateResolvedRatePct: pctOf(stateResolved, COMPLIANCE_ALERTS.length)
+    }
+  }, [globallyFiltered, statusOverrides])
 
+  /* Ageing of the unresolved queue. This is the parameter the previous version
+   * of this screen was missing entirely: it reported how many alerts were open,
+   * never how long they had been open, which is the whole difference between an
+   * early warning and a record of one that was ignored. */
+  const ageing = useMemo(() => {
+    const open = globallyFiltered.filter(a => effectiveStatus(a) !== 'Resolved')
+    return AGE_BANDS.map(band => {
+      const members = open.filter(a => {
+        const age = ageOf(a)
+        return age >= band.min && age <= band.max
+      })
+      const distinct = exposureOfDistinct(members)
+      return {
+        id: band.id,
+        label: band.label,
+        meaning: band.meaning,
+        count: members.length,
+        sharePct: pctOf(members.length, open.length),
+        taxpayers: distinct.taxpayers,
+        exposureCr: cr(distinct.exposure)
+      }
+    })
+  }, [globallyFiltered, statusOverrides])
+
+  /* Alert types with the two things a bar chart of counts cannot carry: what
+   * each type is worth, and what an officer does about it. */
   const typeBreakdown = useMemo(() => {
-    const counts = {}
-    EARLY_WARNING_TYPES.forEach(w => { counts[w.type] = 0 })
-    globallyFiltered.forEach(a => { counts[a.type] = (counts[a.type] || 0) + 1 })
-    return Object.entries(counts).map(([type, count]) => ({ type, count }))
-  }, [globallyFiltered])
+    return EARLY_WARNING_TYPES.map(w => {
+      const members = globallyFiltered.filter(a => a.type === w.type)
+      const open = members.filter(a => effectiveStatus(a) !== 'Resolved')
+      const distinct = exposureOfDistinct(members)
+      return {
+        id: w.key,
+        type: w.type,
+        count: members.length,
+        sharePct: pctOf(members.length, globallyFiltered.length),
+        openCount: open.length,
+        taxpayers: distinct.taxpayers,
+        exposureCr: cr(distinct.exposure),
+        medianAge: medianAge(open),
+        recommendedAction: w.recommendedAction
+      }
+    }).filter(row => row.count > 0).sort((a, b) => b.exposureCr - a.exposureCr)
+  }, [globallyFiltered, statusOverrides])
+
+  const typeChartData = useMemo(
+    () => typeBreakdown.map(row => ({ type: row.type, count: row.count })),
+    [typeBreakdown]
+  )
+
+  /* Compliance slipping on several fronts at once. One signal is a lapse; three
+   * distinct signals on the same taxpayer in the same window is a trajectory,
+   * and it is the population this screen exists to catch before it compounds. */
+  const compounding = useMemo(() => {
+    const byTaxpayer = new Map()
+    globallyFiltered.forEach(a => {
+      const entry = byTaxpayer.get(a.taxpayerId) || { id: a.taxpayerId, taxpayerId: a.taxpayerId, tradeName: a.tradeName, gstin: a.gstin, district: a.district, sector: a.sector, riskScore: a.riskScore, types: new Set(), oldest: 0, open: 0 }
+      entry.types.add(a.type)
+      entry.oldest = Math.max(entry.oldest, ageOf(a))
+      if (effectiveStatus(a) !== 'Resolved') entry.open += 1
+      byTaxpayer.set(a.taxpayerId, entry)
+    })
+    const rows = [...byTaxpayer.values()]
+      .map(e => ({
+        ...e,
+        typeCount: e.types.size,
+        typeList: [...e.types],
+        exposure: taxpayerById(e.taxpayerId)?.estimatedRevenueExposure ?? 0,
+        filingStatus: taxpayerById(e.taxpayerId)?.filingStatus ?? null
+      }))
+      .filter(e => e.typeCount >= 3)
+      .sort((a, b) => b.typeCount - a.typeCount || b.exposure - a.exposure)
+    return {
+      rows,
+      totalTaxpayers: byTaxpayer.size,
+      exposureCr: cr(rows.reduce((s, e) => s + e.exposure, 0))
+    }
+  }, [globallyFiltered, statusOverrides])
 
   const weeklyTrend = useMemo(() => buildWeeklyBuckets(globallyFiltered), [globallyFiltered])
 
@@ -96,8 +240,22 @@ export default function ComplianceEarlyWarning() {
     { key: 'district', label: t('District'), render: r => t(r.district) },
     { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
     { key: 'riskScore', label: t('Risk Score'), align: 'right', render: r => <RiskBadge category={riskCategoryFromScore(r.riskScore)} score={r.riskScore} size="sm" /> },
+    {
+      key: 'exposure', label: t('Exposure'), align: 'right',
+      sortValue: r => exposureOf(r),
+      render: r => <span className="tabular-nums">{t('₹{0} L', (exposureOf(r) / 100000).toFixed(1))}</span>
+    },
     { key: 'status', label: t('Status'), render: r => <StatusPill status={effectiveStatus(r)} /> },
-    { key: 'raisedOn', label: t('Raised On') },
+    {
+      key: 'raisedOn', label: t('Age'), align: 'right',
+      sortValue: r => ageOf(r),
+      render: r => (
+        <div className="tabular-nums">
+          <div className={ageOf(r) > 60 ? 'font-semibold text-[#C5221F]' : 'text-navy-900'}>{t('{0} days', ageOf(r))}</div>
+          <div className="text-[11px] text-steel-500">{r.raisedOn}</div>
+        </div>
+      )
+    },
     { key: 'view', label: '', sortable: false, align: 'right', render: r => (
       <button
         onClick={e => { e.stopPropagation(); setSelectedAlert(r) }}
@@ -113,31 +271,157 @@ export default function ComplianceEarlyWarning() {
       <SectionHeader
         eyebrow={t('Proactive Monitoring')}
         title={t('Compliance Early Warning')}
-        description={t('Proactive detection of filing, payment and behavioural anomalies — enabling outreach and officer review before escalation to formal enforcement action.')}
+        description={t('Non-filers and slipping compliance, surfaced before the shortfall compounds. Every alert below carries how long it has been open and what is at stake behind it, because an early warning that has sat unworked for a quarter is no longer early.')}
         actions={<ExportBar />}
       />
 
       {/* KPI row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard label={t('Total Open Alerts')} value={totalOpen} tone="red" icon={Bell} />
-        <KpiCard label={t('Officer Review Queue')} value={reviewQueueSize} tone="saffron" icon={UserCheck} />
-        <KpiCard label={t('Resolved')} value={resolvedThisMonth} tone="green" icon={CheckCircle2} />
-        <KpiCard label={t('Alert Types Active')} value={activeTypeCount} unit={t('of {0}', EARLY_WARNING_TYPES.length)} tone="steel" icon={ListFilter} />
+        <KpiCard
+          label={t('Unresolved alerts')}
+          value={kpis.openCount}
+          unit={t('of {0} in scope ({1}%) — ₹{2} Cr of exposure across {3} taxpayers', kpis.total, kpis.openSharePct, kpis.openExposureCr, kpis.openTaxpayers)}
+          tone="red"
+          icon={Bell}
+        />
+        <KpiCard
+          label={t('Open non-filer alerts')}
+          value={kpis.nonFilerCount}
+          unit={t('{0} taxpayers carrying ₹{1} Cr of monthly turnover with no return filed — the base the shortfall compounds on', kpis.nonFilerTaxpayers, kpis.nonFilerTurnoverCr)}
+          tone="saffron"
+          icon={UserCheck}
+        />
+        <KpiCard
+          label={t('Open longer than 60 days')}
+          value={kpis.staleCount}
+          unit={t('of {0} unresolved ({1}%) — ₹{2} Cr behind them; the median unresolved alert is {3} days old', kpis.openCount, kpis.staleSharePct, kpis.staleExposureCr, kpis.medianOpenAge)}
+          tone="orange"
+          icon={Clock}
+        />
+        <KpiCard
+          label={t('Resolved')}
+          value={kpis.resolvedCount}
+          unit={t('{0}% of alerts in scope — the statewide resolution rate is {1}%', kpis.resolvedRatePct, kpis.stateResolvedRatePct)}
+          tone="green"
+          icon={CheckCircle2}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-        <Card title={t('Alerts by Type')} subtitle={t('Breakdown of early-warning signals — respects global filters')}>
-          <RiskBarChart data={typeBreakdown} xKey="type" barKey="count" colorFn={() => '#204575'} />
+        <Card
+          title={t('How long the unresolved queue has been waiting')}
+          subtitle={t('{0} unresolved alerts, banded by age. The band an alert falls into decides what should happen to it, not the alert type.', kpis.openCount)}
+        >
+          <DataTable
+            columns={[
+              { key: 'label', label: t('Age band'), render: row => t(row.label) },
+              {
+                key: 'count', label: t('Alerts'), align: 'right',
+                sortValue: row => row.count,
+                render: row => (
+                  <div className="tabular-nums">
+                    <div className={row.id === '90+' && row.count > 0 ? 'font-semibold text-[#C5221F]' : 'text-navy-900'}>{row.count}</div>
+                    <div className="text-[11px] text-steel-500">{t('{0}% of unresolved', row.sharePct)}</div>
+                  </div>
+                )
+              },
+              { key: 'taxpayers', label: t('Taxpayers'), align: 'right', sortValue: row => row.taxpayers },
+              {
+                key: 'exposureCr', label: t('Exposure'), align: 'right',
+                sortValue: row => row.exposureCr,
+                render: row => <span className="tabular-nums">{t('₹{0} Cr', row.exposureCr)}</span>
+              },
+              { key: 'meaning', label: t('What it means'), sortable: false, render: row => <span className="text-[11px] text-steel-600 leading-relaxed">{t(row.meaning)}</span> }
+            ]}
+            rows={ageing}
+            searchable={false}
+            pageSize={4}
+          />
+          <p className="text-[11.5px] text-steel-500 leading-relaxed mt-3">
+            {t('Exposure is summed over distinct taxpayers, not over alerts — most taxpayers here carry more than one signal, and summing per alert would count the same entity several times.')}
+          </p>
         </Card>
-        <Card title={t('Alert Volume Trend')} subtitle={t('Alerts raised, bucketed over the last ~48 days')}>
+        <Card
+          title={t('Alert inflow')}
+          subtitle={t('Alerts raised per 8-day period over the last ~48 days, out of {0} in scope. A rising inflow against a static resolution rate is a staffing signal, not a risk one.', kpis.total)}
+        >
           <RiskBarChart data={weeklyTrend} xKey="period" barKey="count" colorFn={() => '#f78c0a'} />
+          <div className="mt-4">
+            <RiskBarChart data={typeChartData} xKey="type" barKey="count" colorFn={() => '#204575'} height={200} />
+            <div className="text-[11px] text-steel-500 mt-2">{t('Alerts by type — the value and recommended action for each are in the table below.')}</div>
+          </div>
         </Card>
       </div>
+
+      <Card
+        title={t('Alert types — what each is worth and what to do about it')}
+        subtitle={t('{0} of the {1} signal types are firing in the current scope, ranked by the exposure behind them rather than by count.', typeBreakdown.length, EARLY_WARNING_TYPES.length)}
+        className="mb-5"
+      >
+        <DataTable
+          columns={[
+            { key: 'type', label: t('Signal'), render: row => t(row.type) },
+            {
+              key: 'count', label: t('Alerts'), align: 'right',
+              sortValue: row => row.count,
+              render: row => (
+                <div className="tabular-nums">
+                  <div className="text-navy-900">{t('{0} open of {1}', row.openCount, row.count)}</div>
+                  <div className="text-[11px] text-steel-500">{t('{0}% of all alerts in scope', row.sharePct)}</div>
+                </div>
+              )
+            },
+            { key: 'taxpayers', label: t('Taxpayers'), align: 'right', sortValue: row => row.taxpayers },
+            {
+              key: 'exposureCr', label: t('Exposure'), align: 'right',
+              sortValue: row => row.exposureCr,
+              render: row => <span className="tabular-nums font-semibold text-navy-900">{t('₹{0} Cr', row.exposureCr)}</span>
+            },
+            {
+              key: 'medianAge', label: t('Median age, open'), align: 'right',
+              sortValue: row => row.medianAge,
+              render: row => <span className={`tabular-nums ${row.medianAge > 60 ? 'text-[#C5221F] font-semibold' : 'text-steel-600'}`}>{t('{0} days', row.medianAge)}</span>
+            },
+            {
+              key: 'recommendedAction', label: t('Recommended action'), sortable: false,
+              render: row => <span className="text-[11px] text-steel-600 leading-relaxed">{t(row.recommendedAction)}</span>
+            }
+          ]}
+          rows={typeBreakdown}
+          searchable={false}
+          pageSize={9}
+        />
+      </Card>
+
+      {compounding.rows.length > 0 && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50/60 px-5 py-4 mb-5 flex items-start gap-3">
+          <Layers className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <div className="text-[13.5px] font-bold text-navy-900 mb-1">
+              {t('{0} of {1} taxpayers in scope are firing three or more distinct signals at once, carrying ₹{2} Cr.', compounding.rows.length, compounding.totalTaxpayers, compounding.exposureCr)}
+            </div>
+            <p className="text-[12.5px] text-steel-700 leading-relaxed mb-2">
+              {t('One signal is a lapse. Three at once, in the same window, is a trajectory — and it is the population this screen exists to reach before the shortfall compounds. These should be worked ahead of any single-signal alert of the same age, whatever their individual risk scores say.')}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {compounding.rows.slice(0, 8).map(row => (
+                <span key={row.id} className="text-[11px] px-2 py-0.5 rounded-md border border-amber-200 bg-white text-navy-800">
+                  {row.tradeName} · {t('{0} signals', row.typeCount)} · {t('oldest {0} days', row.oldest)}
+                  {row.filingStatus ? ` · ${t(row.filingStatus)}` : ''}
+                </span>
+              ))}
+              {compounding.rows.length > 8 && (
+                <span className="text-[11px] text-steel-600">{t('and {0} more', compounding.rows.length - 8)}</span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Alert feed */}
       <Card
         title={t('Early Warning Alert Feed')}
-        subtitle={t('Searchable, filterable register of active compliance signals')}
+        subtitle={t('Showing {0} of {1} alerts in scope. Sort by age to find the ones the outreach never reached.', locallyFiltered.length, globallyFiltered.length)}
         className="mb-5"
         actions={
           <div className="flex items-center gap-2">
@@ -174,7 +458,9 @@ export default function ComplianceEarlyWarning() {
                   <ClipboardList className="w-4 h-4 text-navy-500 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-xs font-semibold text-navy-900 truncate">{t(a.type)} — {a.tradeName}</div>
-                    <div className="text-[11px] text-steel-500 truncate">{a.gstin} · {a.district} · {a.sector} · {t('Raised')} {a.raisedOn}</div>
+                    <div className="text-[11px] text-steel-500 truncate">
+                      {a.gstin} · {t(a.district)} · {t(a.sector)} · {t('{0} days old', ageOf(a))} · {t('₹{0} L exposure', (exposureOf(a) / 100000).toFixed(1))}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -212,7 +498,16 @@ export default function ComplianceEarlyWarning() {
               <Pill tone="navy">{t(selectedAlert.district)}</Pill>
               <Pill tone="steel">{t(selectedAlert.sector)}</Pill>
               <Pill tone="amber">{t('Status')}: {t(effectiveStatus(selectedAlert))}</Pill>
+              <Pill tone={ageOf(selectedAlert) > 60 ? 'red' : 'steel'}>{t('Open {0} days, raised {1}', ageOf(selectedAlert), selectedAlert.raisedOn)}</Pill>
               <RiskBadge category={riskCategoryFromScore(selectedAlert.riskScore)} score={selectedAlert.riskScore} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <AlertStat label={t('Exposure carried')} value={t('₹{0} L', (exposureOf(selectedAlert) / 100000).toFixed(1))} />
+              <AlertStat label={t('Monthly turnover')} value={t('₹{0} L', (turnoverOf(selectedAlert) / 100000).toFixed(1))} />
+              <AlertStat
+                label={t('Other signals on this taxpayer')}
+                value={t('{0} of {1} types', new Set(globallyFiltered.filter(a => a.taxpayerId === selectedAlert.taxpayerId).map(a => a.type)).size, EARLY_WARNING_TYPES.length)}
+              />
             </div>
             <div className="rounded-xl border border-steel-200 bg-steel-50 p-3.5 text-xs text-navy-800">
               <div className="font-semibold text-navy-900 mb-1">{t('Recommended Action (System)')}</div>
@@ -246,6 +541,15 @@ export default function ComplianceEarlyWarning() {
       </Modal>
 
       <TaxpayerDrilldownModal taxpayer={drilldownTaxpayer} open={!!drilldownTaxpayer} onClose={() => setDrilldownTaxpayer(null)} />
+    </div>
+  )
+}
+
+function AlertStat({ label, value }) {
+  return (
+    <div className="px-3 py-2.5 rounded-lg border border-steel-200 bg-white">
+      <div className="text-[10px] uppercase tracking-wide text-steel-500 font-semibold">{label}</div>
+      <div className="text-sm font-bold text-navy-900 mt-0.5">{value}</div>
     </div>
   )
 }

@@ -8,72 +8,131 @@ import { useApp, applyGlobalFilters, applyCaseFilters } from '../context/AppCont
 import { translateBriefing } from '../data/ai.js'
 import { t } from '../i18n/index.js'
 import {
-  REPORT_TYPES, KPI_SUMMARY, STATE_REVENUE_TREND, DISTRICT_REVENUE, SECTOR_REVENUE,
-  TAXPAYERS, AUDIT_CASES, REFUND_CASES, LITIGATION_CASES, LITIGATION_SUMMARY, COMPLIANCE_ALERTS,
-  AI_GOVERNANCE_METRICS
-,
-  REFERENCE_DATE_ISO
+  REPORT_TYPES, STATE_REVENUE_TREND, DISTRICT_REVENUE, SECTOR_REVENUE,
+  TAXPAYERS, AUDIT_CASES, REFUND_CASES, LITIGATION_CASES, COMPLIANCE_ALERTS,
+  AI_GOVERNANCE_METRICS, REFERENCE_DATE_ISO
 } from '../data/mockData.js'
 import {
   FileBarChart2, Eye, Download, Languages, ShieldAlert, FileStack,
-  TrendingUp, ClipboardCheck
+  ClipboardCheck, Filter, UserCheck, AlertTriangle
 } from 'lucide-react'
 
 const GENERATED_ON = REFERENCE_DATE_ISO
-// Illustrative placeholder — no report-generation history is tracked.
-const REPORTS_GENERATED_MTD = 128
-const MOST_REQUESTED_ID = 'commissioner-daily'
 
-// Every branch below previously read the raw dataset constants, so a report
-// generated with "Pune" selected still covered all twelve districts. Each now
-// works off `scope`, a pre-filtered view built from the header filters, and
-// every report opens by stating the scope it actually covers — a briefing note
-// that does not say what it covers is the one an officer will misread.
+/* ---------------------------------------------------------------------------
+ * WHAT EACH REPORT COVERS
+ *
+ * A briefing note that does not say what it covers is the one an officer will
+ * misread, so every report declares its scope basis on the card, in the draft,
+ * and on anything copied out of it. `basis` describes how buildPreview() below
+ * actually behaves — it is checkable by reading that function, not a claim.
+ *
+ *   filtered — every figure narrows with the header filters
+ *   mixed    — some series are statewide by nature and say so in the draft
+ *   platform — describes the AI layer itself; taxpayer filters do not apply
+ *
+ * Every label below is written as a t('…') literal inside a thunk rather than
+ * as a bare constant string: a constant still reaches the translator at the
+ * render site, but it is invisible to `npm run prose`, and a half-matched
+ * sentence renders as a mongrel rather than as honest untranslated English.
+ * Keep new prose in this shape.
+ * ------------------------------------------------------------------------- */
+const SCOPE_BASIS = {
+  filtered: { label: () => t('Follows the header filters'), tone: 'green' },
+  mixed: { label: () => t('Partly statewide — stated in the draft'), tone: 'amber' },
+  platform: { label: () => t('Platform-wide — taxpayer filters do not apply'), tone: 'navy' }
+}
+
+const REPORT_SCOPE = {
+  'commissioner-daily': { basis: 'filtered', unit: () => t('taxpayers'), sources: () => t('Taxpayer register, district revenue, compliance alerts') },
+  'monthly-revenue-risk': { basis: 'mixed', unit: () => t('taxpayers'), sources: () => t('Statewide monthly revenue trend, taxpayer register, refund pipeline') },
+  'district-performance': { basis: 'filtered', unit: () => t('districts'), sources: () => t('District revenue, targets and officer workload') },
+  'sector-risk': { basis: 'mixed', unit: () => t('sectors'), sources: () => t('Fixed sector benchmarks and the taxpayer register') },
+  'itc-exposure': { basis: 'filtered', unit: () => t('taxpayers'), sources: () => t('Taxpayer register — ITC spike and circular-trading signals') },
+  'refund-risk': { basis: 'filtered', unit: () => t('refund cases'), sources: () => t('Refund case pipeline') },
+  'audit-prioritisation': { basis: 'filtered', unit: () => t('audit cases'), sources: () => t('Audit case pipeline') },
+  'litigation-risk': { basis: 'filtered', unit: () => t('litigation cases'), sources: () => t('Litigation and appeal register') },
+  'compliance-early-warning': { basis: 'filtered', unit: () => t('alerts'), sources: () => t('Compliance early-warning alerts') },
+  'ai-governance': { basis: 'platform', unit: null, sources: () => t('AI governance metrics (illustrative placeholders)') }
+}
+
+// Signed number formatting — a numeral, not a sentence, so it carries no
+// translatable text of its own.
+const signed = n => (n >= 0 ? `+${n}` : String(n))
+
+// A "name (count)" series, assembled from translated fragments rather than a
+// template literal so the whole line can be translated.
+const namedCounts = pairs => pairs.map(([name, count]) => t('{0} ({1})', name, count)).join(', ')
+
+function scopeCount(id, scope) {
+  switch (id) {
+    case 'commissioner-daily':
+    case 'monthly-revenue-risk':
+    case 'itc-exposure':
+      return scope.taxpayers.length
+    case 'district-performance': return scope.districts.length
+    case 'sector-risk': return scope.sectors.length
+    case 'refund-risk': return scope.refundCases.length
+    case 'audit-prioritisation': return scope.auditCases.length
+    case 'litigation-risk': return scope.litigationCases.length
+    case 'compliance-early-warning': return scope.alerts.length
+    default: return null
+  }
+}
+
+/* Every branch below works off `scope`, a pre-filtered view built from the
+ * header filters, and every report opens by stating the scope it actually
+ * covers. Each line is a t() template with {0} placeholders — a briefing note
+ * assembled with template literals can never be read in Marathi or Hindi. */
 function buildPreview(id, scope) {
   const lastMonth = STATE_REVENUE_TREND.at(-1)
-  const head = [`Scope: ${scope.label}.`]
+  const head = [t('Scope: {0}.', scope.label)]
   switch (id) {
     case 'commissioner-daily': {
       const topRisk = [...scope.districts].sort((a, b) => b.riskTaxpayers - a.riskTaxpayers).slice(0, 3)
       return head.concat([
-        `GST revenue modelled: ₹${scope.kpi.revenueMonitoredCr.toLocaleString('en-IN')} Cr across ${scope.kpi.totalTaxpayers} taxpayers in scope.`,
-        `Estimated high-risk revenue exposure: ₹${scope.kpi.highRiskExposureCr} Cr (${scope.kpi.criticalRisk} Critical, ${scope.kpi.highRisk} High risk entities).`,
-        topRisk.length ? `Highest risk-taxpayer concentration: ${topRisk.map(d => `${d.district} (${d.riskTaxpayers})`).join(', ')}.` : 'No districts in scope.',
-        `${scope.alerts.length} compliance early-warning alerts in scope; ${scope.alerts.filter(a => a.status === 'Open').length} currently open.`,
-        `Audit recovery pipeline: ₹${scope.kpi.auditRecoveryPipelineCr} Cr; ${scope.kpi.nonFilers} non-filers in scope.`
+        t('GST revenue modelled: ₹{0} Cr across {1} taxpayers in scope.', scope.kpi.revenueMonitoredCr.toLocaleString('en-IN'), scope.kpi.totalTaxpayers),
+        t('Estimated high-risk revenue exposure: ₹{0} Cr ({1} Critical, {2} High risk entities).', scope.kpi.highRiskExposureCr, scope.kpi.criticalRisk, scope.kpi.highRisk),
+        topRisk.length
+          ? t('Highest risk-taxpayer concentration: {0}.', namedCounts(topRisk.map(d => [d.district, d.riskTaxpayers])))
+          : t('No districts in scope.'),
+        t('{0} compliance early-warning alerts in scope; {1} currently open.', scope.alerts.length, scope.alerts.filter(a => a.status === 'Open').length),
+        t('Audit recovery pipeline: ₹{0} Cr; {1} non-filers in scope.', scope.kpi.auditRecoveryPipelineCr, scope.kpi.nonFilers)
       ])
     }
     case 'monthly-revenue-risk': {
       const gapCr = lastMonth.actual - lastMonth.target
       return head.concat([
-        `Latest month (${lastMonth.month}) statewide collection: ₹${lastMonth.actual.toLocaleString('en-IN')} Cr against a target of ₹${lastMonth.target.toLocaleString('en-IN')} Cr (${gapCr >= 0 ? '+' : ''}${gapCr} Cr variance). The monthly trend series is statewide and is not narrowed by district or sector filters.`,
-        `Estimated high-risk revenue exposure in scope: ₹${scope.kpi.highRiskExposureCr} Cr.`,
-        `${scope.kpi.itcRiskCases} taxpayers in scope flagged for elevated ITC risk indicators.`,
-        `${scope.refundCases.filter(r => r.status !== 'Low Risk').length} refund cases in scope remain under active risk review.`
+        t('Latest month ({0}) statewide collection: ₹{1} Cr against a target of ₹{2} Cr ({3} Cr variance). The monthly trend series is statewide and is not narrowed by district or sector filters.', lastMonth.month, lastMonth.actual.toLocaleString('en-IN'), lastMonth.target.toLocaleString('en-IN'), signed(gapCr)),
+        t('Estimated high-risk revenue exposure in scope: ₹{0} Cr.', scope.kpi.highRiskExposureCr),
+        t('{0} taxpayers in scope flagged for elevated ITC risk indicators.', scope.kpi.itcRiskCases),
+        t('{0} refund cases in scope remain under active risk review.', scope.refundCases.filter(r => r.status !== 'Low Risk').length)
       ])
     }
     case 'district-performance': {
-      if (!scope.districts.length) return head.concat(['No districts match the current filters.'])
+      if (!scope.districts.length) return head.concat([t('No districts match the current filters.')])
       const sorted = [...scope.districts].sort((a, b) => a.gapPct - b.gapPct)
       const worst = sorted[0]
       const best = sorted.at(-1)
       const highWorkload = [...scope.districts].sort((a, b) => b.officerWorkload - a.officerWorkload)[0]
       return head.concat([
-        `${scope.districts.length} district(s) assessed against monthly revenue targets.`,
-        `Largest shortfall: ${worst.district} at ${worst.gapPct}% gap (target ₹${worst.targetCr} Cr vs actual ₹${worst.actualCr} Cr).`,
-        `Strongest performance: ${best.district} at ${best.gapPct >= 0 ? '+' : ''}${best.gapPct}% against target.`,
-        `Highest officer workload: ${highWorkload.district} at ${highWorkload.officerWorkload}% officer utilisation (avg. case ageing ${highWorkload.caseAgeingDays} days).`,
-        `Combined risk-taxpayer count across districts in scope: ${scope.districts.reduce((s, d) => s + d.riskTaxpayers, 0)}.`
+        t('{0} district(s) assessed against monthly revenue targets.', scope.districts.length),
+        t('Largest shortfall: {0} at {1}% gap (target ₹{2} Cr vs actual ₹{3} Cr).', worst.district, worst.gapPct, worst.targetCr, worst.actualCr),
+        t('Strongest performance: {0} at {1}% against target.', best.district, signed(best.gapPct)),
+        t('Highest officer workload: {0} at {1}% officer utilisation (average case ageing {2} days).', highWorkload.district, highWorkload.officerWorkload, highWorkload.caseAgeingDays),
+        t('Combined risk-taxpayer count across districts in scope: {0}.', scope.districts.reduce((s, d) => s + d.riskTaxpayers, 0))
       ])
     }
     case 'sector-risk': {
       const sorted = [...scope.sectors].sort((a, b) => b.highRiskCount - a.highRiskCount)
       const top = sorted.filter(x => x.taxpayerCount > 0).slice(0, 3)
       return head.concat([
-        `${scope.sectors.length} sector(s) benchmarked for tax ratio, ITC ratio and refund ratio deviation.`,
-        top.length ? `Highest concentration of high/critical-risk taxpayers: ${top.map(x => `${x.sector} (${x.highRiskCount})`).join(', ')}.` : 'No sector in scope currently carries a high or critical-risk taxpayer.',
-        `Taxpayer count in scope: ${scope.sectors.reduce((s, x) => s + x.taxpayerCount, 0)}.`,
-        `Benchmark ratios are fixed departmental reference values and do not vary with the header filters.`
+        t('{0} sector(s) benchmarked for tax ratio, ITC ratio and refund ratio deviation.', scope.sectors.length),
+        top.length
+          ? t('Highest concentration of high/critical-risk taxpayers: {0}.', namedCounts(top.map(x => [t(x.sector), x.highRiskCount])))
+          : t('No sector in scope currently carries a high or critical-risk taxpayer.'),
+        t('Taxpayer count in scope: {0}.', scope.sectors.reduce((s, x) => s + x.taxpayerCount, 0)),
+        t('Benchmark ratios are fixed departmental reference values and do not vary with the header filters.')
       ])
     }
     case 'itc-exposure': {
@@ -81,10 +140,12 @@ function buildPreview(id, scope) {
       const circularCount = scope.taxpayers.filter(x => x.signals.circular_signal).length
       const topExposure = [...scope.taxpayers].sort((a, b) => b.estimatedRevenueExposure - a.estimatedRevenueExposure).slice(0, 3)
       return head.concat([
-        `${scope.kpi.itcRiskCases} taxpayers in scope flagged for ITC-related risk indicators (abnormal spike and/or circular trading signal).`,
-        `Abnormal ITC spike signal present in ${spikeCount} records; circular trading signal in ${circularCount} records.`,
-        topExposure.length ? `Top estimated revenue exposure: ${topExposure.map(x => `${x.tradeName} (₹${(x.estimatedRevenueExposure / 100000).toFixed(1)}L)`).join(', ')}.` : 'No taxpayers in scope.',
-        `All figures represent statistical risk signals for officer-led verification, not confirmed evasion.`
+        t('{0} taxpayers in scope flagged for ITC-related risk indicators (abnormal spike and/or circular trading signal).', scope.kpi.itcRiskCases),
+        t('Abnormal ITC spike signal present in {0} records; circular trading signal in {1} records.', spikeCount, circularCount),
+        topExposure.length
+          ? t('Top estimated revenue exposure: {0}.', topExposure.map(x => t('{0} (₹{1}L)', x.tradeName, (x.estimatedRevenueExposure / 100000).toFixed(1))).join(', '))
+          : t('No taxpayers in scope.'),
+        t('All figures represent statistical risk signals for officer-led verification, not confirmed evasion.')
       ])
     }
     case 'refund-risk': {
@@ -93,10 +154,10 @@ function buildPreview(id, scope) {
       const escalate = rc.filter(r => r.status === 'Escalate for Scrutiny').length
       const totalClaimedLakh = Math.round(rc.reduce((s, r) => s + r.claimedAmount, 0) / 100000)
       return head.concat([
-        `${rc.length} refund case(s) in scope in the risk-ranked pipeline.`,
-        `${needsReview} require officer review; ${escalate} recommended for escalated scrutiny.`,
-        `Total claimed refund value in scope: ₹${totalClaimedLakh.toLocaleString('en-IN')} Lakh.`,
-        `Export-linked claims: ${rc.filter(r => r.exportLinked).length} of ${rc.length}.`
+        t('{0} refund case(s) in scope in the risk-ranked pipeline.', rc.length),
+        t('{0} require officer review; {1} recommended for escalated scrutiny.', needsReview, escalate),
+        t('Total claimed refund value in scope: ₹{0} Lakh.', totalClaimedLakh.toLocaleString('en-IN')),
+        t('Export-linked claims: {0} of {1}.', rc.filter(r => r.exportLinked).length, rc.length)
       ])
     }
     case 'audit-prioritisation': {
@@ -105,10 +166,10 @@ function buildPreview(id, scope) {
       const high = ac.filter(c => c.riskCategory === 'High').length
       const totalExposureCr = Math.round(ac.reduce((s, c) => s + c.estimatedExposure, 0) / 10000000)
       return head.concat([
-        `${ac.length} case(s) in scope in the risk-ranked audit pipeline.`,
-        `${critical} Critical-risk and ${high} High-risk cases recommended for priority scoping.`,
-        `Combined estimated revenue exposure in scope: ₹${totalExposureCr} Cr.`,
-        `Cases span ${new Set(ac.map(c => c.district)).size} district(s) and ${new Set(ac.map(c => c.sector)).size} sector(s).`
+        t('{0} case(s) in scope in the risk-ranked audit pipeline.', ac.length),
+        t('{0} Critical-risk and {1} High-risk cases recommended for priority scoping.', critical, high),
+        t('Combined estimated revenue exposure in scope: ₹{0} Cr.', totalExposureCr),
+        t('Cases span {0} district(s) and {1} sector(s).', new Set(ac.map(c => c.district)).size, new Set(ac.map(c => c.sector)).size)
       ])
     }
     case 'litigation-risk': {
@@ -116,10 +177,12 @@ function buildPreview(id, scope) {
       const decided = lc.filter(c => ['Order Confirmed', 'Order Reversed', 'Remanded'].includes(c.stage))
       const confirmed = decided.filter(c => c.stage === 'Order Confirmed').length
       return head.concat([
-        `${lc.length} active appeal/litigation case(s) in scope.`,
-        decided.length ? `Department success rate on decided matters in scope: ${Math.round((confirmed / decided.length) * 100)}% (${confirmed} of ${decided.length} decided).` : 'No decided matters in scope.',
-        `${lc.filter(c => c.stage === 'Order Reversed').length} orders reversed; ${lc.filter(c => c.disputedAmount > 5000000).length} cases exceed ₹50 Lakh in disputed value.`,
-        `Total amount under dispute in scope: ₹${Math.round(lc.reduce((s, c) => s + c.disputedAmount, 0) / 10000000)} Cr. This is value under appeal, not value recovered.`
+        t('{0} active appeal/litigation case(s) in scope.', lc.length),
+        decided.length
+          ? t('Department success rate on decided matters in scope: {0}% ({1} of {2} decided).', Math.round((confirmed / decided.length) * 100), confirmed, decided.length)
+          : t('No decided matters in scope.'),
+        t('{0} orders reversed; {1} cases exceed ₹50 Lakh in disputed value.', lc.filter(c => c.stage === 'Order Reversed').length, lc.filter(c => c.disputedAmount > 5000000).length),
+        t('Total amount under dispute in scope: ₹{0} Cr. This is value under appeal, not value recovered.', Math.round(lc.reduce((s, c) => s + c.disputedAmount, 0) / 10000000))
       ])
     }
     case 'compliance-early-warning': {
@@ -128,43 +191,48 @@ function buildPreview(id, scope) {
       const byType = Object.entries(al.reduce((acc, a) => { acc[a.type] = (acc[a.type] || 0) + 1; return acc }, {}))
         .sort((a, b) => b[1] - a[1]).slice(0, 3)
       return head.concat([
-        `${al.length} compliance early-warning alert(s) in scope; ${open} currently open.`,
-        byType.length ? `Leading alert types: ${byType.map(([ty, c]) => `${ty} (${c})`).join(', ')}.` : 'No alerts in scope.',
-        `Recommended actions range from automated reminders to officer review queue escalation.`,
-        `Early-warning outreach is informational only and does not constitute a formal notice.`
+        t('{0} compliance early-warning alert(s) in scope; {1} currently open.', al.length, open),
+        byType.length
+          ? t('Leading alert types: {0}.', namedCounts(byType.map(([type, count]) => [t(type), count])))
+          : t('No alerts in scope.'),
+        t('Recommended actions range from automated reminders to officer review queue escalation.'),
+        t('Early-warning outreach is informational only and does not constitute a formal notice.')
       ])
     }
     case 'ai-governance': {
-      const approvalPct = Math.round((AI_GOVERNANCE_METRICS.officerApproved / AI_GOVERNANCE_METRICS.recommendationsGenerated) * 1000) / 10
+      const gm = AI_GOVERNANCE_METRICS
+      const approvalPct = Math.round((gm.officerApproved / gm.recommendationsGenerated) * 1000) / 10
       return [
-        'Scope: platform-wide. Governance metrics describe the AI layer itself and are not narrowed by taxpayer filters.',
-        `${AI_GOVERNANCE_METRICS.recommendationsGenerated.toLocaleString('en-IN')} AI recommendations generated to date; ${approvalPct}% officer-approved.`,
-        `${AI_GOVERNANCE_METRICS.rejectedSuggestions.toLocaleString('en-IN')} suggestions rejected by officers; ${AI_GOVERNANCE_METRICS.pendingGovernanceReview} pending governance review.`,
-        `False-positive confirmation rate: ${AI_GOVERNANCE_METRICS.falsePositiveConfirmed} of ${AI_GOVERNANCE_METRICS.falsePositiveReviewed} reviewed flags.`,
-        `Model drift monitoring: ${AI_GOVERNANCE_METRICS.driftStatus}`,
-        `Red-team testing: ${AI_GOVERNANCE_METRICS.lastRedTeamTest}`
+        t('Scope: platform-wide. Governance metrics describe the AI layer itself and are not narrowed by taxpayer filters.'),
+        t('Every figure in this report is an illustrative placeholder. There is no model, no gateway and no scheduled audit behind them, and no value below has been measured.'),
+        t('{0} AI recommendations generated to date; {1}% officer-approved.', gm.recommendationsGenerated.toLocaleString('en-IN'), approvalPct),
+        t('{0} suggestions rejected by officers; {1} pending governance review.', gm.rejectedSuggestions.toLocaleString('en-IN'), gm.pendingGovernanceReview),
+        t('False-positive confirmation rate: {0} of {1} reviewed flags.', gm.falsePositiveConfirmed, gm.falsePositiveReviewed),
+        t('Model drift monitoring: {0}', t(gm.driftStatus)),
+        t('Red-team testing: {0}', t(gm.lastRedTeamTest)),
+        t('CERT-In / VAPT readiness: {0}', t(gm.vaptStatus)),
+        t('Maker-checker remains absolute: the AI system only ever occupies the maker / draft role and cannot independently execute an enforcement action.')
       ]
     }
     default:
-      return ['No preview data available for this report type.']
+      return [t('No preview data available for this report type.')]
   }
 }
 
 export default function ReportsBriefingNotes() {
-  const { filters, logAction } = useApp()
+  const { filters, logAction, auditLog, officerName, role } = useApp()
   const [activeReport, setActiveReport] = useState(null)
-  const [showMarathi, setShowMarathi] = useState(false)
+  const [showTranslated, setShowTranslated] = useState(false)
   const [translated, setTranslated] = useState(null)
 
   // One pre-filtered view of every dataset a report can draw on, built from the
-  // header filters. Previously each preview read the raw constants, so the
-  // filters above this page had no effect on anything it produced.
+  // header filters, so nothing a report prints is wider than what the officer
+  // has selected above it.
   const scope = useMemo(() => {
     const taxpayers = TAXPAYERS.filter(x => applyGlobalFilters(x, filters))
     const districts = DISTRICT_REVENUE.filter(d =>
       (filters.district === 'All Districts' || d.district === filters.district)
       && (filters.division === 'All Divisions' || d.division === filters.division))
-    const inScope = new Set(taxpayers.map(x => x.id))
     const sectors = SECTOR_REVENUE
       .filter(sx => filters.sector === 'All Sectors' || sx.sector === filters.sector)
       .map(sx => {
@@ -181,16 +249,17 @@ export default function ReportsBriefingNotes() {
     const alerts = COMPLIANCE_ALERTS.filter(a => applyCaseFilters(a, filters, 'raisedOn'))
 
     const parts = []
-    if (filters.district !== 'All Districts') parts.push(filters.district)
-    if (filters.division !== 'All Divisions') parts.push(filters.division)
-    if (filters.sector !== 'All Sectors') parts.push(filters.sector)
-    if (filters.taxpayerType !== 'All Types') parts.push(filters.taxpayerType)
-    if (filters.riskLevel !== 'All Risk Levels') parts.push(`${filters.riskLevel} risk`)
-    parts.push(filters.dateRange)
-    if (filters.search?.trim()) parts.push(`search "${filters.search.trim()}"`)
+    if (filters.district !== 'All Districts') parts.push(t(filters.district))
+    if (filters.division !== 'All Divisions') parts.push(t(filters.division))
+    if (filters.sector !== 'All Sectors') parts.push(t(filters.sector))
+    if (filters.taxpayerType !== 'All Types') parts.push(t(filters.taxpayerType))
+    if (filters.riskLevel !== 'All Risk Levels') parts.push(t('{0} risk', t(filters.riskLevel)))
+    parts.push(t(filters.dateRange))
+    if (filters.search?.trim()) parts.push(t('search "{0}"', filters.search.trim()))
 
     return {
-      label: parts.length === 1 ? `whole modelled book, ${filters.dateRange}` : parts.join(' · '),
+      label: parts.length === 1 ? t('whole modelled book, {0}', t(filters.dateRange)) : parts.join(' · '),
+      narrowed: parts.length > 1,
       taxpayers, districts, sectors, auditCases, refundCases, litigationCases, alerts,
       kpi: {
         totalTaxpayers: taxpayers.length,
@@ -206,51 +275,108 @@ export default function ReportsBriefingNotes() {
     }
   }, [filters])
 
-  const mostRequested = useMemo(() => REPORT_TYPES.find(r => r.id === MOST_REQUESTED_ID), [])
+  /* How many report types actually narrow with the filter bar. A count the
+   * reader can check against the cards below, rather than an assurance that
+   * "reports respect the filters". */
+  const filterResponsive = useMemo(
+    () => REPORT_TYPES.filter(r => REPORT_SCOPE[r.id]?.basis === 'filtered').length,
+    []
+  )
+
+  /* Report handling this session, counted off the audit trail rather than
+   * asserted. Every action this page logs carries the report id in `caseId`,
+   * so this counts previews, export requests and clipboard copies — which is
+   * what the label says it counts. A month-to-date total and a "most
+   * requested" report used to sit here as invented constants; no generation
+   * history is tracked anywhere, so neither could be checked. */
+  const sessionActivity = useMemo(() => {
+    const ids = new Set(REPORT_TYPES.map(r => r.id))
+    const rows = auditLog.filter(r => r.module === 'Reports & Briefing Notes' && ids.has(r.caseId))
+    const counts = new Map()
+    rows.forEach(r => counts.set(r.caseId, (counts.get(r.caseId) || 0) + 1))
+    const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1])
+    const topId = ranked.length ? ranked[0][0] : null
+    return {
+      total: rows.length,
+      topReport: topId ? REPORT_TYPES.find(r => r.id === topId) : null,
+      topCount: ranked.length ? ranked[0][1] : 0
+    }
+  }, [auditLog])
 
   const visibleReports = useMemo(() => {
     const q = filters.search?.trim().toLowerCase()
     if (!q) return REPORT_TYPES
-    return REPORT_TYPES.filter(r => r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q))
+    return REPORT_TYPES.filter(r =>
+      r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q)
+      || t(r.name).toLowerCase().includes(q) || t(r.desc).toLowerCase().includes(q))
   }, [filters.search])
 
   function openReport(report) {
     setActiveReport(report)
-    setShowMarathi(false)
+    setShowTranslated(false)
     setTranslated(null)
-    logAction(`Previewed Report: ${report.name}`, 'Reports & Briefing Notes', report.id)
+    logAction(t('Previewed report: {0}', t(report.name)), 'Reports & Briefing Notes', report.id)
   }
 
   function closeReport() {
     setActiveReport(null)
-    setShowMarathi(false)
+    setShowTranslated(false)
     setTranslated(null)
   }
 
-  function toggleMarathi() {
+  function toggleTranslation() {
     if (!activeReport) return
-    if (!showMarathi) {
-      const previewText = buildPreview(activeReport.id, scope).join(' ')
-      setTranslated(translateBriefing(previewText, 'mr'))
+    if (!showTranslated) {
+      setTranslated(translateBriefing(buildPreview(activeReport.id, scope).join(' '), 'mr'))
     }
-    setShowMarathi(s => !s)
+    setShowTranslated(s => !s)
   }
 
   const bullets = activeReport ? buildPreview(activeReport.id, scope) : []
+  const activeScope = activeReport ? REPORT_SCOPE[activeReport.id] : null
+  const activeBasis = activeScope ? SCOPE_BASIS[activeScope.basis] : null
+  const activeCount = activeReport ? scopeCount(activeReport.id, scope) : null
+  const preparedBy = officerName || t('Guest Officer')
+  const preparedRole = role ? t(role) : t('Unauthenticated')
 
   return (
     <div>
       <SectionHeader
         eyebrow={t('Governance · Report Generation Center')}
         title={t('Reports & Briefing Notes')}
-        description={t('Generate structured briefing notes and reports for the Commissioner, senior officers and audit/refund/investigation teams. Every report preview is a simulated draft assembled from current platform data for demonstration purposes and requires officer sign-off before formal circulation.')}
+        description={t('Generate structured briefing notes and reports for the Commissioner, senior officers and audit/refund/investigation teams. Every report preview is a simulated AI-assisted draft assembled from current platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing. Each report states its own scope: most narrow with the header filters, and the ones that do not say so on the card and again in the draft.')}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <KpiCard label={t('Report Types Available')} value={REPORT_TYPES.length} tone="navy" icon={FileStack} />
-        <KpiCard label={t('Reports Generated (This Month, illustrative)')} value={REPORTS_GENERATED_MTD} tone="green" icon={TrendingUp} />
-        <KpiCard label={t('Most-Requested Report (illustrative)')} value={mostRequested ? t(mostRequested.name) : mostRequested?.name} tone="saffron" icon={FileBarChart2} />
-        <KpiCard label={t('Pending Governance-Reviewed Reports')} value={AI_GOVERNANCE_METRICS.pendingGovernanceReview} tone="red" icon={ClipboardCheck} />
+        <KpiCard
+          label={t('Filter-Responsive Report Types')}
+          value={t('{0} of {1}', filterResponsive, REPORT_TYPES.length)}
+          unit={t('rest state their own scope')}
+          tone="green"
+          icon={Filter}
+        />
+        <KpiCard
+          label={t('Report Actions Logged This Session')}
+          value={sessionActivity.total}
+          unit={t('previews, export requests and copies')}
+          tone="saffron"
+          icon={FileBarChart2}
+        />
+        <KpiCard
+          label={t('Records in Current Scope')}
+          value={scope.kpi.totalTaxpayers}
+          unit={scope.narrowed ? t('taxpayers, filters applied') : t('taxpayers, whole modelled book')}
+          tone="navy"
+          icon={ClipboardCheck}
+        />
+      </div>
+
+      <div className="rounded-xl border border-steel-200 bg-steel-50/70 px-5 py-4 mb-5 flex items-start gap-3">
+        <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <p className="text-xs text-navy-800 leading-relaxed max-w-4xl">
+          {t('Nothing on this page is a departmental record. Every draft below is assembled from demonstration data and is unsigned until an authorised officer reviews and signs it. The session figures above are counted from the audit trail on the AI Governance & Security screen; no report-generation history is kept beyond this session, and this page does not claim one. Most-handled report this session: {0}.', sessionActivity.topReport ? t('{0} ({1} actions)', t(sessionActivity.topReport.name), sessionActivity.topCount) : t('none yet'))}
+        </p>
       </div>
 
       {visibleReports.length === 0 ? (
@@ -259,33 +385,51 @@ export default function ReportsBriefingNotes() {
         </div>
       ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visibleReports.map(report => (
-          <Card key={report.id} className="flex flex-col">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="p-1.5 rounded-lg bg-navy-50 border border-navy-100">
-                  <FileBarChart2 className="w-3.5 h-3.5 text-navy-700" />
-                </span>
-                <span className="text-sm font-bold text-navy-900">{t(report.name)}</span>
+        {visibleReports.map(report => {
+          const meta = REPORT_SCOPE[report.id]
+          const basis = meta ? SCOPE_BASIS[meta.basis] : null
+          const count = scopeCount(report.id, scope)
+          return (
+            <Card key={report.id} className="flex flex-col">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="p-1.5 rounded-lg bg-navy-50 border border-navy-100">
+                    <FileBarChart2 className="w-3.5 h-3.5 text-navy-700" />
+                  </span>
+                  <span className="text-sm font-bold text-navy-900">{t(report.name)}</span>
+                </div>
+                <p className="text-xs text-steel-500 leading-relaxed">{t(report.desc)}</p>
+                {basis && (
+                  <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                    <Pill tone={basis.tone}>{basis.label()}</Pill>
+                    {count === null
+                      ? <Pill tone="steel">{t('Not scoped by taxpayer')}</Pill>
+                      : count === 0
+                        ? <Pill tone="red">{t('0 {0} in scope', meta.unit())}</Pill>
+                        : <Pill tone="steel">{t('{0} {1} in scope', count, meta.unit())}</Pill>}
+                  </div>
+                )}
+                {meta && (
+                  <p className="text-[11px] text-steel-400 mt-2">{t('Drawn from: {0}', meta.sources())}</p>
+                )}
               </div>
-              <p className="text-xs text-steel-500 leading-relaxed">{t(report.desc)}</p>
-            </div>
-            <div className="flex items-center gap-2 mt-4 pt-3 border-t border-steel-100">
-              <button
-                onClick={() => openReport(report)}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-steel-200 hover:bg-steel-50 text-navy-700"
-              >
-                <Eye className="w-3.5 h-3.5" /> {t('Preview')}
-              </button>
-              <button
-                onClick={() => openReport(report)}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-ink-700 hover:bg-ink-800 text-white"
-              >
-                <Download className="w-3.5 h-3.5" /> {t('Generate')}
-              </button>
-            </div>
-          </Card>
-        ))}
+              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-steel-100">
+                <button
+                  onClick={() => openReport(report)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-steel-200 hover:bg-steel-50 text-navy-700"
+                >
+                  <Eye className="w-3.5 h-3.5" /> {t('Preview')}
+                </button>
+                <button
+                  onClick={() => openReport(report)}
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-ink-700 hover:bg-ink-800 text-white"
+                >
+                  <Download className="w-3.5 h-3.5" /> {t('Generate')}
+                </button>
+              </div>
+            </Card>
+          )
+        })}
       </div>
       )}
 
@@ -299,10 +443,37 @@ export default function ReportsBriefingNotes() {
         {activeReport && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-[11px]">
-              <Pill tone="navy">{t('Draft report preview')}</Pill>
+              <Pill tone="navy">{t('Draft — unsigned')}</Pill>
               <Pill tone="amber">{t('Simulated output for demonstration')}</Pill>
-              <span className="text-steel-400">{t('Generated on {0}', GENERATED_ON)}</span>
+              {activeBasis && <Pill tone={activeBasis.tone}>{activeBasis.label()}</Pill>}
             </div>
+
+            {/* The provenance an oversight reader needs on any draft: when it
+                was assembled, from what, over what scope, and by whom. */}
+            <div className="rounded-xl border border-steel-200 bg-white overflow-hidden">
+              <dl className="divide-y divide-steel-100 text-xs">
+                <ProvenanceRow label={t('Generated on')} value={GENERATED_ON} />
+                <ProvenanceRow label={t('Scope covered')} value={scope.label} />
+                <ProvenanceRow label={t('Drawn from')} value={activeScope ? activeScope.sources() : '—'} />
+                <ProvenanceRow
+                  label={t('Records in scope')}
+                  value={activeCount === null
+                    ? t('Not scoped by taxpayer — describes the AI layer itself')
+                    : t('{0} {1}', activeCount, activeScope.unit())}
+                />
+                <ProvenanceRow label={t('Prepared by (this session)')} value={t('{0} · {1}', preparedBy, preparedRole)} />
+                <ProvenanceRow label={t('Officer sign-off')} value={t('Not signed — required before circulation or filing')} />
+              </dl>
+            </div>
+
+            {activeCount === 0 && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-navy-800">
+                  {t('No records fall inside the current filters, so this draft has nothing to report on. Widen the header filters before circulating it — an empty brief reads as "nothing found" rather than "nothing selected".')}
+                </p>
+              </div>
+            )}
 
             <div className="rounded-xl border border-steel-200 bg-steel-50/60 p-4">
               <div className="text-xs font-semibold text-navy-800 uppercase tracking-wide mb-2">{t('Summary — English')}</div>
@@ -318,14 +489,15 @@ export default function ReportsBriefingNotes() {
 
             <div>
               <button
-                onClick={toggleMarathi}
+                onClick={toggleTranslation}
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border border-steel-200 hover:bg-steel-50 text-navy-700"
               >
-                <Languages className="w-3.5 h-3.5" /> {showMarathi ? 'Hide Marathi Summary' : 'Marathi Summary'}
+                <Languages className="w-3.5 h-3.5" />
+                {showTranslated ? t('Hide official-language summary') : t('Official-language summary')}
               </button>
             </div>
 
-            {showMarathi && translated && (
+            {showTranslated && translated && (
               <div className="rounded-xl border border-saffron-200 bg-saffron-50/60 overflow-hidden">
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-saffron-200 bg-saffron-50">
                   <Languages className="w-3.5 h-3.5 text-saffron-700" />
@@ -333,6 +505,9 @@ export default function ReportsBriefingNotes() {
                 </div>
                 <div className="px-4 py-3 text-sm text-navy-800 whitespace-pre-wrap">{translated.body}</div>
                 <div className="px-4 py-2.5 border-t border-saffron-200 text-[11px] text-saffron-900 bg-saffron-50/80">{t(translated.note)}</div>
+                <div className="px-4 py-2.5 border-t border-saffron-200 text-[11px] text-steel-600">
+                  {t('The body above is the draft as rendered in the language currently selected in the masthead. Any sentence with no entry in that language catalogue stays in English and is counted in the untranslated-string report on the AI Governance & Security screen.')}
+                </div>
               </div>
             )}
 
@@ -340,17 +515,29 @@ export default function ReportsBriefingNotes() {
               <ExportBar
                 moduleLabel="Reports & Briefing Notes"
                 caseId={activeReport.id}
-                getBriefingText={() => `${activeReport.name} — ${bullets.join(' ')}`}
+                getBriefingText={() => [
+                  t('{0} — {1}', t(activeReport.name), bullets.join(' ')),
+                  t('Prepared by (this session): {0} · {1}. Officer sign-off: not signed.', preparedBy, preparedRole)
+                ].join(' ')}
               />
             </div>
 
             <div className="flex items-start gap-1.5 text-[11px] text-steel-500 pt-1">
-              <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5 text-steel-400" />
-              <span>{t('This report preview is a simulated, AI-assisted draft generated from platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing.')}</span>
+              <UserCheck className="w-3.5 h-3.5 shrink-0 mt-0.5 text-steel-400" />
+              <span>{t('This report preview is a simulated, AI-assisted draft generated from platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing. Nothing in it has been actioned, and no figure in it may be treated as a finding.')}</span>
             </div>
           </div>
         )}
       </Modal>
+    </div>
+  )
+}
+
+function ProvenanceRow({ label, value }) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-3 px-4 py-2.5">
+      <dt className="text-[11px] uppercase font-semibold tracking-wide text-steel-500 sm:w-56 shrink-0">{label}</dt>
+      <dd className="text-navy-800">{value}</dd>
     </div>
   )
 }

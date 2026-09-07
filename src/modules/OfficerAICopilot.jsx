@@ -4,6 +4,7 @@ import { SectionHeader, Card } from '../components/ui/Card.jsx'
 import { TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
 import { TAXPAYERS } from '../data/mockData.js'
 import { TWIN_INDEX, SOURCE_SYSTEMS } from '../data/caseTwin.js'
@@ -12,6 +13,10 @@ import { ActionBrief } from '../components/shared/ActionBrief.jsx'
 import { t } from '../i18n/index.js'
 
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
+
+// The case list is capped for rendering. The cap is surfaced rather than
+// applied silently, so a missing case reads as truncation, not as absence.
+const LIST_LIMIT = 40
 
 /* Rebuilt as a retrieval surface over the Case Digital Twin.
  *
@@ -27,14 +32,36 @@ export default function OfficerAICopilot() {
   const [gstin, setGstin] = useState(null)
   const [asked, setAsked] = useState([])
 
-  const index = useMemo(() => {
+  /* Two separate narrowings, kept apart so each can be reported honestly: the
+   * global filter bar decides which cases exist for this officer, and the box
+   * above the list searches within them. */
+  const scoped = useMemo(() => {
     const allowed = new Set(TAXPAYERS.filter(x => applyGlobalFilters(x, filters)).map(x => x.gstin))
+    return TWIN_INDEX.filter(r => allowed.has(r.gstin))
+  }, [filters])
+
+  const matches = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return TWIN_INDEX
-      .filter(r => allowed.has(r.gstin))
-      .filter(r => !q || `${r.gstin} ${r.tradeName}`.toLowerCase().includes(q))
-      .slice(0, 40)
-  }, [filters, query])
+    return q ? scoped.filter(r => `${r.gstin} ${r.tradeName}`.toLowerCase().includes(q)) : scoped
+  }, [scoped, query])
+
+  // The list is capped, and says so: a search that silently drops the case an
+  // officer is looking for is worse than one that admits it was truncated.
+  const index = useMemo(() => matches.slice(0, LIST_LIMIT), [matches])
+
+  /* What this surface can answer at all, stated before a question is asked.
+   * The denominator is the point: a copilot that only declines on click looks
+   * broken, one that states its coverage up front is reporting a fact about
+   * the department's integrations. */
+  const coverage = useMemo(() => {
+    const systems = Object.values(SOURCE_SYSTEMS)
+    return {
+      grounded: QUESTIONS.filter(q => q.grounded).length,
+      questions: QUESTIONS.length,
+      liveFeeds: systems.filter(s => s.connected).length,
+      totalFeeds: systems.length
+    }
+  }, [])
 
   const active = gstin || index[0]?.gstin
   const activeRow = index.find(r => r.gstin === active) || null
@@ -56,6 +83,8 @@ export default function OfficerAICopilot() {
         actions={<ExportBar moduleLabel="Officer Copilot" />}
       />
 
+      <FilterScope shown={scoped.length} total={TWIN_INDEX.length} unit={t('case records')} />
+
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
         {/* Case selection */}
         <Card padded={false} className="h-fit">
@@ -70,6 +99,17 @@ export default function OfficerAICopilot() {
               />
             </div>
           </div>
+          {/* The list has always been ordered by the statutory clock. Saying so
+              — and showing the clock — is the difference between an ordering an
+              officer can rely on and one they cannot see. */}
+          <div className="px-3.5 py-2 border-b border-steel-100 bg-steel-50/60">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500">{t('Nearest statutory deadline first')}</div>
+            <div className="text-[10.5px] text-steel-500 mt-0.5">
+              {matches.length > LIST_LIMIT
+                ? t('Showing {0} of {1} matching cases — narrow the search to reach the rest.', index.length, matches.length)
+                : t('{0} matching cases', matches.length)}
+            </div>
+          </div>
           <div className="max-h-[420px] overflow-y-auto divide-y divide-steel-100">
             {index.map(r => (
               <button
@@ -79,8 +119,22 @@ export default function OfficerAICopilot() {
                   r.gstin === active ? 'bg-navy-50 border-l-2 border-ink-700' : 'hover:bg-steel-50 border-l-2 border-transparent'
                 }`}
               >
-                <div className="text-xs font-semibold text-navy-900 truncate">{r.tradeName}</div>
-                <div className="text-[10.5px] text-steel-500 truncate">{r.gstin}</div>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-navy-900 truncate">{r.tradeName}</div>
+                    <div className="text-[10.5px] text-steel-500 truncate">{r.gstin}</div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className={`text-[10.5px] font-bold tabular-nums ${
+                      r.daysRemaining == null ? 'text-steel-300' : r.daysRemaining < 0 ? 'text-steel-400' : r.daysRemaining <= 30 ? 'text-maharisk-critical' : 'text-navy-700'
+                    }`}>
+                      {r.daysRemaining == null
+                        ? t('no clock')
+                        : r.daysRemaining < 0 ? t('{0}d over', Math.abs(r.daysRemaining)) : t('{0}d', r.daysRemaining)}
+                    </div>
+                    <div className="text-[10px] text-steel-400 tabular-nums">{lakh(r.exposure)}</div>
+                  </div>
+                </div>
               </button>
             ))}
             {index.length === 0 && <div className="px-4 py-6 text-xs text-steel-500">{t('No cases match the current filters.')}</div>}
@@ -94,9 +148,19 @@ export default function OfficerAICopilot() {
                 <div className="text-base font-bold text-navy-900 truncate">{activeRow.tradeName}</div>
                 <div className="text-[11.5px] text-steel-500">{activeRow.gstin} · {t(activeRow.district)}</div>
               </div>
-              <div className="flex items-center gap-2 ml-auto">
+              {/* Exposure on its own is the figure before the decay curve and
+                  before limitation. Both correctives sit beside it. */}
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
                 <RiskBadge category={activeRow.riskCategory} score={activeRow.riskScore} size="sm" />
-                <Pill tone="steel">{lakh(activeRow.exposure)}</Pill>
+                <Pill tone="steel">{t('{0} exposure', lakh(activeRow.exposure))}</Pill>
+                {activeRow.recoverableNow != null
+                  ? <Pill tone="green">{t('{0} recoverable', lakh(activeRow.recoverableNow))}</Pill>
+                  : <Pill tone="steel">{t('No recovery record')}</Pill>}
+                {activeRow.daysRemaining == null
+                  ? <Pill tone="steel">{t('No limitation record')}</Pill>
+                  : activeRow.daysRemaining < 0
+                    ? <Pill tone="red">{t('{0} days past the deadline', Math.abs(activeRow.daysRemaining))}</Pill>
+                    : <Pill tone={activeRow.daysRemaining <= 30 ? 'amber' : 'navy'}>{t('{0} days remain', activeRow.daysRemaining)}</Pill>}
               </div>
             </div>
           )}
@@ -105,7 +169,10 @@ export default function OfficerAICopilot() {
               one place rather than scattered across seven screens. */}
           {active && <ActionBrief gstin={active} />}
 
-          <Card title={t('Ask about this case')} subtitle={t('Grounded questions return cited statements. The three marked below cannot be grounded on the feeds currently connected.')}>
+          <Card
+            title={t('Ask about this case')}
+            subtitle={t('{0} of {1} questions can be answered from the record as the platform is connected today; {2} of {3} source systems are live in this environment. The rest are declined, and the refusal names the feed that would answer them.', coverage.grounded, coverage.questions, coverage.liveFeeds, coverage.totalFeeds)}
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {QUESTIONS.map(q => (
                 <button
@@ -153,8 +220,18 @@ export default function OfficerAICopilot() {
 }
 
 function GroundedAnswer({ a }) {
+  // How much of this answer rests on a live feed, rather than on a record the
+  // platform derived for itself. An officer defending the answer needs that
+  // split before they quote it.
+  const cited = [...new Set(a.statements.map(s => s.cite.source))]
+  const live = cited.filter(s => SOURCE_SYSTEMS[s] && SOURCE_SYSTEMS[s].connected)
+
   return (
-    <Card title={a.question} subtitle={t('{0} statement(s), each cited to the record behind it', a.statements.length)} padded={false}>
+    <Card
+      title={t(a.question)}
+      subtitle={t('{0} statement(s) citing {1} system(s), of which {2} are live feeds in this environment — the rest are demonstration records.', a.statements.length, cited.length, live.length)}
+      padded={false}
+    >
       <div className="divide-y divide-steel-100">
         {a.statements.map((s, i) => (
           <div key={i} className="px-5 py-3.5">
@@ -195,14 +272,17 @@ function DeclinedAnswer({ a }) {
         <div className="text-sm font-bold text-navy-900 mt-1">{t(a.question)}</div>
       </div>
       <div className="bg-white px-5 py-4 space-y-3">
-        <p className="text-[13px] text-navy-800 leading-relaxed">{a.declined.reason}</p>
+        <p className="text-[13px] text-navy-800 leading-relaxed">{t(a.declined.reason)}</p>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3 py-2.5">
           <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1">{t('What would be required')}</div>
-          <p className="text-[12px] text-steel-700 leading-relaxed">{a.declined.wouldNeed}</p>
-          <div className="flex items-center gap-2 mt-2">
+          <p className="text-[12px] text-steel-700 leading-relaxed">{t(a.declined.wouldNeed)}</p>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
             <Pill tone="amber">{a.declined.connected ? t('Connected') : t('Not integrated')}</Pill>
-            <span className="text-[11px] text-steel-600">{a.declined.feedLabel} · {a.declined.feedOwner}</span>
+            <span className="text-[11px] text-steel-600">{t(a.declined.feedLabel)} · {t(a.declined.feedOwner)}</span>
           </div>
+          <p className="text-[11px] text-steel-500 leading-relaxed mt-2">
+            {t('This is the integration decision the question turns into: until that feed is connected, no answer here can be grounded, and the platform will keep declining rather than approximating one.')}
+          </p>
         </div>
       </div>
     </div>

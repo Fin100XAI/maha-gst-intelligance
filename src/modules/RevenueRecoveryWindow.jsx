@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
-  Timer, TrendingDown, Banknote, AlertOctagon, ArrowUpRight, ArrowRight, ShieldCheck
+  Timer, TrendingDown, Banknote, AlertOctagon, ArrowUpRight, ArrowRight, ShieldCheck, Split
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
@@ -22,10 +22,21 @@ const lakh = n => `₹${(n / 100000).toFixed(1)}L`
 const crore = n => `₹${(n / 10000000).toFixed(2)} Cr`
 
 const BAND_TONE = { '0-30': 'green', '31-90': 'green', '91-180': 'amber', '181-365': 'orange', '365+': 'red' }
+const BAND_BY_ID = Object.fromEntries(RECOVERY_BANDS.map(b => [b.id, b]))
+
+// The point on the curve past which credit can no longer be blocked, only
+// pursued. It is the line the whole page is organised around.
+const BLOCKABLE_WINDOW_DAYS = 90
 
 // The curve is sampled at these points; the bars show where exposure actually
 // sits, which is the whole argument of the page.
 const CURVE_SAMPLES = [0, 30, 60, 90, 120, 180, 270, 365, 540, 730]
+
+const median = values => {
+  if (!values.length) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  return sorted[Math.floor(sorted.length / 2)]
+}
 
 export default function RevenueRecoveryWindow() {
   const { filters, setDrilldownTaxpayer, drilldownTaxpayer } = useApp()
@@ -53,11 +64,66 @@ export default function RevenueRecoveryWindow() {
       decayNextWeekCr: Math.round((sum(c => c.decayNextWeek) / 10000000) * 100) / 100,
       medianLagDays: lags.length ? lags[Math.floor(lags.length / 2)] : 0,
       pastBlockablePct: exposure
-        ? Math.round((cases.filter(c => c.daysSinceSignal > 90).reduce((s, c) => s + c.exposure, 0) / exposure) * 100)
+        ? Math.round((cases.filter(c => c.daysSinceSignal > BLOCKABLE_WINDOW_DAYS).reduce((s, c) => s + c.exposure, 0) / exposure) * 100)
         : 0,
       fastestPossibleDetectionDays: RECOVERY_PORTFOLIO.fastestPossibleDetectionDays
     }
   }, [cases, isFiltered])
+
+  // Ratios, so each headline figure carries its own denominator rather than
+  // sitting next to one and hoping the reader divides.
+  const recoverableSharePct = portfolio.exposureCr
+    ? Math.round((portfolio.recoverableNowCr / portfolio.exposureCr) * 100)
+    : 0
+  const lostSharePct = portfolio.exposureCr
+    ? Math.round((portfolio.lostToLagCr / portfolio.exposureCr) * 100)
+    : 0
+  const weeklyBurnPct = portfolio.recoverableNowCr
+    ? Math.round((portfolio.decayNextWeekCr / portfolio.recoverableNowCr) * 1000) / 10
+    : 0
+
+  /* ---- Where the lag comes from ---------------------------------------
+   * The median lag is the number the page already states. It is not, on its
+   * own, a decision: part of it is a floor imposed by the return cycle and
+   * part of it is time the case spent waiting inside the department. Only the
+   * second is addressable this quarter, and separating them is what turns the
+   * root cause into two different pieces of work.
+   *
+   * The three exposure buckets below partition the portfolio exactly once —
+   * still inside the blockable window, pushed out of it by internal dwell, or
+   * never catchable inside it at all.
+   * -------------------------------------------------------------------- */
+  const lag = useMemo(() => {
+    if (!cases.length) return null
+    const totalExposure = cases.reduce((s, c) => s + c.exposure, 0)
+    const inWindow = cases.filter(c => c.daysSinceSignal <= BLOCKABLE_WINDOW_DAYS)
+    const dwellPushed = cases.filter(c =>
+      c.daysSinceSignal > BLOCKABLE_WINDOW_DAYS && c.detectionFloorDays <= BLOCKABLE_WINDOW_DAYS)
+    const structural = cases.filter(c =>
+      c.daysSinceSignal > BLOCKABLE_WINDOW_DAYS && c.detectionFloorDays > BLOCKABLE_WINDOW_DAYS)
+    const exp = arr => arr.reduce((s, c) => s + c.exposure, 0)
+    const share = n => totalExposure ? Math.round((n / totalExposure) * 100) : 0
+    // Medians do not add, so the internal share is taken across the whole
+    // population rather than by dividing one median by another — total days
+    // waited after detection, over total days elapsed since each signal fired.
+    const totalFloor = cases.reduce((s, c) => s + c.detectionFloorDays, 0)
+    const totalDwell = cases.reduce((s, c) => s + c.queueDwellDays, 0)
+    return {
+      medianFloor: median(cases.map(c => c.detectionFloorDays)),
+      medianDwell: median(cases.map(c => c.queueDwellDays)),
+      medianLag: median(cases.map(c => c.daysSinceSignal)),
+      dwellSharePct: totalFloor + totalDwell ? Math.round((totalDwell / (totalFloor + totalDwell)) * 100) : 0,
+      inWindowCount: inWindow.length,
+      inWindowExposure: exp(inWindow),
+      inWindowSharePct: share(exp(inWindow)),
+      dwellPushedCount: dwellPushed.length,
+      dwellPushedExposure: exp(dwellPushed),
+      dwellPushedSharePct: share(exp(dwellPushed)),
+      structuralCount: structural.length,
+      structuralExposure: exp(structural),
+      structuralSharePct: share(exp(structural))
+    }
+  }, [cases])
 
   const curveData = useMemo(() => CURVE_SAMPLES.map((day, i) => {
     const next = CURVE_SAMPLES[i + 1] ?? Infinity
@@ -113,8 +179,10 @@ export default function RevenueRecoveryWindow() {
       align: 'right',
       render: r => (
         <div className="text-right">
-          <div className="font-semibold tabular-nums text-navy-800">{r.daysSinceSignal}d</div>
-          <div className="text-[10.5px] text-steel-500">{Math.round(r.recoverability * 100)}% {t('recoverable')}</div>
+          <div className="font-semibold tabular-nums text-navy-800">{t('{0}d', r.daysSinceSignal)}</div>
+          <div className="text-[10.5px] text-steel-500">
+            {t('{0} detection floor + {1} in queue', r.detectionFloorDays, r.queueDwellDays)}
+          </div>
         </div>
       )
     },
@@ -126,11 +194,29 @@ export default function RevenueRecoveryWindow() {
       render: r => <RiskBadge category={r.riskCategory} score={r.riskScore} size="sm" />
     },
     {
+      // Recoverable value means nothing without the demand it is a share of.
+      key: 'exposure',
+      label: t('Exposure'),
+      align: 'right',
+      sortValue: r => r.exposure,
+      render: r => (
+        <div className="text-right">
+          <div className="tabular-nums text-steel-600">{lakh(r.exposure)}</div>
+          <div className="text-[10.5px] text-steel-500">{t(BAND_BY_ID[r.bandId]?.stance || '—')}</div>
+        </div>
+      )
+    },
+    {
       key: 'recoverableNow',
       label: t('Recoverable Now'),
       align: 'right',
       sortValue: r => r.recoverableNow,
-      render: r => <span className="font-semibold tabular-nums text-navy-800">{lakh(r.recoverableNow)}</span>
+      render: r => (
+        <div className="text-right">
+          <div className="font-semibold tabular-nums text-navy-800">{lakh(r.recoverableNow)}</div>
+          <div className="text-[10.5px] text-steel-500">{t('{0}% of exposure', Math.round(r.recoverability * 100))}</div>
+        </div>
+      )
     },
     {
       key: 'decayNextWeek',
@@ -143,13 +229,31 @@ export default function RevenueRecoveryWindow() {
 
   const yieldDelta = OFFICER_YIELD.byDecayAdjusted.recoveredCr - OFFICER_YIELD.byRiskScore.recoveredCr
 
+  const briefingText = () => [
+    t('REVENUE AT RISK & RECOVERY — DECAY POSITION'),
+    t('Scope: {0} · {1} · {2} · {3} of {4} flagged cases.',
+      t(filters.district), t(filters.division), t(filters.sector), cases.length, RECOVERY_CASES.length),
+    t('Flagged exposure ₹{0} Cr. Still recoverable ₹{1} Cr ({2}%). Already decayed ₹{3} Cr ({4}%).',
+      portfolio.exposureCr, portfolio.recoverableNowCr, recoverableSharePct, portfolio.lostToLagCr, lostSharePct),
+    t('Another week of inaction costs ₹{0} Cr — {1}% of what is still recoverable.', portfolio.decayNextWeekCr, weeklyBurnPct),
+    lag
+      ? t('Median signal age {0} days. Median detection floor {1} days; median wait in the queue after detection {2} days. Across the whole set in view, {3}% of elapsed signal age is internal dwell.',
+        lag.medianLag, lag.medianFloor, lag.medianDwell, lag.dwellSharePct)
+      : t('No cases in view.'),
+    lag
+      ? t('Of the exposure in view, {0} is still inside the {1}-day blockable window, {2} was detectable inside it but has aged past it in the queue, and {3} could never have been caught inside it by the current rule set.',
+        crore(lag.inWindowExposure), BLOCKABLE_WINDOW_DAYS, crore(lag.dwellPushedExposure), crore(lag.structuralExposure))
+      : '',
+    t('The recovery curve is an illustrative model calibrated to stated reasoning, not a measurement of departmental realisation.')
+  ].filter(Boolean).join('\n')
+
   return (
     <div>
       <SectionHeader
         eyebrow={t('Leadership · Root Cause')}
         title={t('Revenue Recovery Window')}
         description={t('Every flagged rupee has a recovery half-life. This page measures the platform against the one variable that decides how much of it survives — the time between a signal firing and an officer acting on it.')}
-        actions={<ExportBar moduleLabel="Revenue Recovery Window" />}
+        actions={<ExportBar moduleLabel="Revenue Recovery Window" getBriefingText={briefingText} />}
       />
 
       {/* The thesis, stated once, in the department's own numbers. */}
@@ -159,8 +263,8 @@ export default function RevenueRecoveryWindow() {
           {t('Detection is not the constraint. Time-to-action is.')}
         </h2>
         <p className="text-sm text-steel-600 mt-2 max-w-4xl leading-relaxed">
-          {t('The department already produces the signals. By the time a case is worked, the credit has moved downstream, been utilised, and the entity has often stopped trading. Of ₹{0} Cr currently flagged, ₹{1} Cr is still realistically recoverable — the remaining ₹{2} Cr has decayed while the case waited.',
-            portfolio.exposureCr, portfolio.recoverableNowCr, portfolio.lostToLagCr)}
+          {t('The department already produces the signals. By the time a case is worked, the credit has moved downstream, been utilised, and the entity has often stopped trading. Of ₹{0} Cr currently flagged across {1} cases, ₹{2} Cr is still realistically recoverable — the remaining ₹{3} Cr has decayed while the case waited.',
+            portfolio.exposureCr, portfolio.caseCount, portfolio.recoverableNowCr, portfolio.lostToLagCr)}
         </p>
         <div className="flex flex-wrap items-center gap-2 mt-3.5">
           <Pill tone="red">{t('Median signal age: {0} days', portfolio.medianLagDays)}</Pill>
@@ -169,11 +273,41 @@ export default function RevenueRecoveryWindow() {
         </div>
       </div>
 
+      {cases.length === 0 && (
+        <div className="mb-6 rounded-xl border border-steel-200 bg-steel-50 px-4 py-3.5 text-[12.5px] text-steel-600 leading-relaxed">
+          {t('No flagged case matches the current header filters. Every figure below reads zero for that reason, not because the exposure has been cleared — widen the filters to see the portfolio.')}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard label={t('Flagged Exposure')} value={portfolio.exposureCr.toLocaleString('en-IN')} unit={t('₹ Cr')} icon={AlertOctagon} tone="steel" />
-        <KpiCard label={t('Recoverable Today')} value={portfolio.recoverableNowCr.toLocaleString('en-IN')} unit={t('₹ Cr')} icon={Banknote} tone="green" />
-        <KpiCard label={t('Already Lost To Lag')} value={portfolio.lostToLagCr.toLocaleString('en-IN')} unit={t('₹ Cr')} icon={TrendingDown} tone="red" />
-        <KpiCard label={t('Cost Of One More Week')} value={portfolio.decayNextWeekCr.toFixed(2)} unit={t('₹ Cr')} icon={Timer} tone="orange" />
+        <KpiCard
+          label={t('Flagged Exposure')}
+          value={portfolio.exposureCr.toLocaleString('en-IN')}
+          unit={t('₹ Cr across {0} cases', portfolio.caseCount)}
+          icon={AlertOctagon}
+          tone="steel"
+        />
+        <KpiCard
+          label={t('Recoverable Today')}
+          value={portfolio.recoverableNowCr.toLocaleString('en-IN')}
+          unit={t('₹ Cr · {0}% of flagged exposure', recoverableSharePct)}
+          icon={Banknote}
+          tone="green"
+        />
+        <KpiCard
+          label={t('Already Lost To Lag')}
+          value={portfolio.lostToLagCr.toLocaleString('en-IN')}
+          unit={t('₹ Cr · {0}% of flagged exposure', lostSharePct)}
+          icon={TrendingDown}
+          tone="red"
+        />
+        <KpiCard
+          label={t('Cost Of One More Week')}
+          value={portfolio.decayNextWeekCr.toFixed(2)}
+          unit={t('₹ Cr · {0}% of what is still recoverable', weeklyBurnPct)}
+          icon={Timer}
+          tone="orange"
+        />
       </div>
 
       <Card
@@ -189,7 +323,53 @@ export default function RevenueRecoveryWindow() {
               portfolio.fastestPossibleDetectionDays)}
           </div>
         )}
+        <p className="mt-3 text-[11px] text-steel-500 leading-relaxed">{t(RECOVERY_MODEL_NOTE)}</p>
       </Card>
+
+      {/* ---- The lag, split into the part that can be fixed and the part that cannot ---- */}
+      {lag && (
+        <Card
+          className="mb-6"
+          title={t('Where The Lag Comes From')}
+          subtitle={t('A median lag of {0} days is not one problem. It is a detection floor imposed by the return cycle plus time the case spent waiting after it became visible — and only the second is inside the department’s control this quarter.',
+            lag.medianLag)}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <MiniFigure label={t('Median detection floor')} value={t('{0} days', lag.medianFloor)} tone="steel" />
+            <MiniFigure label={t('Median wait in the queue')} value={t('{0} days', lag.medianDwell)} tone="red" />
+            <MiniFigure
+              label={t('Internal dwell as a share of elapsed signal age')}
+              value={t('{0}%', lag.dwellSharePct)}
+              tone="orange"
+              note={t('summed across every case in view, not a ratio of the two medians')}
+            />
+          </div>
+
+          <div className="space-y-2.5">
+            <LagBucket
+              tone="green"
+              title={t('Still inside the {0}-day blockable window', BLOCKABLE_WINDOW_DAYS)}
+              figure={crore(lag.inWindowExposure)}
+              meta={t('{0} cases · {1}% of exposure in view', lag.inWindowCount, lag.inWindowSharePct)}
+              body={t('Credit passed downstream has typically not been fully utilised. Acting here blocks rather than pursues, which is the cheapest form of recovery the department has.')}
+            />
+            <LagBucket
+              tone="red"
+              title={t('Detectable in time, aged out in the queue')}
+              figure={crore(lag.dwellPushedExposure)}
+              meta={t('{0} cases · {1}% of exposure in view', lag.dwellPushedCount, lag.dwellPushedSharePct)}
+              body={t('The signal on each of these could fire inside the blockable window, and the case is now past it. Nothing structural caused that — the whole of the delay is dwell after detection, which is the part a change of queue ordering reaches.')}
+            />
+            <LagBucket
+              tone="steel"
+              title={t('Never catchable inside the window')}
+              figure={crore(lag.structuralExposure)}
+              meta={t('{0} cases · {1}% of exposure in view', lag.structuralCount, lag.structuralSharePct)}
+              body={t('The slowest rule triggering these cases cannot fire until after the window has closed, however fast the queue moves. Reaching this exposure needs a faster feed — e-way bill and e-invoice flow, which arrive before the return does — not more officer-days.')}
+            />
+          </div>
+        </Card>
+      )}
 
       <Card
         className="mb-6"
@@ -210,7 +390,7 @@ export default function RevenueRecoveryWindow() {
                 </div>
               </div>
               <p className="flex-1 text-[12px] text-steel-600 leading-relaxed">{t(b.reason)}</p>
-              <div className="lg:w-56 shrink-0 grid grid-cols-2 gap-2 text-right">
+              <div className="lg:w-72 shrink-0 grid grid-cols-3 gap-2 text-right">
                 <div>
                   <div className="text-[10px] uppercase tracking-wider text-steel-400 font-semibold">{t('Exposure')}</div>
                   <div className="text-sm font-bold tabular-nums text-navy-800">{crore(b.exposure)}</div>
@@ -218,6 +398,10 @@ export default function RevenueRecoveryWindow() {
                 <div>
                   <div className="text-[10px] uppercase tracking-wider text-steel-400 font-semibold">{t('Recoverable')}</div>
                   <div className="text-sm font-bold tabular-nums text-maharisk-low">{crore(b.recoverable)}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-steel-400 font-semibold">{t('Written down')}</div>
+                  <div className="text-sm font-bold tabular-nums text-maharisk-critical">{crore(b.lost)}</div>
                 </div>
               </div>
             </div>
@@ -229,25 +413,29 @@ export default function RevenueRecoveryWindow() {
       <Card
         className="mb-6"
         title={t('Ordering — what the same week buys')}
-        subtitle={t('A like-for-like comparison of two orderings over one week of work — the only variable changed is the order cases are worked in. Establishment and eligibility are modelled properly in Officer Capacity & Deployment; this screen isolates the effect of ordering alone and should not be read as a capacity plan.')}
+        subtitle={t('A like-for-like comparison of two orderings over one week of work — the only variable changed is the order cases are worked in. Computed on the full statewide case set: this comparison is not narrowed by the header filters. Establishment and eligibility are modelled properly in Officer Capacity & Deployment; this screen isolates the effect of ordering alone and should not be read as a capacity plan.')}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <YieldPanel
             title={t('Ranked by risk score')}
             subtitle={t('What the platform did before')}
-            data={t(OFFICER_YIELD.byRiskScore)}
+            data={OFFICER_YIELD.byRiskScore}
             tone="steel"
           />
           <YieldPanel
             title={t('Ranked by value at risk this week')}
             subtitle={t('Decay-adjusted ordering')}
-            data={t(OFFICER_YIELD.byDecayAdjusted)}
+            data={OFFICER_YIELD.byDecayAdjusted}
             tone="green"
             highlight
           />
         </div>
         <p className="mt-4 text-[12px] text-steel-600 leading-relaxed">
           {t('Same headcount, same hours, ₹{0} Cr difference in what is recovered — because a score-ordered queue keeps sending officers to high-score cases whose value has already gone flat, while steeply-decaying ones age past the window. Risk score answers "how wrong is this?". It does not answer "what is still left to save?".', yieldDelta)}
+        </p>
+        <p className="mt-2 text-[11px] text-steel-500 leading-relaxed">
+          {t('Both columns are measured on the same week of {0} cases — {1} field officers at {2} officer-days per case, taken from the capacity engine rather than restated here.',
+            OFFICER_YIELD.weeklyCaseCapacity, OFFICER_YIELD.fieldOfficerCount, OFFICER_YIELD.officerDaysPerCase)}
         </p>
         <HumanReviewBadge label={t('Queue ordering is advisory — case allocation remains an officer decision')} />
       </Card>
@@ -313,18 +501,31 @@ export default function RevenueRecoveryWindow() {
           searchPlaceholder={t('Search the recovery queue...')}
           onRowClick={r => setDrilldownTaxpayer(taxpayerById(r.id))}
         />
+        <p className="mt-2.5 text-[11px] text-steel-500 leading-relaxed">
+          {t('Signal age is shown split into its two parts: the detection floor of the slowest rule that fired, and the days the case has since waited in the queue. The second column is the one an ordering change moves.')}
+        </p>
       </Card>
 
       {/* ---- Why the curve falls: the chain keeps moving while the case waits ---- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <Card
           title={t('Why The Curve Falls — Chain Propagation')}
-          subtitle={t('Exposure is never one taxpayer. Credit moves downstream and is utilised hop by hop; once utilised it can no longer be blocked, only recovered.')}
+          subtitle={t('Exposure is never one taxpayer. Credit moves downstream and is utilised hop by hop; once utilised it can no longer be blocked, only recovered. Statewide across all clusters — this panel is not narrowed by the header filters.')}
         >
           <div className="grid grid-cols-3 gap-3 mb-4">
-            <MiniFigure label={t('Total chain flow')} value={`₹${CHAIN_SUMMARY.totalFlowCr} Cr`} tone="navy" />
-            <MiniFigure label={t('Already utilised')} value={`₹${CHAIN_SUMMARY.utilisedCr} Cr`} tone="red" />
-            <MiniFigure label={t('Still blockable')} value={`₹${CHAIN_SUMMARY.blockableCr} Cr`} tone="green" />
+            <MiniFigure label={t('Total chain flow')} value={t('₹{0} Cr', CHAIN_SUMMARY.totalFlowCr)} tone="navy" />
+            <MiniFigure
+              label={t('Already utilised')}
+              value={t('₹{0} Cr', CHAIN_SUMMARY.utilisedCr)}
+              tone="red"
+              note={CHAIN_SUMMARY.totalFlowCr ? t('{0}% of flow', Math.round((CHAIN_SUMMARY.utilisedCr / CHAIN_SUMMARY.totalFlowCr) * 100)) : null}
+            />
+            <MiniFigure
+              label={t('Still blockable')}
+              value={t('₹{0} Cr', CHAIN_SUMMARY.blockableCr)}
+              tone="green"
+              note={CHAIN_SUMMARY.totalFlowCr ? t('{0}% of flow', Math.round((CHAIN_SUMMARY.blockableCr / CHAIN_SUMMARY.totalFlowCr) * 100)) : null}
+            />
           </div>
           <div className="space-y-2.5">
             {CHAIN_EXPOSURE.map(c => (
@@ -340,8 +541,8 @@ export default function RevenueRecoveryWindow() {
                   <div className="h-full bg-maharisk-low" style={{ width: `${c.blockablePct}%` }} />
                 </div>
                 <div className="flex justify-between mt-1 text-[10.5px] text-steel-500 tabular-nums">
-                  <span>{t('utilised')} {100 - c.blockablePct}%</span>
-                  <span>{t('blockable')} {c.blockablePct}%</span>
+                  <span>{t('utilised')} {100 - c.blockablePct}% · {crore(c.utilisedRupees)}</span>
+                  <span>{t('blockable')} {c.blockablePct}% · {crore(c.blockableRupees)}</span>
                 </div>
               </div>
             ))}
@@ -350,12 +551,22 @@ export default function RevenueRecoveryWindow() {
 
         <Card
           title={t('The Left Edge — Registration Screening')}
-          subtitle={t('The cheapest point on the curve. These indicators are checkable on the day of application rather than reconstructed from invoice flow a year later.')}
+          subtitle={t('The cheapest point on the curve. These indicators are checkable on the day of application rather than reconstructed from invoice flow a year later. Statewide across all new registrations — this panel is not narrowed by the header filters.')}
         >
           <div className="grid grid-cols-3 gap-3 mb-4">
             <MiniFigure label={t('New registrations')} value={REGISTRATION_SUMMARY.newRegistrations} tone="navy" />
-            <MiniFigure label={t('2+ indicators')} value={REGISTRATION_SUMMARY.withTwoOrMore} tone="orange" />
-            <MiniFigure label={t('Exposure at stake')} value={`₹${REGISTRATION_SUMMARY.exposureAtStakeCr} Cr`} tone="red" />
+            <MiniFigure
+              label={t('2+ indicators')}
+              value={REGISTRATION_SUMMARY.withTwoOrMore}
+              tone="orange"
+              note={t('{0} raise any indicator', REGISTRATION_SUMMARY.withAnyIndicator)}
+            />
+            <MiniFigure
+              label={t('Exposure at stake')}
+              value={t('₹{0} Cr', REGISTRATION_SUMMARY.exposureAtStakeCr)}
+              tone="red"
+              note={t('on the 2+ indicator cohort')}
+            />
           </div>
           <div className="space-y-1.5 mb-4">
             {REGISTRATION_INDICATORS.map(ind => (
@@ -377,7 +588,9 @@ export default function RevenueRecoveryWindow() {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-semibold text-navy-800 truncate">{r.tradeName}</div>
-                    <div className="text-[10.5px] text-steel-500">{t('Registered')} {r.registrationDate}</div>
+                    <div className="text-[10.5px] text-steel-500">
+                      {t('Registered')} {r.registrationDate} · {lakh(r.exposure)} {t('exposed')}
+                    </div>
                   </div>
                   <Pill tone="red">{t('{0} indicators', r.flagCount)}</Pill>
                 </button>
@@ -424,6 +637,32 @@ export default function RevenueRecoveryWindow() {
   )
 }
 
+function LagBucket({ tone, title, figure, meta, body }) {
+  const styles = {
+    green: 'border-emerald-200 bg-emerald-50',
+    red: 'border-red-200 bg-red-50',
+    steel: 'border-steel-200 bg-steel-50'
+  }[tone] || 'border-steel-200 bg-steel-50'
+  const figureColor = {
+    green: 'text-maharisk-low', red: 'text-maharisk-critical', steel: 'text-steel-700'
+  }[tone] || 'text-navy-800'
+  return (
+    <div className={`rounded-lg border px-3.5 py-3 ${styles}`}>
+      <div className="flex flex-col sm:flex-row sm:items-start gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <Split className="w-3.5 h-3.5 text-steel-400 shrink-0" />
+            <h4 className="text-[12.5px] font-bold text-navy-900">{title}</h4>
+          </div>
+          <div className="text-[11px] text-steel-500 mt-0.5 tabular-nums">{meta}</div>
+          <p className="text-[12px] text-steel-600 mt-1.5 leading-relaxed">{body}</p>
+        </div>
+        <div className={`text-lg font-bold tabular-nums shrink-0 ${figureColor}`}>{figure}</div>
+      </div>
+    </div>
+  )
+}
+
 function YieldPanel({ title, subtitle, data, tone, highlight = false }) {
   return (
     <div className={`rounded-xl border p-4 ${highlight ? 'border-emerald-300 bg-emerald-50' : 'border-steel-200 bg-steel-50'}`}>
@@ -433,16 +672,16 @@ function YieldPanel({ title, subtitle, data, tone, highlight = false }) {
       </div>
       <div className="text-[11px] text-steel-500 mb-3">{subtitle}</div>
       <div className="grid grid-cols-2 gap-3">
-        <MiniFigure label={t('Recovered')} value={`₹${data.recoveredCr} Cr`} tone={tone} />
-        <MiniFigure label={t('Per officer-day')} value={`₹${data.perOfficerDayLakh}L`} tone={tone} />
-        <MiniFigure label={t('Loss avoided')} value={`₹${data.lossAvoidedLakh}L`} tone="green" />
-        <MiniFigure label={t('Forfeited to lag')} value={`₹${data.forfeitedLakh}L`} tone="red" />
+        <MiniFigure label={t('Recovered')} value={t('₹{0} Cr', data.recoveredCr)} tone={tone} />
+        <MiniFigure label={t('Per officer-day')} value={t('₹{0}L', data.perOfficerDayLakh)} tone={tone} />
+        <MiniFigure label={t('Loss avoided')} value={t('₹{0}L', data.lossAvoidedLakh)} tone="green" />
+        <MiniFigure label={t('Forfeited to lag')} value={t('₹{0}L', data.forfeitedLakh)} tone="red" />
       </div>
     </div>
   )
 }
 
-function MiniFigure({ label, value, tone = 'navy' }) {
+function MiniFigure({ label, value, tone = 'navy', note }) {
   const color = {
     navy: 'text-navy-800', green: 'text-maharisk-low', red: 'text-maharisk-critical',
     orange: 'text-maharisk-high', steel: 'text-steel-700'
@@ -451,6 +690,7 @@ function MiniFigure({ label, value, tone = 'navy' }) {
     <div>
       <div className="text-[10px] font-semibold uppercase tracking-wider text-steel-400">{label}</div>
       <div className={`text-base font-bold tabular-nums ${color}`}>{value}</div>
+      {note && <div className="text-[10.5px] text-steel-500 mt-0.5">{note}</div>}
     </div>
   )
 }

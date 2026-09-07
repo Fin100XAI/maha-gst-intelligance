@@ -9,11 +9,15 @@ import { WhyFlaggedPanel } from '../components/ui/WhyFlagged.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
 import { StatutoryFlag, StatutoryReviewBanner, StatutoryVerdict } from '../components/ui/StatutoryFlag.jsx'
-import { AUDIT_CASES, AUDIT_STAGES, taxpayerById, isWithinDateRange, REFERENCE_DATE } from '../data/mockData.js'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
+import { AUDIT_CASES, AUDIT_STAGES, taxpayerById, REFERENCE_DATE } from '../data/mockData.js'
 import { generateAuditChecklist, compareSimilarCases, summarizeTaxpayer, draftNotice } from '../data/ai.js'
+import { statutoryPositionFor } from '../data/caseTwin.js'
+import { RECOVERY_CASES } from '../data/recovery.js'
+import { PRIORITY_QUEUE } from '../data/priority.js'
 import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
-import { Briefcase, IndianRupee, ShieldAlert, Clock, ChevronLeft, ChevronRight, User2, FolderOpen, Sparkles, FileText, CheckCircle2, UserCheck, Globe } from 'lucide-react'
+import { Briefcase, Clock, Hourglass, ChevronLeft, ChevronRight, User2, FolderOpen, Sparkles, FileText, CheckCircle2, UserCheck, Globe, Coins } from 'lucide-react'
 
 
 // Delegates to the shared case filter so this module cannot drift out of
@@ -23,6 +27,14 @@ const matchesGlobalFilters = (rec, filters) => applyCaseFilters(rec, filters, 'o
 function caseAgeDays(openedOn) {
   return Math.max(0, Math.round((REFERENCE_DATE - new Date(openedOn)) / (1000 * 60 * 60 * 24)))
 }
+
+/* A display threshold, not a measurement: the point at which an open case with
+ * no recorded action is worth asking about. Stated on screen rather than
+ * embedded so it can be argued with. */
+const IDLE_THRESHOLD_DAYS = 14
+
+const lakh = n => `₹${(n / 100000).toFixed(1)} L`
+const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
 
 export default function AuditScrutinyEngine() {
   const { filters, role, officerName, logAction } = useApp()
@@ -40,19 +52,80 @@ export default function AuditScrutinyEngine() {
   const [showAllCases, setShowAllCases] = useState(false)
   const scopedToMe = isFieldOfficer && !showAllCases
 
-  const filteredCases = useMemo(() => {
-    const base = scopedToMe ? cases.filter(c => c.assignedOfficer === officerName) : cases
-    return base.filter(c => matchesGlobalFilters(c, filters))
-  }, [cases, filters, scopedToMe, officerName])
+  // The base the filter bar narrows — the officer's own caseload when scoped,
+  // the statewide list otherwise. Quoting the wrong denominator here is how a
+  // screen tells an officer they are seeing every case in the state.
+  const baseCases = useMemo(
+    () => (scopedToMe ? cases.filter(c => c.assignedOfficer === officerName) : cases),
+    [cases, scopedToMe, officerName]
+  )
+
+  const filteredCases = useMemo(
+    () => baseCases.filter(c => matchesGlobalFilters(c, filters)),
+    [baseCases, filters]
+  )
+
+  /* Two figures every audit queue needs and this one did not carry: how much of
+   * the exposure is still collectable, and how long the department has left to
+   * raise it. Both are read from the engines that own them — the recovery decay
+   * curve and the limitation register — rather than estimated here. */
+  const recovery = useMemo(() => new Map(RECOVERY_CASES.map(r => [r.gstin, r])), [])
+  const priority = useMemo(() => new Map(PRIORITY_QUEUE.map(p => [p.gstin, p])), [])
 
   const kpis = useMemo(() => {
-    const activeCases = filteredCases.filter(c => c.stage !== 'Closed')
-    const totalExposureCr = filteredCases.reduce((s, c) => s + c.estimatedExposure, 0) / 10000000
-    const criticalCount = filteredCases.filter(c => c.riskCategory === 'Critical').length
-    const avgAge = filteredCases.length
-      ? Math.round(filteredCases.reduce((s, c) => s + caseAgeDays(c.openedOn), 0) / filteredCases.length)
-      : 0
-    return { activeCount: activeCases.length, totalExposureCr, criticalCount, avgAge }
+    const openCases = filteredCases.filter(c => c.stage !== 'Closed')
+    const exposure = filteredCases.reduce((s, c) => s + c.estimatedExposure, 0)
+
+    let recoverable = 0
+    let recoveryMatched = 0
+    filteredCases.forEach(c => {
+      const r = recovery.get(c.gstin)
+      if (!r) return
+      recoveryMatched += 1
+      recoverable += r.recoverableNow
+    })
+
+    // Time-barred open cases are reported by the banner above the queue, which
+    // names them; this counts the ones still savable.
+    let criticalCount = 0
+    let criticalExposure = 0
+    openCases.forEach(c => {
+      const pos = statutoryPositionFor(c.gstin)
+      if (pos && pos.critical) { criticalCount += 1; criticalExposure += pos.exposure }
+    })
+
+    const idle = openCases.map(c => caseAgeDays(c.lastActionOn)).sort((a, b) => a - b)
+    return {
+      openCount: openCases.length,
+      closedCount: filteredCases.length - openCases.length,
+      totalCount: filteredCases.length,
+      exposure,
+      recoverable,
+      recoveryMatched,
+      recoverablePct: exposure > 0 ? Math.round((recoverable / exposure) * 100) : 0,
+      criticalCount,
+      criticalExposure,
+      stalledCount: idle.filter(d => d >= IDLE_THRESHOLD_DAYS).length,
+      medianIdle: idle.length ? idle[Math.floor(idle.length / 2)] : 0
+    }
+  }, [filteredCases, recovery])
+
+  /* The pipeline board answers "where is the work" only if each column also
+   * says what is in it and what the clock is doing to it. */
+  const stageStats = useMemo(() => {
+    const out = {}
+    AUDIT_STAGES.forEach(s => { out[s] = { count: 0, exposure: 0, barred: 0, critical: 0 } })
+    filteredCases.forEach(c => {
+      const bucket = out[c.stage]
+      if (!bucket) return
+      bucket.count += 1
+      bucket.exposure += c.estimatedExposure
+      const pos = statutoryPositionFor(c.gstin)
+      if (!pos) return
+      if (pos.barred) bucket.barred += 1
+      else if (pos.critical) bucket.critical += 1
+    })
+    return out
   }, [filteredCases])
 
   const rankedCases = useMemo(
@@ -121,22 +194,72 @@ export default function AuditScrutinyEngine() {
       )
     },
     { key: 'district', label: t('District'), render: r => t(r.district) },
-    { key: 'sector', label: t('Sector'), render: r => t(r.sector) },
     {
       key: 'riskScore',
       label: t('Risk'),
       sortValue: r => r.riskScore,
       render: r => <RiskBadge category={r.riskCategory} score={r.riskScore} />
     },
-    { key: 'estimatedExposure', label: t('Estimated Exposure'), align: 'right', render: r => `₹${(r.estimatedExposure / 100000).toFixed(1)} L` },
+    {
+      // Exposure alone decides nothing: it is the figure before the decay curve
+      // and before limitation. The recoverable figure underneath is what an
+      // officer-day spent on this case can still bring in.
+      key: 'estimatedExposure',
+      label: t('Exposure / recoverable'),
+      align: 'right',
+      sortValue: r => r.estimatedExposure,
+      render: r => {
+        const rec = recovery.get(r.gstin)
+        return (
+          <div className="text-right">
+            <div className="tabular-nums text-navy-800 font-medium">{lakh(r.estimatedExposure)}</div>
+            {rec
+              ? <div className="text-[10px] tabular-nums text-emerald-700">{t('{0} recoverable', lakh(rec.recoverableNow))}</div>
+              : <div className="text-[10px] text-steel-400">{t('no recovery record')}</div>}
+          </div>
+        )
+      }
+    },
+    {
+      // The clock, on the row. Without it this queue shows a time-barred case as
+      // live work with a next stage to advance to.
+      key: 'deadline',
+      label: t('Statutory clock'),
+      align: 'right',
+      sortValue: r => {
+        const pos = statutoryPositionFor(r.gstin)
+        return pos ? pos.daysRemaining : 99999
+      },
+      render: r => {
+        const pos = statutoryPositionFor(r.gstin)
+        if (!pos) return <span className="text-[11px] text-steel-400">{t('No limitation record')}</span>
+        return (
+          <div className="text-right" title={t(pos.verdict)}>
+            <div className={`text-[12px] font-semibold tabular-nums ${pos.barred ? 'text-steel-400' : pos.critical ? 'text-maharisk-critical' : 'text-navy-800'}`}>
+              {pos.barred ? t('{0}d overdue', pos.daysOverdue) : t('{0}d left', pos.daysRemaining)}
+            </div>
+            <div className="text-[10px] text-steel-400 tabular-nums">{pos.sectionLabel} · {pos.bindingDate}</div>
+          </div>
+        )
+      }
+    },
+    {
+      key: 'lastActionOn',
+      label: t('Days idle'),
+      align: 'right',
+      sortValue: r => caseAgeDays(r.lastActionOn),
+      render: r => {
+        const idle = caseAgeDays(r.lastActionOn)
+        return (
+          <div className="text-right">
+            <div className={`text-[12px] font-semibold tabular-nums ${idle >= IDLE_THRESHOLD_DAYS && r.stage !== 'Closed' ? 'text-amber-700' : 'text-steel-600'}`}>{idle}</div>
+            <div className="text-[10px] text-steel-400 tabular-nums">{t('open {0}d', caseAgeDays(r.openedOn))}</div>
+          </div>
+        )
+      }
+    },
     { key: 'stage', label: t('Stage'), render: r => <Pill tone="navy">{t(r.stage)}</Pill> },
     { key: 'assignedOfficer', label: t('Assigned Officer') },
-    {
-      key: 'suggestedScope',
-      label: t('Suggested Scope'),
-      sortable: false,
-      render: r => <span className="block max-w-[220px] truncate" title={t(r.suggestedScope)}>{t(r.suggestedScope)}</span>
-    },
     {
       key: 'action',
       label: t('Action'),
@@ -179,7 +302,7 @@ export default function AuditScrutinyEngine() {
                 officer they were looking at every case in the state while the
                 header filters were silently narrowing the list. */}
             {scopedToMe
-              ? <>{t('Showing cases assigned to you —')} <strong>{officerName}</strong> ({t('{0} of your {1} cases match the current filters', filteredCases.length, cases.filter(c => c.assignedOfficer === officerName).length)})</>
+              ? <>{t('Showing cases assigned to you —')} <strong>{officerName}</strong> ({t('{0} of your {1} cases match the current filters', filteredCases.length, baseCases.length)})</>
               : <>{t('Your role can access every case — showing {0} of {1} that match the current filters', filteredCases.length, cases.length)}</>}
           </span>
           <button
@@ -192,13 +315,50 @@ export default function AuditScrutinyEngine() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <KpiCard label={t('Active Cases')} value={kpis.activeCount} unit={t('in pipeline')} tone="navy" icon={Briefcase} />
-        <KpiCard label={t('Total Estimated Exposure')} value={kpis.totalExposureCr.toFixed(2)} unit={t('₹ Cr')} tone="red" icon={IndianRupee} />
-        <KpiCard label={t('Critical Risk Cases')} value={kpis.criticalCount} unit={t('highest category')} tone="saffron" icon={ShieldAlert} />
-        <KpiCard label={t('Average Case Age')} value={kpis.avgAge} unit={t('days')} tone="steel" icon={Clock} />
+        <KpiCard
+          label={t('Open cases')}
+          value={kpis.openCount}
+          unit={t('of {0} in view · {1} closed', kpis.totalCount, kpis.closedCount)}
+          tone="navy"
+          icon={Briefcase}
+        />
+        <KpiCard
+          label={t('Still recoverable')}
+          value={(kpis.recoverable / 10000000).toFixed(2)}
+          unit={t('₹ Cr of {0} exposure — {1}%', cr(kpis.exposure), kpis.recoverablePct)}
+          tone="green"
+          icon={Coins}
+        />
+        <KpiCard
+          label={t('Inside 30 days of the deadline')}
+          value={kpis.criticalCount}
+          unit={t('open cases · {0} extinguished if the notice is late', cr(kpis.criticalExposure))}
+          tone="red"
+          icon={Clock}
+        />
+        <KpiCard
+          label={t('No action for {0}+ days', IDLE_THRESHOLD_DAYS)}
+          value={kpis.stalledCount}
+          unit={t('of {0} open · median {1} days idle', kpis.openCount, kpis.medianIdle)}
+          tone="saffron"
+          icon={Hourglass}
+        />
       </div>
 
-      <Card title={t('Risk-Ranked Case List')} subtitle={t('Sorted by risk score, descending — respects global district / sector / risk filters')} className="mb-6" actions={<HumanReviewBadge label={t('Officer Verification Required')} />}>
+      {kpis.recoveryMatched < kpis.totalCount && (
+        <div className="mb-4 rounded-lg border border-steel-200 bg-steel-50 px-4 py-2.5 text-[12px] text-steel-700 leading-relaxed">
+          {t('The recoverable figure covers the {0} of {1} cases in view that carry a record in the recovery engine. The remainder are shown at exposure only — the decay curve is not extrapolated over cases it does not hold.', kpis.recoveryMatched, kpis.totalCount)}
+        </div>
+      )}
+
+      <FilterScope shown={filteredCases.length} total={baseCases.length} unit={t('audit cases')} />
+
+      <Card
+        title={t('Risk-Ranked Case List')}
+        subtitle={t('Sorted by risk score, descending. Risk decides the order; the statutory clock decides whether the order is worth working — sort on it to see which cases the calendar is about to close.')}
+        className="mb-6"
+        actions={<HumanReviewBadge label={t('Officer Verification Required')} />}
+      >
         <DataTable
           columns={columns}
           rows={rankedCases}
@@ -207,15 +367,28 @@ export default function AuditScrutinyEngine() {
         />
       </Card>
 
-      <Card title={t('Audit Workflow Pipeline')} subtitle={t('Kanban-style stage tracking — advance or return a case using the controls on each card')}>
+      <Card
+        title={t('Audit Workflow Pipeline')}
+        subtitle={t('Stage tracking with what each stage is holding. A column is a bottleneck when value and expiring cases accumulate in it — a case count on its own cannot show that.')}
+      >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
           {AUDIT_STAGES.map(stage => {
             const stageCases = filteredCases.filter(c => c.stage === stage)
+            const st = stageStats[stage]
             return (
               <div key={stage} className="bg-steel-50 rounded-xl border border-steel-200 flex flex-col min-h-[140px]">
-                <div className="px-3 py-2 border-b border-steel-200 flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wide text-navy-800">{t(stage)}</span>
-                  <span className="text-[11px] font-semibold text-steel-500">{stageCases.length}</span>
+                <div className="px-3 py-2 border-b border-steel-200">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wide text-navy-800">{t(stage)}</span>
+                    <span className="text-[11px] font-semibold text-steel-500">{stageCases.length}</span>
+                  </div>
+                  <div className="text-[10.5px] text-steel-500 tabular-nums mt-0.5">{cr(st.exposure)}</div>
+                  {(st.critical > 0 || st.barred > 0) && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {st.critical > 0 && <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded border border-amber-300 bg-amber-50 text-amber-800">{t('{0} within 30d', st.critical)}</span>}
+                      {st.barred > 0 && <span className="text-[9.5px] font-bold px-1.5 py-0.5 rounded border border-red-300 bg-red-50 text-[#C5221F]">{t('{0} time-barred', st.barred)}</span>}
+                    </div>
+                  )}
                 </div>
                 <div className="p-2 space-y-2 flex-1">
                   {stageCases.length === 0 && (
@@ -289,10 +462,35 @@ export default function AuditScrutinyEngine() {
               <div className="space-y-3">
                 <div className="text-xs font-semibold text-navy-800 uppercase tracking-wide">{t('Case Summary')}</div>
                 <div className="grid grid-cols-2 gap-2">
-                  <Stat label={t('Estimated Exposure')} value={`₹${(selectedCase.estimatedExposure / 100000).toFixed(1)} L`} />
-                  <Stat label={t('Assigned Officer')} value={selectedCase.assignedOfficer} />
-                  <Stat label={t('Case Age')} value={t('{0} days', caseAgeDays(selectedCase.openedOn))} />
-                  <Stat label={t('Stage')} value={t(selectedCase.stage)} />
+                  <Stat label={t('Estimated Exposure')} value={lakh(selectedCase.estimatedExposure)} />
+                  {/* What the exposure is actually worth today, and what a week
+                      of inaction costs — read from the recovery engine, blank
+                      rather than guessed where it holds no record. */}
+                  <Stat
+                    label={t('Still Recoverable')}
+                    value={recovery.get(selectedCase.gstin) ? lakh(recovery.get(selectedCase.gstin).recoverableNow) : t('No recovery record')}
+                    note={recovery.get(selectedCase.gstin)
+                      ? t('signal age {0} days', recovery.get(selectedCase.gstin).daysSinceSignal)
+                      : t('the decay curve holds no entry for this GSTIN')}
+                  />
+                  <Stat
+                    label={t('Decays in 7 Days')}
+                    value={recovery.get(selectedCase.gstin) ? lakh(recovery.get(selectedCase.gstin).decayNextWeek) : '—'}
+                    note={t('cost of leaving this case another week')}
+                  />
+                  <Stat
+                    label={t('Officer-Days Estimated')}
+                    value={priority.get(selectedCase.gstin) ? t('{0} days', priority.get(selectedCase.gstin).effortDays) : t('Not ranked')}
+                    note={priority.get(selectedCase.gstin)
+                      ? t('priority #{0} of {1} ranked cases', priority.get(selectedCase.gstin).priorityRank, PRIORITY_QUEUE.length)
+                      : t('no entry in the priority queue')}
+                  />
+                  <Stat label={t('Assigned Officer')} value={selectedCase.assignedOfficer} note={t(selectedCase.division)} />
+                  <Stat
+                    label={t('Case Age')}
+                    value={t('{0} days', caseAgeDays(selectedCase.openedOn))}
+                    note={t('{0} days since the last recorded action', caseAgeDays(selectedCase.lastActionOn))}
+                  />
                 </div>
                 <div className="text-xs bg-steel-50 border border-steel-200 rounded-lg p-3">
                   <div className="text-[10px] uppercase tracking-wide text-steel-500 font-semibold mb-1">{t('Suggested Scope')}</div>
@@ -378,11 +576,12 @@ export default function AuditScrutinyEngine() {
   )
 }
 
-function Stat({ label, value }) {
+function Stat({ label, value, note }) {
   return (
     <div className="px-3 py-2.5 rounded-lg border border-steel-200 bg-white">
       <div className="text-[10px] uppercase tracking-wide text-steel-500 font-semibold">{label}</div>
       <div className="text-sm font-bold text-navy-900 mt-0.5">{value}</div>
+      {note && <div className="text-[10px] text-steel-500 leading-snug mt-0.5">{note}</div>}
     </div>
   )
 }

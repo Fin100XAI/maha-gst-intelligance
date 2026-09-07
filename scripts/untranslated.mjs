@@ -78,6 +78,8 @@ for (const file of walk('src')) {
   fs.readFileSync(file, 'utf8').split('\n').forEach((line, i) => {
     if (/\bt\(/.test(line)) return          // already translated on this line
     if (/^\s*(?:\/\/|\*)/.test(line)) return // comment
+    if (/^\s*import\s/.test(line)) return   // a named import is not a render site
+    if (/key=\{/.test(line) && !/>\s*\{/.test(line)) return // a React key is never displayed
     if (NOT_TEXT.some(([f, w]) => f.test(file) && w.test(line))) return
 
     const field = line.match(FIELD_RE)
