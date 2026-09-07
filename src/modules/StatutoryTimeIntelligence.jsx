@@ -4,6 +4,7 @@ import {
   Users, Layers, FileWarning
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -218,7 +219,7 @@ export default function StatutoryTimeIntelligence() {
       <SectionHeader
         eyebrow={t('Leadership · Statutory Risk')}
         title={t('Statutory Time Intelligence')}
-        description={t('Every open proceeding against its own limitation clock. When a deadline passes the demand is extinguished by operation of law — this is the one exposure on the platform that is not a model but a consequence of statute.')}
+        description={<MethodNote short={t('Every open proceeding against its own limitation clock.')} full={t('Every open proceeding against its own limitation clock. When a deadline passes the demand is extinguished by operation of law — this is the one exposure on the platform that is not a model but a consequence of statute.')} />}
         actions={<ExportBar moduleLabel="Statutory Time Intelligence" getBriefingText={briefingText} />}
       />
 
@@ -227,10 +228,8 @@ export default function StatutoryTimeIntelligence() {
         <h2 className="text-lg sm:text-xl font-bold text-navy-900 max-w-4xl leading-snug">
           {t('A risk score can be argued with. A limitation date cannot.')}
         </h2>
-        <p className="text-sm text-steel-600 mt-2 max-w-4xl leading-relaxed">
-          {t('Revenue lost to limitation is irreversible, unarguable, and attributable to a named officer and date. Of the ₹{0} Cr riding on the {1} proceedings in view, ₹{2} Cr has already passed its deadline — {3}% of the total — and ₹{4} Cr expires within thirty days.',
-            scoped.totalCr, scoped.caseCount, scoped.barredCr, scoped.barredSharePct, scoped.within30Cr)}
-        </p>
+        <MethodNote className="text-sm text-steel-600 mt-2 max-w-4xl leading-relaxed" short={t('Revenue lost to limitation is irreversible and attributable to a date.')} full={t('Revenue lost to limitation is irreversible, unarguable, and attributable to a named officer and date. Of the ₹{0} Cr riding on the {1} proceedings in view, ₹{2} Cr has already passed its deadline — {3}% of the total — and ₹{4} Cr expires within thirty days.',
+            scoped.totalCr, scoped.caseCount, scoped.barredCr, scoped.barredSharePct, scoped.within30Cr)} />
         <div className="flex flex-wrap items-center gap-2 mt-3.5">
           <Pill tone="navy">{t('{0} of {1} proceedings on the register', scoped.caseCount, LIMITATION_SUMMARY.totalCases)}</Pill>
           <Pill tone={scoped.nearestDays !== null && scoped.nearestDays <= 30 ? 'red' : 'amber'}>
@@ -306,7 +305,7 @@ export default function StatutoryTimeIntelligence() {
       <Card
         className="mb-6"
         title={t('Limitation register')}
-        subtitle={t('Ranked by how soon the binding deadline falls. Where no notice has issued the notice deadline binds — it falls months before the order deadline and is the one most often missed.')}
+        subtitle={<MethodNote short={t('Where no notice has issued, the notice deadline binds — months earlier.')} full={t('Ranked by how soon the binding deadline falls. Where no notice has issued the notice deadline binds — it falls months before the order deadline and is the one most often missed.')} />}
       >
         <DataTable
           columns={columns}
@@ -351,7 +350,7 @@ export default function StatutoryTimeIntelligence() {
 
         <Card
           title={t('Section mix')}
-          subtitle={t('Which power each proceeding is running under. The section decides the length of the clock, and s.74 is available only on a finding of fraud, wilful misstatement or suppression.')}
+          subtitle={<MethodNote short={t('The section decides the length of the clock.')} full={t('Which power each proceeding is running under. The section decides the length of the clock, and s.74 is available only on a finding of fraud, wilful misstatement or suppression.')} />}
           padded={false}
         >
           {sectionMix.length === 0 ? (
@@ -383,7 +382,7 @@ export default function StatutoryTimeIntelligence() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card
           title={t('Formation exposure')}
-          subtitle={t('Which divisions carry the nearest deadlines. Statewide roll-up from the limitation engine — this panel is not narrowed by the header filters, unlike every figure above it.')}
+          subtitle={<MethodNote short={t('Statewide roll-up — this panel is not narrowed by the filters.')} full={t('Which divisions carry the nearest deadlines. Statewide roll-up from the limitation engine — this panel is not narrowed by the header filters, unlike every figure above it.')} />}
           padded={false}
         >
           <div className="divide-y divide-steel-100">

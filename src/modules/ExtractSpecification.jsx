@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { FileSpreadsheet, AlertTriangle, Scale, Ruler, ChevronDown, ChevronRight, Info, Building2, Tag } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
@@ -49,7 +50,7 @@ export default function ExtractSpecification() {
       <SectionHeader
         eyebrow={t('Governance · Pilot')}
         title={t('Pilot Extract Specification')}
-        description={t('The field-level column list for the 500-case pilot, addressed to GSTN, NIC and the divisions. Each field carries its format, its source, whether it is mandatory and which engine it unlocks — so a data owner can see what their column is for rather than being asked for whatever they have.')}
+        description={<MethodNote short={t('The column list for the 500-case pilot, addressed to GSTN, NIC and divisions.')} full={t('The field-level column list for the 500-case pilot, addressed to GSTN, NIC and the divisions. Each field carries its format, its source, whether it is mandatory and which engine it unlocks — so a data owner can see what their column is for rather than being asked for whatever they have.')} />}
         actions={<ExportBar moduleLabel="Pilot Extract Specification" />}
       />
 
@@ -231,9 +232,7 @@ export default function ExtractSpecification() {
 
       <div className="rounded-lg border border-steel-200 bg-steel-50 px-4 py-3 mt-4 flex items-start gap-2.5">
         <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[11.5px] text-steel-600 leading-relaxed">
-          {t('Where a field corresponds to a published GST form, that form is named. {0} of the {1} column names are conventions proposed for this extract rather than official schema fields, and are marked as such in the Column cell — map each of those to whatever the source system actually calls it rather than assuming the name exists.', D.conventionCount, S.fieldCount)}
-        </p>
+        <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed" short={t('Proposed names are marked — map each to what the source system calls it.')} full={t('Where a field corresponds to a published GST form, that form is named. {0} of the {1} column names are conventions proposed for this extract rather than official schema fields, and are marked as such in the Column cell — map each of those to whatever the source system actually calls it rather than assuming the name exists.', D.conventionCount, S.fieldCount)} />
       </div>
     </div>
   )

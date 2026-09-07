@@ -33,6 +33,8 @@ import {
   NOTICE_TYPES, NOTICES, TAXPAYERS, AUDIT_CASES, LITIGATION_CASES,
   COMPLIANCE_ALERTS, REFUND_CASES, OFFICERS, NETWORK_CLUSTERS
 } from '../src/data/mockData.js'
+import { RECOVERY_BANDS } from '../src/data/recovery.js'
+import { REFUND_BENCHMARK_BANDS } from '../src/data/mockData.js'
 
 const TRANSLATED = LOCALES.filter(l => l !== 'en')
 
@@ -58,7 +60,9 @@ const VOCABULARIES = {
   'Alert status': COMPLIANCE_ALERTS.map(a => a.status),
   'Refund status': REFUND_CASES.map(r => r.status),
   'Officer posting': OFFICERS.map(o => o.role),
-  'Network role': NETWORK_CLUSTERS.flatMap(c => c.nodes.map(n => n.role))
+  'Network role': NETWORK_CLUSTERS.flatMap(c => c.nodes.map(n => n.role)),
+  'Signal-age band': RECOVERY_BANDS.map(b => b.label),
+  'Refund benchmark band': REFUND_BENCHMARK_BANDS
 }
 
 let checked = 0

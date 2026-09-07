@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { t } from '../../i18n/index.js'
 import { Logo } from './Logo.jsx'
 import { useApp } from '../../context/AppContext.jsx'
-import { asOfLabel } from '../ui/DataProvenance.jsx'
+import { asOfLabel, intlLocaleFor } from '../ui/DataProvenance.jsx'
 
 // The identity band, above everything — the seal, the department, and the
 // moment the figures were taken. It scrolls away with the page; the search
@@ -18,7 +18,7 @@ export function Masthead() {
 
   // Marathi month/weekday names, Latin-numeral digits — Government of
   // Maharashtra practice, and what keeps a date column alignable.
-  const intlLocale = locale === 'mr' ? 'mr-IN-u-nu-latn' : 'en-IN'
+  const intlLocale = intlLocaleFor(locale)
   const dateFmt = useMemo(
     () => new Intl.DateTimeFormat(intlLocale, { timeZone: 'Asia/Kolkata', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }),
     [intlLocale]

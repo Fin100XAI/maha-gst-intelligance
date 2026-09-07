@@ -3,6 +3,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell
 } from 'recharts'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -340,7 +341,7 @@ export default function SectorIntelligence() {
       <SectionHeader
         eyebrow={t('Benchmarking')}
         title={t('Sector Intelligence')}
-        description={t("Each sector measured against its own benchmark, its share of the population and its statutory clock — what behaviour actually looks like inside a sector, not what the reference table says it should.")}
+        description={<MethodNote short={t('Each sector against its own benchmark, not against another sector\'s.')} full={t("Each sector measured against its own benchmark, its share of the population and its statutory clock — what behaviour actually looks like inside a sector, not what the reference table says it should.")} />}
         actions={<ExportBar moduleLabel="Sector Intelligence" getBriefingText={briefingText} />}
       />
 
@@ -389,12 +390,8 @@ export default function SectorIntelligence() {
           <span className="p-2 rounded-lg bg-steel-100 text-steel-600 shrink-0"><Layers className="w-4 h-4" /></span>
           <div className="text-xs text-steel-600 space-y-1.5">
             <div className="text-xs font-semibold text-navy-800">{t('What a sector comparison can and cannot support')}</div>
-            <p>
-              {t('Sector is a descriptive attribute. The comparability engine weights it at {0}% — the lowest weight of any dimension it carries — because it is the dimension that looks most relevant and predicts outcomes least. Everything on this page is therefore a statement about a POPULATION: where a sector as a whole sits against its own benchmark, and where the department should look first.', Math.round(SECTOR_DIMENSION.weight * 100))}
-            </p>
-            <p className="font-medium text-navy-800">
-              {t('It is never evidence about an individual taxpayer. A taxpayer does not become suspect by belonging to a deviating sector, and no notice, scrutiny selection or adverse inference may rest on sector membership. Individual risk is scored separately, per taxpayer, from the rules that actually fired against that taxpayer.')}
-            </p>
+            <MethodNote short={t('A statement about a population, never about one taxpayer.')} full={t('Sector is a descriptive attribute. The comparability engine weights it at {0}% — the lowest weight of any dimension it carries — because it is the dimension that looks most relevant and predicts outcomes least. Everything on this page is therefore a statement about a POPULATION: where a sector as a whole sits against its own benchmark, and where the department should look first.', Math.round(SECTOR_DIMENSION.weight * 100))} />
+            <MethodNote className="font-medium text-navy-800" short={t('Sector membership is never grounds for a notice or an adverse inference.')} full={t('It is never evidence about an individual taxpayer. A taxpayer does not become suspect by belonging to a deviating sector, and no notice, scrutiny selection or adverse inference may rest on sector membership. Individual risk is scored separately, per taxpayer, from the rules that actually fired against that taxpayer.')} />
             <p>
               {t('Sector is also taken from the registration record. A misclassified taxpayer is measured against the wrong peers and will appear anomalous for that reason alone.')}
             </p>
@@ -430,7 +427,7 @@ export default function SectorIntelligence() {
 
         <Card
           title={t('Observed Behaviour Against the Department Benchmark')}
-          subtitle={t('Median observed ratio in each sector against the reference benchmark set for that sector — the benchmark alone says nothing until something is measured against it')}
+          subtitle={<MethodNote short={t('The median taxpayer in each sector, against that sector\'s benchmark.')} full={t('Median observed ratio in each sector against the reference benchmark set for that sector — the benchmark alone says nothing until something is measured against it')} />}
           actions={
             <div className="flex items-center gap-1 text-xs">
               {RATIO_MODES.map(m => (
@@ -454,9 +451,7 @@ export default function SectorIntelligence() {
               <Bar dataKey="benchmark" name={t('Department benchmark (%)')} fill={CHART_COLORS[0]} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-          <p className="text-[11px] text-steel-500 mt-2">
-            {t('Observed is the MEDIAN taxpayer in the sector, not the mean: a mean would be dragged by the same outliers the department is looking for. A sector with no bar has no taxpayers in the current filter scope, which is not the same as a sector at zero.')}
-          </p>
+          <MethodNote className="text-[11px] text-steel-500 mt-2" short={t('The median, not the mean — a mean is dragged by the outliers sought.')} full={t('Observed is the MEDIAN taxpayer in the sector, not the mean: a mean would be dragged by the same outliers the department is looking for. A sector with no bar has no taxpayers in the current filter scope, which is not the same as a sector at zero.')} />
         </Card>
       </div>
 
@@ -595,9 +590,7 @@ export default function SectorIntelligence() {
                     </div>
                   </div>
                 ))}
-                <p className="text-[11px] text-steel-500 pt-1">
-                  {t('Bars are scaled against the whole sector population, so a rule firing on a third of the sector reads as a third of the bar. The rules are the department’s own encoded indicators; a count here is a count of taxpayers who each independently triggered it.')}
-                </p>
+                <MethodNote className="text-[11px] text-steel-500 pt-1" short={t('Scaled against the whole sector, so a third of the sector is a third of the bar.')} full={t('Bars are scaled against the whole sector population, so a rule firing on a third of the sector reads as a third of the bar. The rules are the department’s own encoded indicators; a count here is a count of taxpayers who each independently triggered it.')} />
               </div>
             )}
           </Card>
@@ -628,9 +621,7 @@ export default function SectorIntelligence() {
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] text-steel-500 mt-2.5">
-                  {t('These scores come from the rules that fired against each taxpayer individually. Their sector contributed nothing to the score, and appearing in a deviating sector is not itself an indicator.')}
-                </p>
+                <MethodNote className="text-[11px] text-steel-500 mt-2.5" short={t('Scored per taxpayer. The sector contributed nothing to the score.')} full={t('These scores come from the rules that fired against each taxpayer individually. Their sector contributed nothing to the score, and appearing in a deviating sector is not itself an indicator.')} />
               </>
             )}
           </Card>
@@ -650,12 +641,8 @@ export default function SectorIntelligence() {
           emptyLabel="No sectors match the current global filters."
         />
         <div className="mt-3 space-y-1.5">
-          <p className="text-[11px] text-steel-500">
-            {t('Each sector is compared to ITS OWN benchmark, never to another sector’s: an ITC ratio that is ordinary in wholesale trading is extraordinary in professional services, so a single cross-sector line would mostly rediscover which sectors exist.')}
-          </p>
-          <p className="text-[11px] text-steel-500">
-            {t('Concentration is a sector’s share of the High/Critical population divided by its share of the taxpayer population — 1.0x means exactly as many flagged taxpayers as its size predicts. Sectors below the {0}-taxpayer minimum are marked, because a ratio drawn from three businesses is not a norm. Deadlines and exposure are the limitation engine’s own figures, grouped by sector here and computed nowhere but there.', PEER_COVERAGE.minGroupSize)}
-          </p>
+          <MethodNote className="text-[11px] text-steel-500" short={t('Each sector against its own benchmark — ratios are not comparable across sectors.')} full={t('Each sector is compared to ITS OWN benchmark, never to another sector’s: an ITC ratio that is ordinary in wholesale trading is extraordinary in professional services, so a single cross-sector line would mostly rediscover which sectors exist.')} />
+          <MethodNote className="text-[11px] text-steel-500" short={t('Concentration is the flagged share divided by the population share.')} full={t('Concentration is a sector’s share of the High/Critical population divided by its share of the taxpayer population — 1.0x means exactly as many flagged taxpayers as its size predicts. Sectors below the {0}-taxpayer minimum are marked, because a ratio drawn from three businesses is not a norm. Deadlines and exposure are the limitation engine’s own figures, grouped by sector here and computed nowhere but there.', PEER_COVERAGE.minGroupSize)} />
         </div>
       </Card>
 
@@ -669,9 +656,7 @@ export default function SectorIntelligence() {
           onRowClick={row => setSelectedTaxpayer(row)}
           searchPlaceholder="Search taxpayer / GSTIN..."
         />
-        <p className="text-[11px] text-steel-500 mt-3">
-          {t('A taxpayer above the sector benchmark is a question, not a finding. Peer-relative outlier detection across the unflagged population is a separate screen with a stated threshold (modified z of {0}); this column is a plain ratio against the reference benchmark and carries no threshold at all.', DISCOVERY_SUMMARY.zThreshold)}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-3" short={t('Above the benchmark is a question, not a finding. No threshold applies here.')} full={t('A taxpayer above the sector benchmark is a question, not a finding. Peer-relative outlier detection across the unflagged population is a separate screen with a stated threshold (modified z of {0}); this column is a plain ratio against the reference benchmark and carries no threshold at all.', DISCOVERY_SUMMARY.zThreshold)} />
       </Card>
 
       <TaxpayerDrilldownModal taxpayer={selectedTaxpayer} open={!!selectedTaxpayer} onClose={() => setSelectedTaxpayer(null)} />

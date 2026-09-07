@@ -4,6 +4,7 @@ import {
   CircleCheck, CircleAlert, ArrowRight, Search, ShieldAlert
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
@@ -14,6 +15,7 @@ import { buildCaseTwin, TWIN_INDEX, SOURCE_SYSTEMS, statutoryPositionFor } from 
 import { RECOVERY_PORTFOLIO } from '../data/recovery.js'
 import { ComparableCases } from '../components/shared/ComparableCases.jsx'
 import { t } from '../i18n/index.js'
+import { translateArgs } from '../i18n/similarityText.js'
 
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
@@ -124,7 +126,7 @@ export default function CaseDigitalTwin() {
       <SectionHeader
         eyebrow={t('Revenue · Unified Case Record')}
         title={t('Case Digital Twin')}
-        description={t('One taxpayer, one chronology, one exposure, one legal position, one recommended next action — assembled from every system that holds a piece of them. Every fact states the system it came from.')}
+        description={<MethodNote short={t('One taxpayer, assembled from every system that holds a fact about them.')} full={t('One taxpayer, one chronology, one exposure, one legal position, one recommended next action — assembled from every system that holds a piece of them. Every fact states the system it came from.')} />}
         actions={<ExportBar moduleLabel="Case Digital Twin" />}
       />
 
@@ -310,7 +312,7 @@ export default function CaseDigitalTwin() {
                     {statutory && (
                       <div className={`mt-3 rounded-lg border px-3 py-2 ${statutory.barred ? 'border-red-200 bg-red-50/50' : 'border-emerald-200 bg-emerald-50/40'}`}>
                         <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{t('What this means')}</div>
-                        <p className="text-[12px] text-navy-800 leading-relaxed">{t(statutory.verdict)}</p>
+                        <p className="text-[12px] text-navy-800 leading-relaxed">{t(statutory.verdictMsg.key, ...statutory.verdictMsg.args)}</p>
                       </div>
                     )}
 
@@ -319,17 +321,16 @@ export default function CaseDigitalTwin() {
                         <ShieldAlert className="w-4 h-4 text-[#C5221F] shrink-0 mt-0.5" />
                         <div>
                           <div className="text-[11px] font-bold text-navy-900 mb-0.5">{t('Open work against an expired period')}</div>
-                          <p className="text-[11.5px] text-navy-800 leading-relaxed">
-                            {t('{0} item(s) are still live on this taxpayer — {1} audit case(s) and {2} unconcluded notice(s) — against a period that is already time-barred. Officer capacity is being spent on a demand that can no longer lawfully be raised. Close or re-scope them before any further work is booked.',
-                              conflict.total, conflict.audit, conflict.notices)}
-                          </p>
+                          <MethodNote className="text-[11.5px] text-navy-800 leading-relaxed" short={t('Officer capacity is being spent on a demand that cannot be raised.')} full={t('{0} item(s) are still live on this taxpayer — {1} audit case(s) and {2} unconcluded notice(s) — against a period that is already time-barred. Officer capacity is being spent on a demand that can no longer lawfully be raised. Close or re-scope them before any further work is booked.',
+                              conflict.total, conflict.audit, conflict.notices)} />
                         </div>
                       </div>
                     )}
 
                     <div className="mt-3 rounded-lg bg-steel-50 border border-steel-200 px-3 py-2">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1">{t('How this date is computed')}</div>
-                      <p className="text-[11.5px] text-steel-700 leading-relaxed">{t(twin.legal.basis)}</p>
+                      <p className="text-[11.5px] text-steel-700 leading-relaxed">{t(twin.legal.basis, ...(twin.legal.basisArgs || []))}{' '}
+                        {t(twin.legal.basisSuffix, ...(twin.legal.basisSuffixArgs || []))}</p>
                     </div>
                   </div>
                 ) : (
@@ -337,9 +338,7 @@ export default function CaseDigitalTwin() {
                     <p className="text-xs text-steel-500 leading-relaxed">{t('No proceeding is currently running against a statutory clock for this taxpayer.')}</p>
                     <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50/50 px-3 py-2.5">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('Absent input, not a clear position')}</div>
-                      <p className="text-[11.5px] text-navy-800 leading-relaxed">
-                        {t('The limitation register is built from audit cases. No audit case exists against this taxpayer, so no tax period has been fixed and no deadline can be stated. This is a gap in the record, and it must not be read as "there is time".')}
-                      </p>
+                      <MethodNote className="text-[11.5px] text-navy-800 leading-relaxed" short={t('No audit case, so no period is fixed. An absence, not time in hand.')} full={t('The limitation register is built from audit cases. No audit case exists against this taxpayer, so no tax period has been fixed and no deadline can be stated. This is a gap in the record, and it must not be read as "there is time".')} />
                     </div>
                   </div>
                 )}
@@ -373,8 +372,8 @@ export default function CaseDigitalTwin() {
                       <div className="w-24 shrink-0 text-[11px] tabular-nums text-steel-500 pt-0.5">{e.date}</div>
                       <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-2" style={{ backgroundColor: tone.accent }} />
                       <div className="min-w-0 flex-1">
-                        <div className="text-[13px] font-semibold text-navy-900">{t(e.title)}</div>
-                        {e.detail && <div className="text-[11.5px] text-steel-600 mt-0.5 leading-relaxed">{t(e.detail)}</div>}
+                        <div className="text-[13px] font-semibold text-navy-900">{t(e.title, ...translateArgs(e.titleArgs))}</div>
+                        {e.detail && <div className="text-[11.5px] text-steel-600 mt-0.5 leading-relaxed">{t(e.detail, ...translateArgs(e.detailArgs))}</div>}
                       </div>
                       <span className="shrink-0 text-[9.5px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-steel-100 text-steel-600">
                         {t(SOURCE_SYSTEMS[e.source]?.owner || e.source)}
@@ -476,9 +475,7 @@ export default function CaseDigitalTwin() {
                 </div>
                 <div className="px-5 py-3 border-t border-steel-100 flex items-start gap-2.5">
                   <Database className="w-3.5 h-3.5 text-steel-400 shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-steel-500 leading-relaxed">
-                    {t('In this demonstration no external system is connected — the twin is assembled from generated records shaped like each source. A production deployment reads these feeds directly.')}
-                  </p>
+                  <MethodNote className="text-[11px] text-steel-500 leading-relaxed" short={t('No external system is connected — records are shaped like each feed.')} full={t('In this demonstration no external system is connected — the twin is assembled from generated records shaped like each source. A production deployment reads these feeds directly.')} />
                 </div>
               </Card>
             </div>
@@ -509,8 +506,8 @@ function NextAction({ next, daysRemaining, decayNextWeek }) {
           {t(basisLabel)}
         </span>
       </div>
-      <div className="text-[15px] font-bold text-navy-900">{t(next.action)}</div>
-      <p className="text-[12.5px] text-steel-700 mt-1 leading-relaxed">{t(next.because)}</p>
+      <div className="text-[15px] font-bold text-navy-900">{t(next.action, ...(next.actionArgs || []))}</div>
+      <p className="text-[12.5px] text-steel-700 mt-1 leading-relaxed">{t(next.because, ...(next.becauseArgs || []))}</p>
       {(decayNextWeek !== null || daysRemaining !== null) && (
         <div className="mt-2.5 pt-2.5 border-t flex flex-wrap gap-x-5 gap-y-1" style={{ borderColor: tone.border }}>
           {decayNextWeek !== null && (

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -9,7 +10,7 @@ import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { WhyFlaggedPanel } from '../components/ui/WhyFlagged.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
 import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
-import { REFUND_CASES, SECTOR_REVENUE, taxpayerById, REFERENCE_DATE } from '../data/mockData.js'
+import { REFUND_CASES, REFUND_BENCHMARK_BANDS, SECTOR_REVENUE, taxpayerById, REFERENCE_DATE } from '../data/mockData.js'
 import { generateRefundChecklist } from '../data/ai.js'
 import { useApp, applyCaseFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
@@ -48,7 +49,7 @@ const matchesGlobalFilters = (rec, filters) => applyCaseFilters(rec, filters, 'f
  * band is meaningless across this population: the benchmark refund ratio runs
  * from 1% in professional services to 21% in import/export, so a flat "15–20%"
  * bucket mixes an ordinary exporter with an extreme restaurant claim. */
-const BAND_ORDER = ['Below sector benchmark', '1–2× benchmark', '2–3× benchmark', '3× benchmark and above', 'No sector benchmark on record']
+const BAND_ORDER = REFUND_BENCHMARK_BANDS
 function bandFor(c) {
   const times = timesBenchmark(c)
   if (times == null) return BAND_ORDER[4]
@@ -277,7 +278,7 @@ export default function RefundRiskIntelligence() {
       <SectionHeader
         eyebrow={t('Fraud & Risk · Refund Scrutiny')}
         title={t('Refund Risk Intelligence')}
-        description={t('Refund claims ranked by risk before sanction. Refund intensity is read against the benchmark for the claimant’s own sector rather than as an absolute percentage — a 15% refund ratio is ordinary in import/export and extreme in professional services.')}
+        description={<MethodNote short={t('Refund intensity against the claimant\'s own sector, not as a flat percentage.')} full={t('Refund claims ranked by risk before sanction. Refund intensity is read against the benchmark for the claimant’s own sector rather than as an absolute percentage — a 15% refund ratio is ordinary in import/export and extreme in professional services.')} />}
         actions={<ExportBar moduleLabel="Refund Risk Intelligence" />}
       />
 
@@ -336,7 +337,7 @@ export default function RefundRiskIntelligence() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
         <Card
           title={t('Refund intensity by sector, against that sector’s benchmark')}
-          subtitle={t('Bar height is the gap in percentage points between the ratio claimed and the sector benchmark. A positive gap on a sector carrying few claims is variance, not a finding — read the claim count alongside it.')}
+          subtitle={<MethodNote short={t('A positive gap on few claims is variance — read the claim count with it.')} full={t('Bar height is the gap in percentage points between the ratio claimed and the sector benchmark. A positive gap on a sector carrying few claims is variance, not a finding — read the claim count alongside it.')} />}
         >
           {sectorAnalysis.length > 0 ? (
             <>
@@ -375,7 +376,7 @@ export default function RefundRiskIntelligence() {
         </Card>
         <Card
           title={t('Claims by multiple of the sector benchmark')}
-          subtitle={t('Bands are relative to the claimant’s own sector, not absolute. The benchmark refund ratio runs from 1% to 21% across these sectors, so a flat percentage band would put an ordinary exporter and an extreme domestic claim in the same bucket.')}
+          subtitle={<MethodNote short={t('Bands are relative to each sector, which runs from 1% to 21%.')} full={t('Bands are relative to the claimant’s own sector, not absolute. The benchmark refund ratio runs from 1% to 21% across these sectors, so a flat percentage band would put an ordinary exporter and an extreme domestic claim in the same bucket.')} />}
         >
           {bandDistribution.length > 0 ? (
             <>
@@ -393,9 +394,7 @@ export default function RefundRiskIntelligence() {
                   </div>
                 ))}
               </div>
-              <p className="text-[11.5px] text-steel-500 leading-relaxed mt-3">
-                {t('At {0}× and above, the encoded refund rule fires and contributes to the taxpayer’s risk score — so those claims are already reflected in the Risk column of the register and should not be counted as a second, independent signal.', BAND_MULTIPLE)}
-              </p>
+              <MethodNote className="text-[11.5px] text-steel-500 leading-relaxed mt-3" short={t('Already counted in the Risk column — not a second, independent signal.')} full={t('At {0}× and above, the encoded refund rule fires and contributes to the taxpayer’s risk score — so those claims are already reflected in the Risk column of the register and should not be counted as a second, independent signal.', BAND_MULTIPLE)} />
             </>
           ) : (
             <div className="text-xs text-steel-500 py-10 text-center">{t('No refund cases match the current filters.')}</div>
@@ -417,15 +416,11 @@ export default function RefundRiskIntelligence() {
         <div className="mt-3 space-y-2">
           <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 flex items-start gap-2.5">
             <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-            <p className="text-[12px] text-steel-700 leading-relaxed">
-              {t('Days since filing is stated without a deadline against it. This platform does not encode the statutory refund timeline — the limitation engine covers assessment proceedings under sections 73, 74 and 74A only — so no claim here is described as overdue, and the ageing column is a workload signal rather than a statutory one.')}
-            </p>
+            <MethodNote className="text-[12px] text-steel-700 leading-relaxed" short={t('No statutory refund clock is encoded, so nothing here is overdue.')} full={t('Days since filing is stated without a deadline against it. This platform does not encode the statutory refund timeline — the limitation engine covers assessment proceedings under sections 73, 74 and 74A only — so no claim here is described as overdue, and the ageing column is a workload signal rather than a statutory one.')} />
           </div>
           <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 flex items-start gap-2.5">
             <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-            <p className="text-[12px] text-steel-700 leading-relaxed">
-              {t('Not available on this platform: repeat-claim detection. Identifying a taxpayer claiming refund period after period requires a refund history keyed by GSTIN and period, and this dataset holds one claim per taxpayer. A high-value threshold was previously shown in this position as a proxy for it; a large single claim is not a repeat pattern, so the figure has been removed rather than relabelled.')}
-            </p>
+            <MethodNote className="text-[12px] text-steel-700 leading-relaxed" short={t('Not available: repeat-claim detection needs a history keyed by period.')} full={t('Not available on this platform: repeat-claim detection. Identifying a taxpayer claiming refund period after period requires a refund history keyed by GSTIN and period, and this dataset holds one claim per taxpayer. A high-value threshold was previously shown in this position as a proxy for it; a large single claim is not a repeat pattern, so the figure has been removed rather than relabelled.')} />
           </div>
         </div>
       </Card>
@@ -548,7 +543,7 @@ export default function RefundRiskIntelligence() {
 
               <div className="flex items-start gap-1.5 text-[11px] text-steel-500">
                 <ShieldCheck className="w-3.5 h-3.5 shrink-0 mt-0.5 text-steel-400" />
-                <span>{t('By design, this system provides no auto-reject action. Refund claims can only be routed for officer review, escalated for scrutiny, or marked low risk — final sanction or rejection decisions remain exclusively with the authorised Refund Officer under statutory process.')}</span>
+                <MethodNote short={t('No auto-reject. Claims can only be routed to an officer.')} full={t('By design, this system provides no auto-reject action. Refund claims can only be routed for officer review, escalated for scrutiny, or marked low risk — final sanction or rejection decisions remain exclusively with the authorised Refund Officer under statutory process.')} />
               </div>
             </div>
           </div>

@@ -319,7 +319,9 @@ export const RESIDUAL_REASONS = {
   },
   exceeds_weekly_capacity: {
     label: 'Case larger than any single officer-week',
-    remedy: `Neither a deployment nor a volume problem. The case needs more than ${NET_DAYS_PER_OFFICER} days and is indivisible, so it can never be placed inside a one-week horizon however many officers are added. Requires a multi-week block or a two-officer team.`
+    remedy:
+      'Neither a deployment nor a volume problem. The case needs more than {0} days and is indivisible, so it can never be placed inside a one-week horizon however many officers are added. Requires a multi-week block or a two-officer team.',
+    remedyArgs: [NET_DAYS_PER_OFFICER]
   }
 }
 

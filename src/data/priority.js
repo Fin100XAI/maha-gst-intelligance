@@ -235,18 +235,29 @@ export function explainMovement(c) {
   ].filter(Boolean)
 
   if (direction === 'unchanged') {
-    return { direction, text: `Priority ${c.priorityRank} — unchanged from its risk-score rank.` }
+    return {
+      direction,
+      text: 'Priority {0} — unchanged from its risk-score rank.',
+      textArgs: [c.priorityRank]
+    }
   }
   const reasons = pool.filter(([d]) => d === direction).map(([, text]) => text)
   if (!reasons.length) {
     return {
       direction,
-      text: `Moved ${direction} from risk rank ${c.riskRank} to priority ${c.priorityRank} on the combined weighting of exposure, recoverability and effort.`
+      text:
+        'Moved {0} from risk rank {1} to priority {2} on the combined weighting of exposure, recoverability and effort.',
+      textArgs: [direction, c.riskRank, c.priorityRank]
     }
   }
   return {
     direction,
-    text: `Moved ${direction} from risk rank ${c.riskRank} to priority ${c.priorityRank} because ${reasons.slice(0, 3).join(', and ')}.`
+    /* The reasons stay as separate strings rather than a joined sentence: each
+       has its own catalogue entry, and the render site translates and joins
+       them. Joining here would produce a key no catalogue can hold. */
+    text: 'Moved {0} from risk rank {1} to priority {2} because {3}.',
+    textArgs: [direction, c.riskRank, c.priorityRank],
+    textReasons: reasons.slice(0, 3)
   }
 }
 

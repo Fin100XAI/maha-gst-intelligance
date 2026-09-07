@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
@@ -344,7 +345,7 @@ export default function ReportsBriefingNotes() {
       <SectionHeader
         eyebrow={t('Governance · Report Generation Center')}
         title={t('Reports & Briefing Notes')}
-        description={t('Generate structured briefing notes and reports for the Commissioner, senior officers and audit/refund/investigation teams. Every report preview is a simulated AI-assisted draft assembled from current platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing. Each report states its own scope: most narrow with the header filters, and the ones that do not say so on the card and again in the draft.')}
+        description={<MethodNote short={t('Structured briefing notes for the Commissioner and senior officers.')} full={t('Generate structured briefing notes and reports for the Commissioner, senior officers and audit/refund/investigation teams. Every report preview is a simulated AI-assisted draft assembled from current platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing. Each report states its own scope: most narrow with the header filters, and the ones that do not say so on the card and again in the draft.')} />}
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
@@ -374,9 +375,7 @@ export default function ReportsBriefingNotes() {
 
       <div className="rounded-xl border border-steel-200 bg-steel-50/70 px-5 py-4 mb-5 flex items-start gap-3">
         <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-        <p className="text-xs text-navy-800 leading-relaxed max-w-4xl">
-          {t('Nothing on this page is a departmental record. Every draft below is assembled from demonstration data and is unsigned until an authorised officer reviews and signs it. The session figures above are counted from the audit trail on the AI Governance & Security screen; no report-generation history is kept beyond this session, and this page does not claim one. Most-handled report this session: {0}.', sessionActivity.topReport ? t('{0} ({1} actions)', t(sessionActivity.topReport.name), sessionActivity.topCount) : t('none yet'))}
-        </p>
+        <MethodNote className="text-xs text-navy-800 leading-relaxed max-w-4xl" short={t('Nothing here is a departmental record until an officer signs it.')} full={t('Nothing on this page is a departmental record. Every draft below is assembled from demonstration data and is unsigned until an authorised officer reviews and signs it. The session figures above are counted from the audit trail on the AI Governance & Security screen; no report-generation history is kept beyond this session, and this page does not claim one. Most-handled report this session: {0}.', sessionActivity.topReport ? t('{0} ({1} actions)', t(sessionActivity.topReport.name), sessionActivity.topCount) : t('none yet'))} />
       </div>
 
       {visibleReports.length === 0 ? (
@@ -469,9 +468,7 @@ export default function ReportsBriefingNotes() {
             {activeCount === 0 && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                <p className="text-xs text-navy-800">
-                  {t('No records fall inside the current filters, so this draft has nothing to report on. Widen the header filters before circulating it — an empty brief reads as "nothing found" rather than "nothing selected".')}
-                </p>
+                <MethodNote className="text-xs text-navy-800" short={t('Nothing selected, not nothing found — widen the filters before circulating.')} full={t('No records fall inside the current filters, so this draft has nothing to report on. Widen the header filters before circulating it — an empty brief reads as "nothing found" rather than "nothing selected".')} />
               </div>
             )}
 
@@ -524,7 +521,7 @@ export default function ReportsBriefingNotes() {
 
             <div className="flex items-start gap-1.5 text-[11px] text-steel-500 pt-1">
               <UserCheck className="w-3.5 h-3.5 shrink-0 mt-0.5 text-steel-400" />
-              <span>{t('This report preview is a simulated, AI-assisted draft generated from platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing. Nothing in it has been actioned, and no figure in it may be treated as a finding.')}</span>
+              <MethodNote short={t('A simulated draft. Requires officer review and sign-off before use.')} full={t('This report preview is a simulated, AI-assisted draft generated from platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing. Nothing in it has been actioned, and no figure in it may be treated as a finding.')} />
             </div>
           </div>
         )}

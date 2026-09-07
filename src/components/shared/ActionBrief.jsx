@@ -78,7 +78,7 @@ export function ActionBrief({ gstin }) {
           {b.precedent.authority ? (
             <>
               <div className="rounded-lg border border-red-200 bg-red-50/60 px-3 py-2.5 mb-2">
-                <div className="text-[12px] font-semibold text-navy-900 mb-0.5">{b.precedent.authority.verdict}</div>
+                <div className="text-[12px] font-semibold text-navy-900 mb-0.5">{t(b.precedent.authority.verdict)}</div>
                 <p className="text-[11.5px] text-steel-700 leading-relaxed">{b.precedent.authority.text}</p>
               </div>
               <div className="space-y-1.5">
@@ -135,7 +135,7 @@ export function ActionBrief({ gstin }) {
                     <Pill tone={lvl.tone === 'steel' ? 'steel' : lvl.tone}>{t(lvl.label)}</Pill>
                     <span className="text-[12px] font-semibold text-navy-900 leading-snug">{t(c.question)}</span>
                   </div>
-                  <p className="text-[11.5px] text-steel-700 leading-relaxed">{c.because}</p>
+                  <p className="text-[11.5px] text-steel-700 leading-relaxed">{t(c.because, ...(c.becauseArgs || []))}</p>
                   <p className="text-[11px] text-steel-500 leading-relaxed mt-0.5 italic">{c.caveat}</p>
                 </div>
               )
@@ -157,7 +157,7 @@ export function ActionBrief({ gstin }) {
                   : <Pill tone={b.limitation.critical ? 'amber' : 'green'}>{t('{0} days remain', b.limitation.daysRemaining)}</Pill>}
                 <span className="text-[11.5px] text-steel-500">{b.limitation.bindingLabel} · {b.limitation.bindingDate}</span>
               </div>
-              <p className="text-[12px] text-navy-800 leading-relaxed">{b.limitation.verdict}</p>
+              <p className="text-[12px] text-navy-800 leading-relaxed">{t(b.limitation.verdictMsg.key, ...b.limitation.verdictMsg.args)}</p>
             </>
           ) : (
             <p className="text-[12px] text-steel-500">{t('No limitation record. Absence of a record is not the same as absence of a deadline.')}</p>
@@ -168,7 +168,7 @@ export function ActionBrief({ gstin }) {
         <Row n={7} icon={ArrowRight} title={t('Recommended next step')}>
           <div className="rounded-lg border border-navy-200 bg-navy-50/70 px-3 py-2.5">
             <div className="text-[12.5px] font-bold text-navy-900">{b.nextStep.action}</div>
-            <p className="text-[11.5px] text-steel-700 leading-relaxed mt-0.5">{b.nextStep.because}</p>
+            <p className="text-[11.5px] text-steel-700 leading-relaxed mt-0.5">{t(b.nextStep.because, ...(b.nextStep.becauseArgs || []))}</p>
             <div className="flex items-center gap-2 mt-1.5">
               <Pill tone="steel">{t('Basis: {0}', b.nextStep.basis)}</Pill>
               <span className="text-[11px] text-steel-500">{t('Requires officer approval before anything issues.')}</span>

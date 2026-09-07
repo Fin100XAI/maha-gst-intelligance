@@ -348,6 +348,18 @@ export const AUDIT_CASES = TAXPAYERS
   }))
 
 // ---------- Refund cases ----------
+/* The refund-intensity bands, as a declared vocabulary rather than a literal
+   inside the module that renders them. A band label is officer-facing text and
+   has to carry a catalogue entry in every language; scripts/vocabulary.mjs can
+   only check what the data layer exports. */
+export const REFUND_BENCHMARK_BANDS = [
+  'Below sector benchmark',
+  '1–2× benchmark',
+  '2–3× benchmark',
+  '3× benchmark and above',
+  'No sector benchmark on record'
+]
+
 export const REFUND_CASES = TAXPAYERS
   .filter(t => t.refundClaimed > 0)
   .sort((a, b) => b.refundClaimed - a.refundClaimed)

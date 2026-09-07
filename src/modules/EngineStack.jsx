@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Layers, GitBranch, ClipboardList, Info, CheckCircle2, AlertTriangle, XCircle, Bot, FileSpreadsheet, Cpu } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
@@ -75,7 +76,7 @@ export default function EngineStack() {
       <SectionHeader
         eyebrow={t('Governance · Delivery')}
         title={t('Engine Stack & Data Readiness')}
-        description={t('Fifteen intelligence engines mapped against the fields the department can supply today, each classified by technique and given a verdict backed by something checkable. The purpose is to separate what can be built and validated from what would be a promise.')}
+        description={<MethodNote short={t('Fifteen engines against the fields the department can supply today.')} full={t('Fifteen intelligence engines mapped against the fields the department can supply today, each classified by technique and given a verdict backed by something checkable. The purpose is to separate what can be built and validated from what would be a promise.')} />}
         actions={<ExportBar moduleLabel="Engine Stack & Data Readiness" />}
       />
 
@@ -265,9 +266,7 @@ function PilotView({ derived }) {
     <div className="space-y-4">
       <div className="rounded-xl border border-navy-200 bg-navy-50/60 px-5 py-4 flex items-start gap-3">
         <Info className="w-4.5 h-4.5 text-navy-600 shrink-0 mt-0.5" />
-        <p className="text-[12.5px] text-navy-800 leading-relaxed">
-          {t('Four additions to the 500-case extract, in the order that unlocks most. The first is five columns and unblocks four engines; the modelling for all of them already exists and is waiting on the fields.')}
-        </p>
+        <MethodNote className="text-[12.5px] text-navy-800 leading-relaxed" short={t('Four additions to the extract, in the order that unlocks most.')} full={t('Four additions to the 500-case extract, in the order that unlocks most. The first is five columns and unblocks four engines; the modelling for all of them already exists and is waiting on the fields.')} />
       </div>
 
       {PILOT_REQUIREMENTS.map(r => (

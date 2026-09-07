@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill } from '../components/ui/RiskBadge.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
@@ -226,7 +227,9 @@ export default function RevenueIntelligence() {
     const avgActualDelta = (last6.at(-1).actual - last6[0].actual) / (last6.length - 1)
     const avgTargetDelta = (last6.at(-1).target - last6[0].target) / (last6.length - 1)
     const points = forecastMonths.map((month, i) => ({
-      month: `${month} (F)`,
+      /* The (F) marks a forecast point on the axis; it is a label an officer
+         reads, so it goes through the translator like any other. */
+      month: t('{0} (F)', month),
       forecastActual: Math.round(STATE_REVENUE_TREND.at(-1).actual + avgActualDelta * (i + 1)),
       forecastTarget: Math.round(STATE_REVENUE_TREND.at(-1).target + avgTargetDelta * (i + 1))
     }))
@@ -378,7 +381,7 @@ export default function RevenueIntelligence() {
       <SectionHeader
         eyebrow={t('Revenue Assurance')}
         title={t('Revenue Intelligence')}
-        description={t('Statewide revenue assurance engine — tracks collection performance against target, surfaces leakage indicators and forecasts near-term risk to state GST revenue.')}
+        description={<MethodNote short={t('Collection against target, leakage indicators, and near-term risk.')} full={t('Statewide revenue assurance engine — tracks collection performance against target, surfaces leakage indicators and forecasts near-term risk to state GST revenue.')} />}
         actions={<ExportBar moduleLabel="Revenue Intelligence" getBriefingText={briefingText} />}
       />
 
@@ -457,7 +460,7 @@ export default function RevenueIntelligence() {
       {/* Variance, not volume — the bar that decides where to send people. */}
       <Card
         title={t('Variance From Target by District')}
-        subtitle={t('Collection against the district’s own target (%). Zero is on target; bars below the line are the districts a recovery effort has to reach. Absolute collection is in the shortfall ledger below.')}
+        subtitle={<MethodNote short={t('Each district against its own target. Zero is on target.')} full={t('Collection against the district’s own target (%). Zero is on target; bars below the line are the districts a recovery effort has to reach. Absolute collection is in the shortfall ledger below.')} />}
         className="mb-5"
       >
         <RiskBarChart
@@ -473,9 +476,7 @@ export default function RevenueIntelligence() {
         <Database className="w-4 h-4 text-steel-500 shrink-0 mt-0.5" />
         <div>
           <div className="text-[12.5px] font-bold text-navy-800">{t('Collection by tax head is not available')}</div>
-          <p className="text-[12px] text-steel-600 mt-1 leading-relaxed max-w-4xl">
-            {t('Every collection figure on this screen is a combined tax total. Splitting it into CGST, SGST, IGST and Cess needs the period return extract (returns_period.csv, GSTN returns), which carries output_tax broken down by head alongside the cash-versus-credit split. Until that feed is connected, the State’s own share of a shortfall cannot be separated from the IGST settlement, and nothing here should be read as an SGST-only figure.')}
-          </p>
+          <MethodNote className="text-[12px] text-steel-600 mt-1 leading-relaxed max-w-4xl" short={t('Combined tax totals. No split by CGST, SGST, IGST or Cess is held.')} full={t('Every collection figure on this screen is a combined tax total. Splitting it into CGST, SGST, IGST and Cess needs the period return extract (returns_period.csv, GSTN returns), which carries output_tax broken down by head alongside the cash-versus-credit split. Until that feed is connected, the State’s own share of a shortfall cannot be separated from the IGST settlement, and nothing here should be read as an SGST-only figure.')} />
         </div>
       </div>
 
@@ -483,7 +484,7 @@ export default function RevenueIntelligence() {
       <Card
         className="mb-5"
         title={t('Shortfall Attribution — Current-Period District Ledger')}
-        subtitle={t('Ranked by rupees of shortfall, with the running cumulative share. Targets and actuals are the district ledger for the current collection period, not the cumulative trend above — the two are different denominators and are not added together anywhere on this screen.')}
+        subtitle={<MethodNote short={t('Ranked by rupees of shortfall, on the current-period district ledger.')} full={t('Ranked by rupees of shortfall, with the running cumulative share. Targets and actuals are the district ledger for the current collection period, not the cumulative trend above — the two are different denominators and are not added together anywhere on this screen.')} />}
         actions={
           <span className="inline-flex items-center gap-1 text-[11px] text-steel-500">
             <Scale className="w-3.5 h-3.5" /> {t('₹{0} Cr total shortfall', inr(shortfall.totalShortfallCr))}
@@ -500,9 +501,7 @@ export default function RevenueIntelligence() {
               searchable={false}
               pageSize={12}
             />
-            <p className="text-[11px] text-steel-500 mt-2.5 leading-relaxed">
-              {t('Audit recovery is what the district has already booked against its gap. Where it covers a small share, the shortfall is a collection problem rather than an enforcement one, and the response differs accordingly.')}
-            </p>
+            <MethodNote className="text-[11px] text-steel-500 mt-2.5 leading-relaxed" short={t('Audit recovery already booked against the gap.')} full={t('Audit recovery is what the district has already booked against its gap. Where it covers a small share, the shortfall is a collection problem rather than an enforcement one, and the response differs accordingly.')} />
           </>
         )}
       </Card>
@@ -511,7 +510,7 @@ export default function RevenueIntelligence() {
       <Card
         className="mb-5"
         title={t('Sector Collection Against Its Own Benchmark Ratio')}
-        subtitle={t('Tax-to-turnover ratio actually realised by the taxpayers in view, against the reference ratio held for that sector. Absolute sector revenue only says which sectors are large; the deviation says which are underpaying relative to what they themselves declared.')}
+        subtitle={<MethodNote short={t('What taxpayers actually realised, against their sector\'s own ratio.')} full={t('Tax-to-turnover ratio actually realised by the taxpayers in view, against the reference ratio held for that sector. Absolute sector revenue only says which sectors are large; the deviation says which are underpaying relative to what they themselves declared.')} />}
       >
         <DataTable
           columns={sectorColumns}
@@ -519,9 +518,7 @@ export default function RevenueIntelligence() {
           searchPlaceholder={t('Search sectors...')}
           pageSize={14}
         />
-        <p className="text-[11px] text-steel-500 mt-2.5 leading-relaxed">
-          {t('The monthly gap to benchmark is arithmetic: the difference between the sector’s reference tax-to-turnover ratio and the ratio realised by the taxpayers in view, applied to the monthly turnover they declared. It indicates where to look. It is not an assessed liability, and a legitimate rate, exemption or export mix will explain part of it in every sector.')}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-2.5 leading-relaxed" short={t('Arithmetic, not an assessed liability. It says where to look.')} full={t('The monthly gap to benchmark is arithmetic: the difference between the sector’s reference tax-to-turnover ratio and the ratio realised by the taxpayers in view, applied to the monthly turnover they declared. It indicates where to look. It is not an assessed liability, and a legitimate rate, exemption or export mix will explain part of it in every sector.')} />
       </Card>
 
       {/* Forecast */}
@@ -544,15 +541,13 @@ export default function RevenueIntelligence() {
             { key: 'forecastActual', label: t('Forecast (Illustrative)'), color: '#f78c0a', dashed: true }
           ]}
         />
-        <p className="text-[11px] text-steel-500 mt-2">
-          {t('Forecast values are an illustrative linear projection derived from the trailing 6-month collection trend. They are not an official revenue projection and must not be used for budgetary commitment.')}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-2" short={t('An illustrative linear projection, not an official revenue forecast.')} full={t('Forecast values are an illustrative linear projection derived from the trailing 6-month collection trend. They are not an official revenue projection and must not be used for budgetary commitment.')} />
       </Card>
 
       {/* Leakage indicators — count, share and the rupees attached */}
       <Card
         title={t('Revenue Leakage Indicators')}
-        subtitle={t('Each tile carries the number of taxpayers, their share of the population in view, and the estimated revenue exposed. Click an indicator to filter the register below.')}
+        subtitle={<MethodNote short={t('Click an indicator to filter the register below.')} full={t('Each tile carries the number of taxpayers, their share of the population in view, and the estimated revenue exposed. Click an indicator to filter the register below.')} />}
         className="mb-5"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

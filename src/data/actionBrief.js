@@ -81,7 +81,9 @@ function confidenceOf(twin, statutory, precedent) {
       id: 'limitation',
       question: 'Is the limitation position right?',
       level: 'high',
-      because: `Computed from the statute and the annual return due date for ${statutory.fy} under ${statutory.sectionLabel}. Date arithmetic, not a model.`,
+      because:
+        'Computed from the statute and the annual return due date for {0} under {1}. Date arithmetic, not a model.',
+      becauseArgs: [statutory.fy, statutory.sectionLabel],
       caveat: 'Assumes the financial year on record is the correct period for the demand.'
     })
   }

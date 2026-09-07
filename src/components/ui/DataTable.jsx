@@ -82,7 +82,15 @@ export function DataTable({ columns, rows, searchable = true, searchPlaceholder 
               >
                 {columns.map(col => (
                   <td key={col.key} className={`px-3 py-2.5 text-navy-800 whitespace-nowrap ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'}`}>
-                    {col.render ? col.render(row) : row[col.key]}
+                    {col.render
+                      ? col.render(row)
+                      /* A column with no render used to print the raw value, so
+                         any text cell — an officer role, a stage, a behavioural
+                         ratio — reached an officer in English however complete
+                         the catalogues were. String values now go through the
+                         translator; t() returns anything it does not hold
+                         unchanged, so ids and reference numbers are unaffected. */
+                      : typeof row[col.key] === 'string' ? t(row[col.key]) : row[col.key]}
                   </td>
                 ))}
               </tr>

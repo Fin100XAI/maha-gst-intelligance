@@ -380,6 +380,7 @@ export const REGISTRATION_SUMMARY = {
 export const LAG_ROOT_CAUSES = [
   {
     id: 'return-cycle-bound',
+    whyShort: 'No signal can fire until the return that reveals it is filed.',
     cause: 'Detection is bound to the return cycle',
     why: 'A signal cannot fire until the return that reveals it is filed. That puts a floor of one filing cycle under every indicator before an officer can see anything at all, and scrutiny selection then runs annually.',
     consequence: 'The fastest possible detection is already 25–45 days late; the typical one is a year.',
@@ -387,6 +388,7 @@ export const LAG_ROOT_CAUSES = [
   },
   {
     id: 'credit-before-verification',
+    whyShort: 'Credit is claimed in the same period the supplier declares it.',
     cause: 'Credit is claimed before it is verified',
     why: 'The buyer claims ITC in the same period the supplier declares it, while the check that the supplier actually paid happens later. Section 16(2)(c) makes the credit conditional on payment the department cannot yet confirm.',
     consequence: 'By the time the mismatch resolves, the credit has been utilised and often passed on again.',
@@ -394,6 +396,7 @@ export const LAG_ROOT_CAUSES = [
   },
   {
     id: 'queue-ranked-by-score',
+    whyShort: 'A score-ordered queue sends officers to cases whose value has gone.',
     cause: 'Queues are ranked by risk score, not by decay',
     why: 'A 92-score case that is 400 days old is worth less than a 71-score case that is 20 days old, but a score-ordered queue puts the 92 first every time.',
     consequence: 'Officer-days are spent on cases whose value has already gone, while recoverable ones age past the window.',
@@ -401,6 +404,7 @@ export const LAG_ROOT_CAUSES = [
   },
   {
     id: 'registration-after-the-fact',
+    whyShort: 'These indicators are checkable on the day of application.',
     cause: 'Registration risk is assessed after the fact',
     why: 'Shared premises, shared contacts and PAN linkage to cancelled registrations are all checkable on the day of application. They are instead reconstructed from invoice flow months later.',
     consequence: 'A shell entity trades for a full cycle before the first signal exists to catch it.',
@@ -408,6 +412,7 @@ export const LAG_ROOT_CAUSES = [
   },
   {
     id: 'dwell-inside-department',
+    whyShort: 'The case waits after the signal is already visible.',
     cause: 'Cases dwell inside the department after detection',
     why: 'Detection is only the first clock. A case then waits through allocation, notice, hearing and recovery stages while the entity continues to dissipate assets.',
     consequence: 'Internal dwell frequently exceeds the detection lag that preceded it.',

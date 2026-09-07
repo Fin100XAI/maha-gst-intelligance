@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill } from '../components/ui/RiskBadge.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
@@ -271,7 +272,7 @@ export default function ComplianceEarlyWarning() {
       <SectionHeader
         eyebrow={t('Proactive Monitoring')}
         title={t('Compliance Early Warning')}
-        description={t('Non-filers and slipping compliance, surfaced before the shortfall compounds. Every alert below carries how long it has been open and what is at stake behind it, because an early warning that has sat unworked for a quarter is no longer early.')}
+        description={<MethodNote short={t('Slipping compliance, surfaced before the shortfall compounds.')} full={t('Non-filers and slipping compliance, surfaced before the shortfall compounds. Every alert below carries how long it has been open and what is at stake behind it, because an early warning that has sat unworked for a quarter is no longer early.')} />}
         actions={<ExportBar />}
       />
 
@@ -337,13 +338,11 @@ export default function ComplianceEarlyWarning() {
             searchable={false}
             pageSize={4}
           />
-          <p className="text-[11.5px] text-steel-500 leading-relaxed mt-3">
-            {t('Exposure is summed over distinct taxpayers, not over alerts — most taxpayers here carry more than one signal, and summing per alert would count the same entity several times.')}
-          </p>
+          <MethodNote className="text-[11.5px] text-steel-500 leading-relaxed mt-3" short={t('Summed over taxpayers, not alerts — most carry more than one signal.')} full={t('Exposure is summed over distinct taxpayers, not over alerts — most taxpayers here carry more than one signal, and summing per alert would count the same entity several times.')} />
         </Card>
         <Card
           title={t('Alert inflow')}
-          subtitle={t('Alerts raised per 8-day period over the last ~48 days, out of {0} in scope. A rising inflow against a static resolution rate is a staffing signal, not a risk one.', kpis.total)}
+          subtitle={<MethodNote short={t('A rising inflow against a static resolution rate is a staffing signal.')} full={t('Alerts raised per 8-day period over the last ~48 days, out of {0} in scope. A rising inflow against a static resolution rate is a staffing signal, not a risk one.', kpis.total)} />}
         >
           <RiskBarChart data={weeklyTrend} xKey="period" barKey="count" colorFn={() => '#f78c0a'} />
           <div className="mt-4">
@@ -400,9 +399,7 @@ export default function ComplianceEarlyWarning() {
             <div className="text-[13.5px] font-bold text-navy-900 mb-1">
               {t('{0} of {1} taxpayers in scope are firing three or more distinct signals at once, carrying ₹{2} Cr.', compounding.rows.length, compounding.totalTaxpayers, compounding.exposureCr)}
             </div>
-            <p className="text-[12.5px] text-steel-700 leading-relaxed mb-2">
-              {t('One signal is a lapse. Three at once, in the same window, is a trajectory — and it is the population this screen exists to reach before the shortfall compounds. These should be worked ahead of any single-signal alert of the same age, whatever their individual risk scores say.')}
-            </p>
+            <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed mb-2" short={t('One signal is a lapse; three at once is a trajectory.')} full={t('One signal is a lapse. Three at once, in the same window, is a trajectory — and it is the population this screen exists to reach before the shortfall compounds. These should be worked ahead of any single-signal alert of the same age, whatever their individual risk scores say.')} />
             <div className="flex flex-wrap gap-1.5">
               {compounding.rows.slice(0, 8).map(row => (
                 <span key={row.id} className="text-[11px] px-2 py-0.5 rounded-md border border-amber-200 bg-white text-navy-800">

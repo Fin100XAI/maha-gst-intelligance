@@ -3,6 +3,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell
 } from 'recharts'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
@@ -246,7 +247,7 @@ export default function LitigationIntelligence() {
       <SectionHeader
         eyebrow={t('Enforcement')}
         title={t('Litigation Intelligence')}
-        description={t('Pending proceedings, order outcomes and exposure tracked through the appeal stages — how much of the amount in dispute is still contestable, where in the ladder it sits, and how much of it rides on a position the department itself has recorded as weak.')}
+        description={<MethodNote short={t('Exposure through the appeal ladder, and how much rests on a weak position.')} full={t('Pending proceedings, order outcomes and exposure tracked through the appeal stages — how much of the amount in dispute is still contestable, where in the ladder it sits, and how much of it rides on a position the department itself has recorded as weak.')} />}
         actions={<ExportBar moduleLabel="Litigation Intelligence" />}
       />
 
@@ -305,9 +306,7 @@ export default function LitigationIntelligence() {
           <div className="text-[13px] font-bold text-navy-900 mb-1">
             {t('No blended success rate is stated on this screen — {0} of {1} proceedings in scope have concluded and carry an outcome.', summary.concludedCount, summary.total)}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">
-            {t('A single percentage computed across seven different questions of law is a generalisation wearing a statistic: it reads as evidence about the case in front of the officer and is nothing of the kind. Outcomes are therefore reported as counts against their denominator. Where the department’s record is thick enough to carry a rate, it is stated per question of law — and withheld with the concluded count shown where it is not — in Precedent Intelligence, which owns that gate.')}
-          </p>
+          <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed" short={t('No blended rate: outcomes are counts against their own denominator.')} full={t('A single percentage computed across seven different questions of law is a generalisation wearing a statistic: it reads as evidence about the case in front of the officer and is nothing of the kind. Outcomes are therefore reported as counts against their denominator. Where the department’s record is thick enough to carry a rate, it is stated per question of law — and withheld with the concluded count shown where it is not — in Precedent Intelligence, which owns that gate.')} />
         </div>
       </div>
 
@@ -399,14 +398,10 @@ export default function LitigationIntelligence() {
                   {t('{0} of {1} proceedings in scope carry a position the department itself recorded as weak, and ₹{2} Cr — {3}% of the amount in dispute — sits behind them.',
                     summary.weakCount, summary.total, summary.weakCr, summary.weakSharePct)}
                 </p>
-                <p>
-                  {t('{0} of {1} weak positions ({2}%) are documentation gaps, holding ₹{3} Cr. Recommend a refresher on evidence collection and case-file discipline for audit and assessment officers — this is the half the department can fix by itself, before a hearing rather than after one.',
-                    trainingSignals.docGap, trainingSignals.total, trainingSignals.docGapPct, trainingSignals.docGapCr)}
-                </p>
-                <p>
-                  {t('{0} of {1} weak positions ({2}%) are unfavourable precedent, holding ₹{3} Cr. Training does not move these: route them through the Legal Cell early for a distinguishing argument, or evaluate withdrawal where the authority is binding and against the department.',
-                    trainingSignals.precedent, trainingSignals.total, trainingSignals.precedentPct, trainingSignals.precedentCr)}
-                </p>
+                <MethodNote short={t('Documentation gaps — the half the department can fix before a hearing.')} full={t('{0} of {1} weak positions ({2}%) are documentation gaps, holding ₹{3} Cr. Recommend a refresher on evidence collection and case-file discipline for audit and assessment officers — this is the half the department can fix by itself, before a hearing rather than after one.',
+                    trainingSignals.docGap, trainingSignals.total, trainingSignals.docGapPct, trainingSignals.docGapCr)} />
+                <MethodNote short={t('Unfavourable precedent — training does not move these.')} full={t('{0} of {1} weak positions ({2}%) are unfavourable precedent, holding ₹{3} Cr. Training does not move these: route them through the Legal Cell early for a distinguishing argument, or evaluate withdrawal where the authority is binding and against the department.',
+                    trainingSignals.precedent, trainingSignals.total, trainingSignals.precedentPct, trainingSignals.precedentCr)} />
               </>
             )}
             <div className="pt-1"><HumanReviewBadge label={t('Advisory signal — training plan requires Commissioner approval')} /></div>

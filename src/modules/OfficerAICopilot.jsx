@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Search, Quote, ShieldAlert, FileSearch, CircleSlash, Sparkles } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
@@ -79,7 +80,7 @@ export default function OfficerAICopilot() {
       <SectionHeader
         eyebrow={t('Enforcement · Case Retrieval')}
         title={t('Officer Copilot')}
-        description={t('Answers drawn from the case record, not generated. Every statement cites the record and the system it came from; a question that cannot be grounded is declined, naming the feed that would be needed to answer it.')}
+        description={<MethodNote short={t('Answers drawn from the record, not generated. Every statement cites its source.')} full={t('Answers drawn from the case record, not generated. Every statement cites the record and the system it came from; a question that cannot be grounded is declined, naming the feed that would be needed to answer it.')} />}
         actions={<ExportBar moduleLabel="Officer Copilot" />}
       />
 
@@ -171,7 +172,7 @@ export default function OfficerAICopilot() {
 
           <Card
             title={t('Ask about this case')}
-            subtitle={t('{0} of {1} questions can be answered from the record as the platform is connected today; {2} of {3} source systems are live in this environment. The rest are declined, and the refusal names the feed that would answer them.', coverage.grounded, coverage.questions, coverage.liveFeeds, coverage.totalFeeds)}
+            subtitle={<MethodNote short={t('The rest are declined, naming the feed that would answer them.')} full={t('{0} of {1} questions can be answered from the record as the platform is connected today; {2} of {3} source systems are live in this environment. The rest are declined, and the refusal names the feed that would answer them.', coverage.grounded, coverage.questions, coverage.liveFeeds, coverage.totalFeeds)} />}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {QUESTIONS.map(q => (
@@ -280,9 +281,7 @@ function DeclinedAnswer({ a }) {
             <Pill tone="amber">{a.declined.connected ? t('Connected') : t('Not integrated')}</Pill>
             <span className="text-[11px] text-steel-600">{t(a.declined.feedLabel)} · {t(a.declined.feedOwner)}</span>
           </div>
-          <p className="text-[11px] text-steel-500 leading-relaxed mt-2">
-            {t('This is the integration decision the question turns into: until that feed is connected, no answer here can be grounded, and the platform will keep declining rather than approximating one.')}
-          </p>
+          <MethodNote className="text-[11px] text-steel-500 leading-relaxed mt-2" short={t('Until that feed is connected, no answer here can be grounded.')} full={t('This is the integration decision the question turns into: until that feed is connected, no answer here can be grounded, and the platform will keep declining rather than approximating one.')} />
         </div>
       </div>
     </div>

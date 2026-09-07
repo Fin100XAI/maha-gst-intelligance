@@ -4,6 +4,7 @@ import {
   CalendarClock, FlaskConical, ShieldAlert, Ban
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
@@ -67,7 +68,7 @@ export default function ProjectResources() {
       <SectionHeader
         eyebrow={t('Data Resources · Provenance')}
         title={t('Project Resources')}
-        description={t('The law this platform encodes, the judgments it relies on, the published figures it cites, the statistical methods it applies and the software it runs on — with a plain statement of which records are simulated and which are real.')}
+        description={<MethodNote short={t('The law, judgments, published figures and methods this platform relies on.')} full={t('The law this platform encodes, the judgments it relies on, the published figures it cites, the statistical methods it applies and the software it runs on — with a plain statement of which records are simulated and which are real.')} />}
         actions={<ExportBar moduleLabel="Project Resources" />}
       />
 
@@ -167,9 +168,7 @@ function ProvenanceView({ derived }) {
           <ScaleStat label={t('Districts modelled')} value={scale.modelledDistricts} official={false} />
           <ScaleStat label={t('Districts in Maharashtra')} value={scale.officialDistricts} official />
         </div>
-        <p className="text-[12px] text-steel-600 leading-relaxed mt-3">
-          {t('One modelled taxpayer stands for roughly {0} real registered dealers. Every aggregate on every other screen is drawn from the modelled population and must be read at that scale.', scale.taxpayerRatio.toLocaleString('en-IN'))}
-        </p>
+        <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-3" short={t('Read every aggregate on every other screen at this scale.')} full={t('One modelled taxpayer stands for roughly {0} real registered dealers. Every aggregate on every other screen is drawn from the modelled population and must be read at that scale.', scale.taxpayerRatio.toLocaleString('en-IN'))} />
       </Card>
 
       <div className="rounded-xl border border-navy-200 bg-navy-50/60 px-5 py-4 flex items-start gap-3">
@@ -248,7 +247,7 @@ function LegalView({ derived, verdict }) {
 
       <Card
         title={t('Judicial authority')}
-        subtitle={t('Verified against published reports. Where only a holding could be confirmed, the case name is left blank rather than invented, and each row states the forum, whether it binds here and whether it still stands.')}
+        subtitle={<MethodNote short={t('Verified against published reports. An unconfirmed case name is left blank.')} full={t('Verified against published reports. Where only a holding could be confirmed, the case name is left blank rather than invented, and each row states the forum, whether it binds here and whether it still stands.')} />}
         padded={false}
       >
         <div className="divide-y divide-steel-100">
@@ -299,7 +298,7 @@ function DataView({ derived }) {
     <div className="space-y-4">
       <Card
         title={t('Official published sources')}
-        subtitle={t('{0} sources, from which {1} figures published by {2} publishers have been transcribed. The figures themselves are held in Official Statistics and appear nowhere else.', OFFICIAL_SOURCES.length, derived.figureCount, derived.publisherCount)}
+        subtitle={<MethodNote short={t('The figures themselves are held in Official Statistics, nowhere else.')} full={t('{0} sources, from which {1} figures published by {2} publishers have been transcribed. The figures themselves are held in Official Statistics and appear nowhere else.', OFFICIAL_SOURCES.length, derived.figureCount, derived.publisherCount)} />}
         padded={false}
       >
         <div className="divide-y divide-steel-100">
@@ -318,7 +317,7 @@ function DataView({ derived }) {
       {DATASET_POINTER_LIST.length > 0 && (
         <Card
           title={t('Dataset pointers held without values')}
-          subtitle={t('{0} pointers, {1} figures inferred from them. The endpoints returned HTTP 403 when fetched, and guessing at their contents would have been worse than leaving them empty.', DATASET_POINTER_LIST.length, derived.inferredFromPointers)}
+          subtitle={<MethodNote short={t('The endpoints returned HTTP 403, so no figure was inferred from them.')} full={t('{0} pointers, {1} figures inferred from them. The endpoints returned HTTP 403 when fetched, and guessing at their contents would have been worse than leaving them empty.', DATASET_POINTER_LIST.length, derived.inferredFromPointers)} />}
         >
           <div className="space-y-2">
             {DATASET_POINTER_LIST.map((d, i) => (
@@ -349,7 +348,7 @@ function MethodView({ derived }) {
   return (
     <Card
       title={t('Statistical and algorithmic methods')}
-      subtitle={t('{0} of {1} state the way they fail. A method whose failure mode is not stated is a method nobody can audit — and each names the screen that spends it, so a disputed figure can be traced to the method behind it.', derived.methodsWithFailure, METHODS.length)}
+      subtitle={<MethodNote short={t('A method whose failure mode is not stated is one nobody can audit.')} full={t('{0} of {1} state the way they fail. A method whose failure mode is not stated is a method nobody can audit — and each names the screen that spends it, so a disputed figure can be traced to the method behind it.', derived.methodsWithFailure, METHODS.length)} />}
       padded={false}
     >
       <div className="divide-y divide-steel-100">
@@ -387,7 +386,7 @@ function SoftwareView({ derived }) {
     <div className="space-y-4">
       <Card
         title={t('Software')}
-        subtitle={t('{0} packages under {1} licences, every version pinned. The platform makes no call to the open internet for its figures, models or maps, and runs entirely within the department’s own infrastructure.', SOFTWARE.length, derived.licences.length)}
+        subtitle={<MethodNote short={t('Every version pinned. No call to the open internet at run time.')} full={t('{0} packages under {1} licences, every version pinned. The platform makes no call to the open internet for its figures, models or maps, and runs entirely within the department’s own infrastructure.', SOFTWARE.length, derived.licences.length)} />}
         padded={false}
       >
         <div className="divide-y divide-steel-100">

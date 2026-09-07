@@ -60,7 +60,13 @@ export function ExportBar({ briefingNote = true, moduleLabel = 'Module', getBrie
     // appended to whatever is copied, which is the one place the label has to
     // travel with the data.
     const body = getBriefingText?.() || `${moduleLabel} — briefing note generated ${new Date().toLocaleDateString('en-IN')}.`
-    const text = `${body}\n\n— Simulated export from Maha GST Intelligence (demonstration environment). All figures are generated demonstration data as at ${asOfLongLabel(locale)}; they are not departmental records. Verify against the source system before circulation.`
+    const text =
+      body +
+      '\n\n' +
+      t(
+        '— Simulated export from Maha GST Intelligence (demonstration environment). All figures are generated demonstration data as at {0}; they are not departmental records. Verify against the source system before circulation.',
+        asOfLongLabel(locale)
+      )
     try {
       await navigator.clipboard.writeText(text)
       logAction('Copied Briefing Note to Clipboard', moduleLabel, caseId)

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
@@ -56,6 +57,7 @@ const CONTROL_STATES = {
 const CONTROL_REGISTER = [
   {
     id: 'maker-checker',
+    summary: () => t('The AI drafts; an authorised officer approves or rejects.'),
     icon: UserCheck,
     control: () => t('Maker-checker / human-in-the-loop'),
     state: 'built',
@@ -65,6 +67,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'explainability',
+    summary: () => t('Every score traces back to the rules that fired and their weights.'),
     icon: Radar,
     control: () => t('Model explainability'),
     state: 'built',
@@ -74,6 +77,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'rbac',
+    summary: () => t('Access is decided per role at section level, then again per module.'),
     icon: Users,
     control: () => t('Role-based access control'),
     state: 'built',
@@ -83,6 +87,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'audit-trail',
+    summary: () => t('Every officer action is recorded, including denied attempts.'),
     icon: ScrollText,
     control: () => t('Audit trail capture'),
     state: 'built',
@@ -92,6 +97,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'copilot-logging',
+    summary: () => t('The fact of each generation is logged; the content is not.'),
     icon: MessageSquareText,
     control: () => t('AI Copilot usage logging'),
     state: 'built',
@@ -101,6 +107,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'data-minimisation',
+    summary: () => t('No real taxpayer data is present, so no control has been exercised.'),
     icon: Lock,
     control: () => t('Data minimisation / PII masking'),
     state: 'gap',
@@ -109,6 +116,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'encryption',
+    summary: () => t('Not assessed — this build stores nothing and transmits nothing.'),
     icon: KeyRound,
     control: () => t('Encryption at rest and in transit'),
     state: 'na',
@@ -117,6 +125,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'drift',
+    summary: () => t('Not measured. No model and no sampling programme exist here.'),
     icon: FlaskConical,
     control: () => t('Model drift monitoring'),
     state: 'gap',
@@ -125,6 +134,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'red-team',
+    summary: () => t('Not carried out against this build.'),
     icon: ShieldAlert,
     control: () => t('Adversarial / red-team testing'),
     state: 'gap',
@@ -133,6 +143,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'vapt',
+    summary: () => t('Not carried out against this build.'),
     icon: FileSearch,
     control: () => t('CERT-In / VAPT readiness'),
     state: 'gap',
@@ -141,6 +152,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'api-security',
+    summary: () => t('No integrations and no network calls, so there is nothing to assess.'),
     icon: Network,
     control: () => t('API integration security'),
     state: 'na',
@@ -150,6 +162,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'dpdp',
+    summary: () => t('No real personal data, so purpose limitation has not been exercised.'),
     icon: ShieldCheck,
     control: () => t('DPDP-aligned data handling'),
     state: 'gap',
@@ -159,6 +172,7 @@ const CONTROL_REGISTER = [
   },
   {
     id: 'bias',
+    summary: () => t('No sampling programme runs, so the false-positive rate measures nothing.'),
     icon: Gauge,
     control: () => t('Bias / false-positive monitoring'),
     state: 'gap',
@@ -312,7 +326,13 @@ export default function AIGovernanceSecurity() {
       <SectionHeader
         eyebrow={t('Governance · AI Oversight & Security')}
         title={t('AI Governance & Security')}
-        description={t('Governance metrics on this screen describe the AI layer itself and are not narrowed by the taxpayer filters above; only the audit trail responds to the search box. Oversight console for AI-assisted decision support across the platform — the control register and its evidence, role-based access as the platform actually enforces it, officer override history, and audit trail integrity. AI systems here operate strictly in an advisory capacity under mandatory human review.')}
+        description={
+          <MethodNote
+            tone="plain"
+            short={t('AI here is advisory only, under mandatory human review.')}
+            full={t('Governance metrics on this screen describe the AI layer itself and are not narrowed by the taxpayer filters above; only the audit trail responds to the search box. Oversight console for AI-assisted decision support across the platform — the control register and its evidence, role-based access as the platform actually enforces it, officer override history, and audit trail integrity. AI systems here operate strictly in an advisory capacity under mandatory human review.')}
+          />
+        }
         actions={<ExportBar moduleLabel="AI Governance & Security" />}
       />
 
@@ -345,9 +365,7 @@ export default function AIGovernanceSecurity() {
 
       <div className="rounded-xl border border-steel-200 bg-steel-50/70 px-5 py-4 mb-5 flex items-start gap-3">
         <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-        <p className="text-xs text-navy-800 leading-relaxed max-w-4xl">
-          {t('Read this page as a control position, not as an assurance. "Implemented in this build" means an assessor can watch the control work in this demonstration; it is not an accreditation, a certification or an independent assessment, and the platform holds none of those. Every model figure on this screen — recommendation counts, confidence bands and the false-positive rate — is an illustrative placeholder: there is no model, no gateway and no scheduled audit behind them. The audit trail, the access matrix and the translation coverage below are the only figures on this page counted from something that actually exists.')}
-        </p>
+        <MethodNote className="text-xs text-navy-800 leading-relaxed max-w-4xl" short={t('A control position, not an assurance — the platform holds no certification.')} full={t('Read this page as a control position, not as an assurance. "Implemented in this build" means an assessor can watch the control work in this demonstration; it is not an accreditation, a certification or an independent assessment, and the platform holds none of those. Every model figure on this screen — recommendation counts, confidence bands and the false-positive rate — is an illustrative placeholder: there is no model, no gateway and no scheduled audit behind them. The audit trail, the access matrix and the translation coverage below are the only figures on this page counted from something that actually exists.')} />
       </div>
 
       <Card
@@ -388,14 +406,26 @@ export default function AIGovernanceSecurity() {
                       <Pill tone={state.tone}>{state.label()}</Pill>
                     </td>
                     <td className="px-3 py-3 text-navy-700 leading-relaxed">
-                      {control.metricKey ? (
-                        <span>{t(gm[control.metricKey])}</span>
-                      ) : (
-                        <>
-                          <div>{control.detail()}</div>
-                          <div className="text-steel-500 mt-1.5">{control.production()}</div>
-                        </>
-                      )}
+                      {/* The state as the line, the full wording behind it. The
+                          register is a reference an assessor reads row by row;
+                          it does not have to shout every production requirement
+                          at an officer scanning for the gaps. A metricKey row
+                          still carries its sentence VERBATIM from
+                          AI_GOVERNANCE_METRICS — the summary sits in front of
+                          it, never in place of it. */}
+                      <MethodNote
+                        tone="plain"
+                        /* Falls back to the control's own name. A register row
+                           added without a summary should read thinly, not take
+                           the oversight console down with it — which is what a
+                           bare control.summary() did the first time one was. */
+                        short={control.summary ? control.summary() : control.control()}
+                        full={
+                          control.metricKey
+                            ? t(gm[control.metricKey])
+                            : `${control.detail()} ${control.production()}`
+                        }
+                      />
                     </td>
                     <td className="px-3 py-3 text-navy-700">
                       {control.owner === 'console'
@@ -408,9 +438,7 @@ export default function AIGovernanceSecurity() {
             </tbody>
           </table>
         </div>
-        <p className="text-[11px] text-steel-500 mt-3 max-w-4xl">
-          {t('Ownership is derived from the access configuration, which is the only ownership statement this build can evidence: the roles that can open this console are {0}. No separate control-owner register exists, so the infrastructure controls above have no named accountable owner. Production requirement: name an accountable owner and a review cycle for every row before go-live.', consoleRoles.map(r => t(r)).join(', '))}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('Ownership is read from the access configuration; no owner register exists.')} full={t('Ownership is derived from the access configuration, which is the only ownership statement this build can evidence: the roles that can open this console are {0}. No separate control-owner register exists, so the infrastructure controls above have no named accountable owner. Production requirement: name an accountable owner and a review cycle for every row before go-live.', consoleRoles.map(r => t(r)).join(', '))} />
       </Card>
 
       <Card
@@ -436,9 +464,7 @@ export default function AIGovernanceSecurity() {
       </Card>
 
       <Card title={t('Maker-Checker / Human-in-the-Loop Workflow')} subtitle={t('Every AI-generated notice or audit action requires officer approval before execution')} className="mb-5">
-        <p className="text-xs text-steel-500 mb-4 max-w-4xl">
-          {t('The platform enforces a maker-checker control on every AI-assisted output. The AI system only ever occupies the "maker / draft" role — it cannot independently execute an enforcement action. This mirrors the Human Approval step already built into the Audit & Scrutiny Engine workflow, and applies uniformly across notice drafting, audit scoping, refund checklists and taxpayer outreach.')}
-        </p>
+        <MethodNote className="text-xs text-steel-500 mb-4 max-w-4xl" short={t('The AI only ever drafts. An officer approves or rejects every output.')} full={t('The platform enforces a maker-checker control on every AI-assisted output. The AI system only ever occupies the "maker / draft" role — it cannot independently execute an enforcement action. This mirrors the Human Approval step already built into the Audit & Scrutiny Engine workflow, and applies uniformly across notice drafting, audit scoping, refund checklists and taxpayer outreach.')} />
         <div className="flex flex-col sm:flex-row items-stretch gap-2">
           <ProcessBox icon={Bot} label={t('AI generates draft')} sub={t('Notice / checklist / summary / briefing')} tone="navy" />
           <Arrow />
@@ -505,9 +531,7 @@ export default function AIGovernanceSecurity() {
           </table>
         </div>
         <div className="mt-3 space-y-1.5 max-w-4xl">
-          <p className="text-[11px] text-steel-500">
-            {t('Module counts include the Officer AI Copilot, which is reachable but not listed in the navigation menu. A role with a section is not automatically given every module inside it — the fourth column is that second layer on its own.')}
-          </p>
+          <MethodNote className="text-[11px] text-steel-500" short={t('A role with a section is not automatically given every module in it.')} full={t('Module counts include the Officer AI Copilot, which is reachable but not listed in the navigation menu. A role with a section is not automatically given every module inside it — the fourth column is that second layer on its own.')} />
           <p className="text-[11px] text-steel-600 flex items-start gap-1.5">
             <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
             <span>{t(DEMO_GATE_NOTE)}</span>
@@ -540,9 +564,7 @@ export default function AIGovernanceSecurity() {
           rows={overrideLog}
           pageSize={6}
         />
-        <p className="text-[11px] text-steel-500 mt-3 max-w-4xl">
-          {t('An override is an officer disagreeing with the platform, which is the outcome the maker-checker control exists to make possible. A trail with no overrides in it would be a warning sign, not a good result.')}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('A trail with no overrides would be a warning sign, not a good result.')} full={t('An override is an officer disagreeing with the platform, which is the outcome the maker-checker control exists to make possible. A trail with no overrides in it would be a warning sign, not a good result.')} />
       </Card>
 
       <Card
@@ -557,9 +579,7 @@ export default function AIGovernanceSecurity() {
           <StatTile tone="red" label={t('Rejected by officer')} value={gm.rejectedSuggestions.toLocaleString('en-IN')} note={t('{0}% of generated', model.rejectionPct)} />
           <StatTile tone="saffron" label={t('Pending governance review')} value={gm.pendingGovernanceReview.toLocaleString('en-IN')} note={t('{0}% of generated', model.pendingPct)} />
         </div>
-        <p className="text-xs text-steel-600 max-w-4xl">
-          {t('Disposition check: approved plus rejected plus pending accounts for {0} of {1} recommendations, leaving {2} unexplained. The three figures are presented as an exhaustive split, so a non-zero remainder would mean the split is wrong. {3}% of generated recommendations have been disposed of one way or the other.', (gm.officerApproved + gm.rejectedSuggestions + gm.pendingGovernanceReview).toLocaleString('en-IN'), model.generated.toLocaleString('en-IN'), model.unaccounted, model.disposedPct)}
-        </p>
+        <MethodNote className="text-xs text-steel-600 max-w-4xl" short={t('Approved, rejected and pending are an exhaustive split of what was generated.')} full={t('Disposition check: approved plus rejected plus pending accounts for {0} of {1} recommendations, leaving {2} unexplained. The three figures are presented as an exhaustive split, so a non-zero remainder would mean the split is wrong. {3}% of generated recommendations have been disposed of one way or the other.', (gm.officerApproved + gm.rejectedSuggestions + gm.pendingGovernanceReview).toLocaleString('en-IN'), model.generated.toLocaleString('en-IN'), model.unaccounted, model.disposedPct)} />
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
@@ -575,9 +595,7 @@ export default function AIGovernanceSecurity() {
             height={240}
             colorFn={d => d.band === 'Very High' ? '#1f8a4c' : d.band === 'High' ? '#204575' : d.band === 'Moderate' ? '#f78c0a' : '#c41e3a'}
           />
-          <p className="text-[11px] text-steel-500 mt-3">
-            {t('Confidence is a property of the output, not a permission. A "Very High" band does not shorten the officer review path — every band goes through the same maker-checker step.')}
-          </p>
+          <MethodNote className="text-[11px] text-steel-500 mt-3" short={t('Confidence is a property of the output, not a permission.')} full={t('Confidence is a property of the output, not a permission. A "Very High" band does not shorten the officer review path — every band goes through the same maker-checker step.')} />
         </Card>
 
         <Card
@@ -599,9 +617,7 @@ export default function AIGovernanceSecurity() {
                 <div className="h-full bg-maharisk-high" style={{ width: `${model.falsePositivePct}%` }} />
               </div>
             </div>
-            <p className="text-xs text-steel-500">
-              {t('Of {0} AI-generated risk flags submitted for officer review, {1} were confirmed as false positives ({2}%). No sampling programme produced these numbers — they are illustrative. Production requirement: track this rate continuously by sector and district to monitor model precision; it must never by itself trigger an automated model change.', gm.falsePositiveReviewed, gm.falsePositiveConfirmed, model.falsePositivePct)}
-            </p>
+            <MethodNote className="text-xs text-steel-500" short={t('Illustrative only — no sampling programme produced this rate.')} full={t('Of {0} AI-generated risk flags submitted for officer review, {1} were confirmed as false positives ({2}%). No sampling programme produced these numbers — they are illustrative. Production requirement: track this rate continuously by sector and district to monitor model precision; it must never by itself trigger an automated model change.', gm.falsePositiveReviewed, gm.falsePositiveConfirmed, model.falsePositivePct)} />
           </div>
         </Card>
       </div>
@@ -619,9 +635,7 @@ export default function AIGovernanceSecurity() {
           <StatTile tone="navy" label={t('Entries with a case reference')} value={trail.withCase} note={t('of {0}', trail.total)} />
           <StatTile tone="steel" label={t('Coverage window')} value={trail.first} note={t('to {0}', trail.last)} />
         </div>
-        <p className="text-[11px] text-steel-500 mt-3 max-w-4xl">
-          {t('Denied attempts are kept in the trail deliberately: a log that records only what succeeded cannot evidence that access control refused anything. The trail is held in browser memory for this session and is lost on reload — it evidences capture, not preservation, and production requires append-only, tamper-evident storage with a defined retention period.')}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('Denied attempts are kept deliberately; the trail is session-only.')} full={t('Denied attempts are kept in the trail deliberately: a log that records only what succeeded cannot evidence that access control refused anything. The trail is held in browser memory for this session and is lost on reload — it evidences capture, not preservation, and production requires append-only, tamper-evident storage with a defined retention period.')} />
       </Card>
 
       <Card
@@ -680,9 +694,7 @@ export default function AIGovernanceSecurity() {
           rows={copilotLog}
           pageSize={6}
         />
-        <p className="text-[11px] text-steel-500 mt-3 max-w-4xl">
-          {t('Prompt/output content itself is not persisted in this log by design (data minimisation) — only the fact that a generation occurred, by whom, for which case, and when. This satisfies the governance requirement for AI Copilot usage logging distinct from the general system audit trail above.')}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('Only the fact of a generation is logged — never the prompt or the output.')} full={t('Prompt/output content itself is not persisted in this log by design (data minimisation) — only the fact that a generation occurred, by whom, for which case, and when. This satisfies the governance requirement for AI Copilot usage logging distinct from the general system audit trail above.')} />
       </Card>
 
       <Card
@@ -718,9 +730,7 @@ export default function AIGovernanceSecurity() {
         )}
         <p className="text-[11px] text-steel-500 mt-3 flex items-start gap-1.5 max-w-4xl">
           <Languages className="w-3.5 h-3.5 shrink-0 mt-0.5 text-steel-400" />
-          <span>
-            {t('This counts only what this browser has rendered since the page loaded, in the currently selected language — it is a live gap indicator, not a coverage audit, and it reads zero in English because English is the source language. A string listed here reaches an officer in English on a screen they have set to Marathi or Hindi. Production requirement: drive this to zero for every officer-facing string before an official-language deployment.')}
-          </span>
+          <MethodNote short={t('A live gap indicator for this session, not a coverage audit.')} full={t('This counts only what this browser has rendered since the page loaded, in the currently selected language — it is a live gap indicator, not a coverage audit, and it reads zero in English because English is the source language. A string listed here reaches an officer in English on a screen they have set to Marathi or Hindi. Production requirement: drive this to zero for every officer-facing string before an official-language deployment.')} />
         </p>
       </Card>
     </div>

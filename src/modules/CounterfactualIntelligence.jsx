@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Search, Clock, Database, Users, AlertTriangle, GitCompare, Split } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
@@ -11,6 +12,7 @@ import {
 import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
+import { similarityText } from '../i18n/similarityText.js'
 
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
 const crFrom = n => Math.round((n / 10000000) * 100) / 100
@@ -67,7 +69,7 @@ export default function CounterfactualIntelligence() {
       <SectionHeader
         eyebrow={t('Missed Revenue · Counterfactual')}
         title={t('Counterfactual Case Intelligence')}
-        description={t('What the same action, taken earlier, would have been worth on a given case — with comparable concluded proceedings shown as the evidence behind the comparison. Timing only: what a different escalation route would have produced is a causal claim this platform does not make, and the screen says so.')}
+        description={<MethodNote short={t('What the same action, taken earlier, would have been worth.')} full={t('What the same action, taken earlier, would have been worth on a given case — with comparable concluded proceedings shown as the evidence behind the comparison. Timing only: what a different escalation route would have produced is a causal claim this platform does not make, and the screen says so.')} />}
         actions={<ExportBar moduleLabel="Counterfactual Case Intelligence" />}
       />
 
@@ -129,19 +131,15 @@ export default function CounterfactualIntelligence() {
             <div className="flex items-center gap-2 mb-1">
               <Pill tone="red">{t('Owner: allocation and capacity')}</Pill>
             </div>
-            <p className="text-[11.5px] text-navy-800 leading-relaxed">
-              {t('₹{0} Cr, {1}% of the total lag loss, sat in the queue after the signal was already visible. Median dwell {2} days. This is the part a prioritisation decision changes this quarter, at the same headcount.',
-                S.lostToQueueCr, S.queuePct, S.medianQueueDays)}
-            </p>
+            <MethodNote className="text-[11.5px] text-navy-800 leading-relaxed" short={t('Queue dwell — the half a prioritisation decision changes this quarter.')} full={t('₹{0} Cr, {1}% of the total lag loss, sat in the queue after the signal was already visible. Median dwell {2} days. This is the part a prioritisation decision changes this quarter, at the same headcount.',
+                S.lostToQueueCr, S.queuePct, S.medianQueueDays)} />
           </div>
           <div className="rounded-lg border border-amber-200 bg-amber-50/50 px-3.5 py-2.5">
             <div className="flex items-center gap-2 mb-1">
               <Pill tone="amber">{t('Owner: data feed integration')}</Pill>
             </div>
-            <p className="text-[11.5px] text-navy-800 leading-relaxed">
-              {t('₹{0} Cr, {1}% of the total, was gone before the signal could physically exist. Median detection floor {2} days. No amount of prioritisation shortens this — it moves only when a faster feed replaces the return cycle.',
-                S.lostToDetectionCr, 100 - S.queuePct, S.medianDetectionDays)}
-            </p>
+            <MethodNote className="text-[11.5px] text-navy-800 leading-relaxed" short={t('Detection floor — no amount of prioritisation shortens this.')} full={t('₹{0} Cr, {1}% of the total, was gone before the signal could physically exist. Median detection floor {2} days. No amount of prioritisation shortens this — it moves only when a faster feed replaces the return cycle.',
+                S.lostToDetectionCr, 100 - S.queuePct, S.medianDetectionDays)} />
           </div>
         </div>
         <p className="text-[12px] text-navy-800 leading-relaxed mb-2">
@@ -246,9 +244,7 @@ function CaseCounterfactual({ cf }) {
               <span className="text-[22px] font-bold tabular-nums text-navy-900 leading-none">{t('{0}d', cf.detectionFloorDays)}</span>
               <span className="text-[13px] font-semibold tabular-nums text-navy-800">{lakh(cf.lostToDetection)}</span>
             </div>
-            <p className="text-[11px] text-steel-600 leading-relaxed mt-1.5">
-              {t('The earliest this signal could exist at all, because it waits on a return being filed. Not shortenable by prioritisation — only by a feed that arrives before the return does.')}
-            </p>
+            <MethodNote className="text-[11px] text-steel-600 leading-relaxed mt-1.5" short={t('The earliest the signal could exist — it waits on a return being filed.')} full={t('The earliest this signal could exist at all, because it waits on a return being filed. Not shortenable by prioritisation — only by a feed that arrives before the return does.')} />
           </div>
           <div className="rounded-lg border border-red-200 bg-red-50/40 px-3.5 py-3">
             <div className="flex items-center justify-between gap-2 mb-1">
@@ -264,10 +260,8 @@ function CaseCounterfactual({ cf }) {
             </p>
           </div>
         </div>
-        <p className="text-[11.5px] text-steel-600 leading-relaxed mt-3">
-          {t('{0} days of detection latency plus {1} days of queue dwell make the {2} days of total lag. They are not averaged together, because one is answered by an integration and the other by a rota.',
-            cf.detectionFloorDays, cf.queueDwellDays, cf.totalLagDays)}
-        </p>
+        <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed mt-3" short={t('Not averaged: one is answered by an integration, the other by a rota.')} full={t('{0} days of detection latency plus {1} days of queue dwell make the {2} days of total lag. They are not averaged together, because one is answered by an integration and the other by a rota.',
+            cf.detectionFloorDays, cf.queueDwellDays, cf.totalLagDays)} />
       </Card>
 
       {/* Four worlds, same action. */}
@@ -296,20 +290,18 @@ function CaseCounterfactual({ cf }) {
                   />
                 </div>
               </div>
-              <p className="text-[11px] text-steel-500 leading-relaxed mt-0.5 ml-16">{t(s.note)}</p>
+              <p className="text-[11px] text-steel-500 leading-relaxed mt-0.5 ml-16">{t(s.note, ...(s.noteArgs || []))}</p>
             </div>
           ))}
         </div>
 
         <div className="rounded-lg border border-red-200 bg-red-50/50 px-3.5 py-3 mt-4">
           <div className="text-[10px] font-bold uppercase tracking-wider text-[#C5221F] mb-1">{t('The gap that was controllable')}</div>
-          <p className="text-[12.5px] text-navy-800 leading-relaxed">
-            {t('Acting when the signal first became visible would have preserved {0}. The case was worked {1} days later and {2} remained. The difference, {3}, was lost to queue dwell rather than to anything about the taxpayer.',
+          <MethodNote className="text-[12.5px] text-navy-800 leading-relaxed" short={t('Acting when the signal first appeared would have preserved more.')} full={t('Acting when the signal first became visible would have preserved {0}. The case was worked {1} days later and {2} remained. The difference, {3}, was lost to queue dwell rather than to anything about the taxpayer.',
               lakh(floor.value),
               cf.queueDwellDays,
               lakh(cf.atNow),
-              lakh(cf.forgoneVsFeasible))}
-          </p>
+              lakh(cf.forgoneVsFeasible))} />
         </div>
       </Card>
 
@@ -319,7 +311,7 @@ function CaseCounterfactual({ cf }) {
         subtitle={t('The evidence driving the comparison — concluded cases comparable on the dimensions that decide outcomes, with what actually happened in each.')}
       >
         <div className={`rounded-lg border px-3.5 py-2.5 mb-3 ${cf.comparables.rateStated ? 'border-emerald-200 bg-emerald-50/50' : 'border-amber-200 bg-amber-50/50'}`}>
-          <p className="text-[12px] text-navy-800 leading-relaxed">{t(cf.comparables.rateNote)}</p>
+          <p className="text-[12px] text-navy-800 leading-relaxed">{t(cf.comparables.rateNoteMsg.key, ...cf.comparables.rateNoteMsg.args)}</p>
         </div>
         {cf.comparables.none ? (
           <p className="text-[12.5px] text-steel-600 leading-relaxed">{t(cf.comparables.noneReason)}</p>
@@ -340,8 +332,8 @@ function CaseCounterfactual({ cf }) {
                     <span className="text-steel-400"> {t('on {0} of {1} dimensions', c.assessedOn, c.ofDimensions)}</span>
                   </span>
                 </div>
-                {c.matches.length > 0 && <p className="text-[11.5px] text-emerald-800 leading-relaxed">+ {c.matches.map(m => t(m.text)).join(' · ')}</p>}
-                {c.distinguishers.length > 0 && <p className="text-[11.5px] text-[#C5221F] leading-relaxed">− {c.distinguishers.map(d => t(d.text)).join(' · ')}</p>}
+                {c.matches.length > 0 && <p className="text-[11.5px] text-emerald-800 leading-relaxed">+ {c.matches.map(m => similarityText(m)).join(' · ')}</p>}
+                {c.distinguishers.length > 0 && <p className="text-[11.5px] text-[#C5221F] leading-relaxed">− {c.distinguishers.map(d => similarityText(d)).join(' · ')}</p>}
               </div>
             ))}
           </div>

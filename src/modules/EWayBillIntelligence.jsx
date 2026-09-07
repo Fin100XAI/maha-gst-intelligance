@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill, HumanReviewBadge, RiskBadge } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -359,7 +360,7 @@ export default function EWayBillIntelligence() {
       <SectionHeader
         eyebrow={t('Fraud & Risk · Logistics Intelligence')}
         title={t('E-Way Bill Intelligence')}
-        description={t('Transit records checked against filings. The question this screen answers is how much declared goods movement has no filed return behind it, whose movement that is, and how that compares with the rest of the state.')}
+        description={<MethodNote short={t('Declared movement with no filed return behind it, and whose it is.')} full={t('Transit records checked against filings. The question this screen answers is how much declared goods movement has no filed return behind it, whose movement that is, and how that compares with the rest of the state.')} />}
         actions={<ExportBar />}
       />
 
@@ -397,7 +398,7 @@ export default function EWayBillIntelligence() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
         <Card
           title={t('Unmatched movement value by period')}
-          subtitle={t('Value with no matching filed return, against a total of ₹{0} L moved in scope. Total movement rises and falls with trade; the unmatched share is what an officer is being asked to act on.', kpis.totalValueLakh.toFixed(1))}
+          subtitle={<MethodNote short={t('Total movement follows trade; the unmatched share is what to act on.')} full={t('Value with no matching filed return, against a total of ₹{0} L moved in scope. Total movement rises and falls with trade; the unmatched share is what an officer is being asked to act on.', kpis.totalValueLakh.toFixed(1))} />}
         >
           {periods.length > 0 ? (
             <>
@@ -412,7 +413,7 @@ export default function EWayBillIntelligence() {
         </Card>
         <Card
           title={t('District-wise unmatched rate')}
-          subtitle={t('Share of each district’s consignments with no matching return. The statewide rate is {0}% — a district below it is not a priority however many records it carries.', kpis.stateUnmatchedPct)}
+          subtitle={<MethodNote short={t('A district below the statewide rate is not a priority, whatever its volume.')} full={t('Share of each district’s consignments with no matching return. The statewide rate is {0}% — a district below it is not a priority however many records it carries.', kpis.stateUnmatchedPct)} />}
         >
           {districtRisk.length > 0 ? (
             <>
@@ -422,9 +423,7 @@ export default function EWayBillIntelligence() {
                 barKey="unmatchedPct"
                 colorFn={d => (d.unmatchedPct > kpis.stateUnmatchedPct ? '#c41e3a' : '#7e9cc6')}
               />
-              <div className="text-[11px] text-steel-500 mt-2 leading-relaxed">
-                {t('Bars above {0}% are above the statewide unmatched rate. Districts with very few records will sit at 0% or 100% for reasons that are not risk — read the record count alongside.', kpis.stateUnmatchedPct)}
-              </div>
+              <MethodNote className="text-[11px] text-steel-500 mt-2 leading-relaxed" short={t('Districts with very few records swing to 0% or 100% for reasons that are not risk.')} full={t('Bars above {0}% are above the statewide unmatched rate. Districts with very few records will sit at 0% or 100% for reasons that are not risk — read the record count alongside.', kpis.stateUnmatchedPct)} />
             </>
           ) : (
             <div className="text-xs text-steel-500 py-10 text-center">{t('No district data available for the current filters.')}</div>
@@ -447,15 +446,13 @@ export default function EWayBillIntelligence() {
         />
         <div className="mt-3 rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[12px] text-steel-700 leading-relaxed">
-            {t('Not available on this platform: a period reconciliation of consignment value against declared outward supply. The e-way feed here carries individual consignments dated across a rolling window, while the return record carries a single monthly turnover figure per taxpayer — summing one against the other would compare two different periods and produce a mismatch out of arithmetic rather than behaviour. The match status shown is the one the e-way feed itself carries. A true reconciliation needs GSTR-1 outward supply at invoice level for the same tax period, which this platform does not hold. The "declared movement / turnover" column is the one like-for-like ratio available, and it comes from the taxpayer’s own return record rather than from these consignments.')}
-          </p>
+          <MethodNote className="text-[12px] text-steel-700 leading-relaxed" short={t('Not available: a period reconciliation against declared outward supply.')} full={t('Not available on this platform: a period reconciliation of consignment value against declared outward supply. The e-way feed here carries individual consignments dated across a rolling window, while the return record carries a single monthly turnover figure per taxpayer — summing one against the other would compare two different periods and produce a mismatch out of arithmetic rather than behaviour. The match status shown is the one the e-way feed itself carries. A true reconciliation needs GSTR-1 outward supply at invoice level for the same tax period, which this platform does not hold. The "declared movement / turnover" column is the one like-for-like ratio available, and it comes from the taxpayer’s own return record rather than from these consignments.')} />
         </div>
       </Card>
 
       <Card
         title={t('Consignment register')}
-        subtitle={t('{0} of {1} records in scope carry an anomaly flag, a cancellation, or no matching return. Use this to check a specific movement; use the ranking above to decide who to open.', suspiciousRecords.length, kpis.recordCount)}
+        subtitle={<MethodNote short={t('Use this to check one movement; use the ranking above to decide who to open.')} full={t('{0} of {1} records in scope carry an anomaly flag, a cancellation, or no matching return. Use this to check a specific movement; use the ranking above to decide who to open.', suspiciousRecords.length, kpis.recordCount)} />}
         className="mb-6"
       >
         <DataTable

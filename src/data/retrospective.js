@@ -188,7 +188,9 @@ export const FRAUD_LABEL_STATE = {
   // The whole argument in one boolean.
   trainable: (bySection.s74 || 0) >= 5,
   minimumNeeded: 5,
-  reason: `Identifying Section 73 cases that resemble Section 74 cases requires Section 74 cases to resemble. The register contains ${bySection.s74 || 0}. A resemblance model built on a single positive example is not weak — it is undefined, because there is no variation from which to learn what the pattern is.`,
+  reason:
+    'Identifying Section 73 cases that resemble Section 74 cases requires Section 74 cases to resemble. The register contains {0}. A resemblance model built on a single positive example is not weak — it is undefined, because there is no variation from which to learn what the pattern is.',
+  reasonArgs: [bySection.s74 || 0],
   stakes: 'Reclassification under Section 74 carries a longer limitation period and a substantially heavier penalty, and must be sustained on evidence of suppression or wilful misstatement. A model proposing it has to be defensible in appeal. On one example it would not survive the first hearing.',
   whatWouldUnlockIt: [
     'At least five concluded Section 74 proceedings, and ideally several times that, so the pattern has variation to learn from rather than a single case to memorise.',
@@ -357,7 +359,7 @@ export function buildCounterfactual(gstin) {
     { id: 'ideal', label: 'Acted the day the behaviour occurred', day: 0, value: at(0), feasible: false, note: 'Not achievable — the return that reveals it has not been filed yet. Shown as the ceiling.' },
     { id: 'floor', label: 'Acted the day the signal first became visible', day: c.detectionFloorDays, value: at(c.detectionFloorDays), feasible: true, note: 'The earliest the department could have known. This is the realistic best case.' },
     { id: 'thirty', label: 'Acted within 30 days of the signal', day: c.detectionFloorDays + 30, value: at(c.detectionFloorDays + 30), feasible: true, note: 'A service standard the department could set and staff to.' },
-    { id: 'actual', label: 'What actually happened', day: c.totalLagDays, value: at(c.totalLagDays), feasible: true, actual: true, note: `The case waited ${c.queueDwellDays} days in the queue after the signal appeared.` }
+    { id: 'actual', label: 'What actually happened', day: c.totalLagDays, value: at(c.totalLagDays), feasible: true, actual: true, note: 'The case waited {0} days in the queue after the signal appeared.', noteArgs: [c.queueDwellDays] }
   ]
   const best = scenarios.find(s => s.id === 'floor')
   const actual = scenarios.find(s => s.actual)

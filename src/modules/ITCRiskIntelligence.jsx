@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
 import { RiskBarChart } from '../components/ui/Charts.jsx'
@@ -194,7 +195,7 @@ export default function ITCRiskIntelligence() {
       <SectionHeader
         eyebrow={t('Fraud & Risk · ITC Intelligence')}
         title={t('ITC Risk Intelligence')}
-        description={t('Input tax credit scored against the filing and payment behaviour of the entity claiming it. Every ratio here is set against the benchmark for that taxpayer’s own sector, because credit intensity is a property of the trade before it is a property of the taxpayer.')}
+        description={<MethodNote short={t('Credit scored against the filing and payment behaviour behind it.')} full={t('Input tax credit scored against the filing and payment behaviour of the entity claiming it. Every ratio here is set against the benchmark for that taxpayer’s own sector, because credit intensity is a property of the trade before it is a property of the taxpayer.')} />}
         actions={<ExportBar />}
       />
 
@@ -233,7 +234,7 @@ export default function ITCRiskIntelligence() {
 
       <Card
         title={t('Credit intensity against filing and payment behaviour')}
-        subtitle={t('The combination this module exists to surface: credit taken now, by an entity whose return and payment behaviour does not support it. Read the last column first.')}
+        subtitle={<MethodNote short={t('Credit taken now, by an entity whose behaviour does not support it.')} full={t('The combination this module exists to surface: credit taken now, by an entity whose return and payment behaviour does not support it. Read the last column first.')} />}
         className="mb-6"
       >
         <DataTable
@@ -295,14 +296,12 @@ export default function ITCRiskIntelligence() {
           searchable={false}
           pageSize={5}
         />
-        <p className="text-[12px] text-steel-600 leading-relaxed mt-3">
-          {t('A value above 1.0 in the last column means that filing class holds more of the credit than its share of the taxpayers — credit concentrating in the group least able to substantiate it. Below 1.0 it is the opposite, and the class is not where scrutiny belongs. The comparison is only valid inside the current filters: narrow to a district and the benchmark column moves with the sector mix of that district.')}
-        </p>
+        <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-3" short={t('Above 1.0 means credit is concentrating where it is least substantiated.')} full={t('A value above 1.0 in the last column means that filing class holds more of the credit than its share of the taxpayers — credit concentrating in the group least able to substantiate it. Below 1.0 it is the opposite, and the class is not where scrutiny belongs. The comparison is only valid inside the current filters: narrow to a district and the benchmark column moves with the sector mix of that district.')} />
       </Card>
 
       <Card
         title={t('ITC-to-turnover deviation by sector')}
-        subtitle={t('Bar height is the gap in percentage points between the ratio actually claimed in scope and that sector’s benchmark. Colour is the concentration of High / Critical taxpayers in the sector.')}
+        subtitle={<MethodNote short={t('The gap between what was claimed and that sector\'s own benchmark.')} full={t('Bar height is the gap in percentage points between the ratio actually claimed in scope and that sector’s benchmark. Colour is the concentration of High / Critical taxpayers in the sector.')} />}
         className="mb-6"
       >
         {sectorAnalysis.length > 0 ? (
@@ -338,9 +337,7 @@ export default function ITCRiskIntelligence() {
                 pageSize={8}
               />
             </div>
-            <div className="text-[11.5px] text-steel-500 mt-3 leading-relaxed">
-              {t('A positive gap is worth an analyst’s attention only where the taxpayer count behind it is large enough to mean something — a sector carrying three taxpayers in scope will swing several percentage points on one claim, and that is variance rather than a finding.')}
-            </div>
+            <MethodNote className="text-[11.5px] text-steel-500 mt-3 leading-relaxed" short={t('A positive gap on few taxpayers is variance, not a finding.')} full={t('A positive gap is worth an analyst’s attention only where the taxpayer count behind it is large enough to mean something — a sector carrying three taxpayers in scope will swing several percentage points on one claim, and that is variance rather than a finding.')} />
           </>
         ) : (
           <div className="text-xs text-steel-500 py-10 text-center">{t('No taxpayers match the current filters, so no sector comparison can be drawn.')}</div>

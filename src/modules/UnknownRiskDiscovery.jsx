@@ -1,6 +1,7 @@
 import { Radar, ShieldQuestion, Layers, AlertTriangle, Info, CheckCircle2, Users } from 'lucide-react'
 import { useMemo } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
@@ -76,7 +77,7 @@ export default function UnknownRiskDiscovery() {
       <SectionHeader
         eyebrow={t('Fraud & Risk · Discovery')}
         title={t('Unknown Risk Discovery')}
-        description={t('The nine encoded risk rules find what the department already knows to look for. This screen looks only at the taxpayers none of those rules touch, and asks whether any of them are statistically unlike their own sector peers — searching for patterns not yet in the rulebook rather than re-scoring the ones that are.')}
+        description={<MethodNote short={t('What the encoded rules do not look for — the unflagged population.')} full={t('The nine encoded risk rules find what the department already knows to look for. This screen looks only at the taxpayers none of those rules touch, and asks whether any of them are statistically unlike their own sector peers — searching for patterns not yet in the rulebook rather than re-scoring the ones that are.')} />}
         actions={<ExportBar moduleLabel="Unknown Risk Discovery" />}
       />
 
@@ -147,15 +148,13 @@ export default function UnknownRiskDiscovery() {
               searchable={false}
               pageSize={8}
             />
-            <p className="text-[12px] text-steel-600 leading-relaxed mt-3">
-              {t('These {0} taxpayers carry {1} of exposure and were never scored, because a peer median drawn from fewer than {2} businesses is not a norm. The action is a wider extract for these sectors — statewide rather than pilot — not a lower minimum group size, which would replace an honest gap with a fabricated benchmark.', coverage.unassessed, cr(coverage.unassessedExposure), PEER_COVERAGE.minGroupSize)}
-            </p>
+            <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-3" short={t('Never scored: a peer median from a handful of businesses is not a norm.')} full={t('These {0} taxpayers carry {1} of exposure and were never scored, because a peer median drawn from fewer than {2} businesses is not a norm. The action is a wider extract for these sectors — statewide rather than pilot — not a lower minimum group size, which would replace an honest gap with a fabricated benchmark.', coverage.unassessed, cr(coverage.unassessedExposure), PEER_COVERAGE.minGroupSize)} />
           </>
         )}
       </Card>
 
       <Card title={t('Method')} className="mt-4">
-        <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{t(DISCOVERY_METHOD_NOTE)}</p>
+        <MethodNote className="mb-3" short={t('Each ratio against the median of the taxpayer’s own sector, on a modified z.')} full={t(DISCOVERY_METHOD_NOTE)} />
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{t('Peer coverage')}</div>
           <p className="text-[12px] text-steel-700 leading-relaxed">
@@ -191,7 +190,7 @@ function NullResult({ closest }) {
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
             {t('No review candidates on this dataset — and that is a measured result, not an empty screen.')}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(SILENCE_EXPLAINED.reason)}</p>
+          <MethodNote short={t('Every ratio here is already an encoded rule, so the extreme tail is taken.')} full={t(SILENCE_EXPLAINED.reason)} />
         </div>
       </div>
 
@@ -199,7 +198,12 @@ function NullResult({ closest }) {
       <Card title={t('Why — the rulebook has already claimed the extreme tail')} subtitle={t(SILENCE_EXPLAINED.proof)}>
         <DataTable
           columns={[
-            { key: 'label', label: t('Behavioural ratio') },
+            {
+              /* A column with no render prints the raw value: the ratio labels
+                 are officer-facing text and have to go through t(). */
+              key: 'label', label: t('Behavioural ratio'),
+              render: r => <span className="text-navy-900">{t(r.label)}</span>
+            },
             {
               key: 'alreadyEncoded', label: t('Already an encoded rule?'),
               render: r => r.alreadyEncoded ? <Pill tone="amber">{t('Yes')}</Pill> : <Pill tone="steel">{t('No')}</Pill>
@@ -239,12 +243,8 @@ function NullResult({ closest }) {
           searchable={false}
           pageSize={6}
         />
-        <p className="text-[12px] text-steel-600 leading-relaxed mt-3">
-          {t('The outlier threshold is {0}. No unflagged taxpayer reaches it on any ratio, while flagged taxpayers pass it comfortably. Three of these four ratios are themselves the basis of an encoded rule, so any taxpayer extreme enough to appear here has already tripped that rule and left the screened population by definition.', DISCOVERY_SUMMARY.zThreshold)}
-        </p>
-        <p className="text-[12px] text-steel-600 leading-relaxed mt-2">
-          {t('The nearest miss is {0}, where the most extreme unflagged taxpayer reaches {1} — {2} below the cut. How narrow that gap is does not change what should be done with it. The threshold is the Iglewicz–Hoaglin convention, not a dial set to whatever makes this screen produce output, and moving it far enough to catch a near miss would report every ordinary business at that same distance from its peers as a discovery.', t(closest.feature), closest.maxZ, closest.shortfall)}
-        </p>
+        <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-3" short={t('No unflagged taxpayer reaches the threshold; flagged ones pass it easily.')} full={t('The outlier threshold is {0}. No unflagged taxpayer reaches it on any ratio, while flagged taxpayers pass it comfortably. Three of these four ratios are themselves the basis of an encoded rule, so any taxpayer extreme enough to appear here has already tripped that rule and left the screened population by definition.', DISCOVERY_SUMMARY.zThreshold)} />
+        <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-2" short={t('How narrow the miss is does not change what should be done with it.')} full={t('The nearest miss is {0}, where the most extreme unflagged taxpayer reaches {1} — {2} below the cut. How narrow that gap is does not change what should be done with it. The threshold is the Iglewicz–Hoaglin convention, not a dial set to whatever makes this screen produce output, and moving it far enough to catch a near miss would report every ordinary business at that same distance from its peers as a discovery.', t(closest.feature), closest.maxZ, closest.shortfall)} />
       </Card>
 
       <Card
@@ -265,10 +265,8 @@ function NullResult({ closest }) {
         <Info className="w-4.5 h-4.5 text-amber-600 shrink-0 mt-0.5" />
         <div>
           <div className="text-[13px] font-bold text-navy-900 mb-1">{t('The honest position')}</div>
-          <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(SILENCE_EXPLAINED.honestPosition)}</p>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed mt-2">
-            {t('Lowering the threshold until results appeared would have produced a populated screen out of ordinary variation — which is the precise failure this module warns about elsewhere. The threshold has been left where the statistics put it.')}
-          </p>
+          <MethodNote tone="plain" short={t('The method is correct; the empty result is the finding.')} full={t(SILENCE_EXPLAINED.honestPosition)} />
+          <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed mt-2" short={t('Lowering the threshold would report ordinary variation as a discovery.')} full={t('Lowering the threshold until results appeared would have produced a populated screen out of ordinary variation — which is the precise failure this module warns about elsewhere. The threshold has been left where the statistics put it.')} />
         </div>
       </div>
     </div>

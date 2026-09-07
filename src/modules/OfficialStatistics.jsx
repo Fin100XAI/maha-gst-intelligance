@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { BadgeCheck, ExternalLink, Scale, FlaskConical, AlertTriangle, CalendarClock, ShieldCheck, Ban } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
@@ -34,7 +35,7 @@ export default function OfficialStatistics() {
       <SectionHeader
         eyebrow={t('Governance · Data Provenance')}
         title={t('Official Statistics')}
-        description={t('Published government figures, carried here with their source, their period and the date they were read. These are the only real numbers in the platform — every other figure on every other screen is generated demonstration data.')}
+        description={<MethodNote short={t('Published figures, with their source, period and the date they were read.')} full={t('Published government figures, carried here with their source, their period and the date they were read. These are the only real numbers in the platform — every other figure on every other screen is generated demonstration data.')} />}
         actions={<ExportBar moduleLabel="Official Statistics" />}
       />
 
@@ -77,10 +78,8 @@ export default function OfficialStatistics() {
           <Scale className="w-4 h-4" style={{ color: amber.accent }} />
           <h2 className="text-base font-bold" style={{ color: amber.accent }}>{t('What this demonstration is, to scale')}</h2>
         </div>
-        <p className="text-sm text-steel-700 leading-relaxed max-w-4xl">
-          {t('This platform models {0} taxpayers across {1} districts. Maharashtra has {2} registered SGST dealers across {3} districts. The demonstration is roughly one taxpayer for every {4} real ones — it is built to show how the workflow behaves, not to represent the state’s book.',
-            scale.modelledTaxpayers, scale.modelledDistricts, scale.officialDealersDisplay, scale.officialDistricts, scale.taxpayerRatio.toLocaleString('en-IN'))}
-        </p>
+        <MethodNote className="text-sm text-steel-700 leading-relaxed max-w-4xl" short={t('The modelled scale, set against the published one.')} full={t('This platform models {0} taxpayers across {1} districts. Maharashtra has {2} registered SGST dealers across {3} districts. The demonstration is roughly one taxpayer for every {4} real ones — it is built to show how the workflow behaves, not to represent the state’s book.',
+            scale.modelledTaxpayers, scale.modelledDistricts, scale.officialDealersDisplay, scale.officialDistricts, scale.taxpayerRatio.toLocaleString('en-IN'))} />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
           <ScaleFigure label={t('Taxpayers modelled')} value={scale.modelledTaxpayers.toLocaleString('en-IN')} kind="simulated" />
           <ScaleFigure label={t('Registered SGST dealers')} value={scale.officialDealersDisplay} kind="official" sub={t('as at {0}', scale.asAt)} />
@@ -94,9 +93,7 @@ export default function OfficialStatistics() {
         <ShieldCheck className="w-5 h-5 text-navy-600 shrink-0 mt-0.5" />
         <div>
           <div className="text-[13px] font-bold text-navy-900 mb-1">{t('These {0} figures are never mixed into a computed total', OFFICIAL_FIGURES.length)}</div>
-          <p className="text-[12.5px] text-navy-800 leading-relaxed">
-            {t('No figure on this page is combined with a modelled one, and no modelled record is presented anywhere as an observation. Nothing here is fetched at run time: each figure was read by hand from the publication it links to on {0}, and only an edit to the source file can change it.', OFFICIAL_RETRIEVED_ON)}
-          </p>
+          <MethodNote className="text-[12.5px] text-navy-800 leading-relaxed" short={t('No published figure is ever mixed with a modelled one.')} full={t('No figure on this page is combined with a modelled one, and no modelled record is presented anywhere as an observation. Nothing here is fetched at run time: each figure was read by hand from the publication it links to on {0}, and only an edit to the source file can change it.', OFFICIAL_RETRIEVED_ON)} />
         </div>
       </div>
 
@@ -110,7 +107,7 @@ export default function OfficialStatistics() {
           {OFFICIAL_FIGURES.map(f => (
             <div key={f.id} className="px-5 py-4 flex flex-col lg:flex-row lg:items-center gap-3">
               <div className="lg:w-64 shrink-0">
-                <div className="text-2xl font-bold tabular-nums" style={{ color: green.accent }}>{f.display}</div>
+                <div className="text-2xl font-bold tabular-nums" style={{ color: green.accent }}>{t(f.display)}</div>
                 <div className="flex items-center gap-1.5 mt-1">
                   <BadgeCheck className="w-3.5 h-3.5 shrink-0" style={{ color: green.accent }} />
                   <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: green.accent }}>{t('Official source')}</span>
@@ -170,9 +167,7 @@ export default function OfficialStatistics() {
 
       <div className="rounded-lg border border-steel-200 bg-steel-50 px-4 py-3 mt-4 flex items-start gap-2.5">
         <Ban className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[11.5px] text-steel-600 leading-relaxed">
-          {t('A figure with no publication that states it does not belong on this page. A figure republished for a period other than the one it was issued for does not either — the period and the as-at date are what tell an officer whether a number is still the current one.')}
-        </p>
+        <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed" short={t('A figure with no publication behind it does not belong on this page.')} full={t('A figure with no publication that states it does not belong on this page. A figure republished for a period other than the one it was issued for does not either — the period and the as-at date are what tell an officer whether a number is still the current one.')} />
       </div>
     </div>
   )

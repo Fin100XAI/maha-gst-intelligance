@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Scale, Gavel, Landmark, Library, AlertTriangle, ArrowUpRight, MinusCircle, ExternalLink, Clock, FileWarning } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
@@ -43,7 +44,7 @@ export default function PrecedentIntelligence() {
       <SectionHeader
         eyebrow={t('Enforcement · Legal Authority')}
         title={t('Precedent Intelligence')}
-        description={t('Prior decisions weighted by the forum that gave them and whether they still stand — not by how similar the facts look. A judgment from another State’s High Court does not bind a Maharashtra authority, and a judgment under appeal is a liability rather than support.')}
+        description={<MethodNote short={t('Weighted by the forum that gave the decision, not by how similar the facts look.')} full={t('Prior decisions weighted by the forum that gave them and whether they still stand — not by how similar the facts look. A judgment from another State’s High Court does not bind a Maharashtra authority, and a judgment under appeal is a liability rather than support.')} />}
         actions={<ExportBar moduleLabel="Precedent Intelligence" />}
       />
 
@@ -169,7 +170,7 @@ function QuestionsView({ logAction }) {
             <Pill tone={pillTone(status.tone)}>{t(status.verdict)}</Pill>
             <span className="text-[11.5px] text-steel-500">{t(q.affects)}</span>
           </div>
-          <p className="text-[13px] text-navy-800 leading-relaxed">{t(status.text)}</p>
+          <p className="text-[13px] text-navy-800 leading-relaxed">{t(status.text, ...(status.textArgs || []))}</p>
           <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
             <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1">{t('Why it matters')}</div>
             <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(q.whyItMatters)}</p>
@@ -202,7 +203,7 @@ function QuestionsView({ logAction }) {
           that helps an officer decide what to rely on. */}
       <Card
         title={t('Authorities, ranked by binding weight')}
-        subtitle={t('Ordered by the forum, not by date or similarity. Authority is law and does not narrow with the filter bar — only the caseload below it does. Where a case name could not be established from a published source it is left blank rather than invented.')}
+        subtitle={<MethodNote short={t('Ordered by forum. Authority is law and does not narrow with the filters.')} full={t('Ordered by the forum, not by date or similarity. Authority is law and does not narrow with the filter bar — only the caseload below it does. Where a case name could not be established from a published source it is left blank rather than invented.')} />}
         padded={false}
       >
         <div className="divide-y divide-steel-100">
@@ -395,20 +396,16 @@ function DepartmentalView() {
               ? t('No question of law yet carries enough concluded proceedings to state a success rate')
               : t('{0} of {1} questions carry enough concluded proceedings to state a success rate', roll.withRate, rows.length)}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">
-            {t('A success rate computed on two or three concluded cases is not a weak signal — it is a misleading one, and an officer who relies on it has been misled by arithmetic. Below the five-case threshold this module reports the count and withholds the rate. That the threshold is rarely met is itself the finding: departmental outcome history is too thin to guide case strategy, and building it is a data-capture problem before it is an analytics one.')}
-          </p>
+          <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed" short={t('A rate drawn from two or three cases misleads rather than informs.')} full={t('A success rate computed on two or three concluded cases is not a weak signal — it is a misleading one, and an officer who relies on it has been misled by arithmetic. Below the five-case threshold this module reports the count and withholds the rate. That the threshold is rarely met is itself the finding: departmental outcome history is too thin to guide case strategy, and building it is a data-capture problem before it is an analytics one.')} />
           {/* The gap, sized. This is the number that turns the caveat into work. */}
-          <p className="text-[12.5px] text-navy-800 leading-relaxed mt-2">
-            {t('{0} of {1} proceedings on the register have concluded and carry an outcome — {2}%. Of those, {3} were confirmed, {4} reversed and {5} remanded. Every proceeding still pending contributes nothing to this record until it concludes.',
-              roll.concluded, roll.totalCases, roll.concludedPct, roll.confirmed, roll.reversed, roll.remanded)}
-          </p>
+          <MethodNote className="text-[12.5px] text-navy-800 leading-relaxed mt-2" short={t('Only concluded proceedings carry an outcome. Pending ones contribute nothing.')} full={t('{0} of {1} proceedings on the register have concluded and carry an outcome — {2}%. Of those, {3} were confirmed, {4} reversed and {5} remanded. Every proceeding still pending contributes nothing to this record until it concludes.',
+              roll.concluded, roll.totalCases, roll.concludedPct, roll.confirmed, roll.reversed, roll.remanded)} />
         </div>
       </div>
 
       <Card
         title={t('Departmental outcomes by question of law')}
-        subtitle={t('This department’s own concluded proceedings, grouped by the legal question rather than by sector. Institutional memory — not judicial authority, and not citable as precedent.')}
+        subtitle={<MethodNote short={t('This department\'s own record, grouped by the legal question.')} full={t('This department’s own concluded proceedings, grouped by the legal question rather than by sector. Institutional memory — not judicial authority, and not citable as precedent.')} />}
       >
         <DataTable
           columns={[
@@ -437,9 +434,7 @@ function DepartmentalView() {
           ]}
           rows={rows}
         />
-        <p className="text-[11.5px] text-steel-600 leading-relaxed mt-3">
-          {t('The withheld cells are the point. Each states the concluded count that produced it, so an officer can see exactly how far short of the threshold the record falls rather than being handed a rate that the sample cannot carry.')}
-        </p>
+        <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed mt-3" short={t('The withheld cells are the point — each shows how far short the record falls.')} full={t('The withheld cells are the point. Each states the concluded count that produced it, so an officer can see exactly how far short of the threshold the record falls rather than being handed a rate that the sample cannot carry.')} />
       </Card>
 
       {/* A limitation worth naming: the department's own outcome record is
@@ -447,14 +442,12 @@ function DepartmentalView() {
           the first tab are not. Nothing in the data joins them. */}
       <div className="rounded-xl border border-steel-200 bg-steel-50 px-5 py-4 flex items-start gap-3">
         <Library className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[12.5px] text-steel-700 leading-relaxed">
-          {t('These rows are grouped by the issue category recorded on the case file. The questions of law on the first tab are held separately and nothing in the record joins the two, so this module cannot say how the department has fared on the Section 168A question specifically. That is a data-capture gap — outcomes are not captured against the question that decided them — and it is stated rather than bridged with an assumed mapping.')}
-        </p>
+        <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed" short={t('Grouped by the issue on the case file, which is not the question of law.')} full={t('These rows are grouped by the issue category recorded on the case file. The questions of law on the first tab are held separately and nothing in the record joins the two, so this module cannot say how the department has fared on the Section 168A question specifically. That is a data-capture gap — outcomes are not captured against the question that decided them — and it is stated rather than bridged with an assumed mapping.')} />
       </div>
 
       <Card
         title={t('Where the department’s position is already weak')}
-        subtitle={t('Recorded on the case file at the time of assessment, not inferred by a model. Each count is shown against the proceedings on that issue, because three weak files out of four is a different problem from three out of forty.')}
+        subtitle={<MethodNote short={t('Recorded at assessment, not inferred — shown against its own denominator.')} full={t('Recorded on the case file at the time of assessment, not inferred by a model. Each count is shown against the proceedings on that issue, because three weak files out of four is a different problem from three out of forty.')} />}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {rows.filter(r => r.weakDocs || r.weakPrecedent).map(r => (
@@ -495,7 +488,7 @@ function ModelView() {
 
       <Card
         title={t('Forum hierarchy, from the position of a Maharashtra authority')}
-        subtitle={t('Binding weight is relative to the deciding authority. The same judgment carries different weight for an officer in another State, which is why jurisdiction is modelled rather than assumed.')}
+        subtitle={<MethodNote short={t('Binding weight depends on the deciding authority, not on the wording.')} full={t('Binding weight is relative to the deciding authority. The same judgment carries different weight for an officer in another State, which is why jurisdiction is modelled rather than assumed.')} />}
         padded={false}
       >
         <div className="divide-y divide-steel-100">
@@ -541,9 +534,7 @@ function ModelView() {
 
       <div className="rounded-lg border border-red-200 bg-red-50/50 px-4 py-3 flex items-start gap-2.5">
         <AlertTriangle className="w-4 h-4 text-[#C5221F] shrink-0 mt-0.5" />
-        <p className="text-[12px] text-navy-800 leading-relaxed">
-          {t('No case citation on this screen is generated. Where a holding was confirmed but the case name was not, the name is left blank. A fabricated citation inside an issued notice makes the notice defective and the platform indefensible, so the model is not permitted to supply one.')}
-        </p>
+        <MethodNote className="text-[12px] text-navy-800 leading-relaxed" short={t('No citation here is generated. An unconfirmed case name is left blank.')} full={t('No case citation on this screen is generated. Where a holding was confirmed but the case name was not, the name is left blank. A fabricated citation inside an issued notice makes the notice defective and the platform indefensible, so the model is not permitted to supply one.')} />
       </div>
     </div>
   )

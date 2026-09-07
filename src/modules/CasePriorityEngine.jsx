@@ -4,6 +4,7 @@ import {
   Calculator, ShieldCheck, Clock
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -169,7 +170,7 @@ export default function CasePriorityEngine() {
       <SectionHeader
         eyebrow={t('Enforcement · Case Selection')}
         title={t('Case Priority Engine')}
-        description={t('Six factors, divided by the officer-days a case would take. Risk score answers how wrong something is; this answers what deserves an officer’s week — and whether anyone eligible will actually reach it.')}
+        description={<MethodNote short={t('Six factors, divided by the officer-days a case would take.')} full={t('Six factors, divided by the officer-days a case would take. Risk score answers how wrong something is; this answers what deserves an officer’s week — and whether anyone eligible will actually reach it.')} />}
         actions={<ExportBar moduleLabel="Case Priority Engine" />}
       />
 
@@ -192,12 +193,8 @@ export default function CasePriorityEngine() {
           <span className="text-steel-400 mx-1">÷</span>
           <Factor tone="steel">{t('Officer-days required')}</Factor>
         </div>
-        <p className="text-[12.5px] text-steel-600 mt-3 leading-relaxed max-w-4xl">
-          {t('Only one factor is not a judgement: the statutory clock comes from law, and carries the widest range — a case that can no longer be actioned is worth little regardless of how large it is. Probability of recovery is a transparent proxy over observable facts, not a learned estimate; the platform has no completed outcomes to learn from yet, and saying otherwise would be the fastest way to discredit it.')}
-        </p>
-        <p className="text-[12.5px] text-navy-800 mt-2 leading-relaxed max-w-4xl">
-          {t('The denominator is what makes this different from a sorted spreadsheet: {0} of the {1} cases in view sit at least ten places from their risk rank. That gap is the officer-days and the statutory clock doing their work.', stats.movedCount, rows.length)}
-        </p>
+        <MethodNote className="text-[12.5px] text-steel-600 mt-3 leading-relaxed max-w-4xl" short={t('Only the statutory clock is not a judgement — it comes from law.')} full={t('Only one factor is not a judgement: the statutory clock comes from law, and carries the widest range — a case that can no longer be actioned is worth little regardless of how large it is. Probability of recovery is a transparent proxy over observable facts, not a learned estimate; the platform has no completed outcomes to learn from yet, and saying otherwise would be the fastest way to discredit it.')} />
+        <MethodNote className="text-[12.5px] text-navy-800 mt-2 leading-relaxed max-w-4xl" short={t('The denominator is what separates this from a sorted spreadsheet.')} full={t('The denominator is what makes this different from a sorted spreadsheet: {0} of the {1} cases in view sit at least ten places from their risk rank. That gap is the officer-days and the statutory clock doing their work.', stats.movedCount, rows.length)} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -246,7 +243,7 @@ export default function CasePriorityEngine() {
       {tab === 'queue' && (
         <Card
           title={t('Ranked working queue')}
-          subtitle={t('{0} of the state’s {1} officer-days this week fall on cases in this view. The “reached this week” column is read from the statewide allocation and is not narrowed by the filter bar. Click any row for the factor breakdown, the statutory position, and why it moved.', stats.placedDays, CAPACITY_RESULT.totalSupplyDays)}
+          subtitle={<MethodNote short={t('Click any row for the factors, the statutory position, and why it moved.')} full={t('{0} of the state’s {1} officer-days this week fall on cases in this view. The “reached this week” column is read from the statewide allocation and is not narrowed by the filter bar. Click any row for the factor breakdown, the statutory position, and why it moved.', stats.placedDays, CAPACITY_RESULT.totalSupplyDays)} />}
         >
           <DataTable
             columns={columns}
@@ -337,7 +334,11 @@ function FactorBreakdown({ c, week, decay }) {
 
       <div className="rounded-lg border border-navy-200 bg-navy-50/60 px-3.5 py-3">
         <div className="text-[10px] font-bold uppercase tracking-wider text-govt-600 mb-1">{t('In plain terms')}</div>
-        <p className="text-[13px] text-navy-800 leading-relaxed">{t(exp.text)}</p>
+        <p className="text-[13px] text-navy-800 leading-relaxed">{t(
+          exp.text,
+          ...(exp.textArgs || []),
+          ...(exp.textReasons ? [exp.textReasons.map(r => t(r)).join(t(', and '))] : [])
+        )}</p>
       </div>
 
       {/* The two questions a rank does not answer on its own: what does the law
@@ -354,12 +355,10 @@ function FactorBreakdown({ c, week, decay }) {
                   ? <Pill tone="red">{t('{0} days past the deadline', pos.daysOverdue)}</Pill>
                   : <Pill tone={pos.critical ? 'amber' : 'green'}>{t('{0} days remain', pos.daysRemaining)}</Pill>}
               </div>
-              <p className="text-[11.5px] text-navy-800 leading-relaxed">{t(pos.verdict)}</p>
+              <p className="text-[11.5px] text-navy-800 leading-relaxed">{t(pos.verdictMsg.key, ...pos.verdictMsg.args)}</p>
             </>
           ) : (
-            <p className="text-[11.5px] text-steel-500 leading-relaxed">
-              {t('No limitation record exists for this taxpayer, so the statutory clock contributed its neutral value to the ranking. Absence of a record is not the same as absence of a deadline.')}
-            </p>
+            <MethodNote className="text-[11.5px] text-steel-500 leading-relaxed" short={t('No record is not the same as no deadline.')} full={t('No limitation record exists for this taxpayer, so the statutory clock contributed its neutral value to the ranking. Absence of a record is not the same as absence of a deadline.')} />
           )}
         </div>
 
@@ -476,7 +475,7 @@ function EquityPanel({ equity, workedSize }) {
             <><strong className="text-saffron-900">{t('{0} group(s) selected at more than twice their share of the population.', equity.flagged.length)}</strong>{' '}
             <span className="text-saffron-900">{t('This is not necessarily wrong — risk may genuinely concentrate — but it must be explainable if challenged. Review before the queue is worked.')}</span></>
           ) : (
-            <span className="text-emerald-900">{t('No sector or district is selected at more than twice its share of the case population. The working queue does not concentrate enforcement beyond the underlying risk distribution.')}</span>
+            <MethodNote className="text-emerald-900" short={t('No sector or district is picked at more than twice its share.')} full={t('No sector or district is selected at more than twice its share of the case population. The working queue does not concentrate enforcement beyond the underlying risk distribution.')} />
           )}
         </div>
       </div>
@@ -537,9 +536,7 @@ function TrialPanel({ trial }) {
         <h3 className="text-lg font-bold text-navy-900 max-w-3xl leading-snug">
           {t('A demonstration proves the screen works. Only a comparison proves the ranking does.')}
         </h3>
-        <p className="text-[13px] text-steel-600 mt-2 max-w-4xl leading-relaxed">
-          {t('If cases are re-ordered and recovery improves, that gain cannot be attributed to the platform without a control arm — officer skill, case mix and the effect of being observed all explain it equally well. Both arms are worked at normal capacity; only the ordering differs.')}
-        </p>
+        <MethodNote className="text-[13px] text-steel-600 mt-2 max-w-4xl leading-relaxed" short={t('Without a control arm, any gain cannot be attributed to the platform.')} full={t('If cases are re-ordered and recovery improves, that gain cannot be attributed to the platform without a control arm — officer skill, case mix and the effect of being observed all explain it equally well. Both arms are worked at normal capacity; only the ordering differs.')} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

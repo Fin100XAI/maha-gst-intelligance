@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill } from '../components/ui/RiskBadge.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
@@ -350,7 +351,7 @@ export default function DistrictDivisionPerformance() {
     },
     { key: 'cases', label: 'Open proceedings', align: 'right', sortValue: r => r.cases || 0, render: r => r.cases == null ? '—' : r.cases },
     {
-      key: 'subscription', label: 'Worst pool demand / supply', align: 'right',
+      key: 'subscription', label: t('Worst pool demand / supply'), align: 'right',
       sortValue: r => r.subscription || 0,
       render: r => r.subscription == null
         ? <span className="text-steel-400">{t('No field pool')}</span>
@@ -380,7 +381,7 @@ export default function DistrictDivisionPerformance() {
       <SectionHeader
         eyebrow={t('Benchmarking')}
         title={t('District & Division Performance')}
-        description={t("Every district and division measured against its target, its peers and its statutory clock — collection, compliance, enforcement and the capacity available to act.")}
+        description={<MethodNote short={t('Every district against its target, its peers and its statutory clock.')} full={t("Every district and division measured against its target, its peers and its statutory clock — collection, compliance, enforcement and the capacity available to act.")} />}
         actions={<ExportBar moduleLabel="District & Division Performance" getBriefingText={briefingText} />}
       />
 
@@ -463,12 +464,8 @@ export default function DistrictDivisionPerformance() {
             {t('What this shading is, and what it is not')}
           </div>
           <p className="text-[11px] text-steel-600">{heatLegend()}</p>
-          <p className="text-[11px] text-steel-600">
-            {t('A band is a cut on a district-level figure — a governance signal about a place. It is not a risk rating of any taxpayer inside that place: taxpayer risk is scored individually by the risk engine from the rules that actually fired, and a taxpayer in a red district is not thereby high-risk.')}
-          </p>
-          <p className="text-[11px] text-steel-600">
-            {t('Shading and every peer median on this page are computed on all {0} districts, unfiltered. Sector, risk-level and search filters narrow the per-district risk-taxpayer count on the cards below, but never the shading or the benchmark — an incidental filter must not silently recolour a governance map or move the line a district is being measured against.', DISTRICT_REVENUE.length)}
-          </p>
+          <MethodNote className="text-[11px] text-steel-600" short={t('A band is about a place, not about any taxpayer inside it.')} full={t('A band is a cut on a district-level figure — a governance signal about a place. It is not a risk rating of any taxpayer inside that place: taxpayer risk is scored individually by the risk engine from the rules that actually fired, and a taxpayer in a red district is not thereby high-risk.')} />
+          <MethodNote className="text-[11px] text-steel-600" short={t('Shading and medians are computed on all districts, unfiltered.')} full={t('Shading and every peer median on this page are computed on all {0} districts, unfiltered. Sector, risk-level and search filters narrow the per-district risk-taxpayer count on the cards below, but never the shading or the benchmark — an incidental filter must not silently recolour a governance map or move the line a district is being measured against.', DISTRICT_REVENUE.length)} />
           {isNarrowingActive && (
             <div className="pt-1">
               <Pill tone="amber">{t('Narrowing filter active — card risk counts are scoped, shading and medians are not')}</Pill>
@@ -495,9 +492,7 @@ export default function DistrictDivisionPerformance() {
         </div>
 
         {adverseDistricts.length === 0 ? (
-          <p className="text-xs text-steel-600">
-            {t('No district in scope deviates beyond a modified z of {0} on any measure. That is the expected result on a peer group of {1}: the threshold is the conventional outlier cut, and on twelve districts an ordinary spread will not reach it. It is reported rather than lowered — a threshold moved until it produces results reports ordinary variation as an outlier. Read the medians above as the comparator instead.', DISCOVERY_SUMMARY.zThreshold, DISTRICT_REVENUE.length)}
-          </p>
+          <MethodNote className="text-xs text-steel-600" short={t('No district passes the outlier threshold on any measure.')} full={t('No district in scope deviates beyond a modified z of {0} on any measure. That is the expected result on a peer group of {1}: the threshold is the conventional outlier cut, and on twelve districts an ordinary spread will not reach it. It is reported rather than lowered — a threshold moved until it produces results reports ordinary variation as an outlier. Read the medians above as the comparator instead.', DISCOVERY_SUMMARY.zThreshold, DISTRICT_REVENUE.length)} />
         ) : (
           <div className="space-y-1.5">
             {adverseDistricts.map(d => (
@@ -515,9 +510,7 @@ export default function DistrictDivisionPerformance() {
           </div>
         )}
 
-        <p className="text-[11px] text-steel-500 mt-3">
-          {t('Method: median and median absolute deviation, cut at a modified z of {0} — the platform-wide peer method owned by the discovery engine, applied here across districts rather than across a taxpayer’s sector. Mean and standard deviation are not used because a single extreme district would inflate the spread until it stopped registering as extreme. The peer group is {1} districts, above the {2}-district minimum the method requires before a norm is worth computing. Only the adverse tail is reported: a district unusually better than its peers is not a finding.', DISCOVERY_SUMMARY.zThreshold, DISTRICT_REVENUE.length, PEER_COVERAGE.minGroupSize)}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-3" short={t('Method: median and median absolute deviation across the district peer group.')} full={t('Method: median and median absolute deviation, cut at a modified z of {0} — the platform-wide peer method owned by the discovery engine, applied here across districts rather than across a taxpayer’s sector. Mean and standard deviation are not used because a single extreme district would inflate the spread until it stopped registering as extreme. The peer group is {1} districts, above the {2}-district minimum the method requires before a norm is worth computing. Only the adverse tail is reported: a district unusually better than its peers is not a finding.', DISCOVERY_SUMMARY.zThreshold, DISTRICT_REVENUE.length, PEER_COVERAGE.minGroupSize)} />
       </Card>
 
       <div className="mb-2">
@@ -610,15 +603,9 @@ export default function DistrictDivisionPerformance() {
         <div className="flex items-start gap-3">
           <span className="p-2 rounded-lg bg-steel-100 text-steel-600 shrink-0"><UserX className="w-4 h-4" /></span>
           <div className="text-xs text-steel-600 space-y-1.5">
-            <p>
-              {t('{0} non-filers are counted across the districts in scope, but a non-filer count without its denominator is not a compliance rate and is not comparable between a metropolitan district and a rural one.', kpis.totalNonFilers.toLocaleString('en-IN'))}
-            </p>
-            <p>
-              {t('The denominator needed is the count of ACTIVE registrations per district from the registration register, which this platform does not hold. The {0} taxpayers in the demonstration extract are a sample, not the register, and dividing by them would produce a rate that looks precise and is wrong by orders of magnitude.', TAXPAYERS.length)}
-            </p>
-            <p className="font-medium text-navy-800">
-              {t('Feed required: active GST registrations per district, as at the reference date. Until it is connected, non-filers are shown as a raw count against the peer median only.')}
-            </p>
+            <MethodNote short={t('A non-filer count without its denominator is not a compliance rate.')} full={t('{0} non-filers are counted across the districts in scope, but a non-filer count without its denominator is not a compliance rate and is not comparable between a metropolitan district and a rural one.', kpis.totalNonFilers.toLocaleString('en-IN'))} />
+            <MethodNote short={t('The denominator — active registrations per district — is not held here.')} full={t('The denominator needed is the count of ACTIVE registrations per district from the registration register, which this platform does not hold. The {0} taxpayers in the demonstration extract are a sample, not the register, and dividing by them would produce a rate that looks precise and is wrong by orders of magnitude.', TAXPAYERS.length)} />
+            <MethodNote className="font-medium text-navy-800" short={t('Feed required: active GST registrations per district.')} full={t('Feed required: active GST registrations per district, as at the reference date. Until it is connected, non-filers are shown as a raw count against the peer median only.')} />
           </div>
         </div>
       </Card>
@@ -674,9 +661,7 @@ export default function DistrictDivisionPerformance() {
             </tbody>
           </table>
         </div>
-        <p className="text-[11px] text-steel-500 mt-3">
-          {t('{0} divisions covering {1} districts across Maharashtra. "Recovery covers" is audit recovery as a share of that division’s own collection shortfall — a division above target has no shortfall to cover and is shown as n/a rather than as a perfect score. The risk-taxpayer column follows the current filter scope; every other column does not.', DIVISIONS.length, DISTRICT_REVENUE.length)}
-        </p>
+        <MethodNote className="text-[11px] text-steel-500 mt-3" short={t('Recovery covers is audit recovery against that division\'s own shortfall.')} full={t('{0} divisions covering {1} districts across Maharashtra. "Recovery covers" is audit recovery as a share of that division’s own collection shortfall — a division above target has no shortfall to cover and is shown as n/a rather than as a perfect score. The risk-taxpayer column follows the current filter scope; every other column does not.', DIVISIONS.length, DISTRICT_REVENUE.length)} />
       </Card>
 
       <Card
@@ -692,12 +677,8 @@ export default function DistrictDivisionPerformance() {
           emptyLabel="No divisions match the current global filters."
         />
         <div className="mt-3 space-y-1.5">
-          <p className="text-[11px] text-steel-500">
-            {t('Deadlines are the binding statutory dates from the limitation engine — the notice date where no notice has issued, which falls months before the order date and is the one most often missed. A division with no open proceeding in the register is shown as such, not as zero risk.')}
-          </p>
-          <p className="text-[11px] text-steel-500">
-            {t('Demand / supply is the single worst-subscribed officer pool in that division, taken from the capacity engine rather than averaged across the division. The engine states the reason: {0}', t(CAPACITY_RESIDUAL_NOTE))}
-          </p>
+          <MethodNote className="text-[11px] text-steel-500" short={t('Deadlines are the binding statutory dates from the limitation engine.')} full={t('Deadlines are the binding statutory dates from the limitation engine — the notice date where no notice has issued, which falls months before the order date and is the one most often missed. A division with no open proceeding in the register is shown as such, not as zero risk.')} />
+          <MethodNote className="text-[11px] text-steel-500" short={t('Demand / supply is the worst-subscribed officer pool in that division.')} full={t('Demand / supply is the single worst-subscribed officer pool in that division, taken from the capacity engine rather than averaged across the division. The engine states the reason: {0}', t(CAPACITY_RESIDUAL_NOTE))} />
         </div>
       </Card>
 

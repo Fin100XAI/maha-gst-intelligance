@@ -30,7 +30,8 @@ export function generateExecutiveBrief(kpi, districtRevenue, alerts) {
 export function summarizeTaxpayer(taxpayer) {
   const explain = explainRiskScore(taxpayer)
   return {
-    title: `AI Case Summary — ${taxpayer.tradeName}`,
+    title: 'AI Case Summary — {0}',
+    titleArgs: [taxpayer.tradeName],
     summary: [
       `${taxpayer.tradeName} (${taxpayer.gstin}) operates in the ${taxpayer.sector} sector in ${taxpayer.district} district, registered on ${taxpayer.registrationDate}.`,
       `Filing status: ${taxpayer.filingStatus}. Compliance history: ${taxpayer.complianceHistory}. Current risk rating: ${taxpayer.risk.category} (${taxpayer.risk.score}/100).`,
@@ -56,7 +57,8 @@ export function generateAuditChecklist(caseItem) {
     base.push('Request stock/inventory register where applicable to validate supply chain')
   }
   return {
-    title: `AI-Generated Audit Checklist — ${caseItem.tradeName}`,
+    title: 'AI-Generated Audit Checklist — {0}',
+    titleArgs: [caseItem.tradeName],
     checklist: base,
     evidenceUsed: ['Case risk profile', 'Triggered risk rules for this taxpayer'],
     humanReviewRequired: true,
@@ -73,7 +75,8 @@ export function generateAuditChecklist(caseItem) {
 // Ref: https://taxinformation.cbic.gov.in/content/html/tax_repository/gst/rules/cgst_rules/active/chapter11/rule99_v1.00.html
 export function draftNotice(caseItem, noticeType = 'ASMT-10 Scrutiny Notice') {
   return {
-    title: `AI-Drafted ${noticeType} — ${caseItem.tradeName}`,
+    title: 'AI-Drafted {0} — {1}',
+    titleArgs: [noticeType, caseItem.tradeName],
     draft: `To,\n${caseItem.tradeName}\nGSTIN: ${caseItem.gstin}\n\nSubject: ${noticeType} — Discrepancy observed in filed returns\n\nOn scrutiny of returns filed for the relevant tax period(s), the following discrepancies/risk indicators have been observed: ${(caseItem.risk?.triggeredRules || []).map(r => r.label).join('; ') || 'refer to case risk summary'}.\n\nYou are hereby requested to furnish an explanation in FORM GST ASMT-11, along with supporting documents, within thirty days of service of this notice (or such further period as may be permitted), as provided under Rule 99 of the CGST/MGST Rules read with Section 61 of the CGST/MGST Act. Failing this, proceedings under Section 73 or 74, or action under Sections 65, 66 or 67, may be initiated.\n\n[DRAFT — Requires Officer Review, Edit and Digital Signature]`,
     evidenceUsed: ['Case risk explanation', 'Statutory time computation for this tax period'],
     humanReviewRequired: true,
@@ -93,7 +96,8 @@ export function generateRefundChecklist(refundCase) {
     items.push('Refer for pre-refund physical/desk verification prior to sanction')
   }
   return {
-    title: `AI-Generated Refund Verification Checklist — ${refundCase.tradeName}`,
+    title: 'AI-Generated Refund Verification Checklist — {0}',
+    titleArgs: [refundCase.tradeName],
     checklist: items,
     evidenceUsed: ['Refund-to-turnover ratio', 'Sector refund benchmark', 'Supplier risk profile'],
     humanReviewRequired: true,
@@ -103,7 +107,8 @@ export function generateRefundChecklist(refundCase) {
 
 export function summarizeLitigationRisk(litCase) {
   return {
-    title: `AI Litigation Risk Summary — ${litCase.tradeName}`,
+    title: 'AI Litigation Risk Summary — {0}',
+    titleArgs: [litCase.tradeName],
     summary: [
       `Case relates to ${litCase.issue}, currently at stage: ${litCase.stage}.`,
       `Disputed amount: ₹${(litCase.disputedAmount / 100000).toFixed(1)} Lakh. Case ageing: ${litCase.ageingDays} days.`,
@@ -136,8 +141,11 @@ export function translateBriefing(text, lang = 'mr') {
 
 export function generateComplianceNudge(alert) {
   return {
-    title: `AI-Generated Taxpayer Outreach — ${alert.tradeName}`,
-    message: `Dear Taxpayer (${alert.gstin}), our records indicate ${alert.type.toLowerCase()} for a recent return period. To avoid interest, late fee or further scrutiny, please review and file/correct your returns at the earliest. This is a system-generated compliance reminder and not a notice or demand.`,
+    title: 'AI-Generated Taxpayer Outreach — {0}',
+    titleArgs: [alert.tradeName],
+    message:
+      'Dear Taxpayer ({0}), our records indicate {1} for a recent return period. To avoid interest, late fee or further scrutiny, please review and file/correct your returns at the earliest. This is a system-generated compliance reminder and not a notice or demand.',
+    messageArgs: [alert.gstin, alert.type.toLowerCase()],
     recommendedChannel: 'SMS + Email',
     evidenceUsed: ['Compliance early-warning signal'],
     humanReviewRequired: false,
@@ -150,7 +158,8 @@ export function compareSimilarCases(caseItem, allCases) {
     .filter(c => c.sector === caseItem.sector && c.id !== caseItem.id)
     .slice(0, 3)
   return {
-    title: `AI Similar Case Comparison — ${caseItem.tradeName}`,
+    title: 'AI Similar Case Comparison — {0}',
+    titleArgs: [caseItem.tradeName],
     similarCases: similar.map(c => ({ id: c.id, tradeName: c.tradeName, riskScore: c.riskScore ?? c.risk?.score, stage: c.stage ?? c.status })),
     observation: similar.length > 0
       ? `${similar.length} other open case(s) in the same sector. Matched on sector only — not on risk pattern, facts or outcome, and not restricted to concluded cases. Comparable precedent requires the departmental order archive, which is not connected.`
@@ -162,7 +171,8 @@ export function compareSimilarCases(caseItem, allCases) {
 
 export function suggestHearingQuestions(caseItem) {
   return {
-    title: `AI-Suggested Hearing Questions — ${caseItem.tradeName}`,
+    title: 'AI-Suggested Hearing Questions — {0}',
+    titleArgs: [caseItem.tradeName],
     questions: [
       'Please explain the basis for the input tax credit claimed in excess of the sector-typical range.',
       'Provide a reconciliation of e-way bill movement value against declared outward supply for the period in question.',

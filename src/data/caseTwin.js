@@ -59,28 +59,32 @@ const byGstin = new Map(TAXPAYERS.map(t => [t.gstin, t]))
  * ------------------------------------------------------------------------- */
 function buildChronology(tp, ctx) {
   const events = []
-  const push = (date, kind, title, detail, source) => {
-    if (date) events.push({ date, kind, title, detail, source })
+  /* An event's title and detail are {0} templates with their arguments
+     alongside, never assembled sentences: a string built here can never match
+     a catalogue key and would reach an officer in English on a Marathi or
+     Hindi timeline. */
+  const push = (date, kind, title, detail, source, titleArgs = [], detailArgs = []) => {
+    if (date) events.push({ date, kind, title, titleArgs, detail, detailArgs, source })
   }
 
   push(tp.registrationDate, 'registration', 'GST registration granted',
-    `${tp.legalName} registered in ${tp.district}`, 'registry')
+    '{0} registered in {1}', 'registry', [], [tp.legalName, tp.district])
 
   ctx.notices.forEach(n => {
-    push(n.issuedOn, 'notice', `${n.type} issued`, `Status: ${n.status}`, 'bo')
+    push(n.issuedOn, 'notice', '{0} issued', 'Status: {0}', 'bo', [n.type], [n.status])
   })
 
   ctx.audit.forEach(c => {
-    push(c.openedOn, 'proceeding', 'Audit case opened', `${c.id} — stage ${c.stage}`, 'bo')
+    push(c.openedOn, 'proceeding', 'Audit case opened', '{0} — stage {1}', 'bo', [], [c.id, c.stage])
   })
 
   ctx.refunds.forEach(r => {
-    push(r.filedOn, 'refund', 'Refund claim filed',
-      `${r.id} — ₹${(r.claimedAmount / 100000).toFixed(1)} L, ${r.status}`, 'returns')
+    push(r.filedOn, 'refund', 'Refund claim filed', '{0} — ₹{1} L, {2}', 'returns', [],
+      [r.id, (r.claimedAmount / 100000).toFixed(1), r.status])
   })
 
   ctx.litigation.forEach(l => {
-    push(l.filedOn, 'litigation', 'Appeal filed', `${l.issue} — ${l.stage}`, 'bo')
+    push(l.filedOn, 'litigation', 'Appeal filed', '{0} — {1}', 'bo', [], [l.issue, l.stage])
   })
 
   ctx.alerts.forEach(a => {
@@ -89,15 +93,16 @@ function buildChronology(tp, ctx) {
 
   // Officer activity on this taxpayer's cases, from the audit trail.
   ctx.officerActions.forEach(l => {
-    push(l.timestamp.slice(0, 10), 'officer', l.action, `${l.user} — ${l.role}`, 'eoffice')
+    push(l.timestamp.slice(0, 10), 'officer', l.action, '{0} — {1}', 'eoffice', [], [l.user, l.role])
   })
 
   // The statutory clock is an event in its own right, and usually the one that
   // matters most on the timeline.
   if (ctx.limitation) {
     push(ctx.limitation.bindingDate, 'deadline',
-      `${ctx.limitation.bindingLabel} deadline — ${ctx.limitation.section.replace('s', 'Section ')}`,
-      ctx.limitation.basis, 'platform')
+      '{0} deadline — {1}', ctx.limitation.basis, 'platform',
+      [ctx.limitation.bindingLabel, ctx.limitation.section.replace('s', 'Section ')],
+      ctx.limitation.basisArgs || [])
   }
 
   return events.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
@@ -115,9 +120,12 @@ function nextAction(tp, ctx) {
   const lim = ctx.limitation
   if (lim && lim.daysRemaining >= 0 && lim.daysRemaining <= 30) {
     return {
-      action: `Issue ${lim.bindingLabel.toLowerCase()} before ${lim.bindingDate}`,
+      action: 'Issue {0} before {1}',
+      actionArgs: [lim.bindingLabel.toLowerCase(), lim.bindingDate],
       urgency: 'critical',
-      because: `${lim.daysRemaining} days remain on the ${lim.section.replace('s', 'Section ')} clock. After that the demand is extinguished by operation of law.`,
+      because:
+        '{0} days remain on the {1} clock. After that the demand is extinguished by operation of law.',
+      becauseArgs: [lim.daysRemaining, lim.section.replace('s', 'Section ')],
       basis: 'statute'
     }
   }
@@ -125,7 +133,9 @@ function nextAction(tp, ctx) {
     return {
       action: 'Review for closure — statutory period has expired',
       urgency: 'barred',
-      because: `The ${lim.bindingLabel.toLowerCase()} deadline of ${lim.bindingDate} has passed. No demand can now be raised for this period.`,
+      because:
+        'The {0} deadline of {1} has passed. No demand can now be raised for this period.',
+      becauseArgs: [lim.bindingLabel.toLowerCase(), lim.bindingDate],
       basis: 'statute'
     }
   }
@@ -134,7 +144,9 @@ function nextAction(tp, ctx) {
     return {
       action: 'Prioritise for officer review this week',
       urgency: 'urgent',
-      because: `₹${(rec.decayNextWeek / 100000).toFixed(1)} L of recoverable value is forecast to decay if this case is untouched for another seven days.`,
+      because:
+        '₹{0} L of recoverable value is forecast to decay if this case is untouched for another seven days.',
+      becauseArgs: [(rec.decayNextWeek / 100000).toFixed(1)],
       basis: 'model'
     }
   }
@@ -320,9 +332,15 @@ export const STATUTORY_INDEX = new Map(
     contested: !!r.contested,
     exposure: r.exposure,
     // Written as the officer needs to read it, not as a status code.
-    verdict: r.daysRemaining < 0
-      ? `The ${r.bindingLabel.toLowerCase()} deadline of ${r.bindingDate} for ${r.fy} under ${r.section.replace('s', 'Section ')} passed ${Math.abs(r.daysRemaining)} days ago. No demand can now be raised for this period.`
-      : `${r.daysRemaining} days remain to the ${r.bindingLabel.toLowerCase()} deadline of ${r.bindingDate} for ${r.fy} under ${r.section.replace('s', 'Section ')}.`
+    verdictMsg: r.daysRemaining < 0
+      ? {
+          key: 'The {0} deadline of {1} for {2} under {3} passed {4} days ago. No demand can now be raised for this period.',
+          args: [r.bindingLabel.toLowerCase(), r.bindingDate, r.fy, r.section.replace('s', 'Section '), Math.abs(r.daysRemaining)]
+        }
+      : {
+          key: '{0} days remain to the {1} deadline of {2} for {3} under {4}.',
+          args: [r.daysRemaining, r.bindingLabel.toLowerCase(), r.bindingDate, r.fy, r.section.replace('s', 'Section ')]
+        }
   }])
 )
 

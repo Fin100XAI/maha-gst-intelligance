@@ -81,8 +81,8 @@ export const DIMENSIONS = [
     klass: 'determinative',
     why: 'The single strongest determinant. Two cases turning on the same question are comparable however different the businesses are.',
     score: (a, b) => (a.lit && b.lit ? (a.lit.issue === b.lit.issue ? 1 : 0) : null),
-    describe: (a, b) => (a.lit && b.lit && a.lit.issue === b.lit.issue ? `Both turn on ${a.lit.issue}` : null),
-    differ: (a, b) => (a.lit && b.lit && a.lit.issue !== b.lit.issue ? `Different questions of law — ${a.lit.issue} against ${b.lit.issue}` : null)
+    describe: (a, b) => (a.lit && b.lit && a.lit.issue === b.lit.issue ? { key: 'Both turn on {0}', args: [a.lit.issue] } : null),
+    differ: (a, b) => (a.lit && b.lit && a.lit.issue !== b.lit.issue ? { key: 'Different questions of law — {0} against {1}', args: [a.lit.issue, b.lit.issue] } : null)
   },
   {
     id: 'position',
@@ -91,9 +91,9 @@ export const DIMENSIONS = [
     klass: 'determinative',
     why: 'Recorded on the file at assessment. A case argued from a documentation gap behaves differently from one argued from a strong record, whatever the legal issue.',
     score: (a, b) => (a.lit && b.lit ? (a.lit.departmentPosition === b.lit.departmentPosition ? 1 : 0.3) : null),
-    describe: (a, b) => (a.lit && b.lit && a.lit.departmentPosition === b.lit.departmentPosition ? `Department position on both recorded as "${a.lit.departmentPosition}"` : null),
+    describe: (a, b) => (a.lit && b.lit && a.lit.departmentPosition === b.lit.departmentPosition ? { key: 'Department position on both recorded as "{0}"', args: [a.lit.departmentPosition] } : null),
     differ: (a, b) => (a.lit && b.lit && a.lit.departmentPosition !== b.lit.departmentPosition
-      ? `Department position differs — "${a.lit.departmentPosition}" against "${b.lit.departmentPosition}"` : null)
+      ? { key: 'Department position differs — "{0}" against "{1}"', args: [a.lit.departmentPosition, b.lit.departmentPosition] } : null)
   },
   {
     id: 'rules',
@@ -104,11 +104,11 @@ export const DIMENSIONS = [
     score: (a, b) => jaccard(ruleSet(a.tp), ruleSet(b.tp)),
     describe: (a, b) => {
       const shared = [...ruleSet(a.tp)].filter(x => ruleSet(b.tp).has(x))
-      return shared.length ? `Shared risk rules: ${shared.join('; ')}` : null
+      return shared.length ? { key: 'Shared risk rules: {0}', args: [shared] } : null
     },
     differ: (a, b) => {
       const only = [...ruleSet(b.tp)].filter(x => !ruleSet(a.tp).has(x))
-      return only.length ? `The comparison case also triggered: ${only.join('; ')}` : null
+      return only.length ? { key: 'The comparison case also triggered: {0}', args: [only] } : null
     }
   },
   {
@@ -127,13 +127,13 @@ export const DIMENSIONS = [
       const x = ratio(a.tp.itcClaimed, a.tp.monthlyTurnover)
       const y = ratio(b.tp.itcClaimed, b.tp.monthlyTurnover)
       return x != null && y != null && Math.abs(x - y) < 0.08
-        ? `Comparable ITC intensity — ${(x * 100).toFixed(0)}% against ${(y * 100).toFixed(0)}% of turnover` : null
+        ? { key: 'Comparable ITC intensity — {0}% against {1}% of turnover', args: [(x * 100).toFixed(0), (y * 100).toFixed(0)] } : null
     },
     differ: (a, b) => {
       const x = ratio(a.tp.itcClaimed, a.tp.monthlyTurnover)
       const y = ratio(b.tp.itcClaimed, b.tp.monthlyTurnover)
       return x != null && y != null && Math.abs(x - y) >= 0.2
-        ? `ITC intensity differs materially — ${(x * 100).toFixed(0)}% against ${(y * 100).toFixed(0)}%` : null
+        ? { key: 'ITC intensity differs materially — {0}% against {1}%', args: [(x * 100).toFixed(0), (y * 100).toFixed(0)] } : null
     }
   },
   {
@@ -152,7 +152,7 @@ export const DIMENSIONS = [
     differ: (a, b) => {
       const x = bandOf(a.lit ? a.lit.disputedAmount : a.tp.estimatedRevenueExposure)
       const y = bandOf(b.lit ? b.lit.disputedAmount : b.tp.estimatedRevenueExposure)
-      return x != null && y != null && Math.abs(x - y) >= 2 ? 'Demands differ by more than two orders of magnitude' : null
+      return x != null && y != null && Math.abs(x - y) >= 2 ? { key: 'Demands differ by more than two orders of magnitude', args: [] } : null
     }
   },
   {
@@ -162,7 +162,7 @@ export const DIMENSIONS = [
     klass: 'descriptive',
     why: 'Deliberately weighted low. Sector is the dimension that looks most relevant and predicts outcome least — it was the sole basis of an earlier version of this feature, which is why that version was removed. Kept visible so it can be seen to have been considered and discounted.',
     score: (a, b) => (a.tp.sector === b.tp.sector ? 1 : 0),
-    describe: (a, b) => (a.tp.sector === b.tp.sector ? `Both in ${a.tp.sector} — noted, but sector does not decide outcomes` : null),
+    describe: (a, b) => (a.tp.sector === b.tp.sector ? { key: 'Both in {0} — noted, but sector does not decide outcomes', args: [a.tp.sector] } : null),
     differ: () => null
   }
 ]
@@ -217,8 +217,8 @@ export function findComparables(gstin, limit = 5) {
         score: Math.round(score * 100) / 100,
         assessedOn: usable.length,
         ofDimensions: DIMENSIONS.length,
-        matches: parts.filter(p => p.matched).map(p => ({ label: p.label, klass: p.klass, text: p.matched })),
-        distinguishers: parts.filter(p => p.differs).map(p => ({ label: p.label, klass: p.klass, text: p.differs })),
+        matches: parts.filter(p => p.matched).map(p => ({ label: p.label, klass: p.klass, text: p.matched.key, textArgs: p.matched.args })),
+        distinguishers: parts.filter(p => p.differs).map(p => ({ label: p.label, klass: p.klass, text: p.differs.key, textArgs: p.differs.args })),
         parts
       }
     })
@@ -244,9 +244,15 @@ export function findComparables(gstin, limit = 5) {
     rateStated: sameQuestion.length >= MIN_FOR_RATE,
     confirmed,
     sameQuestionCount: sameQuestion.length,
-    rateNote: sameQuestion.length >= MIN_FOR_RATE
-      ? `${confirmed} of ${sameQuestion.length} concluded proceedings on the same question of law were confirmed in the department's favour.`
-      : `${scored.length} comparable proceeding${scored.length === 1 ? '' : 's'} found, of which ${sameQuestion.length} turn${sameQuestion.length === 1 ? 's' : ''} on the same question of law. Each outcome is shown individually and no rate is stated: a rate may only be computed across cases sharing the question that decides them, and ${MIN_FOR_RATE} are needed before it means anything. A figure drawn from cases turning on different questions would read as evidence about this case and would not be.`,
+    rateNoteMsg: sameQuestion.length >= MIN_FOR_RATE
+      ? {
+          key: "{0} of {1} concluded proceedings on the same question of law were confirmed in the department's favour.",
+          args: [confirmed, sameQuestion.length]
+        }
+      : {
+          key: '{0} comparable proceedings found, of which {1} turn on the same question of law. Each outcome is shown individually and no rate is stated: a rate may only be computed across cases sharing the question that decides them, and {2} are needed before it means anything. A figure drawn from cases turning on different questions would read as evidence about this case and would not be.',
+          args: [scored.length, sameQuestion.length, MIN_FOR_RATE]
+        },
     none: scored.length === 0,
     noneReason: 'No concluded proceeding in the department’s record is comparable to this case on the dimensions that decide outcomes. Cases sharing only a sector are not comparable and are not offered as though they were.'
   }

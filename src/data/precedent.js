@@ -139,10 +139,12 @@ export function questionStatus(questionId) {
   const forAssessee = auths.filter(a => a.favours === 'assessee').length
 
   let verdict, tone, text
+  let textArgs = []
   if (binding.length) {
     verdict = 'Settled'
     tone = 'green'
-    text = `Settled by ${binding[0].court}, which binds authorities in Maharashtra.`
+    text = 'Settled by {0}, which binds authorities in Maharashtra.'
+    textArgs = [binding[0].court]
   } else if (pendingApex) {
     verdict = 'Unsettled — before the Supreme Court'
     tone = 'red'
@@ -156,7 +158,7 @@ export function questionStatus(questionId) {
     tone = 'amber'
     text = 'Authority exists but none of it binds a Maharashtra authority.'
   }
-  return { verdict, tone, text, authorities: auths, forDept, forAssessee, bindingCount: binding.length }
+  return { verdict, tone, text, textArgs, authorities: auths, forDept, forAssessee, bindingCount: binding.length }
 }
 
 /* Which proceedings actually turn on an unsettled question — the thing that

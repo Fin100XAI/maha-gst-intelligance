@@ -3,6 +3,7 @@ import {
   Timer, TrendingDown, Banknote, AlertOctagon, ArrowUpRight, ArrowRight, ShieldCheck, Split
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -252,7 +253,7 @@ export default function RevenueRecoveryWindow() {
       <SectionHeader
         eyebrow={t('Leadership · Root Cause')}
         title={t('Revenue Recovery Window')}
-        description={t('Every flagged rupee has a recovery half-life. This page measures the platform against the one variable that decides how much of it survives — the time between a signal firing and an officer acting on it.')}
+        description={<MethodNote short={t('Every flagged rupee has a recovery half-life. This measures the delay.')} full={t('Every flagged rupee has a recovery half-life. This page measures the platform against the one variable that decides how much of it survives — the time between a signal firing and an officer acting on it.')} />}
         actions={<ExportBar moduleLabel="Revenue Recovery Window" getBriefingText={briefingText} />}
       />
 
@@ -262,10 +263,8 @@ export default function RevenueRecoveryWindow() {
         <h2 className="text-lg sm:text-xl font-bold text-navy-900 max-w-4xl leading-snug">
           {t('Detection is not the constraint. Time-to-action is.')}
         </h2>
-        <p className="text-sm text-steel-600 mt-2 max-w-4xl leading-relaxed">
-          {t('The department already produces the signals. By the time a case is worked, the credit has moved downstream, been utilised, and the entity has often stopped trading. Of ₹{0} Cr currently flagged across {1} cases, ₹{2} Cr is still realistically recoverable — the remaining ₹{3} Cr has decayed while the case waited.',
-            portfolio.exposureCr, portfolio.caseCount, portfolio.recoverableNowCr, portfolio.lostToLagCr)}
-        </p>
+        <MethodNote className="text-sm text-steel-600 mt-2 max-w-4xl leading-relaxed" short={t('The signals already exist. What decays is the time before anyone acts.')} full={t('The department already produces the signals. By the time a case is worked, the credit has moved downstream, been utilised, and the entity has often stopped trading. Of ₹{0} Cr currently flagged across {1} cases, ₹{2} Cr is still realistically recoverable — the remaining ₹{3} Cr has decayed while the case waited.',
+            portfolio.exposureCr, portfolio.caseCount, portfolio.recoverableNowCr, portfolio.lostToLagCr)} />
         <div className="flex flex-wrap items-center gap-2 mt-3.5">
           <Pill tone="red">{t('Median signal age: {0} days', portfolio.medianLagDays)}</Pill>
           <Pill tone="amber">{t('{0}% of exposure past the blockable window', portfolio.pastBlockablePct)}</Pill>
@@ -331,8 +330,8 @@ export default function RevenueRecoveryWindow() {
         <Card
           className="mb-6"
           title={t('Where The Lag Comes From')}
-          subtitle={t('A median lag of {0} days is not one problem. It is a detection floor imposed by the return cycle plus time the case spent waiting after it became visible — and only the second is inside the department’s control this quarter.',
-            lag.medianLag)}
+          subtitle={<MethodNote short={t('Two delays, not one: the detection floor, and the wait after it.')} full={t('A median lag of {0} days is not one problem. It is a detection floor imposed by the return cycle plus time the case spent waiting after it became visible — and only the second is inside the department’s control this quarter.',
+            lag.medianLag)} />}
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <MiniFigure label={t('Median detection floor')} value={t('{0} days', lag.medianFloor)} tone="steel" />
@@ -351,21 +350,24 @@ export default function RevenueRecoveryWindow() {
               title={t('Still inside the {0}-day blockable window', BLOCKABLE_WINDOW_DAYS)}
               figure={crore(lag.inWindowExposure)}
               meta={t('{0} cases · {1}% of exposure in view', lag.inWindowCount, lag.inWindowSharePct)}
-              body={t('Credit passed downstream has typically not been fully utilised. Acting here blocks rather than pursues, which is the cheapest form of recovery the department has.')}
+              body={t('Blocking, not pursuing — the cheapest recovery the department has.')}
+              bodyFull={t('Credit passed downstream has typically not been fully utilised. Acting here blocks rather than pursues, which is the cheapest form of recovery the department has.')}
             />
             <LagBucket
               tone="red"
               title={t('Detectable in time, aged out in the queue')}
               figure={crore(lag.dwellPushedExposure)}
               meta={t('{0} cases · {1}% of exposure in view', lag.dwellPushedCount, lag.dwellPushedSharePct)}
-              body={t('The signal on each of these could fire inside the blockable window, and the case is now past it. Nothing structural caused that — the whole of the delay is dwell after detection, which is the part a change of queue ordering reaches.')}
+              body={t('Detectable in time. The whole delay is dwell after detection.')}
+              bodyFull={t('The signal on each of these could fire inside the blockable window, and the case is now past it. Nothing structural caused that — the whole of the delay is dwell after detection, which is the part a change of queue ordering reaches.')}
             />
             <LagBucket
               tone="steel"
               title={t('Never catchable inside the window')}
               figure={crore(lag.structuralExposure)}
               meta={t('{0} cases · {1}% of exposure in view', lag.structuralCount, lag.structuralSharePct)}
-              body={t('The slowest rule triggering these cases cannot fire until after the window has closed, however fast the queue moves. Reaching this exposure needs a faster feed — e-way bill and e-invoice flow, which arrive before the return does — not more officer-days.')}
+              body={t('Needs a faster feed, not more officer-days.')}
+              bodyFull={t('The slowest rule triggering these cases cannot fire until after the window has closed, however fast the queue moves. Reaching this exposure needs a faster feed — e-way bill and e-invoice flow, which arrive before the return does — not more officer-days.')}
             />
           </div>
         </Card>
@@ -413,7 +415,7 @@ export default function RevenueRecoveryWindow() {
       <Card
         className="mb-6"
         title={t('Ordering — what the same week buys')}
-        subtitle={t('A like-for-like comparison of two orderings over one week of work — the only variable changed is the order cases are worked in. Computed on the full statewide case set: this comparison is not narrowed by the header filters. Establishment and eligibility are modelled properly in Officer Capacity & Deployment; this screen isolates the effect of ordering alone and should not be read as a capacity plan.')}
+        subtitle={<MethodNote short={t('Two orderings over one week. The only variable is the order of work.')} full={t('A like-for-like comparison of two orderings over one week of work — the only variable changed is the order cases are worked in. Computed on the full statewide case set: this comparison is not narrowed by the header filters. Establishment and eligibility are modelled properly in Officer Capacity & Deployment; this screen isolates the effect of ordering alone and should not be read as a capacity plan.')} />}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <YieldPanel
@@ -430,13 +432,9 @@ export default function RevenueRecoveryWindow() {
             highlight
           />
         </div>
-        <p className="mt-4 text-[12px] text-steel-600 leading-relaxed">
-          {t('Same headcount, same hours, ₹{0} Cr difference in what is recovered — because a score-ordered queue keeps sending officers to high-score cases whose value has already gone flat, while steeply-decaying ones age past the window. Risk score answers "how wrong is this?". It does not answer "what is still left to save?".', yieldDelta)}
-        </p>
-        <p className="mt-2 text-[11px] text-steel-500 leading-relaxed">
-          {t('Both columns are measured on the same week of {0} cases — {1} field officers at {2} officer-days per case, taken from the capacity engine rather than restated here.',
-            OFFICER_YIELD.weeklyCaseCapacity, OFFICER_YIELD.fieldOfficerCount, OFFICER_YIELD.officerDaysPerCase)}
-        </p>
+        <MethodNote className="mt-4 text-[12px] text-steel-600 leading-relaxed" short={t('Same headcount, same hours — only the ordering differs.')} full={t('Same headcount, same hours, ₹{0} Cr difference in what is recovered — because a score-ordered queue keeps sending officers to high-score cases whose value has already gone flat, while steeply-decaying ones age past the window. Risk score answers "how wrong is this?". It does not answer "what is still left to save?".', yieldDelta)} />
+        <MethodNote className="mt-2 text-[11px] text-steel-500 leading-relaxed" short={t('Both columns cover the same week, at the capacity engine\'s own figures.')} full={t('Both columns are measured on the same week of {0} cases — {1} field officers at {2} officer-days per case, taken from the capacity engine rather than restated here.',
+            OFFICER_YIELD.weeklyCaseCapacity, OFFICER_YIELD.fieldOfficerCount, OFFICER_YIELD.officerDaysPerCase)} />
         <HumanReviewBadge label={t('Queue ordering is advisory — case allocation remains an officer decision')} />
       </Card>
 
@@ -501,16 +499,14 @@ export default function RevenueRecoveryWindow() {
           searchPlaceholder={t('Search the recovery queue...')}
           onRowClick={r => setDrilldownTaxpayer(taxpayerById(r.id))}
         />
-        <p className="mt-2.5 text-[11px] text-steel-500 leading-relaxed">
-          {t('Signal age is shown split into its two parts: the detection floor of the slowest rule that fired, and the days the case has since waited in the queue. The second column is the one an ordering change moves.')}
-        </p>
+        <MethodNote className="mt-2.5 text-[11px] text-steel-500 leading-relaxed" short={t('Signal age is split in two. Only queue dwell moves with the ordering.')} full={t('Signal age is shown split into its two parts: the detection floor of the slowest rule that fired, and the days the case has since waited in the queue. The second column is the one an ordering change moves.')} />
       </Card>
 
       {/* ---- Why the curve falls: the chain keeps moving while the case waits ---- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         <Card
           title={t('Why The Curve Falls — Chain Propagation')}
-          subtitle={t('Exposure is never one taxpayer. Credit moves downstream and is utilised hop by hop; once utilised it can no longer be blocked, only recovered. Statewide across all clusters — this panel is not narrowed by the header filters.')}
+          subtitle={<MethodNote short={t('Credit moves downstream hop by hop; once utilised it cannot be blocked.')} full={t('Exposure is never one taxpayer. Credit moves downstream and is utilised hop by hop; once utilised it can no longer be blocked, only recovered. Statewide across all clusters — this panel is not narrowed by the header filters.')} />}
         >
           <div className="grid grid-cols-3 gap-3 mb-4">
             <MiniFigure label={t('Total chain flow')} value={t('₹{0} Cr', CHAIN_SUMMARY.totalFlowCr)} tone="navy" />
@@ -551,7 +547,7 @@ export default function RevenueRecoveryWindow() {
 
         <Card
           title={t('The Left Edge — Registration Screening')}
-          subtitle={t('The cheapest point on the curve. These indicators are checkable on the day of application rather than reconstructed from invoice flow a year later. Statewide across all new registrations — this panel is not narrowed by the header filters.')}
+          subtitle={<MethodNote short={t('The cheapest point on the curve — checkable on the day of application.')} full={t('The cheapest point on the curve. These indicators are checkable on the day of application rather than reconstructed from invoice flow a year later. Statewide across all new registrations — this panel is not narrowed by the header filters.')} />}
         >
           <div className="grid grid-cols-3 gap-3 mb-4">
             <MiniFigure label={t('New registrations')} value={REGISTRATION_SUMMARY.newRegistrations} tone="navy" />
@@ -612,7 +608,7 @@ export default function RevenueRecoveryWindow() {
                 <span className="text-[11px] font-bold text-govt-600 tabular-nums shrink-0 mt-0.5">{String(i + 1).padStart(2, '0')}</span>
                 <div className="min-w-0">
                   <h3 className="text-sm font-bold text-navy-900">{t(rc.cause)}</h3>
-                  <p className="text-[12px] text-steel-600 mt-1 leading-relaxed">{t(rc.why)}</p>
+                  <MethodNote className="mt-1" short={t(rc.whyShort)} full={t(rc.why)} />
                   <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-maharisk-critical mb-0.5">{t('Consequence')}</div>
@@ -637,7 +633,7 @@ export default function RevenueRecoveryWindow() {
   )
 }
 
-function LagBucket({ tone, title, figure, meta, body }) {
+function LagBucket({ tone, title, figure, meta, body, bodyFull }) {
   const styles = {
     green: 'border-emerald-200 bg-emerald-50',
     red: 'border-red-200 bg-red-50',
@@ -655,7 +651,7 @@ function LagBucket({ tone, title, figure, meta, body }) {
             <h4 className="text-[12.5px] font-bold text-navy-900">{title}</h4>
           </div>
           <div className="text-[11px] text-steel-500 mt-0.5 tabular-nums">{meta}</div>
-          <p className="text-[12px] text-steel-600 mt-1.5 leading-relaxed">{body}</p>
+          <MethodNote className="mt-1.5" short={body} full={bodyFull} />
         </div>
         <div className={`text-lg font-bold tabular-nums shrink-0 ${figureColor}`}>{figure}</div>
       </div>

@@ -207,18 +207,24 @@ export const TOP_ACTIONS = AT_RISK
   .map(r => {
     let protects = 0
     let action = null
+    let actionArgs = []
     let because = null
+    let becauseArgs = []
     let horizon = null
 
     if (r.mechanisms.includes('limitation') && r.detail.daysRemaining <= 30) {
       protects = r.value
-      action = `Issue notice before ${r.detail.bindingDate}`
-      because = `${r.detail.daysRemaining} days remain under ${r.detail.section.replace('s', 'Section ')}. After that the demand is extinguished by operation of law and the full amount is lost.`
+      action = 'Issue notice before {0}'
+      actionArgs = [r.detail.bindingDate]
+      because =
+        '{0} days remain under {1}. After that the demand is extinguished by operation of law and the full amount is lost.'
+      becauseArgs = [r.detail.daysRemaining, r.detail.section.replace('s', 'Section ')]
       horizon = r.detail.daysRemaining
     } else if (r.detail.decayNextWeek > 0) {
       protects = r.detail.decayNextWeek
       action = 'Open and progress this week'
-      because = `This is the value forecast to become unrecoverable if the case is untouched for a further seven days. The rest of the exposure is not at risk this week.`
+      because =
+        'This is the value forecast to become unrecoverable if the case is untouched for a further seven days. The rest of the exposure is not at risk this week.'
       horizon = 7
     } else if (r.mechanisms.includes('network')) {
       // Only the value the chain loses in a week, on the same decay curve the
@@ -229,17 +235,32 @@ export const TOP_ACTIONS = AT_RISK
       const age = plan ? plan.ageDays : 0
       const retained = age > 0 ? recoverabilityFor(age + 7) / recoverabilityFor(age) : 1
       protects = Math.round(r.value * (1 - retained))
-      action = `Act on chain ${r.detail.cluster}`
-      because = `Credit in this chain remains blockable, and this is the share of it forecast to be utilised over the next seven days. The chain is ${age} days old, so the curve here is flatter than it would be on a fresh signal.`
+      action = 'Act on chain {0}'
+      actionArgs = [r.detail.cluster]
+      because =
+        'Credit in this chain remains blockable, and this is the share of it forecast to be utilised over the next seven days. The chain is {0} days old, so the curve here is flatter than it would be on a fresh signal.'
+      becauseArgs = [age]
       horizon = 7
     } else if (r.mechanisms.includes('limitation')) {
       protects = 0
-      action = `Schedule before ${r.detail.bindingDate}`
-      because = `${r.detail.daysRemaining} days remain, so nothing is lost by not working it this week — but it must not slip past the window.`
+      action = 'Schedule before {0}'
+      actionArgs = [r.detail.bindingDate]
+      because =
+        '{0} days remain, so nothing is lost by not working it this week — but it must not slip past the window.'
+      becauseArgs = [r.detail.daysRemaining]
       horizon = r.detail.daysRemaining
     }
     if (!action) return null
-    return { ...r, protects, action, because, horizon, reachable: !r.mechanisms.includes('capacity') }
+    return {
+      ...r,
+      protects,
+      action,
+      actionArgs,
+      because,
+      becauseArgs,
+      horizon,
+      reachable: !r.mechanisms.includes('capacity')
+    }
   })
   .filter(Boolean)
   .sort((a, b) => b.protects - a.protects)

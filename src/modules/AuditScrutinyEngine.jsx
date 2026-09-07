@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
 import { DataTable } from '../components/ui/DataTable.jsx'
@@ -234,7 +235,7 @@ export default function AuditScrutinyEngine() {
         const pos = statutoryPositionFor(r.gstin)
         if (!pos) return <span className="text-[11px] text-steel-400">{t('No limitation record')}</span>
         return (
-          <div className="text-right" title={t(pos.verdict)}>
+          <div className="text-right" title={t(pos.verdictMsg.key, ...pos.verdictMsg.args)}>
             <div className={`text-[12px] font-semibold tabular-nums ${pos.barred ? 'text-steel-400' : pos.critical ? 'text-maharisk-critical' : 'text-navy-800'}`}>
               {pos.barred ? t('{0}d overdue', pos.daysOverdue) : t('{0}d left', pos.daysRemaining)}
             </div>
@@ -281,7 +282,7 @@ export default function AuditScrutinyEngine() {
       <SectionHeader
         eyebrow={t('Enforcement · Risk-Based Prioritisation')}
         title={t('Audit & Scrutiny Engine')}
-        description={t('Risk-ranked audit case prioritisation and pipeline management — from case identification through hearing and recovery, with AI-assisted checklists, notices and mandatory officer approval at every stage transition.')}
+        description={<MethodNote short={t('Audit cases ranked by risk, from identification through to recovery.')} full={t('Risk-ranked audit case prioritisation and pipeline management — from case identification through hearing and recovery, with AI-assisted checklists, notices and mandatory officer approval at every stage transition.')} />}
         actions={<ExportBar moduleLabel={t('Audit & Scrutiny Engine')} />}
       />
 
@@ -346,16 +347,14 @@ export default function AuditScrutinyEngine() {
       </div>
 
       {kpis.recoveryMatched < kpis.totalCount && (
-        <div className="mb-4 rounded-lg border border-steel-200 bg-steel-50 px-4 py-2.5 text-[12px] text-steel-700 leading-relaxed">
-          {t('The recoverable figure covers the {0} of {1} cases in view that carry a record in the recovery engine. The remainder are shown at exposure only — the decay curve is not extrapolated over cases it does not hold.', kpis.recoveryMatched, kpis.totalCount)}
-        </div>
+        <MethodNote className="mb-4 rounded-lg border border-steel-200 bg-steel-50 px-4 py-2.5 text-[12px] text-steel-700 leading-relaxed" short={t('The rest are shown at exposure only — the decay curve is not extrapolated.')} full={t('The recoverable figure covers the {0} of {1} cases in view that carry a record in the recovery engine. The remainder are shown at exposure only — the decay curve is not extrapolated over cases it does not hold.', kpis.recoveryMatched, kpis.totalCount)} />
       )}
 
       <FilterScope shown={filteredCases.length} total={baseCases.length} unit={t('audit cases')} />
 
       <Card
         title={t('Risk-Ranked Case List')}
-        subtitle={t('Sorted by risk score, descending. Risk decides the order; the statutory clock decides whether the order is worth working — sort on it to see which cases the calendar is about to close.')}
+        subtitle={<MethodNote short={t('Risk decides the order; the statutory clock decides whether it is worth working.')} full={t('Sorted by risk score, descending. Risk decides the order; the statutory clock decides whether the order is worth working — sort on it to see which cases the calendar is about to close.')} />}
         className="mb-6"
         actions={<HumanReviewBadge label={t('Officer Verification Required')} />}
       >
@@ -369,7 +368,7 @@ export default function AuditScrutinyEngine() {
 
       <Card
         title={t('Audit Workflow Pipeline')}
-        subtitle={t('Stage tracking with what each stage is holding. A column is a bottleneck when value and expiring cases accumulate in it — a case count on its own cannot show that.')}
+        subtitle={<MethodNote short={t('A stage is a bottleneck when value and expiring cases pile up in it.')} full={t('Stage tracking with what each stage is holding. A column is a bottleneck when value and expiring cases accumulate in it — a case count on its own cannot show that.')} />}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
           {AUDIT_STAGES.map(stage => {

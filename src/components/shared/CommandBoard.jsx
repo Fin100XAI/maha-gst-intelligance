@@ -70,7 +70,7 @@ export function CommandBoard({ onOpen }) {
                   <button
                     key={c.id}
                     onClick={() => onOpen(c.target)}
-                    title={t(c.detail)}
+                    title={t(c.detail, ...(c.detailArgs || []))}
                     className="w-full text-left px-3.5 py-3 hover:bg-navy-50/50 transition-colors block"
                   >
                     <span className="flex items-start gap-1.5 mb-1.5">

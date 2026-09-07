@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Users, AlertTriangle, Gauge, Scale, MapPin, Clock, TrendingUp, Info } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
@@ -44,7 +45,7 @@ export default function CapacityOptimisation() {
       <SectionHeader
         eyebrow={t('Leadership · Deployment')}
         title={t('Officer Capacity & Deployment')}
-        description={t('A week of officer capacity allocated against eligibility that is territorially and functionally binding, with limitation-critical work assigned before anything else competes for it. The finding is the residual — what nobody eligible can reach, and which specific constraint is responsible.')}
+        description={<MethodNote short={t('One week of capacity, against binding territorial and functional eligibility.')} full={t('A week of officer capacity allocated against eligibility that is territorially and functionally binding, with limitation-critical work assigned before anything else competes for it. The finding is the residual — what nobody eligible can reach, and which specific constraint is responsible.')} />}
         actions={<ExportBar moduleLabel="Officer Capacity & Deployment" />}
       />
 
@@ -59,15 +60,19 @@ export default function CapacityOptimisation() {
             {t('{0}% of departmental capacity is used, and {1} cases worth {2} still cannot be worked this week.',
               Math.round((R.usedDays / R.totalSupplyDays) * 100), R.unworkableCount, cr(R.unworkableValue))}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">
-            {t('These two facts are not in tension — they are the same fact. An unused officer-day in one division cannot be spent in another, and an audit officer cannot take an investigation case. Aggregate utilisation is the figure to distrust; the pools below are where the decision actually sits.')}
-            {R.mandatoryUnworkable.length > 0 && ' '}
-            {R.mandatoryUnworkable.length > 0 && (
-              <strong className="text-[#C5221F]">
-                {t('{0} of them are inside the statutory window and will be time-barred if not reached.', R.mandatoryUnworkable.length)}
-              </strong>
-            )}
-          </p>
+          {/* The limitation warning stays on the face of the screen — it is
+              the one line here that expires. Only the explanation of why
+              unused capacity cannot move sits behind the disclosure. */}
+          {R.mandatoryUnworkable.length > 0 && (
+            <p className="text-[12.5px] font-semibold text-[#C5221F] leading-relaxed mb-1">
+              {t('{0} of them are inside the statutory window and will be time-barred if not reached.', R.mandatoryUnworkable.length)}
+            </p>
+          )}
+          <MethodNote
+            className="text-[12.5px] text-steel-700 leading-relaxed"
+            short={t('Not a contradiction — an unused day in one division cannot move to another.')}
+            full={t('These two facts are not in tension — they are the same fact. An unused officer-day in one division cannot be spent in another, and an audit officer cannot take an investigation case. Aggregate utilisation is the figure to distrust; the pools below are where the decision actually sits.')}
+          />
         </div>
       </div>
 
@@ -155,14 +160,12 @@ function AllocationView({ R }) {
           it is not reachable, and this says exactly why. */}
       <Card
         title={t('Where the unspent capacity sits')}
-        subtitle={t('{0} of {1} officer-days went unspent while {2} cases could not be worked. An unspent day is not a spare day: it either sits in a division with no waiting caseload, or is shorter than the smallest case still waiting in its pool.', load.strandedDays, R.totalSupplyDays, R.unworkableCount)}
+        subtitle={<MethodNote short={t('An unspent day is not a spare day.')} full={t('{0} of {1} officer-days went unspent while {2} cases could not be worked. An unspent day is not a spare day: it either sits in a division with no waiting caseload, or is shorter than the smallest case still waiting in its pool.', load.strandedDays, R.totalSupplyDays, R.unworkableCount)} />}
       >
         {load.idleOfficers > 0 && (
           <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-2.5 mb-3 flex items-start gap-2.5">
             <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-[12px] text-navy-800 leading-relaxed">
-              {t('{0} of {1} field officers were assigned no case at all. Before that is read as spare capacity, check the division and role: an officer with a free week and no eligible case in their own division cannot be lent to a pool that is oversubscribed.', load.idleOfficers, R.officerCount)}
-            </p>
+            <MethodNote className="text-[12px] text-navy-800 leading-relaxed" short={t('Check division and role before reading an idle officer as spare capacity.')} full={t('{0} of {1} field officers were assigned no case at all. Before that is read as spare capacity, check the division and role: an officer with a free week and no eligible case in their own division cannot be lent to a pool that is oversubscribed.', load.idleOfficers, R.officerCount)} />
           </div>
         )}
         <DataTable
@@ -189,7 +192,7 @@ function AllocationView({ R }) {
       {/* Quality of the allocation, stated as a bound rather than a claim. */}
       <Card
         title={t('How good is this allocation?')}
-        subtitle={t('Generalised assignment is NP-hard. This is a greedy heuristic, and rather than assert optimality it is measured against a bound that is unreachable by construction.')}
+        subtitle={<MethodNote short={t('A greedy heuristic, measured against a bound rather than claimed optimal.')} full={t('Generalised assignment is NP-hard. This is a greedy heuristic, and rather than assert optimality it is measured against a bound that is unreachable by construction.')} />}
       >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
           <BoundStat label={t('Achieved — this allocation')} value={cr(R.achievedValue)} note={t('Real. Every case respects division, role and effort.')} tone="green" />
@@ -204,7 +207,7 @@ function AllocationView({ R }) {
 
       <Card
         title={t('Allocation for the coming week')}
-        subtitle={t('Limitation-critical cases were placed first and ordered by expiry date, not by value. Everything else competed for the capacity that survived, ranked by recoverable value per officer-day.')}
+        subtitle={<MethodNote short={t('Limitation-critical work was placed first, by expiry date, not by value.')} full={t('Limitation-critical cases were placed first and ordered by expiry date, not by value. Everything else competed for the capacity that survived, ranked by recoverable value per officer-day.')} />}
       >
         <DataTable
           columns={[
@@ -293,7 +296,7 @@ function ResidualView({ R }) {
           >
             <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3 mb-3">
               <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('What would actually fix this')}</div>
-              <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(meta.remedy)}</p>
+              <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(meta.remedy, ...(meta.remedyArgs || []))}</p>
             </div>
             {g.critical > 0 && (
               <div className="flex items-center gap-2 mb-3">
@@ -334,7 +337,7 @@ function ResidualView({ R }) {
       {R.barredExcluded.length > 0 && (
         <Card
           title={t('Excluded before allocation — already time-barred')}
-          subtitle={t('{0} cases carrying {1} of exposure, and {2} officer-days of work that was released to live cases. Not a capacity problem and deliberately not competing for officer days: no demand can lawfully be raised, so an officer-day spent here returns nothing.', R.barredExcluded.length, cr(barred.exposure), barred.days)}
+          subtitle={<MethodNote short={t('Time-barred: no demand can be raised, so an officer-day here returns nothing.')} full={t('{0} cases carrying {1} of exposure, and {2} officer-days of work that was released to live cases. Not a capacity problem and deliberately not competing for officer days: no demand can lawfully be raised, so an officer-day spent here returns nothing.', R.barredExcluded.length, cr(barred.exposure), barred.days)} />}
         >
           <DataTable
             columns={[
@@ -366,7 +369,7 @@ function BindingView({ R }) {
       {gaps.length > 0 && (
         <Card
           title={t('Deployment gaps — no eligible officer posted at all')}
-          subtitle={t('{0} division-and-case-type pools have caseload but nobody who may lawfully take it. Scheduling cannot reach these; only a posting or a jurisdictional reassignment can.', gaps.length)}
+          subtitle={<MethodNote short={t('Scheduling cannot reach these — only a posting or a jurisdictional change.')} full={t('{0} division-and-case-type pools have caseload but nobody who may lawfully take it. Scheduling cannot reach these; only a posting or a jurisdictional reassignment can.', gaps.length)} />}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {gaps.map(p => (
@@ -392,7 +395,7 @@ function BindingView({ R }) {
 
       <Card
         title={t('Capacity pools, most oversubscribed first')}
-        subtitle={t('Pooled by division and case type, because that is the granularity at which an officer-week can actually be moved. Subscription is demand-days divided by supply-days — above 1.00 the pool cannot clear its caseload however well it is scheduled.')}
+        subtitle={<MethodNote short={t('Pooled at the level an officer-week can actually be moved.')} full={t('Pooled by division and case type, because that is the granularity at which an officer-week can actually be moved. Subscription is demand-days divided by supply-days — above 1.00 the pool cannot clear its caseload however well it is scheduled.')} />}
       >
         <DataTable
           columns={[
@@ -439,7 +442,7 @@ function BindingView({ R }) {
 
       <Card
         title={t('Marginal value of the next officer-week')}
-        subtitle={t('Computed from the specific cases that would become reachable, best value-per-day first — not from a pool average. This is the figure that answers where the next posting should go.')}
+        subtitle={<MethodNote short={t('Computed from the cases that would actually become reachable, not an average.')} full={t('Computed from the specific cases that would become reachable, best value-per-day first — not from a pool average. This is the figure that answers where the next posting should go.')} />}
       >
         <div className="space-y-2">
           {R.pools.filter(p => p.marginalOfficerWeekValue > 0).slice(0, 8).map(p => {
@@ -488,9 +491,7 @@ function BindingView({ R }) {
             </div>
           ))}
         </div>
-        <p className="text-[11.5px] text-steel-500 leading-relaxed mt-3">
-          {t('An officer-week is {0} case-days after non-case work is removed. A case needing more than that is indivisible and cannot be placed inside a one-week horizon at all, however many officers are added.', NET_DAYS_PER_OFFICER)}
-        </p>
+        <MethodNote className="text-[11.5px] text-steel-500 leading-relaxed mt-3" short={t('A case larger than one officer-week is indivisible and cannot be placed.')} full={t('An officer-week is {0} case-days after non-case work is removed. A case needing more than that is indivisible and cannot be placed inside a one-week horizon at all, however many officers are added.', NET_DAYS_PER_OFFICER)} />
       </Card>
     </div>
   )

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Search, RotateCcw, AlertTriangle, Lock, Info, Gavel, ShieldAlert, Hourglass, Scale } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
@@ -14,6 +15,7 @@ import { TAXPAYERS } from '../data/mockData.js'
 import { FilterScope, FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { useApp, applyScopeFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
+import { similarityText } from '../i18n/similarityText.js'
 
 const cr = n => `₹${(n / 10000000).toFixed(2)} Cr`
 const lakh = n => `₹${(n / 100000).toFixed(1)} L`
@@ -56,7 +58,7 @@ export default function MissedRevenueDiscovery() {
       <SectionHeader
         eyebrow={t('Missed Revenue · Retrospective')}
         title={t('Missed Revenue Discovery')}
-        description={t('Closed audits and no-action cases re-examined against the signals that were live at the time. Produces explainable review candidates for an officer to judge — never an automatic Section 74 classification, and the screen shows why that refusal is a measurement rather than a caution.')}
+        description={<MethodNote short={t('Closed cases re-examined against the signals that were live at the time.')} full={t('Closed audits and no-action cases re-examined against the signals that were live at the time. Produces explainable review candidates for an officer to judge — never an automatic Section 74 classification, and the screen shows why that refusal is a measurement rather than a caution.')} />}
         actions={<ExportBar moduleLabel="Missed Revenue Discovery" />}
       />
 
@@ -210,9 +212,7 @@ function CandidatesView() {
             </div>
           ))}
         </div>
-        <p className="text-[11.5px] text-steel-600 leading-relaxed mt-3">
-          {t('A candidate whose period expires this month outranks a larger one with two years to run, because only one of them can still be converted into a demand. Candidates already time-barred are excluded upstream and never appear here.')}
-        </p>
+        <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed mt-3" short={t('The band, not the amount, decides the order of work.')} full={t('A candidate whose period expires this month outranks a larger one with two years to run, because only one of them can still be converted into a demand. Candidates already time-barred are excluded upstream and never appear here.')} />
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
@@ -305,9 +305,7 @@ function CandidateBrief({ b, rank, total, cohortExposure }) {
         {b.daysRemaining == null ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50/50 px-3.5 py-3">
             <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('Not established — an absent input')}</div>
-            <p className="text-[12.5px] text-navy-800 leading-relaxed">
-              {t('The limitation register is built from audit cases, and no audit case exists against this taxpayer. No tax period has been fixed, so no deadline can be computed. Step 1 below is what establishes it — until then this candidate cannot be prioritised against the others, and the absence must not be read as time in hand.')}
-            </p>
+            <MethodNote className="text-[12.5px] text-navy-800 leading-relaxed" short={t('No audit case, so no period is fixed — an absence, not time in hand.')} full={t('The limitation register is built from audit cases, and no audit case exists against this taxpayer. No tax period has been fixed, so no deadline can be computed. Step 1 below is what establishes it — until then this candidate cannot be prioritised against the others, and the absence must not be read as time in hand.')} />
           </div>
         ) : (
           <div className="flex flex-wrap items-end gap-x-8 gap-y-3">
@@ -363,7 +361,7 @@ function CandidateBrief({ b, rank, total, cohortExposure }) {
         subtitle={t('What happened in cases comparable on the dimensions that decide outcomes. Evidence for a judgement, not a prediction.')}
       >
         <div className={`rounded-lg border px-3.5 py-2.5 mb-3 ${b.comparables.rateStated ? 'border-emerald-200 bg-emerald-50/50' : 'border-amber-200 bg-amber-50/50'}`}>
-          <p className="text-[12px] text-navy-800 leading-relaxed">{t(b.comparables.rateNote)}</p>
+          <p className="text-[12px] text-navy-800 leading-relaxed">{t(b.comparables.rateNoteMsg.key, ...b.comparables.rateNoteMsg.args)}</p>
         </div>
         {b.comparables.none ? (
           <p className="text-[12.5px] text-steel-600 leading-relaxed">{t(b.comparables.noneReason)}</p>
@@ -384,10 +382,10 @@ function CandidateBrief({ b, rank, total, cohortExposure }) {
                   </span>
                 </div>
                 {c.matches.length > 0 && (
-                  <p className="text-[11.5px] text-emerald-800 leading-relaxed">+ {c.matches.map(m => t(m.text)).join(' · ')}</p>
+                  <p className="text-[11.5px] text-emerald-800 leading-relaxed">+ {c.matches.map(m => similarityText(m)).join(' · ')}</p>
                 )}
                 {c.distinguishers.length > 0 && (
-                  <p className="text-[11.5px] text-[#C5221F] leading-relaxed">− {c.distinguishers.map(d => t(d.text)).join(' · ')}</p>
+                  <p className="text-[11.5px] text-[#C5221F] leading-relaxed">− {c.distinguishers.map(d => similarityText(d)).join(' · ')}</p>
                 )}
               </div>
             ))}
@@ -445,7 +443,7 @@ function RefusalView({ F, S }) {
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
             {t('No automatic Section 74 classification — and not because the sample is small.')}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(S.verdict)}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(S.verdictMsg.key, ...S.verdictMsg.args)}</p>
         </div>
       </div>
 
@@ -473,7 +471,7 @@ function RefusalView({ F, S }) {
             tone={F.trainable ? undefined : 'red'}
           />
         </div>
-        <p className="text-[12.5px] text-navy-800 leading-relaxed mb-3">{t(F.reason)}</p>
+        <p className="text-[12.5px] text-navy-800 leading-relaxed mb-3">{t(F.reason, ...(F.reasonArgs || []))}</p>
         <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1.5">{t('What would unlock it')}</div>
         <ul className="space-y-2 mb-3">
           {F.whatWouldUnlockIt.map((w, i) => (
@@ -529,9 +527,7 @@ function RefusalView({ F, S }) {
           searchable={false}
           pageSize={6}
         />
-        <p className="text-[11.5px] text-steel-600 leading-relaxed mt-3">
-          {t('Read the two mean columns against each other. Where they are the same number, a case the department won and a case drawn at random are indistinguishable on that feature — which is what "does not separate" means in practice.')}
-        </p>
+        <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed mt-3" short={t('Where the two means match, the feature does not separate the cases.')} full={t('Read the two mean columns against each other. Where they are the same number, a case the department won and a case drawn at random are indistinguishable on that feature — which is what "does not separate" means in practice.')} />
       </Card>
 
       <Card title={t('Why more cases would not fix this')}>

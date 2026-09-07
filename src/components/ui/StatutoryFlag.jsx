@@ -21,7 +21,7 @@ export function StatutoryFlag({ gstin, showSafe = false }) {
   if (pos.barred) {
     return (
       <span
-        title={t(pos.verdict)}
+        title={t(pos.verdictMsg.key, ...pos.verdictMsg.args)}
         className="inline-flex items-center gap-1 rounded-md border border-red-300 bg-red-50 text-[#C5221F] text-[10.5px] font-bold px-1.5 py-0.5 whitespace-nowrap"
       >
         <Ban className="w-3 h-3 shrink-0" />
@@ -32,7 +32,7 @@ export function StatutoryFlag({ gstin, showSafe = false }) {
   if (pos.critical) {
     return (
       <span
-        title={t(pos.verdict)}
+        title={t(pos.verdictMsg.key, ...pos.verdictMsg.args)}
         className="inline-flex items-center gap-1 rounded-md border border-amber-300 bg-amber-50 text-amber-800 text-[10.5px] font-bold px-1.5 py-0.5 whitespace-nowrap"
       >
         <Clock className="w-3 h-3 shrink-0" />
@@ -72,7 +72,7 @@ export function StatutoryReviewBanner({ records, gstinOf, context }) {
             </p>
             <div className="flex flex-wrap gap-1.5">
               {review.barred.slice(0, 8).map(b => (
-                <span key={b.gstin} title={t(b.verdict)} className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-white text-[11px] px-2 py-0.5">
+                <span key={b.gstin} title={t(b.verdictMsg.key, ...b.verdictMsg.args)} className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-white text-[11px] px-2 py-0.5">
                   <Ban className="w-3 h-3 text-[#C5221F] shrink-0" />
                   <span className="text-navy-800">{b.fy}</span>
                   <span className="text-steel-500 tabular-nums">{t('{0}d overdue', b.daysOverdue)}</span>
@@ -107,7 +107,7 @@ export function StatutoryVerdict({ gstin }) {
       <div className={`text-[10px] font-bold uppercase tracking-wider mb-0.5 ${severe ? 'text-[#C5221F]' : 'text-amber-700'}`}>
         {severe ? t('Statutory period expired') : t('Statutory deadline approaching')}
       </div>
-      <p className="text-[12px] text-navy-800 leading-relaxed">{t(pos.verdict)}</p>
+      <p className="text-[12px] text-navy-800 leading-relaxed">{t(pos.verdictMsg.key, ...pos.verdictMsg.args)}</p>
       {severe && (
         <p className="text-[11.5px] text-[#C5221F] font-medium leading-relaxed mt-1">
           {t('Advancing this case cannot produce a recoverable demand. Review it for closure.')}

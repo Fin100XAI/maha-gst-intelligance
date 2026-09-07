@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
 import { Modal } from '../components/ui/Modal.jsx'
@@ -439,7 +440,7 @@ export default function ExecutiveCommandCenter() {
       <SectionHeader
         eyebrow={t('Executive Command Center')}
         title={t('Statewide Revenue & Risk Overview')}
-        description={t('Ordered by what needs a decision today, not by what is easiest to display. The irreversible position comes first, then whether the department can act on it, then the performance picture that explains how it arose.')}
+        description={<MethodNote short={t('Ordered by what needs a decision today, not by what displays easily.')} full={t('Ordered by what needs a decision today, not by what is easiest to display. The irreversible position comes first, then whether the department can act on it, then the performance picture that explains how it arose.')} />}
         actions={<ExportBar moduleLabel="Executive Command Center" />}
       />
 
@@ -456,10 +457,8 @@ export default function ExecutiveCommandCenter() {
         <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 shrink-0">
           <BadgeCheck className="w-3.5 h-3.5" /> {t('Official figures')}
         </span>
-        <span className="text-[12px] text-steel-700 leading-relaxed flex-1">
-          {t('Maharashtra has {0} registered SGST dealers (as at 1 April 2025). This demonstration models {1}. The cards below are generated data, not departmental collection figures.',
-            officialScale.officialDealersDisplay, officialScale.modelledTaxpayers.toLocaleString('en-IN'))}
-        </span>
+        <MethodNote className="text-[12px] text-steel-700 leading-relaxed flex-1" short={t('Official dealer figures, against what this demonstration models.')} full={t('Maharashtra has {0} registered SGST dealers (as at 1 April 2025). This demonstration models {1}. The cards below are generated data, not departmental collection figures.',
+            officialScale.officialDealersDisplay, officialScale.modelledTaxpayers.toLocaleString('en-IN'))} />
         <button
           onClick={() => setActiveModule('official-statistics')}
           className="text-[11px] font-semibold text-emerald-800 hover:underline whitespace-nowrap shrink-0"
@@ -474,7 +473,7 @@ export default function ExecutiveCommandCenter() {
       <Card
         className="mb-5"
         title={t('What needs a decision today')}
-        subtitle={t('{0} of {1} active conditions need a decision at Commissioner level. Each figure below is read from the engine that owns the question, carries the base it is measured against, and states the decision it demands.', BOARD_SUMMARY.commissionerDecisions, conditionCount)}
+        subtitle={<MethodNote short={t('Each figure is read from the engine that owns the question.')} full={t('{0} of {1} active conditions need a decision at Commissioner level. Each figure below is read from the engine that owns the question, carries the base it is measured against, and states the decision it demands.', BOARD_SUMMARY.commissionerDecisions, conditionCount)} />}
         actions={statewidePill}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -507,7 +506,7 @@ export default function ExecutiveCommandCenter() {
       <Card
         className="mb-5"
         title={t('Can the department act on what it has found?')}
-        subtitle={t('A finding nobody can work is not a finding. Establishment, allocation and residual are read from the capacity engine — an unused officer-day in one division cannot be spent in another, so aggregate utilisation is the figure to distrust.')}
+        subtitle={<MethodNote short={t('Establishment, allocation and residual are read from the capacity engine.')} full={t('A finding nobody can work is not a finding. Establishment, allocation and residual are read from the capacity engine — an unused officer-day in one division cannot be spent in another, so aggregate utilisation is the figure to distrust.')} />}
         actions={
           <button
             onClick={() => setActiveModule('capacity')}
@@ -712,7 +711,7 @@ export default function ExecutiveCommandCenter() {
       <Card
         className="mb-5"
         title={t('Revenue & Compliance Health Index')}
-        subtitle={t('Weighted composite across six indicators — the single number leadership tracks period to period, with the component carrying the largest drag named rather than left to be found.')}
+        subtitle={<MethodNote short={t('Weighted composite across six indicators, with the largest drag named.')} full={t('Weighted composite across six indicators — the single number leadership tracks period to period, with the component carrying the largest drag named rather than left to be found.')} />}
       >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="flex flex-col items-center justify-center gap-3 lg:border-r lg:border-steel-100 lg:pr-6">
@@ -836,7 +835,7 @@ export default function ExecutiveCommandCenter() {
       {/* Top risk clusters table */}
       <Card
         title={t('Top 10 Highest-Risk Taxpayers')}
-        subtitle={t('Risk rank is not work order. The statutory clock and the value lost by waiting a week are shown beside the score, because a high score with eighty days on the clock can wait and a lower one expiring on Friday cannot.')}
+        subtitle={<MethodNote short={t('Risk rank is not work order — the statutory clock decides.')} full={t('Risk rank is not work order. The statutory clock and the value lost by waiting a week are shown beside the score, because a high score with eighty days on the clock can wait and a lower one expiring on Friday cannot.')} />}
         className="mb-5"
         actions={topRiskTaxpayers.some(tp => tp.risk.category === 'High' || tp.risk.category === 'Critical')
           ? <div className="flex items-center gap-2">

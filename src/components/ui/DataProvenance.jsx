@@ -2,18 +2,29 @@ import { FlaskConical } from 'lucide-react'
 import { REFERENCE_DATE } from '../../data/mockData.js'
 import { t } from '../../i18n/index.js'
 
+/* The Intl locale for a platform locale. Latin digits are kept in every
+   language: an officer reads a GSTIN, a date and a rupee figure off the same
+   row, and Devanagari numerals in one of the three make the row unscannable.
+   Hindi used to be missing here and silently fell back to en-IN, which put
+   English month names on a Hindi screen. */
+export function intlLocaleFor(locale) {
+  if (locale === 'mr') return 'mr-IN-u-nu-latn'
+  if (locale === 'hi') return 'hi-IN-u-nu-latn'
+  return 'en-IN'
+}
+
 // The date every figure in the platform is measured against. It is a fixed
 // point in the seeded dataset, NOT the wall clock — a screen that implies
 // "as of right now" when the data is frozen is the one provenance failure an
 // officer has no way to detect for themselves.
 export function asOfLongLabel(locale) {
-  return new Intl.DateTimeFormat(locale === 'mr' ? 'mr-IN-u-nu-latn' : 'en-IN', {
+  return new Intl.DateTimeFormat(intlLocaleFor(locale), {
     day: 'numeric', month: 'long', year: 'numeric'
   }).format(REFERENCE_DATE)
 }
 
 export function asOfLabel(locale) {
-  return new Intl.DateTimeFormat(locale === 'mr' ? 'mr-IN-u-nu-latn' : 'en-IN', {
+  return new Intl.DateTimeFormat(intlLocaleFor(locale), {
     day: '2-digit', month: 'short', year: 'numeric'
   }).format(REFERENCE_DATE)
 }

@@ -138,7 +138,11 @@ export function computeLimitation(fy, section) {
       annualReturnDue: arDue,
       noticeDeadline: fmt(noticeDeadline),
       orderDeadline: fmt(addMonthsUtc(noticeDeadline, 12)),
-      basis: '42 months from the annual-return due date for the notice; 12 months from the notice for the order (extendable by 6 months on approval).',
+      basis:
+        '42 months from the annual-return due date for the notice; 12 months from the notice for the order (extendable by 6 months on approval).',
+      basisArgs: [],
+      basisSuffix: '',
+      basisSuffixArgs: [],
       sources: ['s74A'],
       contested: false
     }
@@ -150,14 +154,19 @@ export function computeLimitation(fy, section) {
   let orderDeadline = addYearsUtc(parse(arDue), years)
   let sources = [section]
   let contested = false
-  let basis = `${years} years from the annual-return due date for ${fy} (${arDue}).`
+  /* Prose is held as a {0} template with its arguments alongside, never as an
+     interpolated literal: a computed sentence can never match a catalogue key,
+     so it would reach an officer in English on a Marathi or Hindi screen. */
+  let basis = '{0} years from the annual-return due date for {1} ({2}).'
+  let basisArgs = [years, fy, arDue]
 
   const override = section === 's73' ? S73_ORDER_OVERRIDE[fy] : null
   if (override) {
     orderDeadline = parse(override.date)
     sources = [section, override.source]
     contested = override.contested
-    basis = `Extended to ${override.date} by notification, in place of the base ${years}-year computation.`
+    basis = 'Extended to {0} by notification, in place of the base {1}-year computation.'
+    basisArgs = [override.date, years]
   }
 
   return {
@@ -166,7 +175,10 @@ export function computeLimitation(fy, section) {
     annualReturnDue: arDue,
     noticeDeadline: fmt(addMonthsUtc(orderDeadline, -noticeLeadMonths)),
     orderDeadline: fmt(orderDeadline),
-    basis: `${basis} Notice must issue at least ${noticeLeadMonths} months before the order deadline.`,
+    basis,
+    basisArgs,
+    basisSuffix: 'Notice must issue at least {0} months before the order deadline.',
+    basisSuffixArgs: [noticeLeadMonths],
     sources,
     contested
   }

@@ -6,6 +6,7 @@ import { t } from '../../i18n/index.js'
 import { LanguageSwitcher } from './LanguageSwitcher.jsx'
 import { FontSizeControl } from './FontSizeControl.jsx'
 import { ThemeSwitcher } from './ThemeSwitcher.jsx'
+import { intlLocaleFor } from '../ui/DataProvenance.jsx'
 
 function initialsOf(name) {
   const parts = (name || 'Guest Officer').trim().split(/\s+/)
@@ -32,7 +33,7 @@ export function Header({ onOpenMobile }) {
     return () => clearInterval(id)
   }, [])
 
-  const intlLocale = locale === 'mr' ? 'mr-IN-u-nu-latn' : 'en-IN'
+  const intlLocale = intlLocaleFor(locale)
   const timeFmt = useMemo(
     () => new Intl.DateTimeFormat(intlLocale, { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }),
     [intlLocale]

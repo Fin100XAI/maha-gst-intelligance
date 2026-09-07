@@ -13,7 +13,7 @@ export function AIOutputPanel({ output }) {
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-lg bg-ink-700 text-white"><Sparkles className="w-3.5 h-3.5" /></span>
           <div>
-            <div className="text-sm font-semibold text-navy-900">{t(output.title)}</div>
+            <div className="text-sm font-semibold text-navy-900">{t(output.title, ...(output.titleArgs || []))}</div>
             <div className="text-[11px] text-steel-500">{t('AI Copilot — simulated output')}</div>
           </div>
         </div>
@@ -28,7 +28,7 @@ export function AIOutputPanel({ output }) {
         )) : output.draft ? (
           <pre className="whitespace-pre-wrap font-sans text-xs bg-white border border-steel-200 rounded-lg p-3 text-navy-800">{output.draft}</pre>
         ) : output.message ? (
-          <p>{output.message}</p>
+          <p>{t(output.message, ...(output.messageArgs || []))}</p>
         ) : output.narrative ? <p>{output.narrative}</p> : null}
       </div>
       {output.evidenceUsed && (

@@ -33,7 +33,7 @@ export function ComparableCases({ gstin }) {
       <div className={`px-5 py-3 border-b ${r.rateStated ? 'bg-emerald-50/60 border-emerald-200' : 'bg-amber-50/60 border-amber-200'}`}>
         <div className="flex items-start gap-2.5">
           <Scale className={`w-4 h-4 shrink-0 mt-0.5 ${r.rateStated ? 'text-emerald-700' : 'text-amber-600'}`} />
-          <p className="text-[12px] text-navy-800 leading-relaxed">{r.rateNote}</p>
+          <p className="text-[12px] text-navy-800 leading-relaxed">{t(r.rateNoteMsg.key, ...r.rateNoteMsg.args)}</p>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export function ComparableCases({ gstin }) {
               <div className="flex flex-wrap items-center gap-3 text-[11.5px] text-steel-600 mb-2.5">
                 {c.issue && <span>{t(c.issue)}</span>}
                 {c.disputedAmount != null && <span className="tabular-nums">{lakh(c.disputedAmount)}</span>}
-                {c.departmentPosition && <span>{t('Position')}: {c.departmentPosition}</span>}
+                {c.departmentPosition && <span>{t('Position')}: {t(c.departmentPosition)}</span>}
                 {c.ageingDays != null && <span className="tabular-nums">{t('{0} days', c.ageingDays)}</span>}
               </div>
 

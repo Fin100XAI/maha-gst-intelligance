@@ -1,5 +1,6 @@
 import { ShieldCheck, Calculator, Ban, Lock, Info, AlertTriangle, Clock, Scale, MapPin, TrendingDown, Users, CalendarClock, UserPlus, Gauge } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { TimeHorizonChart } from '../components/ui/Charts.jsx'
@@ -130,7 +131,7 @@ export default function RevenueProtectionCommandCentre() {
       <SectionHeader
         eyebrow={t('Leadership · Revenue Protection')}
         title={t('Revenue Protection Command Centre')}
-        description={t('What the department is about to lose, what can still be protected, and which actions this week protect the most. Every figure is computed by the engine that owns it — nothing on this screen is illustrative.')}
+        description={<MethodNote short={t('What is about to be lost, what can still be protected, and what to do.')} full={t('What the department is about to lose, what can still be protected, and which actions this week protect the most. Every figure is computed by the engine that owns it — nothing on this screen is illustrative.')} />}
         actions={<ExportBar moduleLabel="Revenue Protection Command Centre" />}
       />
 
@@ -160,9 +161,7 @@ export default function RevenueProtectionCommandCentre() {
         </div>
 
         {filterActive && (
-          <div className="bg-steel-50 border-t border-steel-200 px-6 py-2.5 text-[11.5px] text-steel-600 leading-relaxed">
-            {t('The headline follows the filter. The four figures beside it do not: limitation, decay and capacity are computed across the whole establishment, and narrowing them here would mean re-running engines this screen does not own.')}
-          </div>
+          <MethodNote className="bg-steel-50 border-t border-steel-200 px-6 py-2.5 text-[11.5px] text-steel-600 leading-relaxed" short={t('The headline follows the filter; the four figures beside it do not.')} full={t('The headline follows the filter. The four figures beside it do not: limitation, decay and capacity are computed across the whole establishment, and narrowing them here would mean re-running engines this screen does not own.')} />
         )}
 
         {/* Loss strip — attached to the hero, because the two numbers only mean
@@ -308,9 +307,7 @@ export default function RevenueProtectionCommandCentre() {
         </div>
         <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3 mt-4 flex items-start gap-2.5">
           <CalendarClock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-[12px] text-navy-800 leading-relaxed">
-            {t('These are ASSESSED EXPOSURE against the deadline, not the recoverable value in the headline above. The two answer different questions — what a period is worth if the demand stands, against what is realistically collectable after decay — and adding them together, or comparing them directly, would be wrong. The bands are cumulative, so they do not sum either.')}
-          </p>
+          <MethodNote className="text-[12px] text-navy-800 leading-relaxed" short={t('Assessed exposure against the deadline — not the recoverable headline.')} full={t('These are ASSESSED EXPOSURE against the deadline, not the recoverable value in the headline above. The two answer different questions — what a period is worth if the demand stands, against what is realistically collectable after decay — and adding them together, or comparing them directly, would be wrong. The bands are cumulative, so they do not sum either.')} />
         </div>
       </Card>
 
@@ -396,7 +393,7 @@ export default function RevenueProtectionCommandCentre() {
           between a finding and a decision. */}
       <Card
         title={t('What unblocks the unreachable share')}
-        subtitle={t('{0} cases worth {1} cannot be worked this week. They land there for three distinct reasons calling for three different remedies, and conflating them produces the wrong decision.', deployment.unworkableCount, cr(deployment.unworkableValue))}
+        subtitle={<MethodNote short={t('Three reasons, three different remedies — they are not conflated.')} full={t('{0} cases worth {1} cannot be worked this week. They land there for three distinct reasons calling for three different remedies, and conflating them produces the wrong decision.', deployment.unworkableCount, cr(deployment.unworkableValue))} />}
         className="mb-4"
         actions={statewidePill}
       >
@@ -417,7 +414,7 @@ export default function RevenueProtectionCommandCentre() {
                 <span className="text-[12px] font-bold text-navy-900">{t(RESIDUAL_REASONS[r.key].label)}</span>
                 <span className="text-[13px] font-bold text-navy-900 tabular-nums shrink-0">{r.count}</span>
               </div>
-              <p className="text-[11px] text-steel-600 leading-relaxed">{t(RESIDUAL_REASONS[r.key].remedy)}</p>
+              <p className="text-[11px] text-steel-600 leading-relaxed">{t(RESIDUAL_REASONS[r.key].remedy, ...(RESIDUAL_REASONS[r.key].remedyArgs || []))}</p>
             </div>
           ))}
           {deployment.residual.length === 0 && (
@@ -443,9 +440,7 @@ export default function RevenueProtectionCommandCentre() {
                 </span>
               </div>
             ))}
-            <p className="text-[11.5px] text-steel-600 leading-relaxed pt-1">
-              {t('The marginal figure is computed from the cases actually left unreachable in that pool, taken best-density-first up to one officer-week — not an average, and not asserted. Capacity is pooled by division and case type because that is the granularity at which an officer-week can actually be moved: aggregate slack is meaningless if it sits in the wrong pool.')}
-            </p>
+            <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed pt-1" short={t('Computed best-density-first on the cases actually left, not an average.')} full={t('The marginal figure is computed from the cases actually left unreachable in that pool, taken best-density-first up to one officer-week — not an average, and not asserted. Capacity is pooled by division and case type because that is the granularity at which an officer-week can actually be moved: aggregate slack is meaningless if it sits in the wrong pool.')} />
           </div>
         ) : (
           <div className="text-[12px] text-steel-500 py-3 text-center">{t('No division-and-case-type pool is oversubscribed this week.')}</div>
@@ -499,9 +494,7 @@ export default function RevenueProtectionCommandCentre() {
         {weekPlan.unpriced > 0 && (
           <div className="rounded-lg border border-steel-200 bg-steel-50 px-4 py-3 mb-3 flex items-start gap-2.5">
             <Lock className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-            <p className="text-[12px] text-steel-700 leading-relaxed">
-              {t('{0} of these {1} actions carry no officer-day estimate. The priority engine prices effort only for taxpayers with a triggered rule and non-zero exposure, so the cost of those cases is left unstated rather than filled with an average — the officer-day total above is therefore a lower bound.', weekPlan.unpriced, TOP_ACTIONS.length)}
-            </p>
+            <MethodNote className="text-[12px] text-steel-700 leading-relaxed" short={t('Effort is priced only where a rule fired and exposure is non-zero.')} full={t('{0} of these {1} actions carry no officer-day estimate. The priority engine prices effort only for taxpayers with a triggered rule and non-zero exposure, so the cost of those cases is left unstated rather than filled with an average — the officer-day total above is therefore a lower bound.', weekPlan.unpriced, TOP_ACTIONS.length)} />
           </div>
         )}
 
@@ -535,8 +528,8 @@ export default function RevenueProtectionCommandCentre() {
                       ? <span className="text-[11px] text-steel-500">{t('{0} officer-days', effortDays)}</span>
                       : <span className="text-[11px] text-steel-400">{t('Effort not priced')}</span>}
                   </div>
-                  <div className="text-[12.5px] text-navy-800 mt-0.5">{t(a.action)}</div>
-                  <p className="text-[11.5px] text-steel-600 leading-relaxed mt-0.5">{a.because}</p>
+                  <div className="text-[12.5px] text-navy-800 mt-0.5">{t(a.action, ...(a.actionArgs || []))}</div>
+                  <p className="text-[11.5px] text-steel-600 leading-relaxed mt-0.5">{t(a.because, ...(a.becauseArgs || []))}</p>
                 </div>
                 <div className="shrink-0 text-right">
                   <div className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400">{t('Protects')}</div>

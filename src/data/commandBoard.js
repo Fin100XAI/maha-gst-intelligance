@@ -86,7 +86,12 @@ export const CONDITIONS = [
     severity: 'high',
     condition: '{0} cases cannot be reached by any eligible officer this week',
     conditionArgs: [CAPACITY_RESULT.unworkableCount],
-    detail: `Departmental capacity is only ${Math.round((CAPACITY_RESULT.usedDays / CAPACITY_RESULT.totalSupplyDays) * 100)}% used, but an unused officer-day in one division cannot be spent in another and an audit officer cannot take an investigation case. ${CAPACITY_RESULT.noEligibleOfficer} of them have no eligible officer posted at all.`,
+    detail:
+      'Departmental capacity is only {0}% used, but an unused officer-day in one division cannot be spent in another and an audit officer cannot take an investigation case. {1} of them have no eligible officer posted at all.',
+    detailArgs: [
+      Math.round((CAPACITY_RESULT.usedDays / CAPACITY_RESULT.totalSupplyDays) * 100),
+      CAPACITY_RESULT.noEligibleOfficer
+    ],
     value: CAPACITY_RESULT.unworkableValue,
     valueLabel: 'not workable this week',
     decision: 'A posting decision for the divisions with no eligible officer; a prioritisation decision for the rest.',
@@ -98,7 +103,9 @@ export const CONDITIONS = [
     severity: 'high',
     condition: 'Cases wait a median {0} days between a signal appearing and being worked',
     conditionArgs: [COUNTERFACTUAL_SUMMARY.medianQueueDays],
-    detail: `Value decays continuously while a case sits unworked. This is the controllable half of the lag — the other ${COUNTERFACTUAL_SUMMARY.lostToDetectionCr} Cr is detection latency, which no amount of prioritisation shortens.`,
+    detail:
+      'Value decays continuously while a case sits unworked. This is the controllable half of the lag — the other {0} Cr is detection latency, which no amount of prioritisation shortens.',
+    detailArgs: [COUNTERFACTUAL_SUMMARY.lostToDetectionCr],
     value: COUNTERFACTUAL_SUMMARY.lostToQueueCr * 10000000,
     valueLabel: 'already lost to queue dwell',
     decision: 'Set a maximum queue age for high-value signals, and staff to it.',
@@ -137,7 +144,9 @@ export const CONDITIONS = [
     severity: 'watch',
     condition: '{0} proceedings rest on notifications whose validity is before the Supreme Court',
     conditionArgs: [LIMITATION_SUMMARY.contestedCount],
-    detail: `${q168a.verdict}. If the notifications fall, the extended deadline never existed and any order passed under it was void when made — including demand already collected.`,
+    detail:
+      '{0}. If the notifications fall, the extended deadline never existed and any order passed under it was void when made — including demand already collected.',
+    detailArgs: [q168a.verdict],
     value: LIMITATION_SUMMARY.contestedCr * 10000000,
     valueLabel: 'turns on a question of law',
     decision: 'Take a legal view before any further order issues on these periods, and identify collected demand that would be refundable.',
@@ -149,7 +158,13 @@ export const CONDITIONS = [
     severity: 'watch',
     condition: '{0} cases were put down while risk signals were still firing',
     conditionArgs: [REVISIT_SUMMARY.count],
-    detail: `${REVISIT_SUMMARY.closedWithSignal} audits were closed with rules still live and ${REVISIT_SUMMARY.neverActioned} taxpayers never received a notice despite them. Only ${REVISIT_SUMMARY.withLiveClock} carry a confirmed live limitation clock, so this is a review list rather than a recovery figure.`,
+    detail:
+      '{0} audits were closed with rules still live and {1} taxpayers never received a notice despite them. Only {2} carry a confirmed live limitation clock, so this is a review list rather than a recovery figure.',
+    detailArgs: [
+      REVISIT_SUMMARY.closedWithSignal,
+      REVISIT_SUMMARY.neverActioned,
+      REVISIT_SUMMARY.withLiveClock
+    ],
     value: REVISIT_SUMMARY.exposure,
     valueLabel: 'represented, not recoverable',
     decision: 'Establish the period and applicable section on the highest-value few before deciding whether to reopen.',

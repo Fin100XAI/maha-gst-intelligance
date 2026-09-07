@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Network, Scissors, MapPin, AlertTriangle, ShieldAlert, Info, CheckCircle2, XCircle, Share2 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
 import { PillTabs } from '../components/ui/PillTabs.jsx'
@@ -74,7 +75,7 @@ export default function NetworkEnforcement() {
       <SectionHeader
         eyebrow={t('Fraud & Risk · Enforcement Sequencing')}
         title={t('Network Intelligence')}
-        description={t('Circular invoice chains, from detection through to action. The graph shows what was found; the tabs after it work out which entity actually stops the circulation, whether officers exist in every division the chain crosses, and what is lost when they cannot move on the same day.')}
+        description={<MethodNote short={t('Circular invoice chains, and which entity actually stops each one.')} full={t('Circular invoice chains, from detection through to action. The graph shows what was found; the tabs after it work out which entity actually stops the circulation, whether officers exist in every division the chain crosses, and what is lost when they cannot move on the same day.')} />}
         actions={<ExportBar moduleLabel="Network Intelligence" />}
       />
 
@@ -88,9 +89,7 @@ export default function NetworkEnforcement() {
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
             {t('{0} of credit in these chains has already been utilised and can no longer be blocked. {1} remains.', cr(S.utilisedCr * 10000000), cr(S.blockableCr * 10000000))}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">
-            {t('That share was lost before detection, not through any decision taken since. It is stated first because it sets the scale of everything below: the sequencing decisions on this screen govern the remainder, and no amount of coordination recovers what has already moved through the chain. The largest available gain in network enforcement is earlier detection, not better choreography.')}
-          </p>
+          <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed" short={t('Lost before detection — this sets the scale of everything below.')} full={t('That share was lost before detection, not through any decision taken since. It is stated first because it sets the scale of everything below: the sequencing decisions on this screen govern the remainder, and no amount of coordination recovers what has already moved through the chain. The largest available gain in network enforcement is earlier detection, not better choreography.')} />
         </div>
       </div>
 
@@ -130,10 +129,8 @@ export default function NetworkEnforcement() {
       {scale.firstFeasible && (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 px-4 py-2.5 mb-4 flex flex-wrap items-center gap-x-3 gap-y-1">
           <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
-          <span className="text-[12.5px] text-navy-900">
-            {t('Act first on {0}: it carries the largest blockable value of any chain that every division in its span can close on one date — {1} across {2} divisions, {3} days old.',
-              scale.firstFeasible.id, cr(scale.firstFeasible.blockableRupees), scale.firstFeasible.divisionCount, scale.firstFeasible.ageDays)}
-          </span>
+          <MethodNote className="text-[12.5px] text-navy-900" short={t('Act first on the chain every division in its span can close on one date.')} full={t('Act first on {0}: it carries the largest blockable value of any chain that every division in its span can close on one date — {1} across {2} divisions, {3} days old.',
+              scale.firstFeasible.id, cr(scale.firstFeasible.blockableRupees), scale.firstFeasible.divisionCount, scale.firstFeasible.ageDays)} />
           {scale.firstFeasible.recommended && (
             <Pill tone="green">{t('Cut point: {0}', scale.firstFeasible.recommended.label)}</Pill>
           )}
@@ -192,7 +189,7 @@ function WhereView() {
 
       <Card
         title={t('Which chain first')}
-        subtitle={t('Ranked by blockable value. A chain is only workable this week if its cut point sits in a division with an officer who may act — the last two columns decide that, and they override the first.')}
+        subtitle={<MethodNote short={t('Ranked by blockable value — but only workable where an officer can act.')} full={t('Ranked by blockable value. A chain is only workable this week if its cut point sits in a division with an officer who may act — the last two columns decide that, and they override the first.')} />}
       >
         <DataTable
           columns={[
@@ -268,9 +265,7 @@ function WhereView() {
           searchable={false}
           pageSize={10}
         />
-        <p className="text-[12px] text-steel-600 leading-relaxed mt-3">
-          {t('The margin column is the one most easily missed. Where it is small, the ranking between the recommended entity and the next is inside the noise of the lead-strength weights, and the choice should be made on evidence an officer holds rather than on this ordering.')}
-        </p>
+        <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-3" short={t('Where the margin is small, the ordering is inside the noise.')} full={t('The margin column is the one most easily missed. Where it is small, the ranking between the recommended entity and the next is inside the noise of the lead-strength weights, and the choice should be made on evidence an officer holds rather than on this ordering.')} />
       </Card>
 
       {NETWORK_PLANS.map(p => (
@@ -354,9 +349,7 @@ function WhereView() {
             ) : (
               <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
                 <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{t('No bypass routes')}</div>
-                <p className="text-[12px] text-steel-700 leading-relaxed">
-                  {t('This chain is a closed loop with no chord. Removing any one entity breaks the circulation, so topology does not distinguish the targets — lead strength and value at stake decide.')}
-                </p>
+                <MethodNote className="text-[12px] text-steel-700 leading-relaxed" short={t('A closed loop: removing any one entity breaks it, so lead strength decides.')} full={t('This chain is a closed loop with no chord. Removing any one entity breaks the circulation, so topology does not distinguish the targets — lead strength and value at stake decide.')} />
               </div>
             )}
           </div>
@@ -419,7 +412,7 @@ function CanView({ S }) {
 
       <Card
         title={t('Jurisdictional span of each chain')}
-        subtitle={t('Every one of these chains crosses a division boundary. The chain is one economic unit and several jurisdictional ones, and the department is organised along the second.')}
+        subtitle={<MethodNote short={t('One economic unit, several jurisdictions — the chain crosses divisions.')} full={t('Every one of these chains crosses a division boundary. The chain is one economic unit and several jurisdictional ones, and the department is organised along the second.')} />}
       >
         <div className="space-y-3">
           {NETWORK_PLANS.map(p => (
@@ -451,18 +444,14 @@ function CanView({ S }) {
               </div>
 
               {p.uncovered.length > 0 && (
-                <p className="text-[12px] text-[#C5221F] leading-relaxed">
-                  {t('No investigation officer is posted in {0} — {1} of the {2} divisions this chain crosses. This chain cannot be closed as a unit until one is: a deployment decision, not a scheduling one.', p.uncovered.map(d => t(d)).join(', '), p.uncovered.length, p.divisionCount)}
-                </p>
+                <MethodNote className="text-[12px] text-[#C5221F] leading-relaxed" short={t('A deployment decision, not a scheduling one.')} full={t('No investigation officer is posted in {0} — {1} of the {2} divisions this chain crosses. This chain cannot be closed as a unit until one is: a deployment decision, not a scheduling one.', p.uncovered.map(d => t(d)).join(', '), p.uncovered.length, p.divisionCount)} />
               )}
 
               {/* Whether the gap falls on the entity that actually matters is a
                   different question from whether the span is covered, and it is
                   the one that decides if the chain is workable at all. */}
               {p.recommended?.division && p.uncovered.includes(p.recommended.division) && (
-                <p className="text-[12px] text-[#C5221F] leading-relaxed mt-1">
-                  {t('The gap falls on the cut point itself: {0}, the only entity ranked worth acting against here, sits in {1}. Posting an officer there is what unlocks {2}, not better scheduling.', t(p.recommended.label), t(p.recommended.division), cr(p.blockableRupees))}
-                </p>
+                <MethodNote className="text-[12px] text-[#C5221F] leading-relaxed mt-1" short={t('The gap is on the cut point itself — posting an officer there unlocks it.')} full={t('The gap falls on the cut point itself: {0}, the only entity ranked worth acting against here, sits in {1}. Posting an officer there is what unlocks {2}, not better scheduling.', t(p.recommended.label), t(p.recommended.division), cr(p.blockableRupees))} />
               )}
 
               <div className="flex flex-wrap items-center gap-4 mt-2 pt-2 border-t border-steel-100 text-[11.5px]">
@@ -493,15 +482,11 @@ function CanView({ S }) {
           <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3">
             <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('Already lost before detection')}</div>
             <div className="text-lg font-bold text-navy-900 tabular-nums">{S.utilisedCr} {t('Cr')}</div>
-            <p className="text-[11px] text-steel-600 leading-relaxed mt-1">
-              {t('Utilised downstream and no longer blockable by any action — {0}% of the {1} Cr of credit these chains carried, and {2}× everything coordination could still save.', pct(S.utilisedCr, S.utilisedCr + S.blockableCr), Math.round((S.utilisedCr + S.blockableCr) * 100) / 100, S.totalLeakageCr > 0 ? Math.round((S.utilisedCr / S.totalLeakageCr) * 10) / 10 : '—')}
-            </p>
+            <MethodNote className="text-[11px] text-steel-600 leading-relaxed mt-1" short={t('Already utilised downstream — no action can block it now.')} full={t('Utilised downstream and no longer blockable by any action — {0}% of the {1} Cr of credit these chains carried, and {2}× everything coordination could still save.', pct(S.utilisedCr, S.utilisedCr + S.blockableCr), Math.round((S.utilisedCr + S.blockableCr) * 100) / 100, S.totalLeakageCr > 0 ? Math.round((S.utilisedCr / S.totalLeakageCr) * 10) / 10 : '—')} />
           </div>
         </div>
-        <p className="text-[12.5px] text-steel-700 leading-relaxed">
-          {t('The coordination loss is small, and it would be dishonest to present it as the headline. It is small for a specific reason: these chains are already {0} to {1} days old, and by that point the decay curve has flattened — most of what could move has moved, so a further week costs comparatively little. Simultaneity matters enormously on a chain detected in its first month and barely at all on one detected in its second year. The finding is therefore not "coordinate better" but "detect earlier", and the registration screen is where that is won.',
-            Math.min(...NETWORK_PLANS.map(p => p.ageDays)), Math.max(...NETWORK_PLANS.map(p => p.ageDays)))}
-        </p>
+        <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed" short={t('The coordination loss is small, and stated as such rather than headlined.')} full={t('The coordination loss is small, and it would be dishonest to present it as the headline. It is small for a specific reason: these chains are already {0} to {1} days old, and by that point the decay curve has flattened — most of what could move has moved, so a further week costs comparatively little. Simultaneity matters enormously on a chain detected in its first month and barely at all on one detected in its second year. The finding is therefore not "coordinate better" but "detect earlier", and the registration screen is where that is won.',
+            Math.min(...NETWORK_PLANS.map(p => p.ageDays)), Math.max(...NETWORK_PLANS.map(p => p.ageDays)))} />
       </Card>
     </div>
   )
@@ -516,9 +501,7 @@ function MethodView() {
         <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{t(CUT_METHOD_NOTE)}</p>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1.5">{t('Why not a centrality score')}</div>
-          <p className="text-[12px] text-steel-700 leading-relaxed">
-            {t('Centrality measures how important a node looks. It does not answer whether the circulation survives without it, and on a chain with a bypass route those two things point at different entities. The test used here is the direct one: remove the node and check whether a directed cycle still exists.')}
-          </p>
+          <MethodNote className="text-[12px] text-steel-700 leading-relaxed" short={t('Centrality says how important a node looks, not whether removing it works.')} full={t('Centrality measures how important a node looks. It does not answer whether the circulation survives without it, and on a chain with a bypass route those two things point at different entities. The test used here is the direct one: remove the node and check whether a directed cycle still exists.')} />
         </div>
       </Card>
 

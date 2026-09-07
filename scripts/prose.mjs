@@ -39,7 +39,11 @@ const IGNORE = [
   /^(?:https?:)?\/\//,                    // URLs
   /^[a-z0-9-]+\.(?:js|jsx|css|json|mjs)$/, // filenames
   /^#[0-9a-fA-F]{3,8}$/,                  // colours
-  /^\d/,                                  // starts with a digit — ids, dates, versions
+  /* A bare number, date or version — not a sentence that opens with one. The
+     rule used to be /^\d/, which silently dropped every finding written as
+     "8 proceedings past their deadline…" and every evidence line in the engine
+     registry, because they begin with a figure. */
+  /^\d[\d.\-/:]*$/,
   /^[a-z_]+$/,                            // single lowercase token — object keys, ids
   /^[A-Z_]+$/,                            // SCREAMING_CASE constants
   /^(?:en|mr|hi)$/,                        // locale ids
@@ -70,7 +74,23 @@ const IGNORE = [
 const UTILITY = /^[a-zA-Z0-9:.\/[\]#%,()_-]+$/
 const PUNCTUATED = /[:\/[\]#%-]/
 
+/* Sentence punctuation a utility class never carries outside an arbitrary
+   value: a comma, or a full stop that is not inside brackets. A long sentence
+   whose only punctuation is a colon ("Counted whether live or expired: …")
+   otherwise passes the utility test token by token and is silently dropped —
+   which is how that string reached an officer in English on a Marathi screen. */
+const SENTENCE_PUNCT = /,|\.(?:\s|$)/
+
+/* A Tailwind class is lowercase. Uppercase appears only inside an arbitrary
+   value — text-[#C5221F] — so a capitalised word outside brackets is a word,
+   not a utility. Without this, "High/Critical taxpayers" and "Non-filers" read
+   as class lists on the slash and the hyphen, and were dropped in silence. */
+const CAPITALISED_WORD = /(?:^|\s|\/)[A-Z][a-z]/
+
 function looksLikeClassNames(s) {
+  const outsideBrackets = s.replace(/\[[^\]]*\]/g, '')
+  if (SENTENCE_PUNCT.test(outsideBrackets)) return false
+  if (CAPITALISED_WORD.test(outsideBrackets)) return false
   const tokens = s.trim().split(/\s+/)
   /* Every token is a plausible utility, and at least one is punctuated. A
      single token qualifies too: className={cond ? 'shrink-0' : 'text-white'}

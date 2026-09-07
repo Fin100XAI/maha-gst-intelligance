@@ -5,7 +5,10 @@ export function Card({ title, subtitle, actions, className = '', children, padde
         <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-steel-100">
           <div>
             {title && <h3 className="text-sm font-semibold text-navy-800">{title}</h3>}
-            {subtitle && <p className="text-xs text-steel-500 mt-0.5">{subtitle}</p>}
+            {/* A div for the same reason as the header description below: the
+                subtitle is often a <MethodNote>, and a block inside a <p> is
+                invalid markup. */}
+            {subtitle && <div className="text-xs text-steel-500 mt-0.5">{subtitle}</div>}
           </div>
           {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
         </div>
@@ -31,7 +34,10 @@ export function SectionHeader({ eyebrow, title, description, actions }) {
       <div>
         {eyebrow && <div className="text-[11px] font-bold uppercase tracking-wider text-saffron-600 mb-1">{eyebrow}</div>}
         <h1 className="text-xl font-bold text-navy-900">{title}</h1>
-        {description && <p className="text-sm text-steel-500 mt-1 max-w-3xl">{description}</p>}
+        {/* A div, not a p: the description is often a <MethodNote>, which puts
+            the one-line summary and the reasoning behind it in the same slot,
+            and a block element inside a <p> is invalid markup. */}
+        {description && <div className="text-sm text-steel-500 mt-1 max-w-3xl">{description}</div>}
       </div>
       {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
     </div>
