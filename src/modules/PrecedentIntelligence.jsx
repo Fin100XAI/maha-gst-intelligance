@@ -85,14 +85,14 @@ function QuestionsView({ logAction }) {
       <div className="rounded-xl border shadow-card overflow-hidden" style={{ borderColor: tone.border }}>
         <div className="px-5 py-3.5 border-b" style={{ backgroundColor: tone.bg, borderColor: tone.border }}>
           <div className="text-[10px] font-bold uppercase tracking-wider mb-1" style={{ color: tone.accent }}>{t('Question of law')}</div>
-          <div className="text-[15px] font-bold text-navy-900 leading-snug">{q.label}</div>
+          <div className="text-[15px] font-bold text-navy-900 leading-snug">{t(q.label)}</div>
         </div>
         <div className="bg-white px-5 py-4 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Pill tone={pillTone(status.tone)}>{status.verdict}</Pill>
+            <Pill tone={pillTone(status.tone)}>{t(status.verdict)}</Pill>
             <span className="text-[11.5px] text-steel-500">{q.affects}</span>
           </div>
-          <p className="text-[13px] text-navy-800 leading-relaxed">{status.text}</p>
+          <p className="text-[13px] text-navy-800 leading-relaxed">{t(status.text)}</p>
           <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
             <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1">{t('Why it matters')}</div>
             <p className="text-[12.5px] text-steel-700 leading-relaxed">{q.whyItMatters}</p>
@@ -163,7 +163,7 @@ function AuthorityRow({ a, onOpen }) {
         <Pill tone={forum.bindingInMaharashtra ? 'green' : 'steel'}>
           {forum.bindingInMaharashtra ? t('Binding in Maharashtra') : t('Persuasive only')}
         </Pill>
-        <Pill tone={pillTone(st.tone)}>{st.label}</Pill>
+        <Pill tone={pillTone(st.tone)}>{t(st.label)}</Pill>
         <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-steel-500">
           <favour.Icon className="w-3 h-3" />{t(favour.label)}
         </span>
@@ -173,7 +173,7 @@ function AuthorityRow({ a, onOpen }) {
         ? <div className="text-[12.5px] text-navy-700 italic mb-1">{a.caseName}{a.decidedOn ? ` — ${a.decidedOn}` : ''}</div>
         : <div className="text-[12px] text-steel-400 mb-1">{t('Case name not established from a published source, and deliberately not stated.')}</div>}
 
-      <p className="text-[12.5px] text-steel-700 leading-relaxed">{a.holding}</p>
+      <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(a.holding)}</p>
 
       <div className="flex flex-wrap items-center gap-2 mt-2">
         <span className="text-[10.5px] text-steel-500">{a.verified}</span>
@@ -289,12 +289,12 @@ function ModelView() {
               <span className="shrink-0 w-6 h-6 rounded-full bg-steel-100 text-steel-600 text-[11px] font-bold flex items-center justify-center tabular-nums">{f.rank}</span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[13px] font-semibold text-navy-900">{f.label}</span>
+                  <span className="text-[13px] font-semibold text-navy-900">{t(f.label)}</span>
                   <Pill tone={f.bindingInMaharashtra ? 'green' : 'steel'}>
                     {f.bindingInMaharashtra ? t('Binding') : t('Not binding')}
                   </Pill>
                 </div>
-                <p className="text-[12px] text-steel-600 leading-relaxed mt-0.5">{f.note}</p>
+                <p className="text-[12px] text-steel-600 leading-relaxed mt-0.5">{t(f.note)}</p>
               </div>
             </div>
           ))}
@@ -305,8 +305,8 @@ function ModelView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Object.entries(STATUS).map(([key, s]) => (
             <div key={key} className="rounded-lg border border-steel-200 bg-white px-3.5 py-3">
-              <Pill tone={pillTone(s.tone)}>{s.label}</Pill>
-              <p className="text-[12px] text-steel-600 leading-relaxed mt-2">{s.note}</p>
+              <Pill tone={pillTone(s.tone)}>{t(s.label)}</Pill>
+              <p className="text-[12px] text-steel-600 leading-relaxed mt-2">{t(s.note)}</p>
             </div>
           ))}
         </div>
@@ -317,10 +317,10 @@ function ModelView() {
       <div className="rounded-xl border border-steel-200 bg-steel-50 px-5 py-4">
         <div className="flex items-center gap-2 mb-2">
           <Library className="w-4 h-4 text-steel-400" />
-          <span className="text-[13px] font-bold text-navy-900">{CORPUS_STATE.label}</span>
+          <span className="text-[13px] font-bold text-navy-900">{t(CORPUS_STATE.label)}</span>
           <Pill tone="amber">{CORPUS_STATE.connected ? t('Connected') : t('Not integrated')}</Pill>
         </div>
-        <p className="text-[12.5px] text-steel-700 leading-relaxed">{CORPUS_STATE.note}</p>
+        <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(CORPUS_STATE.note)}</p>
       </div>
 
       <div className="rounded-lg border border-red-200 bg-red-50/50 px-4 py-3 flex items-start gap-2.5">

@@ -13,7 +13,7 @@ export function AIOutputPanel({ output }) {
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-lg bg-ink-700 text-white"><Sparkles className="w-3.5 h-3.5" /></span>
           <div>
-            <div className="text-sm font-semibold text-navy-900">{output.title}</div>
+            <div className="text-sm font-semibold text-navy-900">{t(output.title)}</div>
             <div className="text-[11px] text-steel-500">{t('AI Copilot — simulated output')}</div>
           </div>
         </div>

@@ -182,7 +182,7 @@ export function TaxpayerDrilldownModal({ taxpayer, open, onClose }) {
               {notes.map((n, i) => (
                 <div key={i} className="text-xs bg-steel-50 border border-steel-200 rounded-lg px-3 py-2">
                   <div className="text-steel-500 mb-0.5">{n.by} · {n.on}</div>
-                  {n.text}
+                  {t(n.text)}
                 </div>
               ))}
             </div>

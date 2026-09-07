@@ -324,7 +324,7 @@ export function ClusterDetection() {
                   className="flex items-center justify-between px-3 py-2 rounded-lg border border-steel-200 hover:border-navy-300 hover:bg-navy-50/50 text-left"
                 >
                   <div>
-                    <div className="text-xs font-semibold text-navy-900">{n.label}</div>
+                    <div className="text-xs font-semibold text-navy-900">{t(n.label)}</div>
                     <div className="text-[10.5px] text-steel-500">{n.gstin} · {n.role}{n.dormant ? ` · ${t('Dormant')}` : ''}</div>
                   </div>
                   <RiskBadge category={n.risk} size="sm" />

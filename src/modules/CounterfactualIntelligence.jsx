@@ -57,7 +57,7 @@ export default function CounterfactualIntelligence() {
             <span className="text-[11.5px] font-bold text-white tabular-nums truncate">{t('Detection')} ₹{S.lostToDetectionCr} Cr</span>
           </div>
         </div>
-        <p className="text-[11.5px] text-steel-600 leading-relaxed">{LAG_OWNERSHIP_NOTE}</p>
+        <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(LAG_OWNERSHIP_NOTE)}</p>
       </Card>
 
       <FilterScope shown={scoped.length} total={COUNTERFACTUALS.length} unit={t('cases')} />
@@ -130,7 +130,7 @@ function CaseCounterfactual({ cf }) {
           {cf.scenarios.map(s => (
             <div key={s.id}>
               <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                <span className={`text-[12.5px] ${s.actual ? 'font-bold text-navy-900' : 'font-medium text-steel-700'}`}>{s.label}</span>
+                <span className={`text-[12.5px] ${s.actual ? 'font-bold text-navy-900' : 'font-medium text-steel-700'}`}>{t(s.label)}</span>
                 {s.actual && <Pill tone="red">{t('what happened')}</Pill>}
                 {!s.feasible && <Pill tone="steel">{t('ceiling — not achievable')}</Pill>}
                 <span className="ml-auto text-[13px] font-bold text-navy-900 tabular-nums">{lakh(s.value)}</span>
@@ -144,7 +144,7 @@ function CaseCounterfactual({ cf }) {
                   />
                 </div>
               </div>
-              <p className="text-[11px] text-steel-500 leading-relaxed mt-0.5 ml-16">{s.note}</p>
+              <p className="text-[11px] text-steel-500 leading-relaxed mt-0.5 ml-16">{t(s.note)}</p>
             </div>
           ))}
         </div>
@@ -199,7 +199,7 @@ function CaseCounterfactual({ cf }) {
         <div>
           <div className="text-[13px] font-bold text-navy-900 mb-1">{t('Timing only — not a different decision')}</div>
           <p className="text-[12.5px] text-steel-700 leading-relaxed">{cf.boundary}</p>
-          <p className="text-[12px] text-steel-600 leading-relaxed mt-2">{COUNTERFACTUAL_NOTE}</p>
+          <p className="text-[12px] text-steel-600 leading-relaxed mt-2">{t(COUNTERFACTUAL_NOTE)}</p>
         </div>
       </div>
     </div>

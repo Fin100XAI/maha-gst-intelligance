@@ -44,7 +44,8 @@ export const CONDITIONS = [
   {
     id: 'barred',
     severity: 'critical',
-    condition: `${LIMITATION_SUMMARY.barredCount} proceedings are past their limitation date`,
+    condition: '{0} proceedings are past their limitation date',
+    conditionArgs: [LIMITATION_SUMMARY.barredCount],
     detail: 'The statutory period has expired. No demand can now be raised for these periods however the case is worked, and the amount is not recoverable by any action available to the department.',
     value: LIMITATION_SUMMARY.barredCr * 10000000,
     valueLabel: 'unrecoverable',
@@ -55,7 +56,8 @@ export const CONDITIONS = [
   {
     id: 'barred_in_queue',
     severity: 'critical',
-    condition: auditReview ? `${auditReview.barred.length} of the open audit queue sit on periods already time-barred` : 'Audit queue clear of time-barred periods',
+    condition: auditReview ? '{0} of the open audit queue sit on periods already time-barred' : 'Audit queue clear of time-barred periods',
+    conditionArgs: auditReview ? [auditReview.barred.length] : [],
     detail: 'Officers are assigned to cases where no recoverable demand can be raised. Every day spent on these is a day not spent on a case that is still live.',
     value: auditReview ? auditReview.barredExposure : 0,
     valueLabel: 'committed to dead cases',
@@ -67,7 +69,10 @@ export const CONDITIONS = [
   {
     id: 'critical_unreachable',
     severity: 'critical',
-    condition: `${CAPACITY_RESULT.mandatoryUnworkable.length} case${CAPACITY_RESULT.mandatoryUnworkable.length === 1 ? '' : 's'} inside the 30-day statutory window ${CAPACITY_RESULT.mandatoryUnworkable.length === 1 ? 'has' : 'have'} no officer available`,
+    condition: CAPACITY_RESULT.mandatoryUnworkable.length === 1
+      ? '{0} case inside the 30-day statutory window has no officer available'
+      : '{0} cases inside the 30-day statutory window have no officer available',
+    conditionArgs: [CAPACITY_RESULT.mandatoryUnworkable.length],
     detail: 'The deadline falls within thirty days and no eligible officer in that division has capacity. If nothing changes the period expires and the demand is extinguished by operation of law.',
     value: CAPACITY_RESULT.mandatoryUnworkable.reduce((s, u) => s + (u.exposure || 0), 0),
     valueLabel: 'expires within 30 days',
@@ -79,7 +84,8 @@ export const CONDITIONS = [
   {
     id: 'unreachable',
     severity: 'high',
-    condition: `${CAPACITY_RESULT.unworkableCount} cases cannot be reached by any eligible officer this week`,
+    condition: '{0} cases cannot be reached by any eligible officer this week',
+    conditionArgs: [CAPACITY_RESULT.unworkableCount],
     detail: `Departmental capacity is only ${Math.round((CAPACITY_RESULT.usedDays / CAPACITY_RESULT.totalSupplyDays) * 100)}% used, but an unused officer-day in one division cannot be spent in another and an audit officer cannot take an investigation case. ${CAPACITY_RESULT.noEligibleOfficer} of them have no eligible officer posted at all.`,
     value: CAPACITY_RESULT.unworkableValue,
     valueLabel: 'not workable this week',
@@ -90,7 +96,8 @@ export const CONDITIONS = [
   {
     id: 'queue_dwell',
     severity: 'high',
-    condition: `Cases wait a median ${COUNTERFACTUAL_SUMMARY.medianQueueDays} days between a signal appearing and being worked`,
+    condition: 'Cases wait a median {0} days between a signal appearing and being worked',
+    conditionArgs: [COUNTERFACTUAL_SUMMARY.medianQueueDays],
     detail: `Value decays continuously while a case sits unworked. This is the controllable half of the lag — the other ${COUNTERFACTUAL_SUMMARY.lostToDetectionCr} Cr is detection latency, which no amount of prioritisation shortens.`,
     value: COUNTERFACTUAL_SUMMARY.lostToQueueCr * 10000000,
     valueLabel: 'already lost to queue dwell',
@@ -101,7 +108,8 @@ export const CONDITIONS = [
   {
     id: 'decay',
     severity: 'high',
-    condition: `₹${RECOVERY_PORTFOLIO.decayNextWeekCr} Cr of recoverable value decays if untouched for seven days`,
+    condition: '₹{0} Cr of recoverable value decays if untouched for seven days',
+    conditionArgs: [RECOVERY_PORTFOLIO.decayNextWeekCr],
     detail: 'Credit continues to move downstream while cases wait. This is the amount that stops being blockable between now and next Monday.',
     value: RECOVERY_PORTFOLIO.decayNextWeekCr * 10000000,
     valueLabel: 'decays within 7 days',
@@ -112,7 +120,10 @@ export const CONDITIONS = [
   {
     id: 'network_infeasible',
     severity: 'high',
-    condition: `${NETWORK_ACTION_SUMMARY.infeasibleClusters} chain${NETWORK_ACTION_SUMMARY.infeasibleClusters === 1 ? '' : 's'} cannot be closed simultaneously across the divisions ${NETWORK_ACTION_SUMMARY.infeasibleClusters === 1 ? 'it crosses' : 'they cross'}`,
+    condition: NETWORK_ACTION_SUMMARY.infeasibleClusters === 1
+      ? '{0} chain cannot be closed simultaneously across the divisions it crosses'
+      : '{0} chains cannot be closed simultaneously across the divisions they cross',
+    conditionArgs: [NETWORK_ACTION_SUMMARY.infeasibleClusters],
     detail: 'A chain is one economic unit and several jurisdictional ones. Where a division in its span has no investigation officer posted, the chain cannot be closed as a unit and acting on part of it warns the rest.',
     value: NETWORK_ACTION_SUMMARY.infeasibleBlockableCr * 10000000,
     valueLabel: 'blockable but unreachable',
@@ -124,7 +135,8 @@ export const CONDITIONS = [
   {
     id: 'contested',
     severity: 'watch',
-    condition: `${LIMITATION_SUMMARY.contestedCount} proceedings rest on notifications whose validity is before the Supreme Court`,
+    condition: '{0} proceedings rest on notifications whose validity is before the Supreme Court',
+    conditionArgs: [LIMITATION_SUMMARY.contestedCount],
     detail: `${q168a.verdict}. If the notifications fall, the extended deadline never existed and any order passed under it was void when made — including demand already collected.`,
     value: LIMITATION_SUMMARY.contestedCr * 10000000,
     valueLabel: 'turns on a question of law',
@@ -135,7 +147,8 @@ export const CONDITIONS = [
   {
     id: 'revisit',
     severity: 'watch',
-    condition: `${REVISIT_SUMMARY.count} cases were put down while risk signals were still firing`,
+    condition: '{0} cases were put down while risk signals were still firing',
+    conditionArgs: [REVISIT_SUMMARY.count],
     detail: `${REVISIT_SUMMARY.closedWithSignal} audits were closed with rules still live and ${REVISIT_SUMMARY.neverActioned} taxpayers never received a notice despite them. Only ${REVISIT_SUMMARY.withLiveClock} carry a confirmed live limitation clock, so this is a review list rather than a recovery figure.`,
     value: REVISIT_SUMMARY.exposure,
     valueLabel: 'represented, not recoverable',

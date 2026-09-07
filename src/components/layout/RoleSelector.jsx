@@ -205,7 +205,7 @@ export function RoleSelector() {
 
           <p className="text-[10px] text-steel-400 mt-2.5 leading-snug shrink-0">
             {t('Demonstration environment using simulated data. Role-based section access, maker-checker workflow and audit logging run throughout the platform.')}{' '}
-            <span className="text-amber-700">{DEMO_GATE_NOTE}</span>
+            <span className="text-amber-700">{t(DEMO_GATE_NOTE)}</span>
           </p>
         </div>
       </div>

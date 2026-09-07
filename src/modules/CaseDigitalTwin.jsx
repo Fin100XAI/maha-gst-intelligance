@@ -198,8 +198,8 @@ export default function CaseDigitalTwin() {
                       <div className="w-24 shrink-0 text-[11px] tabular-nums text-steel-500 pt-0.5">{e.date}</div>
                       <span className="w-1.5 h-1.5 rounded-full shrink-0 mt-2" style={{ backgroundColor: tone.accent }} />
                       <div className="min-w-0 flex-1">
-                        <div className="text-[13px] font-semibold text-navy-900">{e.title}</div>
-                        {e.detail && <div className="text-[11.5px] text-steel-600 mt-0.5 leading-relaxed">{e.detail}</div>}
+                        <div className="text-[13px] font-semibold text-navy-900">{t(e.title)}</div>
+                        {e.detail && <div className="text-[11.5px] text-steel-600 mt-0.5 leading-relaxed">{t(e.detail)}</div>}
                       </div>
                       <span className="shrink-0 text-[9.5px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-steel-100 text-steel-600">
                         {SOURCE_SYSTEMS[e.source]?.owner || e.source}
@@ -243,8 +243,8 @@ export default function CaseDigitalTwin() {
                         ? <CircleCheck className="w-3.5 h-3.5 shrink-0" style={{ color: TONE_STYLES.green.accent }} />
                         : <CircleAlert className="w-3.5 h-3.5 text-steel-300 shrink-0" />}
                       <div className="min-w-0 flex-1">
-                        <div className="text-[12.5px] font-medium text-navy-800 truncate">{c.label}</div>
-                        <div className="text-[10.5px] text-steel-500">{c.owner}</div>
+                        <div className="text-[12.5px] font-medium text-navy-800 truncate">{t(c.label)}</div>
+                        <div className="text-[10.5px] text-steel-500">{t(c.owner)}</div>
                       </div>
                       <Pill tone={c.connected ? 'green' : 'amber'}>
                         {c.connected ? t('Live') : t('Not integrated')}
@@ -284,7 +284,7 @@ function NextAction({ next }) {
           {t(basisLabel)}
         </span>
       </div>
-      <div className="text-[15px] font-bold text-navy-900">{next.action}</div>
+      <div className="text-[15px] font-bold text-navy-900">{t(next.action)}</div>
       <p className="text-[12.5px] text-steel-700 mt-1 leading-relaxed">{next.because}</p>
     </div>
   )

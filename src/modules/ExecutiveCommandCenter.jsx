@@ -380,11 +380,11 @@ export default function ExecutiveCommandCenter() {
                   className="w-full text-left px-3 py-2.5 rounded-lg border border-steel-200 hover:border-navy-300 hover:bg-navy-50/40 transition-colors"
                 >
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Pill tone={sev.tone}>{sev.label}</Pill>
+                    <Pill tone={sev.tone}>{t(sev.label)}</Pill>
                     <span className="text-[10px] font-semibold uppercase tracking-wide text-steel-400">{t(a.type)}</span>
                   </div>
                   <div className="text-xs font-semibold text-navy-900">{a.tradeName} · {t(a.district)}</div>
-                  <p className="text-[11px] text-steel-500 mt-0.5 leading-snug">{a.recommendedAction}</p>
+                  <p className="text-[11px] text-steel-500 mt-0.5 leading-snug">{t(a.recommendedAction)}</p>
                 </button>
               )
             })}

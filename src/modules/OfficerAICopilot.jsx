@@ -143,7 +143,7 @@ export default function OfficerAICopilot() {
           {asked.length > 0 && (
             <div className="rounded-lg border border-steel-200 bg-steel-50 px-4 py-3 flex items-start gap-2.5">
               <ShieldAlert className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-              <p className="text-[11.5px] text-steel-600 leading-relaxed">{COPILOT_NOTE}</p>
+              <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(COPILOT_NOTE)}</p>
             </div>
           )}
         </div>
@@ -160,7 +160,7 @@ function GroundedAnswer({ a }) {
           <div key={i} className="px-5 py-3.5">
             <div className="flex items-start gap-2.5">
               <Quote className="w-3 h-3 text-steel-300 shrink-0 mt-1" />
-              <p className="text-[13px] text-navy-800 leading-relaxed flex-1">{s.text}</p>
+              <p className="text-[13px] text-navy-800 leading-relaxed flex-1">{t(s.text)}</p>
             </div>
             <div className="flex flex-wrap items-center gap-1.5 mt-2 ml-5.5">
               <span className="text-[9.5px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-steel-100 text-steel-600">
@@ -192,7 +192,7 @@ function DeclinedAnswer({ a }) {
             {t('Cannot be answered from the record')}
           </span>
         </div>
-        <div className="text-sm font-bold text-navy-900 mt-1">{a.question}</div>
+        <div className="text-sm font-bold text-navy-900 mt-1">{t(a.question)}</div>
       </div>
       <div className="bg-white px-5 py-4 space-y-3">
         <p className="text-[13px] text-navy-800 leading-relaxed">{a.declined.reason}</p>

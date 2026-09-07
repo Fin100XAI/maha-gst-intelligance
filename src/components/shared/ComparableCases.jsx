@@ -74,7 +74,7 @@ export function ComparableCases({ gstin }) {
                       {c.matches.map((m, i) => (
                         <li key={i} className="flex items-start gap-1.5 text-[11.5px] text-navy-800 leading-relaxed">
                           <Check className="w-3 h-3 text-emerald-600 shrink-0 mt-0.5" />
-                          <span><span className="text-steel-500">[{KLASS[m.klass].label}]</span> {m.text}</span>
+                          <span><span className="text-steel-500">[{KLASS[m.klass].label}]</span> {t(m.text)}</span>
                         </li>
                       ))}
                     </ul>
@@ -90,7 +90,7 @@ export function ComparableCases({ gstin }) {
                       {c.distinguishers.map((d, i) => (
                         <li key={i} className="flex items-start gap-1.5 text-[11.5px] text-navy-800 leading-relaxed">
                           <Minus className="w-3 h-3 text-[#C5221F] shrink-0 mt-0.5" />
-                          <span><span className="text-steel-500">[{KLASS[d.klass].label}]</span> {d.text}</span>
+                          <span><span className="text-steel-500">[{KLASS[d.klass].label}]</span> {t(d.text)}</span>
                         </li>
                       ))}
                     </ul>
@@ -110,19 +110,19 @@ export function ComparableCases({ gstin }) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
           {DIMENSIONS.map(d => (
-            <div key={d.id} className="rounded-md border border-steel-200 bg-white px-2.5 py-2" title={d.why}>
+            <div key={d.id} className="rounded-md border border-steel-200 bg-white px-2.5 py-2" title={t(d.why)}>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11.5px] font-semibold text-navy-800">{d.label}</span>
+                <span className="text-[11.5px] font-semibold text-navy-800">{t(d.label)}</span>
                 <span className="text-[11.5px] font-bold text-navy-900 tabular-nums">{d.weight.toFixed(2)}</span>
               </div>
-              <Pill tone={KLASS[d.klass].tone}>{KLASS[d.klass].label}</Pill>
+              <Pill tone={KLASS[d.klass].tone}>{t(KLASS[d.klass].label)}</Pill>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-steel-600 leading-relaxed mb-1.5">{SIMILARITY_NOTE}</p>
+        <p className="text-[11px] text-steel-600 leading-relaxed mb-1.5">{t(SIMILARITY_NOTE)}</p>
         <div className="flex items-start gap-2 pt-2 border-t border-steel-200">
           <Info className="w-3.5 h-3.5 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[11px] text-steel-600 leading-relaxed">{OUTCOME_NOTE}</p>
+          <p className="text-[11px] text-steel-600 leading-relaxed">{t(OUTCOME_NOTE)}</p>
         </div>
       </div>
     </Card>

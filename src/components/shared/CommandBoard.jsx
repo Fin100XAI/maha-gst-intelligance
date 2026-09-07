@@ -58,11 +58,11 @@ export function CommandBoard({ onOpen }) {
               <div className={`px-3.5 py-2.5 ${st.head} border-b ${st.border}`}>
                 <div className="flex items-center gap-2">
                   <Icon className={`w-4 h-4 shrink-0 ${st.icon}`} />
-                  <span className="text-[12px] font-bold text-navy-900">{SEVERITY[sev].label}</span>
+                  <span className="text-[12px] font-bold text-navy-900">{t(SEVERITY[sev].label)}</span>
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${st.chip}`}>{items.length}</span>
                   <span className="ml-auto text-[12px] font-bold text-navy-900 tabular-nums">{cr(groupValue)}</span>
                 </div>
-                <p className="text-[10.5px] text-steel-600 leading-snug mt-1">{SEVERITY[sev].meaning}</p>
+                <p className="text-[10.5px] text-steel-600 leading-snug mt-1">{t(SEVERITY[sev].meaning)}</p>
               </div>
 
               <div className="divide-y divide-steel-100">
@@ -70,11 +70,11 @@ export function CommandBoard({ onOpen }) {
                   <button
                     key={c.id}
                     onClick={() => onOpen(c.target)}
-                    title={c.detail}
+                    title={t(c.detail)}
                     className="w-full text-left px-3.5 py-3 hover:bg-navy-50/50 transition-colors block"
                   >
                     <span className="flex items-start gap-1.5 mb-1.5">
-                      <span className="text-[12.5px] font-bold text-navy-900 leading-snug flex-1">{c.condition}</span>
+                      <span className="text-[12.5px] font-bold text-navy-900 leading-snug flex-1">{t(c.condition, ...(c.conditionArgs || []))}</span>
                       <ChevronRight className="w-3.5 h-3.5 text-steel-300 shrink-0 mt-0.5" />
                     </span>
 
@@ -82,7 +82,7 @@ export function CommandBoard({ onOpen }) {
                         condition on the board — so scale reads without arithmetic. */}
                     <span className="flex items-center gap-2 mb-2">
                       <span className={`text-[13px] font-bold tabular-nums ${st.text}`}>{cr(c.value)}</span>
-                      <span className="text-[10px] text-steel-500 truncate">{c.valueLabel}</span>
+                      <span className="text-[10px] text-steel-500 truncate">{t(c.valueLabel)}</span>
                     </span>
                     <span className="block h-1.5 rounded-full bg-steel-100 overflow-hidden mb-2.5">
                       <span className={`block h-full ${st.bar}`} style={{ width: `${Math.max((c.value / maxValue) * 100, 2)}%` }} />
@@ -90,13 +90,13 @@ export function CommandBoard({ onOpen }) {
 
                     <span className="block rounded-md bg-steel-50 border border-steel-200 px-2.5 py-2">
                       <span className="block text-[9px] font-bold uppercase tracking-wider text-steel-400 mb-0.5">{t('Decision')}</span>
-                      <span className="block text-[11.5px] text-navy-800 leading-relaxed">{c.decision}</span>
+                      <span className="block text-[11.5px] text-navy-800 leading-relaxed">{t(c.decision)}</span>
                     </span>
 
                     <span className="inline-flex items-center gap-1.5 mt-2">
                       <Gavel className="w-3 h-3 text-steel-400 shrink-0" />
                       <span className={`text-[10px] font-semibold uppercase tracking-wider ${c.owner === 'Commissioner' ? 'text-navy-800' : 'text-steel-500'}`}>
-                        {c.owner}
+                        {t(c.owner)}
                       </span>
                     </span>
                   </button>
@@ -109,7 +109,7 @@ export function CommandBoard({ onOpen }) {
 
       <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 mt-4 flex items-start gap-2.5">
         <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[11.5px] text-steel-600 leading-relaxed">{BOARD_NOTE}</p>
+        <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(BOARD_NOTE)}</p>
       </div>
     </Card>
   )

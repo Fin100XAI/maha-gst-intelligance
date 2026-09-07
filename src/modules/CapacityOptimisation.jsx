@@ -102,7 +102,7 @@ function AllocationView({ R }) {
         </div>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[12px] text-steel-700 leading-relaxed">{CAPACITY_METHOD_NOTE}</p>
+          <p className="text-[12px] text-steel-700 leading-relaxed">{t(CAPACITY_METHOD_NOTE)}</p>
         </div>
       </Card>
 
@@ -162,7 +162,7 @@ function ResidualView({ R }) {
     <div className="space-y-4">
       <div className="rounded-xl border border-steel-200 bg-steel-50 px-5 py-4 flex items-start gap-2.5">
         <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[12.5px] text-steel-700 leading-relaxed">{CAPACITY_RESIDUAL_NOTE}</p>
+        <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(CAPACITY_RESIDUAL_NOTE)}</p>
       </div>
 
       {/* Three reasons, three different remedies. Conflating them is what
@@ -173,7 +173,7 @@ function ResidualView({ R }) {
           <Card key={g.reason} title={t(meta.label)} subtitle={t('{0} cases · {1} of recoverable value at stake', g.cases.length, cr(g.value))}>
             <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3 mb-3">
               <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('What would actually fix this')}</div>
-              <p className="text-[12.5px] text-navy-800 leading-relaxed">{meta.remedy}</p>
+              <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(meta.remedy)}</p>
             </div>
             {g.critical > 0 && (
               <div className="flex items-center gap-2 mb-3">
@@ -211,7 +211,7 @@ function ResidualView({ R }) {
               { key: 'daysRemaining', label: t('Days overdue'), align: 'right', render: r => Math.abs(r.daysRemaining) },
               { key: 'exposure', label: t('Exposure forgone'), align: 'right', render: r => lakh(r.exposure) }
             ]}
-            rows={R.barredExcluded}
+            rows={t(R.barredExcluded)}
             pageSize={8}
           />
         </Card>
@@ -281,7 +281,7 @@ function BindingView({ R }) {
                 : <span className="text-steel-400">—</span>
             }
           ]}
-          rows={R.pools}
+          rows={t(R.pools)}
           pageSize={16}
         />
       </Card>
@@ -319,7 +319,7 @@ function BindingView({ R }) {
             <div key={a.id} className="py-2.5 flex items-start gap-3">
               <div className="w-64 shrink-0 text-[12.5px] font-medium text-navy-800">{t(a.label)}</div>
               <div className="w-24 shrink-0 text-[12.5px] font-bold text-navy-900 tabular-nums">{a.value}</div>
-              <p className="text-[11.5px] text-steel-600 leading-relaxed flex-1">{a.note}</p>
+              <p className="text-[11.5px] text-steel-600 leading-relaxed flex-1">{t(a.note)}</p>
             </div>
           ))}
         </div>
@@ -329,11 +329,11 @@ function BindingView({ R }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Object.entries(CASE_TYPES).map(([key, def]) => (
             <div key={key} className="rounded-lg border border-steel-200 bg-white px-3.5 py-3">
-              <div className="text-[12.5px] font-bold text-navy-900 mb-1.5">{def.label}</div>
+              <div className="text-[12.5px] font-bold text-navy-900 mb-1.5">{t(def.label)}</div>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {def.roles.map(r => <Pill key={r} tone="navy">{r}</Pill>)}
               </div>
-              <p className="text-[11.5px] text-steel-600 leading-relaxed">{def.note}</p>
+              <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(def.note)}</p>
             </div>
           ))}
         </div>

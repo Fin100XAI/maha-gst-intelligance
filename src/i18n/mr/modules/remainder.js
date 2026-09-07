@@ -98,5 +98,38 @@ registerMessages('mr', {
   '₹17.4 lakh Cr': '₹१७.४ लाख कोटी',
   'This access code is compiled into the page and can be read by anyone who opens developer tools. It keeps the demonstration from being wandered into; it is not authentication and must never be treated as such.':
     'हा प्रवेश संकेतांक पानातच संकलित केलेला आहे आणि डेव्हलपर टूल्स उघडणाऱ्या कोणालाही तो वाचता येतो. प्रात्यक्षिकात कोणी सहजच भरकटू नये एवढेच तो करतो; ते प्रमाणीकरण नाही आणि तसे कधीही मानले जाऊ नये.',
-  'Div. Officer — S. Patil': 'विभाग अधिकारी — स. पाटील'
+  'Div. Officer — S. Patil': 'विभाग अधिकारी — स. पाटील',
+  /* == Executive command centre health components ====================== */
+  'ITC Risk Containment': 'ITC जोखीम नियंत्रण',
+  'Refund Risk Containment': 'परतावा जोखीम नियंत्रण',
+  'Audit Closure Rate': 'लेखापरीक्षा निकाली दर',
+  'Litigation Position': 'खटला स्थिती',
+  'Recovery Locked': 'अडकलेली वसुली',
+  'Filing Compliance': 'विवरणपत्र अनुपालन',
+  'Revenue Realisation': 'महसूल वसुली प्राप्ती',
+  /* == Command board conditions — templates, so the count interpolates ==== */
+  '{0} proceedings are past their limitation date': '{0} कार्यवाही त्यांची मुदत ओलांडून गेल्या आहेत',
+  '{0} of the open audit queue sit on periods already time-barred':
+    'प्रलंबित लेखापरीक्षा रांगेतील {0} प्रकरणे आधीच मुदतबाह्य झालेल्या कालावधींवरील आहेत',
+  '{0} case inside the 30-day statutory window has no officer available':
+    '३० दिवसांच्या सांविधिक मुदतीच्या आत असलेल्या {0} प्रकरणासाठी कोणताही अधिकारी उपलब्ध नाही',
+  '{0} cases inside the 30-day statutory window have no officer available':
+    '३० दिवसांच्या सांविधिक मुदतीच्या आत असलेल्या {0} प्रकरणांसाठी कोणताही अधिकारी उपलब्ध नाही',
+  '{0} cases cannot be reached by any eligible officer this week':
+    'या आठवड्यात {0} प्रकरणांपर्यंत कोणताही पात्र अधिकारी पोहोचू शकत नाही',
+  'Cases wait a median {0} days between a signal appearing and being worked':
+    'संकेत दिसण्यापासून प्रकरण हाताळले जाईपर्यंत प्रकरणे मध्यक {0} दिवस वाट पाहतात',
+  '₹{0} Cr of recoverable value decays if untouched for seven days':
+    'सात दिवस न हाताळल्यास ₹{0} कोटी वसूलपात्र मूल्याचा क्षय होतो',
+  '{0} chain cannot be closed simultaneously across the divisions it crosses':
+    '{0} साखळी ती ज्या विभागांतून जाते तिथे एकाच वेळी बंद करता येत नाही',
+  '{0} chains cannot be closed simultaneously across the divisions they cross':
+    '{0} साखळ्या त्या ज्या विभागांतून जातात तिथे एकाच वेळी बंद करता येत नाहीत',
+  '{0} proceedings rest on notifications whose validity is before the Supreme Court':
+    '{0} कार्यवाही अशा अधिसूचनांवर आधारित आहेत ज्यांची वैधता सर्वोच्च न्यायालयासमोर आहे',
+  '{0} cases were put down while risk signals were still firing':
+    'जोखीम संकेत अद्याप कार्यरत असतानाच {0} प्रकरणे बाजूला ठेवली गेली',
+  '{0} Short-Life Entity': '{0} अल्पायुषी घटक',
+  '{0} Short-Life Entities': '{0} अल्पायुषी घटक',
+  '< 90 days': '< ९० दिवस'
 })

@@ -226,5 +226,30 @@ registerMessages('hi', {
   '₹17.4 lakh Cr': '₹17.4 लाख करोड़',
   'This access code is compiled into the page and can be read by anyone who opens developer tools. It keeps the demonstration from being wandered into; it is not authentication and must never be treated as such.':
     'यह प्रवेश संकेतांक पृष्ठ में ही संकलित है और डेवलपर टूल्स खोलने वाला कोई भी इसे पढ़ सकता है। यह केवल इतना करता है कि प्रदर्शन में कोई अनजाने भटक न जाए; यह प्रमाणीकरण नहीं है और इसे कभी वैसा नहीं माना जाना चाहिए।',
-  'Div. Officer — S. Patil': 'विभाग अधिकारी — एस. पाटील'
+  'Div. Officer — S. Patil': 'विभाग अधिकारी — एस. पाटील',
+  /* == Command board conditions — templates, so the count interpolates ==== */
+  '{0} proceedings are past their limitation date': '{0} कार्यवाहियाँ अपनी परिसीमा पार कर चुकी हैं',
+  '{0} of the open audit queue sit on periods already time-barred':
+    'लंबित लेखापरीक्षा पंक्ति के {0} प्रकरण पहले ही कालातीत हो चुकी अवधियों पर हैं',
+  '{0} case inside the 30-day statutory window has no officer available':
+    '30 दिन की सांविधिक अवधि के भीतर के {0} प्रकरण हेतु कोई अधिकारी उपलब्ध नहीं',
+  '{0} cases inside the 30-day statutory window have no officer available':
+    '30 दिन की सांविधिक अवधि के भीतर के {0} प्रकरणों हेतु कोई अधिकारी उपलब्ध नहीं',
+  '{0} cases cannot be reached by any eligible officer this week':
+    'इस सप्ताह {0} प्रकरणों तक कोई पात्र अधिकारी नहीं पहुँच सकता',
+  'Cases wait a median {0} days between a signal appearing and being worked':
+    'संकेत दिखने से प्रकरण निपटने तक प्रकरण मध्यक {0} दिन प्रतीक्षा करते हैं',
+  '₹{0} Cr of recoverable value decays if untouched for seven days':
+    'सात दिन अछूता रहने पर ₹{0} करोड़ वसूली-योग्य मूल्य का क्षय होता है',
+  '{0} chain cannot be closed simultaneously across the divisions it crosses':
+    '{0} शृंखला जिन विभागों से गुजरती है, वहाँ एक साथ बंद नहीं की जा सकती',
+  '{0} chains cannot be closed simultaneously across the divisions they cross':
+    '{0} शृंखलाएँ जिन विभागों से गुजरती हैं, वहाँ एक साथ बंद नहीं की जा सकतीं',
+  '{0} proceedings rest on notifications whose validity is before the Supreme Court':
+    '{0} कार्यवाहियाँ ऐसी अधिसूचनाओं पर आधारित हैं जिनकी वैधता उच्चतम न्यायालय के समक्ष है',
+  '{0} cases were put down while risk signals were still firing':
+    'जोखिम संकेत सक्रिय रहते हुए ही {0} प्रकरण अलग रख दिए गए',
+  '{0} Short-Life Entity': '{0} अल्पजीवी इकाई',
+  '{0} Short-Life Entities': '{0} अल्पजीवी इकाइयाँ',
+  '< 90 days': '< 90 दिन'
 })

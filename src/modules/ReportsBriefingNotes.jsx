@@ -332,7 +332,7 @@ export default function ReportsBriefingNotes() {
                   <span className="text-sm font-semibold text-saffron-900">{translated.prefix}</span>
                 </div>
                 <div className="px-4 py-3 text-sm text-navy-800 whitespace-pre-wrap">{translated.body}</div>
-                <div className="px-4 py-2.5 border-t border-saffron-200 text-[11px] text-saffron-900 bg-saffron-50/80">{translated.note}</div>
+                <div className="px-4 py-2.5 border-t border-saffron-200 text-[11px] text-saffron-900 bg-saffron-50/80">{t(translated.note)}</div>
               </div>
             )}
 

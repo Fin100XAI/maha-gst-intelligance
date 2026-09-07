@@ -200,10 +200,10 @@ export default function StatutoryTimeIntelligence() {
             {Object.entries(STATUTORY_SOURCES).map(([key, src]) => (
               <div key={key} className="px-5 py-3.5">
                 <div className="flex items-start justify-between gap-2">
-                  <div className="text-sm font-semibold text-navy-900">{src.label}</div>
+                  <div className="text-sm font-semibold text-navy-900">{t(src.label)}</div>
                   {src.contested && <Pill tone="red">{t('Contested')}</Pill>}
                 </div>
-                <p className="text-[12px] text-steel-600 mt-1 leading-relaxed">{src.note}</p>
+                <p className="text-[12px] text-steel-600 mt-1 leading-relaxed">{t(src.note)}</p>
               </div>
             ))}
           </div>
@@ -227,7 +227,7 @@ export default function StatutoryTimeIntelligence() {
             </dl>
             <div className="rounded-lg border border-steel-200 bg-steel-50 px-3 py-2.5">
               <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1">{t('How this date is computed')}</div>
-              <p className="text-[12.5px] text-steel-700 leading-relaxed">{selected.basis}</p>
+              <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(selected.basis)}</p>
             </div>
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1.5">{t('Authority')}</div>
@@ -241,7 +241,7 @@ export default function StatutoryTimeIntelligence() {
                     className="flex items-start gap-1.5 text-[12px] text-govt-600 hover:underline"
                   >
                     <ExternalLink className="w-3 h-3 shrink-0 mt-0.5" />
-                    <span>{STATUTORY_SOURCES[k].label}</span>
+                    <span>{t(STATUTORY_SOURCES[k].label)}</span>
                   </a>
                 ))}
               </div>

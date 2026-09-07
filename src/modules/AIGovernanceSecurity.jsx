@@ -213,7 +213,7 @@ export default function AIGovernanceSecurity() {
               </div>
             ) },
             { key: 'status', label: t('Status'), render: r => (
-              <Pill tone={r.status === 'Success' ? 'green' : 'red'}>{r.status}</Pill>
+              <Pill tone={r.status === 'Success' ? 'green' : 'red'}>{t(r.status)}</Pill>
             ) }
           ]}
           rows={filteredLog}

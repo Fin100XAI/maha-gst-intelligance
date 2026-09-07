@@ -89,12 +89,12 @@ export default function RevenueProtectionCommandCentre() {
                 {i > 0 && (
                   <div className="flex items-center gap-2 pl-1 py-1.5">
                     <span className="text-[11px] font-bold text-[#C5221F] tabular-nums shrink-0">−{cr(step.dropFromPrev)}</span>
-                    <Pill tone="red">{step.owner}</Pill>
-                    <span className="text-[11px] text-steel-600 leading-snug">{step.lossReason}</span>
+                    <Pill tone="red">{t(step.owner)}</Pill>
+                    <span className="text-[11px] text-steel-600 leading-snug">{t(step.lossReason)}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-3">
-                  <div className="w-56 shrink-0 text-[12.5px] font-medium text-navy-800">{step.label}</div>
+                  <div className="w-56 shrink-0 text-[12.5px] font-medium text-navy-800">{t(step.label)}</div>
                   <div className="flex-1 h-9 rounded-md bg-steel-100 overflow-hidden relative">
                     <div className={`h-full ${tone} flex items-center justify-end pr-2.5 transition-all`} style={{ width: `${width}%` }}>
                       {width > 16 && <span className="text-[11.5px] font-bold text-white tabular-nums">{cr(step.value)}</span>}
@@ -113,7 +113,7 @@ export default function RevenueProtectionCommandCentre() {
         </div>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 mt-4 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[12px] text-steel-700 leading-relaxed">{FUNNEL_NOTE}</p>
+          <p className="text-[12px] text-steel-700 leading-relaxed">{t(FUNNEL_NOTE)}</p>
         </div>
       </Card>
 
@@ -136,7 +136,7 @@ export default function RevenueProtectionCommandCentre() {
           <div className="grid grid-cols-5 gap-2 mt-2">
             {HORIZON_TILES.map(h => (
               <div key={h.day} className="rounded-lg border border-steel-200 bg-white px-2 py-2 text-center">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400">{h.label}</div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400">{t(h.label)}</div>
                 <div className="text-[13px] font-bold text-[#C5221F] tabular-nums mt-0.5">−{h.lostCr}</div>
                 <div className="text-[10px] text-steel-500 tabular-nums">{t('{0} left', h.remainingCr)}</div>
               </div>
@@ -164,7 +164,7 @@ export default function RevenueProtectionCommandCentre() {
                   tone="bg-[#f78c0a]"
                   note={t('Erodes continuously while the case waits. Needs the case opened sooner.')}
                 />
-                <p className="text-[11.5px] text-steel-600 leading-relaxed pt-1 border-t border-steel-100">{HORIZON_NOTE}</p>
+                <p className="text-[11.5px] text-steel-600 leading-relaxed pt-1 border-t border-steel-100">{t(HORIZON_NOTE)}</p>
               </div>
             )
           })()}
@@ -186,9 +186,9 @@ export default function RevenueProtectionCommandCentre() {
           {BY_MECHANISM.map(m => {
             const max = Math.max(...BY_MECHANISM.map(x => x.value), 1)
             return (
-              <div key={m.id} className="flex items-center gap-3" title={m.note}>
+              <div key={m.id} className="flex items-center gap-3" title={t(m.note)}>
                 <div className="w-60 shrink-0">
-                  <div className="text-[12px] font-medium text-navy-800">{m.label}</div>
+                  <div className="text-[12px] font-medium text-navy-800">{t(m.label)}</div>
                   <div className="text-[10.5px] text-steel-500">{t('{0} cases', m.count)}</div>
                 </div>
                 <div className="flex-1 h-5 rounded bg-steel-100 overflow-hidden">
@@ -201,7 +201,7 @@ export default function RevenueProtectionCommandCentre() {
         </div>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 mt-4 flex items-start gap-2.5">
           <Calculator className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[12px] text-steel-700 leading-relaxed">{HEADLINE_METHOD_NOTE}</p>
+          <p className="text-[12px] text-steel-700 leading-relaxed">{t(HEADLINE_METHOD_NOTE)}</p>
         </div>
       </Card>
 
@@ -250,7 +250,7 @@ export default function RevenueProtectionCommandCentre() {
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
             {t('{0} cases worth {1} require a legal view before any order issues', LEGAL_REVIEW.count, cr(LEGAL_REVIEW.value))}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{LEGAL_REVIEW.reason}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(LEGAL_REVIEW.reason)}</p>
         </div>
       </div>
 
@@ -284,7 +284,7 @@ export default function RevenueProtectionCommandCentre() {
                     <Pill tone="amber">{t('{0} days to deadline', a.detail.daysRemaining)}</Pill>
                   )}
                 </div>
-                <div className="text-[12.5px] text-navy-800 mt-0.5">{a.action}</div>
+                <div className="text-[12.5px] text-navy-800 mt-0.5">{t(a.action)}</div>
                 <p className="text-[11.5px] text-steel-600 leading-relaxed mt-0.5">{a.because}</p>
               </div>
               <div className="shrink-0 text-right">
@@ -296,7 +296,7 @@ export default function RevenueProtectionCommandCentre() {
         </div>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 mt-3 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[12px] text-steel-700 leading-relaxed">{TOP_ACTIONS_NOTE}</p>
+          <p className="text-[12px] text-steel-700 leading-relaxed">{t(TOP_ACTIONS_NOTE)}</p>
         </div>
       </Card>
 
@@ -310,14 +310,14 @@ export default function RevenueProtectionCommandCentre() {
             <div key={c.id} className="rounded-lg border border-steel-200 bg-steel-50/60 px-4 py-3">
               <div className="flex items-center gap-2 mb-1.5">
                 <Lock className="w-3.5 h-3.5 text-steel-400 shrink-0" />
-                <span className="text-[12.5px] font-bold text-navy-900">{c.label}</span>
+                <span className="text-[12.5px] font-bold text-navy-900">{t(c.label)}</span>
                 <Pill tone="steel">{t('Pending data')}</Pill>
               </div>
               <p className="text-[11.5px] text-steel-600 leading-relaxed mb-2">{c.wanted}</p>
               <div className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400 mb-0.5">{t('Blocked by')}</div>
               <p className="text-[11.5px] text-navy-800 leading-relaxed">{c.blockedBy}</p>
               <div className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400 mt-2 mb-0.5">{t('Evidence')}</div>
-              <p className="text-[11.5px] text-steel-600 leading-relaxed">{c.evidence}</p>
+              <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(c.evidence)}</p>
             </div>
           ))}
         </div>

@@ -48,7 +48,7 @@ export default function UnknownRiskDiscovery() {
       {SILENCE_EXPLAINED.silent ? <NullResult /> : <Findings rows={shown} />}
 
       <Card title={t('Method')} className="mt-4">
-        <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{DISCOVERY_METHOD_NOTE}</p>
+        <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{t(DISCOVERY_METHOD_NOTE)}</p>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{t('Peer coverage')}</div>
           <p className="text-[12px] text-steel-700 leading-relaxed">
@@ -84,7 +84,7 @@ function NullResult() {
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
             {t('No review candidates on this dataset — and that is a measured result, not an empty screen.')}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{SILENCE_EXPLAINED.reason}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(SILENCE_EXPLAINED.reason)}</p>
         </div>
       </div>
 
@@ -133,7 +133,7 @@ function NullResult() {
         <Info className="w-4.5 h-4.5 text-amber-600 shrink-0 mt-0.5" />
         <div>
           <div className="text-[13px] font-bold text-navy-900 mb-1">{t('The honest position')}</div>
-          <p className="text-[12.5px] text-navy-800 leading-relaxed">{SILENCE_EXPLAINED.honestPosition}</p>
+          <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(SILENCE_EXPLAINED.honestPosition)}</p>
           <p className="text-[12.5px] text-steel-700 leading-relaxed mt-2">
             {t('Lowering the threshold until results appeared would have produced a populated screen out of ordinary variation — which is the precise failure this module warns about elsewhere. The threshold has been left where the statistics put it.')}
           </p>
@@ -149,7 +149,7 @@ function Findings({ rows = DISCOVERIES }) {
     <div className="space-y-4">
       <div className="rounded-xl border border-amber-300 bg-amber-50/60 px-5 py-4 flex items-start gap-3">
         <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-        <p className="text-[12.5px] text-navy-800 leading-relaxed">{DISCOVERY_CAVEAT}</p>
+        <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(DISCOVERY_CAVEAT)}</p>
       </div>
 
       <Card
@@ -164,7 +164,7 @@ function Findings({ rows = DISCOVERIES }) {
                 <Pill tone="steel">{cr(p.exposure)}</Pill>
                 <span className="text-[11.5px] text-steel-500">{p.sectors.join(', ')}</span>
               </div>
-              <p className="text-[12.5px] text-navy-800 leading-relaxed">{p.description}</p>
+              <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(p.description)}</p>
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {p.members.map(mem => (
                   <span key={mem.gstin} className="text-[11px] px-2 py-0.5 rounded-md border border-steel-200 bg-steel-50 text-navy-800">
@@ -195,7 +195,7 @@ function Findings({ rows = DISCOVERIES }) {
                 const d = r.deviations[0]
                 return (
                   <div>
-                    <div className="text-[12px] text-navy-800">{d.label} — {d.direction}</div>
+                    <div className="text-[12px] text-navy-800">{t(d.label)} — {d.direction}</div>
                     <div className="text-[11px] text-steel-500 tabular-nums">
                       {t('{0}× the sector median (n={1})', d.timesPeer ?? '—', d.peerCount)}
                     </div>

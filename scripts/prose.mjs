@@ -43,7 +43,8 @@ const IGNORE = [
   /^[a-z_]+$/,                            // single lowercase token — object keys, ids
   /^[A-Z_]+$/,                            // SCREAMING_CASE constants
   /^(?:en|mr|hi)$/,                        // locale ids
-  /[{}<>]/,                               // JSX/template fragments
+  /<[a-zA-Z/]/,                           // JSX fragments
+  /\$\{/,                                 // template-literal interpolation
   /\b(?:radial-gradient|linear-gradient|translate|rgba?)\s*\(/, // CSS values
   /^\s*$/,
 
@@ -90,6 +91,9 @@ const LINE_COMMENT = /^\s*\/\//
    capitalised word. Single lowercase words are almost always identifiers. */
 function looksLikeProse(s) {
   if (s.length < 3 || s.length > 4000) return false
+  /* A {0} placeholder is part of a translatable template, not a JSX brace, so
+     it is removed before the brace test rather than disqualifying the string. */
+  if (/[{}]/.test(s.replace(/\{\d+\}/g, ''))) return false
   if (IGNORE.some(re => re.test(s))) return false
   if (looksLikeClassNames(s)) return false
   if (!/[A-Za-z]{3}/.test(s)) return false

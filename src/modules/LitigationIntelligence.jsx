@@ -278,9 +278,9 @@ export default function LitigationIntelligence() {
                 <div className="rounded-xl border p-4" style={{ backgroundColor: t.bg, borderColor: t.border }}>
                   <div className="flex items-center gap-2 mb-1.5">
                     <FileWarning className="w-4 h-4" style={{ color: t.accent }} />
-                    <span className="text-sm font-bold text-navy-900">{docRec.heading}</span>
+                    <span className="text-sm font-bold text-navy-900">{t(docRec.heading)}</span>
                   </div>
-                  <p className="text-xs text-navy-800">{docRec.text}</p>
+                  <p className="text-xs text-navy-800">{t(docRec.text)}</p>
                 </div>
               )
             })()}

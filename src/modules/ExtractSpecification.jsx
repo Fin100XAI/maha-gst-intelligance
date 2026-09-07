@@ -46,7 +46,7 @@ export default function ExtractSpecification() {
         <AlertTriangle className="w-5 h-5 text-[#C5221F] shrink-0 mt-0.5" />
         <div>
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">{t('500 cases is not 500 taxpayers')}</div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{SCOPE_NOTE}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(SCOPE_NOTE)}</p>
         </div>
       </div>
 
@@ -63,19 +63,19 @@ export default function ExtractSpecification() {
               >
                 <div className="flex flex-wrap items-center gap-2">
                   {isOpen ? <ChevronDown className="w-4 h-4 text-steel-400 shrink-0" /> : <ChevronRight className="w-4 h-4 text-steel-400 shrink-0" />}
-                  <span className={`text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${p.chip}`}>{p.label}</span>
-                  <span className="text-[13.5px] font-bold text-navy-900">{f.label}</span>
+                  <span className={`text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${p.chip}`}>{t(p.label)}</span>
+                  <span className="text-[13.5px] font-bold text-navy-900">{t(f.label)}</span>
                   <code className="text-[11.5px] text-steel-600 bg-steel-100 px-1.5 py-0.5 rounded">{f.file}</code>
                   <span className="ml-auto text-[11.5px] text-steel-500">{t('{0} fields', f.fields.length)} · {f.owner}</span>
                 </div>
-                <p className="text-[12px] text-steel-600 leading-relaxed mt-1.5 ml-6">{f.why}</p>
+                <p className="text-[12px] text-steel-600 leading-relaxed mt-1.5 ml-6">{t(f.why)}</p>
               </button>
 
               {isOpen && (
                 <div className="border-t border-steel-100">
                   <div className="px-5 py-2.5 bg-steel-50 border-b border-steel-100">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-steel-400">{t('Scope')}</span>
-                    <p className="text-[12px] text-navy-800 leading-relaxed">{f.scope}</p>
+                    <p className="text-[12px] text-navy-800 leading-relaxed">{t(f.scope)}</p>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-[11.5px]">
@@ -127,7 +127,7 @@ export default function ExtractSpecification() {
             {CONVENTIONS.map(c => (
               <div key={c.id} className="rounded-lg border border-steel-200 bg-steel-50/60 px-3.5 py-2.5">
                 <div className="text-[12px] font-semibold text-navy-900 mb-0.5">{c.rule}</div>
-                <p className="text-[11.5px] text-steel-600 leading-relaxed">{c.why}</p>
+                <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(c.why)}</p>
               </div>
             ))}
           </div>
@@ -142,7 +142,7 @@ export default function ExtractSpecification() {
                   <span className="text-[12px] font-bold text-navy-900">{l.item}</span>
                 </div>
                 <div className="text-[11.5px] font-semibold text-amber-800 mb-1">{t(l.position)}</div>
-                <p className="text-[11.5px] text-steel-700 leading-relaxed">{l.note}</p>
+                <p className="text-[11.5px] text-steel-700 leading-relaxed">{t(l.note)}</p>
               </div>
             ))}
           </div>

@@ -93,7 +93,7 @@ function ProvenanceView() {
         <Library className="w-5 h-5 text-navy-600 shrink-0 mt-0.5" />
         <div>
           <div className="text-[13px] font-bold text-navy-900 mb-1">{t('The division is absolute')}</div>
-          <p className="text-[12.5px] text-navy-800 leading-relaxed">{D.note}</p>
+          <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(D.note)}</p>
         </div>
       </div>
     </div>
@@ -124,7 +124,7 @@ function LegalView() {
                   </a>
                 )}
               </div>
-              <p className="text-[12px] text-steel-700 leading-relaxed ml-5.5">{s.detail}</p>
+              <p className="text-[12px] text-steel-700 leading-relaxed ml-5.5">{t(s.detail)}</p>
               <p className="text-[11px] text-steel-500 italic leading-relaxed ml-5.5 mt-1">{s.verified}</p>
             </div>
           ))}
@@ -154,7 +154,7 @@ function DataView() {
             {DATASET_POINTER_LIST.map((d, i) => (
               <div key={i} className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-2.5">
                 <div className="flex flex-wrap items-start gap-2">
-                  <span className="text-[12px] font-semibold text-navy-900 flex-1">{d.label}</span>
+                  <span className="text-[12px] font-semibold text-navy-900 flex-1">{t(d.label)}</span>
                   {d.url && (
                     <a href={d.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-govt-700 hover:underline inline-flex items-center gap-1 text-[11px]">
                       {t('Dataset')}<ExternalLink className="w-3 h-3" />
@@ -187,14 +187,14 @@ function MethodView() {
           <div key={m.id} className="px-5 py-4">
             <div className="flex flex-wrap items-center gap-2 mb-1">
               <Sigma className="w-3.5 h-3.5 text-steel-400 shrink-0" />
-              <span className="text-[13px] font-bold text-navy-900">{m.name}</span>
-              <span className="ml-auto text-[11px] text-steel-500">{m.usedBy}</span>
+              <span className="text-[13px] font-bold text-navy-900">{t(m.name)}</span>
+              <span className="ml-auto text-[11px] text-steel-500">{t(m.usedBy)}</span>
             </div>
-            <p className="text-[12px] text-steel-700 leading-relaxed mb-2 ml-5.5">{m.detail}</p>
+            <p className="text-[12px] text-steel-700 leading-relaxed mb-2 ml-5.5">{t(m.detail)}</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 ml-5.5">
               <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 px-3 py-2">
                 <div className="text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 mb-0.5">{t('Why this one')}</div>
-                <p className="text-[11.5px] text-navy-800 leading-relaxed">{m.why}</p>
+                <p className="text-[11.5px] text-navy-800 leading-relaxed">{t(m.why)}</p>
               </div>
               <div className="rounded-lg border border-red-200 bg-red-50/40 px-3 py-2">
                 <div className="text-[9.5px] font-bold uppercase tracking-wider text-[#C5221F] mb-0.5">{t('How it fails')}</div>
@@ -237,15 +237,15 @@ function SourceRow({ s, icon: Icon }) {
     <div className="px-5 py-3.5">
       <div className="flex flex-wrap items-start gap-2 mb-1">
         <Icon className="w-3.5 h-3.5 text-steel-400 shrink-0 mt-0.5" />
-        <span className="text-[12.5px] font-semibold text-navy-900 flex-1">{s.name}</span>
-        {s.usedBy && <span className="text-[11px] text-steel-500">{s.usedBy}</span>}
+        <span className="text-[12.5px] font-semibold text-navy-900 flex-1">{t(s.name)}</span>
+        {s.usedBy && <span className="text-[11px] text-steel-500">{t(s.usedBy)}</span>}
         {s.url && (
           <a href={s.url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-govt-700 hover:underline inline-flex items-center gap-1 text-[11px]">
             {t('Source')}<ExternalLink className="w-3 h-3" />
           </a>
         )}
       </div>
-      <p className="text-[12px] text-steel-700 leading-relaxed ml-5.5">{s.detail}</p>
+      <p className="text-[12px] text-steel-700 leading-relaxed ml-5.5">{t(s.detail)}</p>
     </div>
   )
 }

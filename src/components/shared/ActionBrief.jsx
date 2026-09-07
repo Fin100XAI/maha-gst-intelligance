@@ -32,8 +32,8 @@ export function ActionBrief({ gstin }) {
           {b.evidence.rules.length > 0 ? (
             <div className="flex flex-wrap gap-1.5 mb-2">
               {b.evidence.rules.map(r => (
-                <span key={r.label} className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md border border-amber-200 bg-amber-50 text-amber-900">
-                  {r.label}<span className="text-amber-600 tabular-nums">+{r.weight}</span>
+                <span key={t(r.label)} className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md border border-amber-200 bg-amber-50 text-amber-900">
+                  {t(r.label)}<span className="text-amber-600 tabular-nums">+{r.weight}</span>
                 </span>
               ))}
             </div>
@@ -46,7 +46,7 @@ export function ActionBrief({ gstin }) {
                 <div key={i} className="flex items-center gap-2 text-[11.5px]">
                   <span className="text-navy-800 font-medium">{p.kind}</span>
                   <span className="text-steel-500">{p.ref}</span>
-                  <span className="text-steel-400">· {p.detail}</span>
+                  <span className="text-steel-400">· {t(p.detail)}</span>
                   <span className="ml-auto text-[9.5px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-steel-100 text-steel-500">{p.source}</span>
                 </div>
               ))}
@@ -132,8 +132,8 @@ export function ActionBrief({ gstin }) {
               return (
                 <div key={c.id} className="rounded-lg border border-steel-200 bg-steel-50/60 px-3 py-2">
                   <div className="flex items-start gap-2 mb-1">
-                    <Pill tone={lvl.tone === 'steel' ? 'steel' : lvl.tone}>{lvl.label}</Pill>
-                    <span className="text-[12px] font-semibold text-navy-900 leading-snug">{c.question}</span>
+                    <Pill tone={lvl.tone === 'steel' ? 'steel' : lvl.tone}>{t(lvl.label)}</Pill>
+                    <span className="text-[12px] font-semibold text-navy-900 leading-snug">{t(c.question)}</span>
                   </div>
                   <p className="text-[11.5px] text-steel-700 leading-relaxed">{c.because}</p>
                   <p className="text-[11px] text-steel-500 leading-relaxed mt-0.5 italic">{c.caveat}</p>
@@ -143,7 +143,7 @@ export function ActionBrief({ gstin }) {
           </div>
           <div className="rounded-lg border border-steel-200 bg-white px-3 py-2 mt-2 flex items-start gap-2">
             <Info className="w-3.5 h-3.5 text-steel-400 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-steel-600 leading-relaxed">{CONFIDENCE_NOTE}</p>
+            <p className="text-[11px] text-steel-600 leading-relaxed">{t(CONFIDENCE_NOTE)}</p>
           </div>
         </Row>
 
@@ -179,7 +179,7 @@ export function ActionBrief({ gstin }) {
 
       <div className="px-4 py-2.5 bg-steel-50 border-t border-steel-200 flex items-start gap-2">
         <ShieldAlert className="w-3.5 h-3.5 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[11px] text-steel-600 leading-relaxed">{BRIEF_NOTE}</p>
+        <p className="text-[11px] text-steel-600 leading-relaxed">{t(BRIEF_NOTE)}</p>
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import {
   ComposedChart
 } from 'recharts'
 import { useApp } from '../../context/AppContext.jsx'
+import { t } from '../../i18n/index.js'
 
 /* ---------------------------------------------------------------------------
  * Recharts renders colours as SVG presentation attributes, which the browser
@@ -98,12 +99,12 @@ export function TrendLineChart({ data, xKey, series, height = 260 }) {
     <ResponsiveContainer width="100%" height={height}>
       <LineChart data={data} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={tokens.grid} vertical={false} />
-        <XAxis dataKey={xKey} tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} />
+        <XAxis dataKey={xKey} tickFormatter={t} tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} />
         <YAxis tick={{ fontSize: 10, fill: tokens.tick }} axisLine={false} tickLine={false} />
         <Tooltip {...tooltip} />
         {series.length > 1 && <Legend wrapperStyle={legendStyle} />}
         {series.map((s, i) => (
-          <Line key={s.key} type="monotone" dataKey={s.key} name={s.label || s.key} stroke={adapt(s.color) || palette[i % palette.length]} strokeWidth={2.25} dot={false} strokeDasharray={s.dashed ? '5 4' : undefined} />
+          <Line key={s.key} type="monotone" dataKey={s.key} name={t(s.label || s.key)} stroke={adapt(s.color) || palette[i % palette.length]} strokeWidth={2.25} dot={false} strokeDasharray={s.dashed ? '5 4' : undefined} />
         ))}
       </LineChart>
     </ResponsiveContainer>
@@ -123,7 +124,7 @@ export function TrendAreaChart({ data, xKey, dataKey, color, height = 220 }) {
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke={tokens.grid} vertical={false} />
-        <XAxis dataKey={xKey} tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} />
+        <XAxis dataKey={xKey} tickFormatter={t} tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} />
         <YAxis tick={{ fontSize: 10, fill: tokens.tick }} axisLine={false} tickLine={false} />
         <Tooltip {...tooltip} />
         <Area type="monotone" dataKey={dataKey} stroke={fill} fill="url(#areaFill)" strokeWidth={2} />
@@ -138,7 +139,7 @@ export function RiskBarChart({ data, xKey, barKey, height = 260, colorFn }) {
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 4, right: 8, left: -18, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={tokens.grid} vertical={false} />
-        <XAxis dataKey={xKey} tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} interval={0} angle={-25} textAnchor="end" height={60} />
+        <XAxis dataKey={xKey} tickFormatter={t} tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} interval={0} angle={-25} textAnchor="end" height={60} />
         <YAxis tick={{ fontSize: 10, fill: tokens.tick }} axisLine={false} tickLine={false} />
         <Tooltip {...tooltip} />
         <Bar dataKey={barKey} radius={[4, 4, 0, 0]}>
@@ -149,12 +150,16 @@ export function RiskBarChart({ data, xKey, barKey, height = 260, colorFn }) {
   )
 }
 
+// The donut's slice names reach the legend and the tooltip through nameKey,
+// which Recharts paints verbatim — a tickFormatter has nothing to hook onto
+// here, so the names are translated in the data instead. `colors` is still
+// keyed by the untranslated name, so the lookup uses the original datum.
 export function RiskDonutChart({ data, height = 220, innerRadius = 55, outerRadius = 85, colors }) {
   const { palette, adapt, tooltip, legendStyle } = useChartTheme()
   return (
     <ResponsiveContainer width="100%" height={height}>
       <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" innerRadius={innerRadius} outerRadius={outerRadius} paddingAngle={2}>
+        <Pie data={data.map(d => ({ ...d, name: t(d.name) }))} dataKey="value" nameKey="name" innerRadius={innerRadius} outerRadius={outerRadius} paddingAngle={2}>
           {data.map((d, i) => <Cell key={i} fill={colors ? adapt(colors[d.name]) || palette[i % palette.length] : palette[i % palette.length]} />)}
         </Pie>
         <Tooltip {...tooltip} />
@@ -176,13 +181,13 @@ export function RecoveryCurveChart({ data, height = 300 }) {
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart data={data} margin={{ top: 8, right: 12, left: -14, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={tokens.grid} vertical={false} />
-        <XAxis dataKey="label" tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} />
+        <XAxis dataKey="label" tickFormatter={t} tick={{ fontSize: 10, fill: tokens.tick }} axisLine={{ stroke: tokens.axisLine }} tickLine={false} />
         <YAxis yAxisId="left" tick={{ fontSize: 10, fill: tokens.tick }} axisLine={false} tickLine={false} unit="%" domain={[0, 100]} />
         <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: tokens.tick }} axisLine={false} tickLine={false} />
         <Tooltip {...tooltip} />
         <Legend wrapperStyle={legendStyle} />
-        <Bar yAxisId="right" dataKey="exposureCr" name="Exposure sitting here (₹ Cr)" fill={exposureColor} radius={[4, 4, 0, 0]} barSize={38} />
-        <Line yAxisId="left" type="monotone" dataKey="recoverabilityPct" name="Recoverable (%)" stroke={curveColor} strokeWidth={2.75} dot={{ r: 3.5, fill: curveColor }} />
+        <Bar yAxisId="right" dataKey="exposureCr" name={t("Exposure sitting here (₹ Cr)")} fill={exposureColor} radius={[4, 4, 0, 0]} barSize={38} />
+        <Line yAxisId="left" type="monotone" dataKey="recoverabilityPct" name={t("Recoverable (%)")} stroke={curveColor} strokeWidth={2.75} dot={{ r: 3.5, fill: curveColor }} />
       </ComposedChart>
     </ResponsiveContainer>
   )
@@ -244,7 +249,7 @@ export function HealthRadarChart({ data, height = 260, color }) {
     <ResponsiveContainer width="100%" height={height}>
       <RadarChart data={data} outerRadius="72%">
         <PolarGrid stroke={tokens.radarGrid} />
-        <PolarAngleAxis dataKey="axis" tick={{ fontSize: 10, fill: tokens.radarTick }} />
+        <PolarAngleAxis dataKey="axis" tickFormatter={t} tick={{ fontSize: 10, fill: tokens.radarTick }} />
         <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 9, fill: tokens.radarRadiusTick }} tickCount={5} />
         <Radar dataKey="score" stroke={stroke} fill={stroke} fillOpacity={0.22} strokeWidth={2} />
         <Tooltip {...tooltip} formatter={v => `${v} / 100`} />

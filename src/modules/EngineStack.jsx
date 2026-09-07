@@ -80,9 +80,9 @@ function EnginesView() {
                 <div key={e.n} className={`px-5 py-4 ${tone.bg}`}>
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <span className="shrink-0 w-6 h-6 rounded-md bg-navy-800 text-white text-[11px] font-bold flex items-center justify-center tabular-nums">{e.n}</span>
-                    <span className="text-[13.5px] font-bold text-navy-900">{e.name}</span>
-                    {e.technique.map(tk => <Pill key={tk} tone="navy">{TECHNIQUES[tk].label}</Pill>)}
-                    <span className={`ml-auto text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${tone.chip}`}>{meta.label}</span>
+                    <span className="text-[13.5px] font-bold text-navy-900">{t(e.name)}</span>
+                    {e.technique.map(tk => <Pill key={tk} tone="navy">{t(TECHNIQUES[tk].label)}</Pill>)}
+                    <span className={`ml-auto text-[9.5px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${tone.chip}`}>{t(meta.label)}</span>
                   </div>
                   <p className="text-[12px] text-steel-600 italic leading-relaxed mb-2.5">{e.answers}</p>
 
@@ -99,7 +99,7 @@ function EnginesView() {
 
                   <div className="flex flex-wrap items-start gap-2 mt-2.5">
                     <span className="text-[9.5px] font-bold uppercase tracking-wider text-steel-400 shrink-0 mt-0.5">{t('Evidence')}</span>
-                    <span className="text-[11.5px] text-steel-700 leading-relaxed flex-1 min-w-0">{e.evidence}</span>
+                    <span className="text-[11.5px] text-steel-700 leading-relaxed flex-1 min-w-0">{t(e.evidence)}</span>
                     {e.where && (
                       <button
                         onClick={() => setActiveModule(e.where)}
@@ -120,7 +120,7 @@ function EnginesView() {
         <Bot className="w-4.5 h-4.5 text-steel-500 shrink-0 mt-0.5" />
         <div>
           <div className="text-[13px] font-bold text-navy-900 mb-1">{t('On generative AI')}</div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{GENAI_NOTE}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(GENAI_NOTE)}</p>
         </div>
       </div>
     </div>
@@ -154,7 +154,7 @@ function GraphView() {
                       {h.have === true ? t('Present') : h.have === 'partial' ? t('Partial') : t('Absent')}
                     </Pill>
                   </div>
-                  <p className="text-[11.5px] text-steel-600 leading-relaxed mt-0.5">{h.note}</p>
+                  <p className="text-[11.5px] text-steel-600 leading-relaxed mt-0.5">{t(h.note)}</p>
                 </div>
               </div>
             )
@@ -163,7 +163,7 @@ function GraphView() {
       </Card>
 
       <Card title={t('On the architecture')}>
-        <p className="text-[12.5px] text-navy-800 leading-relaxed">{ARCHITECTURE_NOTE}</p>
+        <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(ARCHITECTURE_NOTE)}</p>
       </Card>
     </div>
   )
@@ -187,7 +187,7 @@ function PilotView() {
             <div className="text-[9.5px] font-bold uppercase tracking-wider text-emerald-700 mb-1">{t('Unlocks')}</div>
             <p className="text-[12.5px] text-navy-800 leading-relaxed">{r.unlocks}</p>
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{r.why}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(r.why)}</p>
         </Card>
       ))}
     </div>

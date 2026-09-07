@@ -262,7 +262,7 @@ export function LandingPage({ onEnter }) {
           {VALUE_PROPS.map(v => {
             const c = TONE_STYLES[v.tone]
             return (
-              <div key={v.title} className="rounded-xl border shadow-card p-5" style={{ backgroundColor: c.bg, borderColor: c.border }}>
+              <div key={t(v.title)} className="rounded-xl border shadow-card p-5" style={{ backgroundColor: c.bg, borderColor: c.border }}>
                 <span className="inline-flex p-2.5 rounded-lg mb-3" style={{ backgroundColor: c.iconBg, color: c.accent }}>
                   <v.icon className="w-5 h-5" />
                 </span>
@@ -333,7 +333,7 @@ export function LandingPage({ onEnter }) {
           </div>
           <div className="grid sm:grid-cols-2 gap-5">
             {TRUST_PRINCIPLES.map((p, i) => (
-              <div key={p.title} className="rounded-xl border border-steel-200 p-5">
+              <div key={t(p.title)} className="rounded-xl border border-steel-200 p-5">
                 <div className="flex items-start gap-3">
                   <span className="text-[11px] font-bold text-govt-600 tabular-nums shrink-0 mt-0.5">{String(i + 1).padStart(2, '0')}</span>
                   <div>

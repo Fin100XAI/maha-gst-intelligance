@@ -254,7 +254,7 @@ export default function SectorIntelligence() {
             ) : (
               <div className="space-y-2.5">
                 {topRiskIndicators.map(r => (
-                  <div key={r.label}>
+                  <div key={t(r.label)}>
                     <div className="flex items-center justify-between text-xs mb-0.5">
                       <span className="font-medium text-navy-800">{t(r.label)}</span>
                       <span className="text-steel-500">{r.count}</span>

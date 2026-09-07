@@ -235,13 +235,13 @@ export default function RevenueRecoveryWindow() {
           <YieldPanel
             title={t('Ranked by risk score')}
             subtitle={t('What the platform did before')}
-            data={OFFICER_YIELD.byRiskScore}
+            data={t(OFFICER_YIELD.byRiskScore)}
             tone="steel"
           />
           <YieldPanel
             title={t('Ranked by value at risk this week')}
             subtitle={t('Decay-adjusted ordering')}
-            data={OFFICER_YIELD.byDecayAdjusted}
+            data={t(OFFICER_YIELD.byDecayAdjusted)}
             tone="green"
             highlight
           />

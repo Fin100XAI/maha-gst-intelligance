@@ -83,7 +83,7 @@ function WhereView() {
     <div className="space-y-4">
       <div className="rounded-lg border border-steel-200 bg-steel-50 px-4 py-3 flex items-start gap-2.5">
         <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[12px] text-steel-700 leading-relaxed">{CUT_METHOD_NOTE}</p>
+        <p className="text-[12px] text-steel-700 leading-relaxed">{t(CUT_METHOD_NOTE)}</p>
       </div>
 
       {NETWORK_PLANS.map(p => (
@@ -137,7 +137,7 @@ function WhereView() {
                 {p.ineffectiveCuts.map(n => (
                   <div key={n.id} className="flex items-center gap-2 text-[12px] text-navy-800">
                     <XCircle className="w-3.5 h-3.5 text-orange-600 shrink-0" />
-                    <span className="font-medium">{n.label}</span>
+                    <span className="font-medium">{t(n.label)}</span>
                     <span className="text-steel-500">· {t(n.role)}</span>
                   </div>
                 ))}
@@ -168,7 +168,7 @@ function WhereView() {
                 <tbody className="divide-y divide-steel-100">
                   {[...p.nodes].sort((a, b) => b.cutScore - a.cutScore).map(n => (
                     <tr key={n.id} className={n.id === p.recommended?.id ? 'bg-emerald-50/50' : ''}>
-                      <td className="px-3 py-2 font-medium text-navy-900">{n.label}</td>
+                      <td className="px-3 py-2 font-medium text-navy-900">{t(n.label)}</td>
                       <td className="px-3 py-2 text-steel-600">{t(n.role)}</td>
                       <td className="px-3 py-2 text-steel-600">{n.division ? t(n.division) : '—'}</td>
                       <td className="px-3 py-2 text-right tabular-nums">{lakh(n.incidentRupees)}</td>
@@ -197,7 +197,7 @@ function CanView({ S }) {
     <div className="space-y-4">
       <div className="rounded-lg border border-steel-200 bg-steel-50 px-4 py-3 flex items-start gap-2.5">
         <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-        <p className="text-[12px] text-steel-700 leading-relaxed">{COORDINATION_NOTE}</p>
+        <p className="text-[12px] text-steel-700 leading-relaxed">{t(COORDINATION_NOTE)}</p>
       </div>
 
       <Card
@@ -283,7 +283,7 @@ function MethodView() {
   return (
     <div className="space-y-4">
       <Card title={t('How the cut point is decided')}>
-        <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{CUT_METHOD_NOTE}</p>
+        <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{t(CUT_METHOD_NOTE)}</p>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1.5">{t('Why not a centrality score')}</div>
           <p className="text-[12px] text-steel-700 leading-relaxed">
@@ -301,8 +301,8 @@ function MethodView() {
             <div key={i.id} className="py-2.5 flex items-start gap-3">
               <span className="shrink-0 w-14 text-[12.5px] font-bold text-navy-900 tabular-nums">+{i.weight.toFixed(2)}</span>
               <div className="min-w-0">
-                <div className="text-[12.5px] font-medium text-navy-800">{i.label}</div>
-                <p className="text-[11.5px] text-steel-600 leading-relaxed">{i.note}</p>
+                <div className="text-[12.5px] font-medium text-navy-800">{t(i.label)}</div>
+                <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(i.note)}</p>
               </div>
             </div>
           ))}
@@ -317,7 +317,7 @@ function MethodView() {
         <ShieldAlert className="w-5 h-5 text-[#C5221F] shrink-0 mt-0.5" />
         <div>
           <div className="text-[13px] font-bold text-navy-900 mb-1">{t('This is a lead, not a finding')}</div>
-          <p className="text-[12.5px] text-navy-800 leading-relaxed">{EVIDENCE_CAVEAT}</p>
+          <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(EVIDENCE_CAVEAT)}</p>
         </div>
       </div>
     </div>

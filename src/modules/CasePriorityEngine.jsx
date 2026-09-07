@@ -225,7 +225,7 @@ function FactorBreakdown({ c }) {
 
       <div className="rounded-lg border border-navy-200 bg-navy-50/60 px-3.5 py-3">
         <div className="text-[10px] font-bold uppercase tracking-wider text-govt-600 mb-1">{t('In plain terms')}</div>
-        <p className="text-[13px] text-navy-800 leading-relaxed">{exp.text}</p>
+        <p className="text-[13px] text-navy-800 leading-relaxed">{t(exp.text)}</p>
       </div>
 
       <div>
@@ -395,7 +395,7 @@ function TrialPanel({ trial }) {
 
       <div className="rounded-lg border border-saffron-300 bg-saffron-50 px-4 py-3">
         <div className="text-[10px] font-bold uppercase tracking-wider text-saffron-800 mb-1">{t('Conditions')}</div>
-        <p className="text-[12px] text-saffron-900 leading-relaxed">{TRIAL_NOTE}</p>
+        <p className="text-[12px] text-saffron-900 leading-relaxed">{t(TRIAL_NOTE)}</p>
       </div>
     </div>
   )

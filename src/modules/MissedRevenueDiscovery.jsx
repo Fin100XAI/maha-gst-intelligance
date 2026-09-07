@@ -78,7 +78,7 @@ function CandidatesView() {
           <div className="text-[13px] font-bold text-navy-900 mb-1">
             {t('{0} of these {1} carry a confirmed live limitation clock.', REVISIT_SUMMARY.withLiveClock, REVISIT_SUMMARY.count)}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{REVISIT_NOTE}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(REVISIT_NOTE)}</p>
         </div>
       </div>
 
@@ -138,8 +138,8 @@ function CandidateBrief({ b }) {
       <Card title={t('Signals live at the time')} subtitle={t('The encoded rules that were firing when this case was put down.')}>
         <div className="flex flex-wrap gap-1.5 mb-3">
           {b.signals.map(s => (
-            <span key={s.label} className="inline-flex items-center gap-1 text-[11.5px] px-2 py-1 rounded-md border border-amber-200 bg-amber-50 text-amber-900">
-              {s.label}<span className="text-amber-600 tabular-nums font-semibold">+{s.weight}</span>
+            <span key={t(s.label)} className="inline-flex items-center gap-1 text-[11.5px] px-2 py-1 rounded-md border border-amber-200 bg-amber-50 text-amber-900">
+              {t(s.label)}<span className="text-amber-600 tabular-nums font-semibold">+{s.weight}</span>
             </span>
           ))}
         </div>
@@ -200,8 +200,8 @@ function CandidateBrief({ b }) {
             <li key={c.id} className="flex items-start gap-2.5">
               <span className="shrink-0 w-5 h-5 rounded-full bg-navy-100 text-navy-700 text-[10px] font-bold flex items-center justify-center tabular-nums mt-0.5">{i + 1}</span>
               <div>
-                <div className="text-[12.5px] font-medium text-navy-800">{c.label}</div>
-                <p className="text-[11.5px] text-steel-600 leading-relaxed">{c.why}</p>
+                <div className="text-[12.5px] font-medium text-navy-800">{t(c.label)}</div>
+                <p className="text-[11.5px] text-steel-600 leading-relaxed">{t(c.why)}</p>
               </div>
             </li>
           ))}
@@ -231,7 +231,7 @@ function RefusalView({ F, S }) {
           <div className="text-[13.5px] font-bold text-navy-900 mb-1">
             {t('No automatic Section 74 classification — and not because the sample is small.')}
           </div>
-          <p className="text-[12.5px] text-steel-700 leading-relaxed">{S.verdict}</p>
+          <p className="text-[12.5px] text-steel-700 leading-relaxed">{t(S.verdict)}</p>
         </div>
       </div>
 
@@ -253,17 +253,17 @@ function RefusalView({ F, S }) {
             { key: 'effectSize', label: t('Effect size'), align: 'right', render: r => <span className={`tabular-nums font-semibold ${r.separates ? 'text-emerald-700' : 'text-steel-500'}`}>{r.effectSize}</span> },
             { key: 'separates', label: t('Usable signal?'), render: r => r.separates ? <Pill tone="green">{t('Yes')}</Pill> : <Pill tone="steel">{t('No')}</Pill> }
           ]}
-          rows={S.features}
+          rows={t(S.features)}
           searchable={false}
           pageSize={6}
         />
       </Card>
 
       <Card title={t('Why more cases would not fix this')}>
-        <p className="text-[12.5px] text-navy-800 leading-relaxed mb-3">{S.whyMoreRowsWontHelp}</p>
+        <p className="text-[12.5px] text-navy-800 leading-relaxed mb-3">{t(S.whyMoreRowsWontHelp)}</p>
         <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3 mb-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('And the contrast class is empty in practice')}</div>
-          <p className="text-[12px] text-navy-800 leading-relaxed">{S.contrastWarning}</p>
+          <p className="text-[12px] text-navy-800 leading-relaxed">{t(S.contrastWarning)}</p>
         </div>
         <div className="text-[10px] font-bold uppercase tracking-wider text-steel-400 mb-1.5">{t('What is actually needed')}</div>
         <ul className="space-y-2">
@@ -276,7 +276,7 @@ function RefusalView({ F, S }) {
         </ul>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3 mt-3 flex items-start gap-2.5">
           <Info className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
-          <p className="text-[12px] text-steel-700 leading-relaxed">{F.stakes}</p>
+          <p className="text-[12px] text-steel-700 leading-relaxed">{t(F.stakes)}</p>
         </div>
       </Card>
     </div>
