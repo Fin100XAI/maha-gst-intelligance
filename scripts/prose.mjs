@@ -79,7 +79,7 @@ const un = s => s.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n'
    trade names, officer names and addresses from. A name is transliterated at
    most, never translated, so these lines are skipped wholesale rather than
    listed as translation work. */
-const PROPER_NOUNS = /^\s*(?:export\s+)?const\s+(?:FIRST_NAMES|LAST_NAMES|NAME_ROOTS|BUSINESS_SUFFIXES|SUFFIXES|STREETS|LOCALITIES|AREAS)\b/
+const PROPER_NOUNS = /^\s*(?:export\s+)?const\s+(?:FIRST_NAMES|LAST_NAMES|NAME_ROOTS|LEGAL_SUFFIX|BUSINESS_SUFFIXES|SUFFIXES|STREETS|LOCALITIES|AREAS)\b/
 
 function walk(dir, out = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
