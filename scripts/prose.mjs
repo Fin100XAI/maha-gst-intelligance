@@ -45,21 +45,46 @@ const IGNORE = [
   /^(?:en|mr|hi)$/,                        // locale ids
   /[{}<>]/,                               // JSX/template fragments
   /\b(?:radial-gradient|linear-gradient|translate|rgba?)\s*\(/, // CSS values
-  /^\s*$/
+  /^\s*$/,
+
+  /* Identifiers that must stay in Latin because they are quoted, not read.
+     Each is a claim that translating the string would break something real. */
+  /^AUTH-\d+$/,                            // authority record keys
+  /^M\/s .+ v\. /,                         // case names, cited as published
+  /^[A-Z]{5}\d{4}[A-Z](?:;|$)/,            // sample PAN values in the extract spec
+  /^Shivneri Textiles/,                    // the extract spec's example trade name
+  /^(?:DRC|ASMT|ADT|RFD|REG|GSTR)-\d/,     // form numbers an officer quotes
+  /^char\(\d+\)/,                          // column type tokens in the extract spec
+  /^(?:React|Vite|Recharts|Tailwind CSS|PostCSS \+ Autoprefixer)$/, // package names
+  /^Asia\/Kolkata$/,                       // IANA timezone id, passed to Intl
+  /^noopener noreferrer$/,                 // the rel attribute on external links
+  /^(?:Enter|Escape)$/,                    // KeyboardEvent.key values
+  /^Maha@2027$/,                           // the demonstration access code itself
+  /must be used within/                    // developer errors, never rendered
 ]
 
-/* Tailwind and CSS class strings: multiple space-separated tokens that are
-   overwhelmingly lowercase-with-dashes, slashes or bracket notation. */
+/* A Tailwind utility class: lowercase, and carrying punctuation that plain
+   English words in a sentence do not — a colon, dash, slash, bracket, hash or
+   percent. "shrink-0" and "text-[#C5221F]" qualify; "risk" does not. */
+const UTILITY = /^[a-zA-Z0-9:.\/[\]#%,()_-]+$/
+const PUNCTUATED = /[:\/[\]#%-]/
+
 function looksLikeClassNames(s) {
   const tokens = s.trim().split(/\s+/)
-  if (tokens.length < 2) return false
-  /* Every token is a plausible utility class, and at least one carries the
-     punctuation — a colon, dash, slash or bracket — that plain English words in
-     a sentence do not. "hidden sm:inline" qualifies; "risk score" does not. */
-  const allClassish = tokens.every(tk => /^[a-z0-9:.\/[\]#%-]+$/.test(tk))
-  const anyPunctuated = tokens.some(tk => /[:\/[\]#%-]/.test(tk))
-  return allClassish && anyPunctuated
+  /* Every token is a plausible utility, and at least one is punctuated. A
+     single token qualifies too: className={cond ? 'shrink-0' : 'text-white'}
+     produces one-token strings that are still class lists. Uppercase is
+     allowed because an arbitrary value carries one: text-[#C5221F]. */
+  return tokens.every(tk => UTILITY.test(tk)) && tokens.some(tk => PUNCTUATED.test(tk))
 }
+
+/* Comments never render, and an apostrophe inside one ("isn't enough per the
+   spec") otherwise reads as an opening quote and yields a fragment that looks
+   like prose. Block comments are stripped whole because a JSX comment spans
+   lines and its continuation lines carry no marker of their own; line comments
+   are then skipped as they are met. */
+const BLOCK_COMMENT = /\/\*[\s\S]*?\*\//g
+const LINE_COMMENT = /^\s*\/\//
 
 /* Prose an officer reads: contains a letter, and either has a space or is a
    capitalised word. Single lowercase words are almost always identifiers. */
@@ -94,14 +119,14 @@ function walk(dir, out = []) {
 
 const findings = new Map()
 for (const file of walk('src')) {
-  const src = fs.readFileSync(file, 'utf8')
+  const src = fs.readFileSync(file, 'utf8').replace(BLOCK_COMMENT, '')
 
   /* Strings already written as t('…') are coverage.mjs's job, not this one. */
   const direct = new Set()
   for (const m of src.matchAll(T_CALL)) direct.add(un(m[1] ?? m[2] ?? ''))
 
   for (const line of src.split('\n')) {
-    if (PROPER_NOUNS.test(line)) continue
+    if (PROPER_NOUNS.test(line) || LINE_COMMENT.test(line)) continue
     for (const m of line.matchAll(STRING)) {
     const s = un(m[1] ?? m[2] ?? '')
     if (direct.has(s) || !looksLikeProse(s)) continue

@@ -11,7 +11,7 @@
     "vocab": "node scripts/vocabulary.mjs",
     "coverage": "node scripts/coverage.mjs",
     "prose": "node scripts/prose.mjs",
-    "verify": "node scripts/audit.mjs && node scripts/vocabulary.mjs && vite build"
+    "verify": "node scripts/audit.mjs && node scripts/vocabulary.mjs && node scripts/prose.mjs && vite build"
   },
   "dependencies": {
     "lucide-react": "^0.462.0",
