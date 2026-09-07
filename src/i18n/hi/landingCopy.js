@@ -112,5 +112,14 @@ registerMessages('hi', {
   'Model logs, override history and the guardrails every recommendation runs through.':
     'प्रारूप अभिलेख, अधिक्रमण इतिहास और वे रक्षा-सीमाएँ जिनसे प्रत्येक अनुशंसा गुजरती है।',
   'Ready-made briefing notes and exportable reports for every review cycle.':
-    'प्रत्येक समीक्षा चक्र हेतु तैयार टिप्पणियाँ और निर्यात-योग्य प्रतिवेदन।'
+    'प्रत्येक समीक्षा चक्र हेतु तैयार टिप्पणियाँ और निर्यात-योग्य प्रतिवेदन।',
+  /* == Ticker — the plural forms, chosen by tn() ======================== */
+  '{0} taxpayer has not filed for the current period':
+    'वर्तमान अवधि हेतु {0} करदाता ने विवरणी दाखिल नहीं की',
+  '{0} taxpayers have not filed for the current period':
+    'वर्तमान अवधि हेतु {0} करदाताओं ने विवरणी दाखिल नहीं की',
+  '{0} taxpayer currently carries a Critical risk rating':
+    'इस समय {0} करदाता पर अत्यंत गंभीर जोखिम श्रेणी है',
+  '{0} taxpayers currently carry a Critical risk rating':
+    'इस समय {0} करदाताओं पर अत्यंत गंभीर जोखिम श्रेणी है'
 })

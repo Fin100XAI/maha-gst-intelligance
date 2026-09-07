@@ -123,7 +123,7 @@ for (const file of walk('src')) {
 
   /* Strings already written as t('…') are coverage.mjs's job, not this one. */
   const direct = new Set()
-  for (const m of src.matchAll(T_CALL)) direct.add(un(m[1] ?? m[2] ?? ''))
+  for (const m of src.matchAll(T_CALL)) for (const raw of m.slice(1)) if (raw) direct.add(un(raw))
 
   for (const line of src.split('\n')) {
     if (PROPER_NOUNS.test(line) || LINE_COMMENT.test(line)) continue

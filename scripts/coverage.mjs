@@ -32,10 +32,14 @@ const TRANSLATED = LOCALES.filter(l => l !== 'en')
 const SRC = 'src'
 const detail = process.argv[2]
 
-/* t('…'), t("…") and tn(count, '…', '…') — the single-quoted form dominates,
-   but both are matched so a stray double-quoted call is not silently scored as
-   translated. Escaped quotes inside the literal are handled. */
-const CALL = /\bt\(\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")/g
+/* t('…') and tn(count, '…', '…'). Both forms are matched, and both quote
+   styles, so neither a stray double-quoted call nor a plural chooser is missed.
+   tn() was overlooked at first — the landing ticker's plural line stayed
+   English on a screen the report scored at 100%. Escaped quotes are handled.
+
+   Only tn's FIRST literal is captured by one pass; the global regex then finds
+   the second on its next match, because both sit after the same `tn(`. */
+const CALL = /\bt\(\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")|\btn\([^,]+,\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\s*,\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")/g
 
 function unescape(s) {
   return s.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\\\/g, '\\')
@@ -45,8 +49,11 @@ function literalsIn(file) {
   const out = new Set()
   const src = fs.readFileSync(file, 'utf8')
   for (const m of src.matchAll(CALL)) {
-    const raw = m[1] ?? m[2]
-    if (raw && raw.length) out.add(unescape(raw))
+    /* Six groups: t()'s single- and double-quoted forms, then tn()'s two
+       literals in each quote style. Every one that matched is a message. */
+    for (const raw of m.slice(1)) {
+      if (raw && raw.length) out.add(unescape(raw))
+    }
   }
   return out
 }
