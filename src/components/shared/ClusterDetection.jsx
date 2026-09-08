@@ -204,7 +204,7 @@ export function ClusterDetection() {
   if (!selectedCluster) {
     return (
       <div>
-        <Card><div className="text-sm text-steel-500 py-6 text-center">{t('No circular-trading network clusters found.')}</div></Card>
+        <Card tone="blue"><div className="text-sm text-steel-500 py-6 text-center">{t('No circular-trading network clusters found.')}</div></Card>
       </div>
     )
   }
@@ -225,7 +225,7 @@ export function ClusterDetection() {
       </div>
 
       <div ref={graphRef} className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 mb-6">
-        <Card title={t('Detected Clusters')} subtitle={t('Select a cluster to view its network.')} padded={false}>
+        <Card tone="red" title={t('Detected Clusters')} subtitle={t('Select a cluster to view its network.')} padded={false}>
           <div className="max-h-[460px] overflow-y-auto divide-y divide-steel-100">
             {filteredClusters.map(c => {
               const active = c.id === selectedCluster.id
@@ -252,7 +252,7 @@ export function ClusterDetection() {
           </div>
         </Card>
 
-        <Card
+        <Card tone="yellow"
           title={t('Network Graph — {0}', selectedCluster.id)}
           subtitle={t("Arrows indicate direction of invoice flow. Click a node to open the taxpayer's full profile.")}
           actions={<HumanReviewBadge />}
@@ -337,7 +337,7 @@ export function ClusterDetection() {
 
       {/* "All / every … in the current dataset" was printed over `filteredClusters`,
           so under any header filter the heading claimed more than the table held. */}
-      <Card title={t('Flagged Clusters')} subtitle={t('Consolidated summary across the {0} cluster(s) matching the current filters.', filteredClusters.length)}>
+      <Card tone="green" title={t('Flagged Clusters')} subtitle={t('Consolidated summary across the {0} cluster(s) matching the current filters.', filteredClusters.length)}>
         <DataTable
           columns={clusterTableColumns}
           rows={filteredClusters}

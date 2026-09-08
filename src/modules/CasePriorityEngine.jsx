@@ -245,7 +245,7 @@ export default function CasePriorityEngine() {
       </div>
 
       {tab === 'queue' && (
-        <Card
+        <Card tone="green"
           title={t('Ranked working queue')}
           subtitle={<MethodNote short={t('Click any row for the factors, the statutory position, and why it moved.')} full={t('{0} of the state’s {1} officer-days this week fall on cases in this view. The “reached this week” column is read from the statewide allocation and is not narrowed by the filter bar. Click any row for the factor breakdown, the statutory position, and why it moved.', stats.placedDays, CAPACITY_RESULT.totalSupplyDays)} />}
         >
@@ -494,7 +494,7 @@ function EquityPanel({ equity, workedSize }) {
 
 function DistTable({ title, rows, workedSize }) {
   return (
-    <Card
+    <Card tone="blue"
       title={title}
       subtitle={t('Share of the {0} cases at the head of the queue — the number a week of departmental capacity actually places — against share of all scored cases', workedSize)}
       padded={false}
@@ -544,7 +544,7 @@ function TrialPanel({ trial }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card title={t('Arm balance')} subtitle={t('Stratified across {0} strata by exposure decile and risk band', trial.strataCount)} padded={false}>
+        <Card tone="red" title={t('Arm balance')} subtitle={t('Stratified across {0} strata by exposure decile and risk band', trial.strataCount)} padded={false}>
           <div className="divide-y divide-steel-100">
             <div className="px-5 py-2 grid grid-cols-[1fr_auto_auto] gap-4 text-[10px] font-bold uppercase tracking-wider text-steel-400">
               <span>{t('Metric')}</span><span className="w-20 text-right">{t('Platform')}</span><span className="w-20 text-right">{t('Control')}</span>
@@ -559,7 +559,7 @@ function TrialPanel({ trial }) {
           </div>
         </Card>
 
-        <Card title={t('What gets measured')} subtitle={t('Endpoints fixed before the trial runs')} padded={false}>
+        <Card tone="yellow" title={t('What gets measured')} subtitle={t('Endpoints fixed before the trial runs')} padded={false}>
           <div className="divide-y divide-steel-100">
             {TRIAL_ENDPOINTS.map((e, i) => (
               <div key={e.metric} className="px-5 py-3">

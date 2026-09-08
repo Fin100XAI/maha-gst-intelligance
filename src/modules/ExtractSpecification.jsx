@@ -76,7 +76,7 @@ export default function ExtractSpecification() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         {/* Who has to be asked, and for how much of the extract. A request that
           * does not say this gets routed to one owner and stalls at the others. */}
-        <Card
+        <Card tone="green"
           title={t('Who owns which columns')}
           subtitle={t('{0} fields across {1} files, held by {2} owners. Each owner must be approached separately.', S.fieldCount, S.fileCount, S.byOwner.length)}
           padded={false}
@@ -97,7 +97,7 @@ export default function ExtractSpecification() {
         {/* Three fields decide whether the outcome tier can ever be built. They
           * are listed here because they are the ones most likely to be dropped
           * from a request as "nice to have". */}
-        <Card
+        <Card tone="blue"
           title={t('The {0} fields that decide the outcome tier', D.criticalFields.length)}
           subtitle={t('Without these the outcome engines learn who the taxpayer was, not why a demand held up. They cannot be collected retrospectively.')}
           padded={false}
@@ -197,7 +197,7 @@ export default function ExtractSpecification() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card
+        <Card tone="red"
           title={t('Format conventions')}
           subtitle={t('{0} rules. Each of these has caused a real error in this build or would have, and each states the consequence rather than the preference.', CONVENTIONS.length)}
         >
@@ -211,7 +211,7 @@ export default function ExtractSpecification() {
           </div>
         </Card>
 
-        <Card
+        <Card tone="yellow"
           title={t('Legal and privacy position')}
           subtitle={t('{0} positions, to be settled before the request goes out rather than after the extract is built.', LEGAL_CONSTRAINTS.length)}
         >

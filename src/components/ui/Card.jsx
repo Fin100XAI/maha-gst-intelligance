@@ -10,17 +10,16 @@ export const CARD_TONES = {
 }
 const TONE_ORDER = ['blue', 'red', 'yellow', 'green']
 
-/* Which hue a card gets when the call site does not name one. Derived from the
- * title, so a card holds its colour across re-renders and filter changes — a
- * running counter could not, since cards mount conditionally — and so that the
- * existing call sites need no edit.
+/* The fallback for a card whose call site names no tone. Every Card in the
+ * platform names one — they are assigned in source order so the cycle runs
+ * blue, red, yellow, green down each screen and no two neighbours match — so
+ * this only catches a newly added card someone forgot to tone.
  *
- * The title reaching here is already translated, so switching language can
- * reshuffle which card is which colour. That is deliberate over the
- * alternatives: the hue carries no meaning (semantic colour stays inside the
- * card body, where red still means critical), so a different arrangement in
- * Marathi costs nothing, and the fix would mean threading the untranslated key
- * through every call site to gain nothing an officer would notice. */
+ * It hashes the title rather than counting, because a counter incremented
+ * during render is not stable: cards mount conditionally, and the colour would
+ * shift on every state change. Hashing the title does mean a language switch
+ * can move a fallback card's hue, which is one more reason to pass `tone`
+ * explicitly rather than lean on this. */
 function toneFromTitle(title) {
   const s = typeof title === 'string' ? title : ''
   if (!s) return 'blue'

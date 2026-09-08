@@ -443,7 +443,7 @@ export default function RevenueIntelligence() {
       </div>
 
       {/* Monthly trend */}
-      <Card
+      <Card tone="blue"
         title={t('Monthly Revenue Trend')}
         subtitle={districtScoped
           ? t('State GST collection — target vs actual (₹ Cr) — {0} · statewide trend, not filtered by district/division', t(filters.dateRange))
@@ -461,7 +461,7 @@ export default function RevenueIntelligence() {
       </Card>
 
       {/* Variance, not volume — the bar that decides where to send people. */}
-      <Card
+      <Card tone="red"
         title={t('Variance From Target by District')}
         subtitle={<MethodNote short={t('Each district against its own target. Zero is on target.')} full={t('Collection against the district’s own target (%). Zero is on target; bars below the line are the districts a recovery effort has to reach. Absolute collection is in the shortfall ledger below.')} />}
         className="mb-5"
@@ -484,7 +484,7 @@ export default function RevenueIntelligence() {
       </div>
 
       {/* Shortfall attribution */}
-      <Card
+      <Card tone="yellow"
         className="mb-5"
         title={t('Shortfall Attribution — Current-Period District Ledger')}
         subtitle={<MethodNote short={t('Ranked by rupees of shortfall, on the current-period district ledger.')} full={t('Ranked by rupees of shortfall, with the running cumulative share. Targets and actuals are the district ledger for the current collection period, not the cumulative trend above — the two are different denominators and are not added together anywhere on this screen.')} />}
@@ -510,7 +510,7 @@ export default function RevenueIntelligence() {
       </Card>
 
       {/* Sector against its own benchmark */}
-      <Card
+      <Card tone="green"
         className="mb-5"
         title={t('Sector Collection Against Its Own Benchmark Ratio')}
         subtitle={<MethodNote short={t('What taxpayers actually realised, against their sector\'s own ratio.')} full={t('Tax-to-turnover ratio actually realised by the taxpayers in view, against the reference ratio held for that sector. Absolute sector revenue only says which sectors are large; the deviation says which are underpaying relative to what they themselves declared.')} />}
@@ -525,7 +525,7 @@ export default function RevenueIntelligence() {
       </Card>
 
       {/* Forecast */}
-      <Card
+      <Card tone="blue"
         title={t('Forecasted Revenue Risk — Next Quarter')}
         subtitle={t('Forecast (Illustrative) — naive trend-based projection for the next 3 months. Statewide: this projection is not narrowed by the header filters.')}
         className="mb-5"
@@ -548,7 +548,7 @@ export default function RevenueIntelligence() {
       </Card>
 
       {/* Leakage indicators — count, share and the rupees attached */}
-      <Card
+      <Card tone="red"
         title={t('Revenue Leakage Indicators')}
         subtitle={<MethodNote short={t('Click an indicator to filter the register below.')} full={t('Each tile carries the number of taxpayers, their share of the population in view, and the estimated revenue exposed. Click an indicator to filter the register below.')} />}
         className="mb-5"
@@ -588,7 +588,7 @@ export default function RevenueIntelligence() {
       </Card>
 
       {/* Abnormal behaviour table */}
-      <Card
+      <Card tone="yellow"
         title={t('Taxpayers with Abnormal Revenue Behaviour')}
         subtitle={activeIndicator ? t('Filtered by: {0}', t(INDICATORS.find(i => i.key === activeIndicator).label)) : t('All revenue-leakage indicators (union)')}
         actions={

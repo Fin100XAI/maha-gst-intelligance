@@ -181,7 +181,7 @@ function QuestionsView({ logAction }) {
       {/* Posture, counted. Every authority on the question is in exactly one of
           these states, and the state decides what an officer may do with it —
           which is a different question from which way it went. */}
-      <Card
+      <Card tone="blue"
         title={t('What may be done with each authority today')}
         subtitle={t('Every authority on this question sits in exactly one posture. The posture, not the outcome, decides whether it can be relied on in a notice.')}
         padded={false}
@@ -201,7 +201,7 @@ function QuestionsView({ logAction }) {
 
       {/* Authority ladder — ordered by binding weight, which is the only order
           that helps an officer decide what to rely on. */}
-      <Card
+      <Card tone="red"
         title={t('Authorities, ranked by binding weight')}
         subtitle={<MethodNote short={t('Ordered by forum. Authority is law and does not narrow with the filters.')} full={t('Ordered by the forum, not by date or similarity. Authority is law and does not narrow with the filter bar — only the caseload below it does. Where a case name could not be established from a published source it is left blank rather than invented.')} />}
         padded={false}
@@ -222,7 +222,7 @@ function QuestionsView({ logAction }) {
 
       {/* The link from the legal question to the actual caseload, with the two
           sides of the exposure counted rather than described. */}
-      <Card
+      <Card tone="yellow"
         title={t('Proceedings that turn on this question')}
         subtitle={t('{0} proceedings totalling {1} have a limitation date that rests on the contested notifications.', affected.rows.length, cr(affected.total))}
       >
@@ -408,7 +408,7 @@ function DepartmentalView() {
         </div>
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('Departmental outcomes by question of law')}
         subtitle={<MethodNote short={t('This department\'s own record, grouped by the legal question.')} full={t('This department’s own concluded proceedings, grouped by the legal question rather than by sector. Institutional memory — not judicial authority, and not citable as precedent.')} />}
       >
@@ -450,7 +450,7 @@ function DepartmentalView() {
         <MethodNote className="text-[12.5px] text-steel-700 leading-relaxed" short={t('Grouped by the issue on the case file, which is not the question of law.')} full={t('These rows are grouped by the issue category recorded on the case file. The questions of law on the first tab are held separately and nothing in the record joins the two, so this module cannot say how the department has fared on the Section 168A question specifically. That is a data-capture gap — outcomes are not captured against the question that decided them — and it is stated rather than bridged with an assumed mapping.')} />
       </div>
 
-      <Card
+      <Card tone="blue"
         title={t('Where the department’s position is already weak')}
         subtitle={<MethodNote short={t('Recorded at assessment, not inferred — shown against its own denominator.')} full={t('Recorded on the case file at the time of assessment, not inferred by a model. Each count is shown against the proceedings on that issue, because three weak files out of four is a different problem from three out of forty.')} />}
       >
@@ -491,7 +491,7 @@ function ModelView() {
     <div className="space-y-4">
       <FilterNotApplicable reason={t('This tab states the rules by which authority is weighted. They are law, and they are the same in every division and for every sector.')} />
 
-      <Card
+      <Card tone="red"
         title={t('Forum hierarchy, from the position of a Maharashtra authority')}
         subtitle={<MethodNote short={t('Binding weight depends on the deciding authority, not on the wording.')} full={t('Binding weight is relative to the deciding authority. The same judgment carries different weight for an officer in another State, which is why jurisdiction is modelled rather than assumed.')} />}
         padded={false}
@@ -515,7 +515,7 @@ function ModelView() {
         </div>
       </Card>
 
-      <Card title={t('Status classifications')} subtitle={t('A precedent under challenge is worse than none — relying on it creates exposure the officer did not know they had.')}>
+      <Card tone="yellow" title={t('Status classifications')} subtitle={t('A precedent under challenge is worse than none — relying on it creates exposure the officer did not know they had.')}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Object.entries(STATUS).map(([key, s]) => (
             <div key={key} className="rounded-lg border border-steel-200 bg-white px-3.5 py-3">

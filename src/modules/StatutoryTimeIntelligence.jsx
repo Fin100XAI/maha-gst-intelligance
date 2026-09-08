@@ -310,7 +310,7 @@ export default function StatutoryTimeIntelligence() {
         </div>
       )}
 
-      <Card
+      <Card tone="blue"
         className="mb-6"
         title={t('Limitation register')}
         subtitle={<MethodNote short={t('Where no notice has issued, the notice deadline binds — months earlier.')} full={t('Ranked by how soon the binding deadline falls. Where no notice has issued the notice deadline binds — it falls months before the order deadline and is the one most often missed.')} />}
@@ -325,7 +325,7 @@ export default function StatutoryTimeIntelligence() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-        <Card
+        <Card tone="red"
           title={t('Desks carrying the nearest deadlines')}
           subtitle={t('Officers holding a proceeding due within 90 days, in view. Limitation attaches to a named officer, so this is the roll-up that decides a reallocation.')}
           padded={false}
@@ -356,7 +356,7 @@ export default function StatutoryTimeIntelligence() {
           )}
         </Card>
 
-        <Card
+        <Card tone="yellow"
           title={t('Section mix')}
           subtitle={<MethodNote short={t('The section decides the length of the clock.')} full={t('Which power each proceeding is running under. The section decides the length of the clock, and s.74 is available only on a finding of fraud, wilful misstatement or suppression.')} />}
           padded={false}
@@ -388,7 +388,7 @@ export default function StatutoryTimeIntelligence() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card
+        <Card tone="green"
           title={t('Formation exposure')}
           subtitle={<MethodNote short={t('Statewide roll-up — this panel is not narrowed by the filters.')} full={t('Which divisions carry the nearest deadlines. Statewide roll-up from the limitation engine — this panel is not narrowed by the header filters, unlike every figure above it.')} />}
           padded={false}
@@ -414,7 +414,7 @@ export default function StatutoryTimeIntelligence() {
           </div>
         </Card>
 
-        <Card title={t('Statutory basis')} subtitle={t('The rules this register computes from')} padded={false}>
+        <Card tone="blue" title={t('Statutory basis')} subtitle={t('The rules this register computes from')} padded={false}>
           <div className="divide-y divide-steel-100">
             {Object.entries(STATUTORY_SOURCES).map(([key, src]) => (
               <div key={key} className="px-5 py-3.5">

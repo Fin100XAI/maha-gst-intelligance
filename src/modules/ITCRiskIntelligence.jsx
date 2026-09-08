@@ -239,7 +239,7 @@ export default function ITCRiskIntelligence() {
         />
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('Credit intensity against filing and payment behaviour')}
         subtitle={<MethodNote short={t('Credit taken now, by an entity whose behaviour does not support it.')} full={t('The combination this module exists to surface: credit taken now, by an entity whose return and payment behaviour does not support it. Read the last column first.')} />}
         className="mb-6"
@@ -306,7 +306,7 @@ export default function ITCRiskIntelligence() {
         <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-3" short={t('Above 1.0 means credit is concentrating where it is least substantiated.')} full={t('A value above 1.0 in the last column means that filing class holds more of the credit than its share of the taxpayers — credit concentrating in the group least able to substantiate it. Below 1.0 it is the opposite, and the class is not where scrutiny belongs. The comparison is only valid inside the current filters: narrow to a district and the benchmark column moves with the sector mix of that district.')} />
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('ITC-to-turnover deviation by sector')}
         subtitle={<MethodNote short={t('The gap between what was claimed and that sector\'s own benchmark.')} full={t('Bar height is the gap in percentage points between the ratio actually claimed in scope and that sector’s benchmark. Colour is the concentration of High / Critical taxpayers in the sector.')} />}
         className="mb-6"
@@ -351,7 +351,7 @@ export default function ITCRiskIntelligence() {
         )}
       </Card>
 
-      <Card
+      <Card tone="red"
         title={t('ITC Anomaly Categories')}
         subtitle={t('Select a category to view matching taxpayer cases under the current global filters.')}
         padded={false}

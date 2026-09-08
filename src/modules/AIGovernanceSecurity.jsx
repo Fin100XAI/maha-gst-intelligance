@@ -347,7 +347,7 @@ export default function AIGovernanceSecurity() {
         <MethodNote className="text-xs text-navy-800 leading-relaxed max-w-4xl" short={t('A control position, not an assurance — the platform holds no certification.')} full={t('Read this page as a control position, not as an assurance. "Implemented in this build" means an assessor can watch the control work in this demonstration; it is not an accreditation, a certification or an independent assessment, and the platform holds none of those. Every model figure on this screen — recommendation counts, confidence bands and the false-positive rate — is an illustrative placeholder: there is no model, no gateway and no scheduled audit behind them. The audit trail, the access matrix and the translation coverage below are the only figures on this page counted from something that actually exists.')} />
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('AI Control Register')}
         subtitle={t('What each control is, its state in this build, what production would require, and who owns it')}
         className="mb-5"
@@ -420,7 +420,7 @@ export default function AIGovernanceSecurity() {
         <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('Ownership is read from the access configuration; no owner register exists.')} full={t('Ownership is derived from the access configuration, which is the only ownership statement this build can evidence: the roles that can open this console are {0}. No separate control-owner register exists, so the infrastructure controls above have no named accountable owner. Production requirement: name an accountable owner and a review cycle for every row before go-live.', consoleRoles.map(r => t(r)).join(', '))} />
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('CERT-In / VAPT Readiness Checklist')}
         subtitle={t('Controls a production deployment must evidence — none has been carried out against this build')}
         className="mb-5"
@@ -442,7 +442,7 @@ export default function AIGovernanceSecurity() {
         </div>
       </Card>
 
-      <Card title={t('Maker-Checker / Human-in-the-Loop Workflow')} subtitle={t('Every AI-generated notice or audit action requires officer approval before execution')} className="mb-5">
+      <Card tone="red" title={t('Maker-Checker / Human-in-the-Loop Workflow')} subtitle={t('Every AI-generated notice or audit action requires officer approval before execution')} className="mb-5">
         <MethodNote className="text-xs text-steel-500 mb-4 max-w-4xl" short={t('The AI only ever drafts. An officer approves or rejects every output.')} full={t('The platform enforces a maker-checker control on every AI-assisted output. The AI system only ever occupies the "maker / draft" role — it cannot independently execute an enforcement action. This mirrors the Human Approval step already built into the Audit & Scrutiny Engine workflow, and applies uniformly across notice drafting, audit scoping, refund checklists and taxpayer outreach.')} />
         <div className="flex flex-col sm:flex-row items-stretch gap-2">
           <ProcessBox icon={Bot} label={t('AI generates draft')} sub={t('Notice / checklist / summary / briefing')} tone="navy" />
@@ -461,7 +461,7 @@ export default function AIGovernanceSecurity() {
       {/* The matrix itself now lives on the Settings screen, which is where
           the access configuration belongs. Repeating it here would give a
           reviewer two copies to keep in step, and one of them would drift. */}
-      <Card
+      <Card tone="yellow"
         title={t('Role-Based Access Control — as enforced')}
         subtitle={t('The full matrix is on the Settings screen, generated from the same configuration')}
         className="mb-5"
@@ -477,7 +477,7 @@ export default function AIGovernanceSecurity() {
         </p>
       </Card>
 
-      <Card
+      <Card tone="green"
         title={t('Officer Override & Disposition History')}
         subtitle={t('Every logged instance of an officer overriding, rejecting or approving an AI-assisted output — the maker-checker control as it appears in the trail')}
         className="mb-5"
@@ -505,7 +505,7 @@ export default function AIGovernanceSecurity() {
         <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('A trail with no overrides would be a warning sign, not a good result.')} full={t('An override is an officer disagreeing with the platform, which is the outcome the maker-checker control exists to make possible. A trail with no overrides in it would be a warning sign, not a good result.')} />
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('AI Decision-Support Activity')}
         subtitle={t('Illustrative placeholder figures — nothing below is measured')}
         className="mb-5"
@@ -521,7 +521,7 @@ export default function AIGovernanceSecurity() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-        <Card
+        <Card tone="red"
           title={t('Model Confidence Distribution')}
           subtitle={t('Share of AI outputs by confidence band — illustrative placeholder')}
           actions={<Pill tone={model.confidenceTotal === 100 ? 'navy' : 'red'}>{t('Bands total {0}%', model.confidenceTotal)}</Pill>}
@@ -536,7 +536,7 @@ export default function AIGovernanceSecurity() {
           <MethodNote className="text-[11px] text-steel-500 mt-3" short={t('Confidence is a property of the output, not a permission.')} full={t('Confidence is a property of the output, not a permission. A "Very High" band does not shorten the officer review path — every band goes through the same maker-checker step.')} />
         </Card>
 
-        <Card
+        <Card tone="yellow"
           title={t('False Positive Review')}
           subtitle={t('Human-in-the-loop review outcomes for AI-flagged cases — illustrative placeholder')}
           actions={<Pill tone="amber">{t('Not measured')}</Pill>}
@@ -560,7 +560,7 @@ export default function AIGovernanceSecurity() {
         </Card>
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('Audit Trail Integrity')}
         subtitle={t('Properties counted off the trail below, including this session\'s own entries')}
         className="mb-5"
@@ -576,7 +576,7 @@ export default function AIGovernanceSecurity() {
         <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('Denied attempts are kept deliberately; the trail is session-only.')} full={t('Denied attempts are kept in the trail deliberately: a log that records only what succeeded cannot evidence that access control refused anything. The trail is held in browser memory for this session and is lost on reload — it evidences capture, not preservation, and production requires append-only, tamper-evident storage with a defined retention period.')} />
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('Audit Log')}
         subtitle={t('System-wide access and action log across all modules — live entries from this session appear at the top')}
         className="mb-5"
@@ -613,7 +613,7 @@ export default function AIGovernanceSecurity() {
         />
       </Card>
 
-      <Card
+      <Card tone="red"
         title={t('AI Copilot Prompt / Output Log')}
         subtitle={t('Every draft, summary, checklist or translation the AI Copilot has generated, with the officer and case it was generated for')}
         className="mb-5"
@@ -635,7 +635,7 @@ export default function AIGovernanceSecurity() {
         <MethodNote className="text-[11px] text-steel-500 mt-3 max-w-4xl" short={t('Only the fact of a generation is logged — never the prompt or the output.')} full={t('Prompt/output content itself is not persisted in this log by design (data minimisation) — only the fact that a generation occurred, by whom, for which case, and when. This satisfies the governance requirement for AI Copilot usage logging distinct from the general system audit trail above.')} />
       </Card>
 
-      <Card
+      <Card tone="yellow"
         title={t('Official-Language Coverage')}
         subtitle={t('Strings that fell back to English in this browser session, and the size of each catalogue')}
         actions={

@@ -117,7 +117,7 @@ function EnginesView({ derived }) {
     <div className="space-y-4">
       {/* The technique labels are chips on every engine below; this is where
         * they say what they mean and what each one needs to work. */}
-      <Card
+      <Card tone="green"
         title={t('What the technique labels mean')}
         subtitle={t('Every engine below carries one or more of these. The label is not decoration — it states what the engine needs before it can run.')}
         padded={false}
@@ -139,7 +139,7 @@ function EnginesView({ derived }) {
         const meta = STATUS[st]
         const tone = TONE[meta.tone]
         return (
-          <Card key={st} title={t('{0} — {1} engines', t(meta.label), items.length)} subtitle={t(meta.note)} padded={false}>
+          <Card tone="blue" key={st} title={t('{0} — {1} engines', t(meta.label), items.length)} subtitle={t(meta.note)} padded={false}>
             <div className="divide-y divide-steel-100">
               {items.map(e => {
                 const cols = derived.fieldIndex[e.n]
@@ -220,7 +220,7 @@ function GraphView() {
         <KpiCard label={t('Hops absent')} value={S.graphHopsAbsent} unit={t('every cross-entity capability fails here')} tone="red" icon={XCircle} />
       </div>
 
-      <Card
+      <Card tone="red"
         title={t('The intelligence graph, hop by hop')}
         subtitle={t('{0} of {1} hops are present, {2} partial and {3} absent. The absent ones are where every cross-entity capability fails.', S.graphHopsPresent, S.totalHops, S.graphHopsPartial, S.graphHopsAbsent)}
         padded={false}
@@ -249,7 +249,7 @@ function GraphView() {
         </div>
       </Card>
 
-      <Card title={t('On the architecture')}>
+      <Card tone="yellow" title={t('On the architecture')}>
         <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(ARCHITECTURE_NOTE)}</p>
       </Card>
     </div>
@@ -270,7 +270,7 @@ function PilotView({ derived }) {
       </div>
 
       {PILOT_REQUIREMENTS.map(r => (
-        <Card key={r.id} title={t('{0}. {1}', r.priority, t(r.field))}>
+        <Card tone="green" key={r.id} title={t('{0}. {1}', r.priority, t(r.field))}>
           <div className="flex flex-wrap items-center gap-2 mb-2.5">
             <Pill tone={r.priority === 1 ? 'red' : r.priority === 2 ? 'amber' : 'steel'}>{t('Priority {0} of {1}', r.priority, PILOT_REQUIREMENTS.length)}</Pill>
           </div>
@@ -285,7 +285,7 @@ function PilotView({ derived }) {
       {/* The join between this page and the column list. An engine that is not
         * built is here with the files that would supply it, so the pilot
         * request can be checked against the verdicts rather than trusted. */}
-      <Card
+      <Card tone="blue"
         title={t('Every engine not yet built, and the extract files that would supply it')}
         subtitle={t('{0} of {1} engines are partial or blocked. Column counts are read from the extract specification, which states engine by engine what each field is for.', notBuilt.length, ENGINES.length)}
         padded={false}

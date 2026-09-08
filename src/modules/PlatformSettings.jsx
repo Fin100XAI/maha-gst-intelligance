@@ -91,7 +91,7 @@ export default function PlatformSettings() {
         />
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('Role-Based Access — as enforced')}
         subtitle={t('Generated from the access configuration at render time, not described alongside it')}
         className="mb-5"
@@ -146,7 +146,7 @@ export default function PlatformSettings() {
         />
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('Modules Pinned Below Their Section')}
         subtitle={t('Screens open to fewer roles than the section they sit in')}
         className="mb-5"
@@ -175,7 +175,7 @@ export default function PlatformSettings() {
         />
       </Card>
 
-      <Card title={t('Demonstration Access Gate')} subtitle={t('How this build is entered, and what that is worth')}>
+      <Card tone="red" title={t('Demonstration Access Gate')} subtitle={t('How this build is entered, and what that is worth')}>
         <p className="text-[12px] text-navy-800 leading-relaxed flex items-start gap-2 max-w-4xl">
           <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" aria-hidden />
           <span>{t(DEMO_GATE_NOTE)}</span>

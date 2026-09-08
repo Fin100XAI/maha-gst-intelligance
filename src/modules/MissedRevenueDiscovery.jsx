@@ -201,7 +201,7 @@ function CandidatesView() {
 
       {/* Where the deadline pressure sits. This is the ordering argument: the
           exposure with the least time left is worked first, not the largest. */}
-      <Card
+      <Card tone="blue"
         title={t('Where the time actually is')}
         subtitle={t('Review candidates banded by what remains on the statutory clock. The band, not the amount, decides the order of work.')}
       >
@@ -221,7 +221,7 @@ function CandidatesView() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
-        <Card padded={false} className="h-fit">
+        <Card tone="red" padded={false} className="h-fit">
           <div className="p-3 border-b border-steel-100">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-steel-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -306,7 +306,7 @@ function CandidateBrief({ b, rank, total, cohortExposure }) {
       </div>
 
       {/* 0 — the clock, first, because it decides whether any of the rest matters */}
-      <Card title={t('What is left on the clock')} subtitle={t('Nothing below can be converted into a demand after this date.')}>
+      <Card tone="yellow" title={t('What is left on the clock')} subtitle={t('Nothing below can be converted into a demand after this date.')}>
         {b.daysRemaining == null ? (
           <div className="rounded-lg border border-amber-200 bg-amber-50/50 px-3.5 py-3">
             <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('Not established — an absent input')}</div>
@@ -338,7 +338,7 @@ function CandidateBrief({ b, rank, total, cohortExposure }) {
       </Card>
 
       {/* 1 — what fired */}
-      <Card
+      <Card tone="green"
         title={t('Signals live at the time')}
         subtitle={t('{0} encoded rules were firing when this case was put down, contributing {1} points of the risk score {2}.', b.signals.length, signalWeight, b.riskScore)}
       >
@@ -361,7 +361,7 @@ function CandidateBrief({ b, rank, total, cohortExposure }) {
       </Card>
 
       {/* 2 — the historical comparison, drawn from concluded proceedings */}
-      <Card
+      <Card tone="blue"
         title={t('Comparable concluded proceedings')}
         subtitle={t('What happened in cases comparable on the dimensions that decide outcomes. Evidence for a judgement, not a prediction.')}
       >
@@ -399,7 +399,7 @@ function CandidateBrief({ b, rank, total, cohortExposure }) {
       </Card>
 
       {/* 3 — what has to happen before anything reopens */}
-      <Card title={t('Before this is reopened')} subtitle={t('In order. None of it is done by this screen.')}>
+      <Card tone="red" title={t('Before this is reopened')} subtitle={t('In order. None of it is done by this screen.')}>
         <ol className="space-y-2">
           {b.checks.map((c, i) => (
             <li key={c.id} className="flex items-start gap-2.5">
@@ -453,7 +453,7 @@ function RefusalView({ F, S }) {
       </div>
 
       {/* Reason one: there is almost no Section 74 label to learn from. */}
-      <Card
+      <Card tone="yellow"
         title={t('The label that does not exist')}
         subtitle={t('Identifying Section 73 cases that resemble Section 74 cases needs Section 74 cases to resemble.')}
       >
@@ -494,7 +494,7 @@ function RefusalView({ F, S }) {
 
       {/* Reason two, and the stronger one: even with a substitute label, the
           features do not separate. */}
-      <Card
+      <Card tone="green"
         title={t('The separation test')}
         subtitle={t('Before a resemblance model is built, the cases it learns from must differ from the cases it will screen. Measured per feature, reported whatever it says.')}
       >
@@ -535,7 +535,7 @@ function RefusalView({ F, S }) {
         <MethodNote className="text-[11.5px] text-steel-600 leading-relaxed mt-3" short={t('Where the two means match, the feature does not separate the cases.')} full={t('Read the two mean columns against each other. Where they are the same number, a case the department won and a case drawn at random are indistinguishable on that feature — which is what "does not separate" means in practice.')} />
       </Card>
 
-      <Card title={t('Why more cases would not fix this')}>
+      <Card tone="blue" title={t('Why more cases would not fix this')}>
         <p className="text-[12.5px] text-navy-800 leading-relaxed mb-3">{t(S.whyMoreRowsWontHelp)}</p>
         <div className="rounded-lg border border-amber-200 bg-amber-50/60 px-3.5 py-3 mb-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700 mb-1">{t('And the contrast class is empty in practice')}</div>

@@ -186,7 +186,7 @@ export default function RevenueProtectionCommandCentre() {
       </div>
 
       {/* ---------- FUNNEL ---------- */}
-      <Card
+      <Card tone="yellow"
         title={t('Where the money goes between owed and protected')}
         subtitle={<MethodNote short={t('Four steps, three causes, three owners — not netted into one rate.')} full={t('Four steps, three different causes, three different owners. They are not netted into one recovery rate because they call for three different decisions.')} />}
         className="mb-4"
@@ -231,7 +231,7 @@ export default function RevenueProtectionCommandCentre() {
 
       {/* ---------- HORIZON ---------- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-        <Card
+        <Card tone="green"
           title={t('Revenue at risk over time')}
           subtitle={t('What survives, and what is gone, if nothing is done.')}
           className="lg:col-span-2"
@@ -257,7 +257,7 @@ export default function RevenueProtectionCommandCentre() {
           </div>
         </Card>
 
-        <Card title={t('Two clocks, two responses')} subtitle={t('Split of the 180-day loss.')}>
+        <Card tone="blue" title={t('Two clocks, two responses')} subtitle={t('Split of the 180-day loss.')}>
           {(() => {
             const h = HORIZON_PROFILE.find(x => x.day === 180) || HORIZON_PROFILE[0]
             const total = h.lostToLimitationCr + h.lostToDecayCr || 1
@@ -289,7 +289,7 @@ export default function RevenueProtectionCommandCentre() {
           many proceedings reach their binding date in that time, which is the
           figure a Commissioner is answerable for and the one that decides how
           many notices have to be signed this month. */}
-      <Card
+      <Card tone="red"
         title={t('When the statutory clock runs out')}
         subtitle={<MethodNote short={t('Counted against the binding date, not the order deadline.')} full={t('Counted against the BINDING date — the notice date where no notice has issued, which falls months before the order deadline and is the one most often missed.')} />}
         className="mb-4"
@@ -320,7 +320,7 @@ export default function RevenueProtectionCommandCentre() {
       </Card>
 
       {/* ---------- ARITHMETIC ---------- */}
-      <Card
+      <Card tone="yellow"
         title={t('Why this is not the sum of the modules')}
         subtitle={t('The same rupee is flagged by more than one engine. Adding the mechanism totals would overstate the position by {0}.', cr(S.doubleCountAvoided))}
         className="mb-4"
@@ -357,7 +357,7 @@ export default function RevenueProtectionCommandCentre() {
       </Card>
 
       {/* ---------- CONCENTRATION ---------- */}
-      <Card
+      <Card tone="green"
         title={t('Where it is concentrated')}
         subtitle={<MethodNote short={t('Value at risk by division, and the share no officer can reach.')} full={t('Value at risk by division, with the share no eligible officer can reach. The second bar is the deployment decision.')} />}
         className="mb-4"
@@ -399,7 +399,7 @@ export default function RevenueProtectionCommandCentre() {
           The concentration bars show where value cannot be reached. This says
           what would fix it, and what the fix is worth — which is the difference
           between a finding and a decision. */}
-      <Card
+      <Card tone="blue"
         title={t('What unblocks the unreachable share')}
         subtitle={<MethodNote short={t('Three reasons, three different remedies — they are not conflated.')} full={t('{0} cases worth {1} cannot be worked this week. They land there for three distinct reasons calling for three different remedies, and conflating them produces the wrong decision.', deployment.unworkableCount, cr(deployment.unworkableValue))} />}
         className="mb-4"
@@ -467,7 +467,7 @@ export default function RevenueProtectionCommandCentre() {
       </div>
 
       {/* ---------- ACTIONS ---------- */}
-      <Card
+      <Card tone="red"
         title={t('Top actions this week, by revenue protected')}
         subtitle={t('Ranked by what the action protects over the next seven days — not by the size of the case.')}
         className="mb-4"
@@ -559,7 +559,7 @@ export default function RevenueProtectionCommandCentre() {
       </Card>
 
       {/* ---------- PENDING ---------- */}
-      <Card
+      <Card tone="yellow"
         title={t('Not yet computable')}
         subtitle={<MethodNote short={t('Left visibly empty rather than filled with plausible figures.')} full={t('Capabilities this screen would normally carry, left visibly empty rather than filled with plausible figures. Each names the input that unblocks it.')} />}
       >

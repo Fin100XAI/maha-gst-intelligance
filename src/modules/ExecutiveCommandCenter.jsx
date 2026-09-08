@@ -406,7 +406,7 @@ export default function ExecutiveCommandCenter() {
 
       {/* Irreversible loss first, then what is still in play. Ordering these by
           rupee value would put the recoverable above the irrecoverable. */}
-      <Card
+      <Card tone="red"
         className="mb-5"
         title={t('What needs a decision today')}
         subtitle={<MethodNote short={t('Each figure is read from the engine that owns the question.')} full={t('{0} of {1} active conditions need a decision at Commissioner level. Each figure below is read from the engine that owns the question, carries the base it is measured against, and states the decision it demands.', BOARD_SUMMARY.commissionerDecisions, conditionCount)} />}
@@ -440,7 +440,7 @@ export default function ExecutiveCommandCenter() {
 
       <Band label={t('Act')} />
 
-      <Card
+      <Card tone="yellow"
         className="mb-5"
         title={t('Can the department act on what it has found?')}
         subtitle={<MethodNote short={t('Establishment, allocation and residual are read from the capacity engine.')} full={t('A finding nobody can work is not a finding. Establishment, allocation and residual are read from the capacity engine — an unused officer-day in one division cannot be spent in another, so aggregate utilisation is the figure to distrust.')} />}
@@ -509,7 +509,7 @@ export default function ExecutiveCommandCenter() {
       {/* Where the work itself is done. This replaced a row of inventory tiles
           that restated, as counts, the same five screens the officer reaches
           from here — the count belongs on the screen that can act on it. */}
-      <Card
+      <Card tone="green"
         className="mb-5"
         title={t('Where these are worked')}
         subtitle={t('Each queue is held and actioned on its own screen, with the count that matters there')}
@@ -535,7 +535,7 @@ export default function ExecutiveCommandCenter() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         {/* Revenue & Finance */}
-        <Card title={t('Revenue & Finance')} subtitle={t('Collection realisation against target, the district book behind it, and exposure locked in non-filing')}>
+        <Card tone="blue" title={t('Revenue & Finance')} subtitle={t('Collection realisation against target, the district book behind it, and exposure locked in non-filing')}>
           <div className="mb-4">
             <div className="flex items-baseline justify-between">
               <span className="text-[11px] font-semibold text-steel-500 uppercase tracking-wide">{t('Revenue Realisation')}</span>
@@ -579,7 +579,7 @@ export default function ExecutiveCommandCenter() {
         </Card>
 
         {/* Audit & Enforcement Pipeline */}
-        <Card
+        <Card tone="red"
           title={t('Audit & Enforcement Pipeline')}
           subtitle={isFilteredView ? t('{0} cases matching filters', filteredAuditCasesFull.length) : t('{0} cases statewide', filteredAuditCasesFull.length)}
           actions={<span className="inline-flex items-center gap-1 text-[11px] font-medium text-steel-400"><Activity className="w-3.5 h-3.5" /> {t('live')}</span>}
@@ -620,7 +620,7 @@ export default function ExecutiveCommandCenter() {
         </Card>
 
         {/* Risk distribution */}
-        <Card title={t('Taxpayer Risk Distribution')} subtitle={isFilteredView ? t('{0} taxpayers matching current filters', filteredTaxpayers.length) : t('{0} taxpayers monitored statewide', filteredTaxpayers.length)}>
+        <Card tone="yellow" title={t('Taxpayer Risk Distribution')} subtitle={isFilteredView ? t('{0} taxpayers matching current filters', filteredTaxpayers.length) : t('{0} taxpayers monitored statewide', filteredTaxpayers.length)}>
           <RiskDonutChart
             data={riskDistribution}
             colors={{ Low: RISK_COLORS.Low.solid, Medium: RISK_COLORS.Medium.solid, High: RISK_COLORS.High.solid, Critical: RISK_COLORS.Critical.solid }}
@@ -629,7 +629,7 @@ export default function ExecutiveCommandCenter() {
       </div>
 
       {/* Revenue & Compliance Health Index — weighted composite, disclosed not hidden */}
-      <Card
+      <Card tone="green"
         className="mb-5"
         title={t('Revenue & Compliance Health Index')}
         subtitle={<MethodNote short={t('Weighted composite across six indicators, with the largest drag named.')} full={t('Weighted composite across six indicators — the single number leadership tracks period to period, with the component carrying the largest drag named rather than left to be found.')} />}
@@ -672,7 +672,7 @@ export default function ExecutiveCommandCenter() {
 
       {/* Executive brief — governed AI layer, generated inline rather than in a modal */}
       <div ref={briefRef}>
-        <Card
+        <Card tone="blue"
           className="mb-5"
           title={t('Commissioner Daily Brief')}
           subtitle={t('Governed AI layer — advisory only. Every finding below states its evidence and confidence.')}

@@ -393,7 +393,7 @@ export default function SectorIntelligence() {
         />
       </div>
 
-      <Card className="mb-6">
+      <Card tone="yellow" className="mb-6">
         <div className="flex items-start gap-3">
           <span className="p-2 rounded-lg bg-steel-100 text-steel-600 shrink-0"><Layers className="w-4 h-4" /></span>
           <div className="text-xs text-steel-600 space-y-1.5">
@@ -408,7 +408,7 @@ export default function SectorIntelligence() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card
+        <Card tone="green"
           title={t('Tax Revenue Collected by Sector')}
           subtitle={t('Tax paid by the {0} taxpayers in scope, ₹{1}L pooled — bar height is absolute, the share of the pool is in the tooltip', pooled.taxpayers, Math.round(pooled.revenue / 100000).toLocaleString('en-IN'))}
         >
@@ -433,7 +433,7 @@ export default function SectorIntelligence() {
           </ResponsiveContainer>
         </Card>
 
-        <Card
+        <Card tone="blue"
           title={t('Observed Behaviour Against the Department Benchmark')}
           subtitle={<MethodNote short={t('The median taxpayer in each sector, against that sector\'s benchmark.')} full={t('Median observed ratio in each sector against the reference benchmark set for that sector — the benchmark alone says nothing until something is measured against it')} />}
           actions={
@@ -463,7 +463,7 @@ export default function SectorIntelligence() {
         </Card>
       </div>
 
-      <Card title={t('Sector Picker')} subtitle={t('Select a sector for a detailed intelligence panel')} className="mb-6">
+      <Card tone="red" title={t('Sector Picker')} subtitle={t('Select a sector for a detailed intelligence panel')} className="mb-6">
         <div className="flex flex-wrap gap-2">
           {sectorStats.map(s => (
             <button
@@ -488,7 +488,7 @@ export default function SectorIntelligence() {
 
       {sectorRecord && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-          <Card title={t('{0} — Sector Profile', sectorRecord.sector)} className="lg:col-span-1">
+          <Card tone="yellow" title={t('{0} — Sector Profile', sectorRecord.sector)} className="lg:col-span-1">
             <div className="grid grid-cols-2 gap-3 text-xs">
               <Stat
                 label={t('Tax to Turnover')}
@@ -573,7 +573,7 @@ export default function SectorIntelligence() {
             </div>
           </Card>
 
-          <Card
+          <Card tone="green"
             title={t('Top Triggered Risk Indicators')}
             subtitle={t('Share of the {0} taxpayers in this sector on which each rule fired', sectorTaxpayersAll.length)}
             className="lg:col-span-1"
@@ -603,7 +603,7 @@ export default function SectorIntelligence() {
             )}
           </Card>
 
-          <Card
+          <Card tone="blue"
             title={t('Top Taxpayers by Risk')}
             subtitle={t('Ranked by their own risk score, respecting global district / risk filters')}
             className="lg:col-span-1"
@@ -636,7 +636,7 @@ export default function SectorIntelligence() {
         </div>
       )}
 
-      <Card
+      <Card tone="red"
         title={t('Cross-Sector Benchmark Table')}
         subtitle={t('Every sector against its own benchmark, its share of the population and its nearest statutory deadline')}
         className="mb-6"
@@ -654,7 +654,7 @@ export default function SectorIntelligence() {
         </div>
       </Card>
 
-      <Card
+      <Card tone="yellow"
         title={t('{0} — Taxpayer Register', selectedSector)}
         subtitle={t('Every taxpayer in this sector with their own ITC ratio against the sector benchmark (respects global filters)')}
       >

@@ -127,7 +127,7 @@ function ProvenanceView({ derived }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card
+        <Card tone="red"
           title={t('Simulated')}
           subtitle={t('{0} classes of record, every one generated from a fixed seed. None of it describes a real taxpayer.', D.simulated.length)}
         >
@@ -141,7 +141,7 @@ function ProvenanceView({ derived }) {
           </ul>
         </Card>
 
-        <Card
+        <Card tone="yellow"
           title={t('Real')}
           subtitle={t('{0} classes of fact, each verified against a published source read on {1}.', D.real.length, D.retrievedOn)}
         >
@@ -158,7 +158,7 @@ function ProvenanceView({ derived }) {
 
       {/* The ratio, computed by the owner of the scale context rather than
         * restated here, so the two screens that show it cannot diverge. */}
-      <Card
+      <Card tone="green"
         title={t('The scale the simulated side is built at')}
         subtitle={t('Modelled counts set against the published ones, so the gap is explicit rather than assumed away.')}
       >
@@ -213,7 +213,7 @@ function LegalView({ derived, verdict }) {
 
   return (
     <div className="space-y-4">
-      <Card
+      <Card tone="blue"
         title={t('Statute and subordinate legislation')}
         subtitle={t('Encoded as computation rather than summarised. The limitation engine computes from these, which is why its output can go into a notice.')}
         padded={false}
@@ -228,7 +228,7 @@ function LegalView({ derived, verdict }) {
       {/* What the four authorities actually decide, and what they are worth to
         * an officer in this state. The verdict is the precedent engine's, read
         * rather than recomputed. */}
-      <Card
+      <Card tone="red"
         title={t('The question these authorities bear on')}
         subtitle={t('{0} authorities, {1} of them decided and binding on a Maharashtra authority.', JUDICIAL_SOURCES.length, verdict.bindingCount)}
       >
@@ -245,7 +245,7 @@ function LegalView({ derived, verdict }) {
         <p className="text-[11.5px] text-steel-600 leading-relaxed mt-2.5">{t(q.whyItMatters)}</p>
       </Card>
 
-      <Card
+      <Card tone="yellow"
         title={t('Judicial authority')}
         subtitle={<MethodNote short={t('Verified against published reports. An unconfirmed case name is left blank.')} full={t('Verified against published reports. Where only a holding could be confirmed, the case name is left blank rather than invented, and each row states the forum, whether it binds here and whether it still stands.')} />}
         padded={false}
@@ -296,7 +296,7 @@ function DataView({ derived }) {
 
   return (
     <div className="space-y-4">
-      <Card
+      <Card tone="green"
         title={t('Official published sources')}
         subtitle={<MethodNote short={t('The figures themselves are held in Official Statistics, nowhere else.')} full={t('{0} sources, from which {1} figures published by {2} publishers have been transcribed. The figures themselves are held in Official Statistics and appear nowhere else.', OFFICIAL_SOURCES.length, derived.figureCount, derived.publisherCount)} />}
         padded={false}
@@ -315,7 +315,7 @@ function DataView({ derived }) {
       </Card>
 
       {DATASET_POINTER_LIST.length > 0 && (
-        <Card
+        <Card tone="blue"
           title={t('Dataset pointers held without values')}
           subtitle={<MethodNote short={t('The endpoints returned HTTP 403, so no figure was inferred from them.')} full={t('{0} pointers, {1} figures inferred from them. The endpoints returned HTTP 403 when fetched, and guessing at their contents would have been worse than leaving them empty.', DATASET_POINTER_LIST.length, derived.inferredFromPointers)} />}
         >
@@ -346,7 +346,7 @@ function DataView({ derived }) {
 
 function MethodView({ derived }) {
   return (
-    <Card
+    <Card tone="red"
       title={t('Statistical and algorithmic methods')}
       subtitle={<MethodNote short={t('A method whose failure mode is not stated is one nobody can audit.')} full={t('{0} of {1} state the way they fail. A method whose failure mode is not stated is a method nobody can audit — and each names the screen that spends it, so a disputed figure can be traced to the method behind it.', derived.methodsWithFailure, METHODS.length)} />}
       padded={false}
@@ -384,7 +384,7 @@ function MethodView({ derived }) {
 function SoftwareView({ derived }) {
   return (
     <div className="space-y-4">
-      <Card
+      <Card tone="yellow"
         title={t('Software')}
         subtitle={<MethodNote short={t('Every version pinned. No call to the open internet at run time.')} full={t('{0} packages under {1} licences, every version pinned. The platform makes no call to the open internet for its figures, models or maps, and runs entirely within the department’s own infrastructure.', SOFTWARE.length, derived.licences.length)} />}
         padded={false}

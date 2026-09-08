@@ -316,7 +316,7 @@ export default function ComplianceEarlyWarning() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-        <Card
+        <Card tone="red"
           title={t('How long the unresolved queue has been waiting')}
           subtitle={t('{0} unresolved alerts, banded by age. The band an alert falls into decides what should happen to it, not the alert type.', kpis.openCount)}
         >
@@ -347,7 +347,7 @@ export default function ComplianceEarlyWarning() {
           />
           <MethodNote className="text-[11.5px] text-steel-500 leading-relaxed mt-3" short={t('Summed over taxpayers, not alerts — most carry more than one signal.')} full={t('Exposure is summed over distinct taxpayers, not over alerts — most taxpayers here carry more than one signal, and summing per alert would count the same entity several times.')} />
         </Card>
-        <Card
+        <Card tone="yellow"
           title={t('Alert inflow')}
           subtitle={<MethodNote short={t('A rising inflow against a static resolution rate is a staffing signal.')} full={t('Alerts raised per 8-day period over the last ~48 days, out of {0} in scope. A rising inflow against a static resolution rate is a staffing signal, not a risk one.', kpis.total)} />}
         >
@@ -359,7 +359,7 @@ export default function ComplianceEarlyWarning() {
         </Card>
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('Alert types — what each is worth and what to do about it')}
         subtitle={t('{0} of the {1} signal types are firing in the current scope, ranked by the exposure behind them rather than by count.', typeBreakdown.length, EARLY_WARNING_TYPES.length)}
         className="mb-5"
@@ -423,7 +423,7 @@ export default function ComplianceEarlyWarning() {
       )}
 
       {/* Alert feed */}
-      <Card
+      <Card tone="blue"
         title={t('Early Warning Alert Feed')}
         subtitle={t('Showing {0} of {1} alerts in scope. Sort by age to find the ones the outreach never reached.', locallyFiltered.length, globallyFiltered.length)}
         className="mb-5"
@@ -447,7 +447,7 @@ export default function ComplianceEarlyWarning() {
       </Card>
 
       {/* Officer review queue */}
-      <Card
+      <Card tone="red"
         title={t('Officer Review Queue')}
         subtitle={t('Alerts currently under officer review — status updates are local to this session')}
         actions={<span className="inline-flex items-center gap-1 text-[11px] text-steel-500"><Users2 className="w-3.5 h-3.5" /> {t('{0} in queue', reviewQueue.length)}</span>}

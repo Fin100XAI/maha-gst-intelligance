@@ -392,7 +392,7 @@ export default function ReportsBriefingNotes() {
           const basis = meta ? SCOPE_BASIS[meta.basis] : null
           const count = scopeCount(report.id, scope)
           return (
-            <Card key={report.id} className="flex flex-col">
+            <Card tone="green" key={report.id} className="flex flex-col">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="p-1.5 rounded-lg bg-navy-50 border border-navy-100">

@@ -92,7 +92,7 @@ export default function OfficerAICopilot() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
         {/* Case selection */}
-        <Card padded={false} className="h-fit">
+        <Card tone="green" padded={false} className="h-fit">
           <div className="p-3 border-b border-steel-100">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-steel-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -174,7 +174,7 @@ export default function OfficerAICopilot() {
               one place rather than scattered across seven screens. */}
           {active && <ActionBrief gstin={active} />}
 
-          <Card
+          <Card tone="blue"
             title={t('Ask about this case')}
             subtitle={<MethodNote short={t('The rest are declined, naming the feed that would answer them.')} full={t('{0} of {1} questions can be answered from the record as the platform is connected today; {2} of {3} source systems are live in this environment. The rest are declined, and the refusal names the feed that would answer them.', coverage.grounded, coverage.questions, coverage.liveFeeds, coverage.totalFeeds)} />}
           >
@@ -202,7 +202,7 @@ export default function OfficerAICopilot() {
           </Card>
 
           {asked.length === 0 && (
-            <Card>
+            <Card tone="red">
               <div className="flex items-start gap-2.5 text-[12.5px] text-steel-600 leading-relaxed">
                 <Sparkles className="w-4 h-4 text-steel-400 shrink-0 mt-0.5" />
                 <span>{t('Select a question above. Answers are assembled from the case record — nothing here is generated, and nothing is asserted without a citation.')}</span>
@@ -232,7 +232,7 @@ function GroundedAnswer({ a }) {
   const live = cited.filter(s => SOURCE_SYSTEMS[s] && SOURCE_SYSTEMS[s].connected)
 
   return (
-    <Card
+    <Card tone="yellow"
       title={t(a.question)}
       subtitle={t('{0} statement(s) citing {1} system(s), of which {2} are live feeds in this environment — the rest are demonstration records.', a.statements.length, cited.length, live.length)}
       padded={false}

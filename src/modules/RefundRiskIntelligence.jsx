@@ -342,7 +342,7 @@ export default function RefundRiskIntelligence() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
-        <Card
+        <Card tone="green"
           title={t('Refund intensity by sector, against that sector’s benchmark')}
           subtitle={<MethodNote short={t('A positive gap on few claims is variance — read the claim count with it.')} full={t('Bar height is the gap in percentage points between the ratio claimed and the sector benchmark. A positive gap on a sector carrying few claims is variance, not a finding — read the claim count alongside it.')} />}
         >
@@ -381,7 +381,7 @@ export default function RefundRiskIntelligence() {
             <div className="text-xs text-steel-500 py-10 text-center">{t('No refund cases match the current filters.')}</div>
           )}
         </Card>
-        <Card
+        <Card tone="blue"
           title={t('Claims by multiple of the sector benchmark')}
           subtitle={<MethodNote short={t('Bands are relative to each sector, which runs from 1% to 21%.')} full={t('Bands are relative to the claimant’s own sector, not absolute. The benchmark refund ratio runs from 1% to 21% across these sectors, so a flat percentage band would put an ordinary exporter and an extreme domestic claim in the same bucket.')} />}
         >
@@ -409,7 +409,7 @@ export default function RefundRiskIntelligence() {
         </Card>
       </div>
 
-      <Card
+      <Card tone="red"
         title={t('Refund Case Register')}
         subtitle={t('{0} claims in scope. Median claim has been pending {1} days since filing; the oldest, {2} days.', filteredCases.length, kpis.medianDaysPending, kpis.oldestDaysPending)}
         actions={<HumanReviewBadge label={t('Officer Review Required')} />}

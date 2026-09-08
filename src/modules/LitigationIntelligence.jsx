@@ -315,7 +315,7 @@ export default function LitigationIntelligence() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card
+        <Card tone="blue"
           title={t('Where the exposure sits in the appeal ladder')}
           subtitle={t('First appeal, second appeal, then the three ways a proceeding ends. Exposure is the amount in dispute at each rung, as a share of ₹{0} Cr in scope.', summary.disputedCr)}
         >
@@ -334,7 +334,7 @@ export default function LitigationIntelligence() {
           />
         </Card>
 
-        <Card
+        <Card tone="red"
           title={t('Case ageing against the money it holds')}
           subtitle={t('Bars are the amount in dispute, not the number of cases — an old case decides nothing until you know what is riding on it.')}
         >
@@ -363,7 +363,7 @@ export default function LitigationIntelligence() {
         </Card>
       </div>
 
-      <Card
+      <Card tone="yellow"
         title={t('Legal issues, by amount at stake and how they have ended')}
         subtitle={t('Ranked by the money in dispute rather than by how often the issue appears. Outcomes are counts against the concluded total; no rate is computed here.')}
         className="mb-6"
@@ -386,7 +386,7 @@ export default function LitigationIntelligence() {
         />
       </Card>
 
-      <Card
+      <Card tone="green"
         title={t('Where weak positions cluster, and what they cost')}
         subtitle={t('Positions recorded on the case file at assessment, weighted by the amount in dispute behind them')}
         className="mb-6"
@@ -413,7 +413,7 @@ export default function LitigationIntelligence() {
         </div>
       </Card>
 
-      <Card title={t('Litigation Case Register')} subtitle={t('Respects global district / division / sector / risk / date filters')}>
+      <Card tone="blue" title={t('Litigation Case Register')} subtitle={t('Respects global district / division / sector / risk / date filters')}>
         <DataTable columns={columns} rows={filteredCases} onRowClick={c => setSelectedCase(c)} searchPlaceholder={t('Search case, GSTIN, trade name...')} />
       </Card>
 

@@ -356,7 +356,7 @@ export default function AuditScrutinyEngine() {
         }}
       />
 
-      <Card
+      <Card tone="red"
         title={t('Risk-Ranked Case List')}
         subtitle={<MethodNote short={t('Risk decides the order; the statutory clock decides whether it is worth working.')} full={t('Sorted by risk score, descending. Risk decides the order; the statutory clock decides whether the order is worth working — sort on it to see which cases the calendar is about to close.')} />}
         className="mb-6"
@@ -370,7 +370,7 @@ export default function AuditScrutinyEngine() {
         />
       </Card>
 
-      <Card
+      <Card tone="yellow"
         title={t('Audit Workflow Pipeline')}
         subtitle={<MethodNote short={t('A stage is a bottleneck when value and expiring cases pile up in it.')} full={t('Stage tracking with what each stage is holding. A column is a bottleneck when value and expiring cases accumulate in it — a case count on its own cannot show that.')} />}
       >

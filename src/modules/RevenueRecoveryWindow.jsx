@@ -316,7 +316,7 @@ export default function RevenueRecoveryWindow() {
         />
       </div>
 
-      <Card
+      <Card tone="yellow"
         className="mb-6"
         title={t('The Recovery Curve')}
         subtitle={t('Recoverability falls with signal age (line). Bars show where the department’s exposure is actually sitting.')}
@@ -334,7 +334,7 @@ export default function RevenueRecoveryWindow() {
 
       {/* ---- The lag, split into the part that can be fixed and the part that cannot ---- */}
       {lag && (
-        <Card
+        <Card tone="green"
           className="mb-6"
           title={t('Where The Lag Comes From')}
           subtitle={<MethodNote short={t('Two delays, not one: the detection floor, and the wait after it.')} full={t('A median lag of {0} days is not one problem. It is a detection floor imposed by the return cycle plus time the case spent waiting after it became visible — and only the second is inside the department’s control this quarter.',
@@ -380,7 +380,7 @@ export default function RevenueRecoveryWindow() {
         </Card>
       )}
 
-      <Card
+      <Card tone="blue"
         className="mb-6"
         title={t('Where The Exposure Sits')}
         subtitle={t('Each band states why recovery falls off across it — the percentages are a calibration of that reasoning, not a measurement.')}
@@ -419,7 +419,7 @@ export default function RevenueRecoveryWindow() {
       </Card>
 
       {/* ---- The operational payoff: same officers, different ordering ---- */}
-      <Card
+      <Card tone="red"
         className="mb-6"
         title={t('Ordering — what the same week buys')}
         subtitle={<MethodNote short={t('Two orderings over one week. The only variable is the order of work.')} full={t('A like-for-like comparison of two orderings over one week of work — the only variable changed is the order cases are worked in. Computed on the full statewide case set: this comparison is not narrowed by the header filters. Establishment and eligibility are modelled properly in Officer Capacity & Deployment; this screen isolates the effect of ordering alone and should not be read as a capacity plan.')} />}
@@ -446,7 +446,7 @@ export default function RevenueRecoveryWindow() {
       </Card>
 
       {strandedByScore.length > 0 && (
-        <Card
+        <Card tone="yellow"
           className="mb-6"
           title={t('Cases A Score-Ranked Queue Leaves Behind')}
           subtitle={t('Largest positions gained when the queue is re-ordered by value at risk')}
@@ -479,7 +479,7 @@ export default function RevenueRecoveryWindow() {
         </Card>
       )}
 
-      <Card
+      <Card tone="green"
         className="mb-6"
         title={t('Case Queue')}
         subtitle={isFiltered ? t('Respects the header filters — {0} of {1} cases', cases.length, RECOVERY_CASES.length) : t('All {0} flagged cases in the recovery window', cases.length)}
@@ -511,7 +511,7 @@ export default function RevenueRecoveryWindow() {
 
       {/* ---- Why the curve falls: the chain keeps moving while the case waits ---- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <Card
+        <Card tone="blue"
           title={t('Why The Curve Falls — Chain Propagation')}
           subtitle={<MethodNote short={t('Credit moves downstream hop by hop; once utilised it cannot be blocked.')} full={t('Exposure is never one taxpayer. Credit moves downstream and is utilised hop by hop; once utilised it can no longer be blocked, only recovered. Statewide across all clusters — this panel is not narrowed by the header filters.')} />}
         >
@@ -552,7 +552,7 @@ export default function RevenueRecoveryWindow() {
           </div>
         </Card>
 
-        <Card
+        <Card tone="red"
           title={t('The Left Edge — Registration Screening')}
           subtitle={<MethodNote short={t('The cheapest point on the curve — checkable on the day of application.')} full={t('The cheapest point on the curve. These indicators are checkable on the day of application rather than reconstructed from invoice flow a year later. Statewide across all new registrations — this panel is not narrowed by the header filters.')} />}
         >
@@ -603,7 +603,7 @@ export default function RevenueRecoveryWindow() {
         </Card>
       </div>
 
-      <Card
+      <Card tone="yellow"
         title={t('Why The Lag Exists')}
         subtitle={t('Each of these is structural — a property of how the return cycle and the case workflow are built, not a failure of effort or of detection.')}
         padded={false}

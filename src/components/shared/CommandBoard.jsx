@@ -23,7 +23,7 @@ export function CommandBoard({ onOpen }) {
   const lostPct = (B.irreversibleValue / total) * 100
 
   return (
-    <Card
+    <Card tone="blue"
       title={t('Active conditions')}
       subtitle={t('Grouped by irreversibility, not by value. {0} of the {1} need a decision at Commissioner level.', B.commissionerDecisions, CONDITIONS.length)}
     >

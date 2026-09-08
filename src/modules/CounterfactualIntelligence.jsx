@@ -114,7 +114,7 @@ export default function CounterfactualIntelligence() {
       </div>
 
       {/* Portfolio split — two owners, two fixes. */}
-      <Card
+      <Card tone="blue"
         title={t('Where the lag sits across the portfolio')}
         subtitle={t('Two parts, kept apart, because they have different owners and different fixes.')}
         className="mb-4"
@@ -154,7 +154,7 @@ export default function CounterfactualIntelligence() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
-        <Card padded={false} className="h-fit">
+        <Card tone="red" padded={false} className="h-fit">
           <div className="p-3 border-b border-steel-100">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-steel-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -235,7 +235,7 @@ function CaseCounterfactual({ cf }) {
 
       {/* The two lags, separately owned, on this one case. Blending them into a
           single "lag" figure would hide which of the two to fix. */}
-      <Card
+      <Card tone="yellow"
         title={t('Where this case’s lag came from')}
         subtitle={t('Reported in two parts because they have different owners. The total is {0} days from the behaviour to the day the case was worked.', cf.totalLagDays)}
       >
@@ -270,7 +270,7 @@ function CaseCounterfactual({ cf }) {
       </Card>
 
       {/* Four worlds, same action. */}
-      <Card
+      <Card tone="green"
         title={t('The same action, taken on four different days')}
         subtitle={t('Each bar is the recovery curve evaluated at that day, against an exposure of {0}. None of them models a different action.', lakh(cf.exposure))}
       >
@@ -311,7 +311,7 @@ function CaseCounterfactual({ cf }) {
       </Card>
 
       {/* The evidence behind the comparison. */}
-      <Card
+      <Card tone="blue"
         title={t('Comparable concluded proceedings')}
         subtitle={t('The evidence driving the comparison — concluded cases comparable on the dimensions that decide outcomes, with what actually happened in each.')}
       >

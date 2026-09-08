@@ -427,7 +427,7 @@ export default function DistrictDivisionPerformance() {
         />
       </div>
 
-      <Card
+      <Card tone="yellow"
         title={t('District Severity Heatmap')}
         subtitle={t('Threshold-based shading — not a taxpayer risk score')}
         className="mb-6"
@@ -481,7 +481,7 @@ export default function DistrictDivisionPerformance() {
         </div>
       </Card>
 
-      <Card
+      <Card tone="green"
         title={t('Peer-Relative Deviation')}
         subtitle={t('Each district against the median of all {0} districts, scaled by median absolute deviation', DISTRICT_REVENUE.length)}
         className="mb-6"
@@ -538,7 +538,7 @@ export default function DistrictDivisionPerformance() {
             return n && n.median != null ? m.fmt(r1(n.median)) : '—'
           }
           return (
-            <Card key={d.district} padded={false} className="overflow-hidden">
+            <Card tone="blue" key={d.district} padded={false} className="overflow-hidden">
               <button onClick={() => setSelectedDistrict(d)} className="w-full text-left p-4 hover:bg-steel-50/60 transition-colors">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
@@ -602,7 +602,7 @@ export default function DistrictDivisionPerformance() {
         )}
       </div>
 
-      <Card
+      <Card tone="red"
         title={t('Non-Filer Compliance Rate')}
         subtitle={t('A parameter this platform cannot currently answer')}
         className="mb-6"
@@ -617,7 +617,7 @@ export default function DistrictDivisionPerformance() {
         </div>
       </Card>
 
-      <Card
+      <Card tone="yellow"
         title={t('Division Collection Ranking')}
         subtitle={t('Target, actual and the share of each shortfall that enforcement recovered')}
         className="mb-6"
@@ -671,7 +671,7 @@ export default function DistrictDivisionPerformance() {
         <MethodNote className="text-[11px] text-steel-500 mt-3" short={t('Recovery covers is audit recovery against that division\'s own shortfall.')} full={t('{0} divisions covering {1} districts across Maharashtra. "Recovery covers" is audit recovery as a share of that division’s own collection shortfall — a division above target has no shortfall to cover and is shown as n/a rather than as a perfect score. The risk-taxpayer column follows the current filter scope; every other column does not.', DIVISIONS.length, DISTRICT_REVENUE.length)} />
       </Card>
 
-      <Card
+      <Card tone="green"
         title={t('Division Deadlines & Capacity to Act')}
         subtitle={t('What is about to expire in each division, and what one more officer-week there would actually buy')}
         className="mb-6"

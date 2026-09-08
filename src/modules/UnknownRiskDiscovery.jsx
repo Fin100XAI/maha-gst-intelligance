@@ -131,7 +131,7 @@ export default function UnknownRiskDiscovery() {
 
       {SILENCE_EXPLAINED.silent ? <NullResult closest={closest} /> : <Findings rows={shown} />}
 
-      <Card
+      <Card tone="blue"
         title={t('Who was actually measured')}
         subtitle={t('{0} of the {1} screened taxpayers were scored against a peer norm. The remaining {2} were not — the answer for them is "unknown", not "clean".', coverage.assessed, coverage.screened, coverage.unassessed)}
         className="mt-4"
@@ -158,7 +158,7 @@ export default function UnknownRiskDiscovery() {
         )}
       </Card>
 
-      <Card title={t('Method')} className="mt-4">
+      <Card tone="red" title={t('Method')} className="mt-4">
         <MethodNote className="mb-3" short={t('Each ratio against the median of the taxpayer’s own sector, on a modified z.')} full={t(DISCOVERY_METHOD_NOTE)} />
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{t('Peer coverage')}</div>
@@ -169,7 +169,7 @@ export default function UnknownRiskDiscovery() {
         </div>
       </Card>
 
-      <Card title={t('What this cannot do')} className="mt-4">
+      <Card tone="yellow" title={t('What this cannot do')} className="mt-4">
         <ul className="space-y-2">
           {DISCOVERY_LIMITS.map((l, i) => (
             <li key={i} className="flex items-start gap-2 text-[12.5px] text-steel-700 leading-relaxed">
@@ -200,7 +200,7 @@ function NullResult({ closest }) {
       </div>
 
       {/* The proof, computed rather than asserted. */}
-      <Card title={t('Why — the rulebook has already claimed the extreme tail')} subtitle={t(SILENCE_EXPLAINED.proof)}>
+      <Card tone="green" title={t('Why — the rulebook has already claimed the extreme tail')} subtitle={t(SILENCE_EXPLAINED.proof)}>
         <DataTable
           columns={[
             {
@@ -252,7 +252,7 @@ function NullResult({ closest }) {
         <MethodNote className="text-[12px] text-steel-600 leading-relaxed mt-2" short={t('How narrow the miss is does not change what should be done with it.')} full={t('The nearest miss is {0}, where the most extreme unflagged taxpayer reaches {1} — {2} below the cut. How narrow that gap is does not change what should be done with it. The threshold is the Iglewicz–Hoaglin convention, not a dial set to whatever makes this screen produce output, and moving it far enough to catch a near miss would report every ordinary business at that same distance from its peers as a discovery.', t(closest.feature), closest.maxZ, closest.shortfall)} />
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('What would make this screen productive')}
         subtitle={t('The method is implemented and calibrated. What it lacks is a feature the rulebook does not already encode.')}
       >
@@ -287,7 +287,7 @@ function Findings({ rows = DISCOVERIES }) {
         <p className="text-[12.5px] text-navy-800 leading-relaxed">{t(DISCOVERY_CAVEAT)}</p>
       </div>
 
-      <Card
+      <Card tone="red"
         title={t('Recurring patterns — candidate rules')}
         subtitle={t('The same deviation signature across several unflagged taxpayers. This, rather than any individual case, is the discovery worth acting on.')}
       >
@@ -316,7 +316,7 @@ function Findings({ rows = DISCOVERIES }) {
         </div>
       </Card>
 
-      <Card
+      <Card tone="yellow"
         title={t('Individual review candidates')}
         subtitle={t('{0} taxpayers, each invisible to all nine encoded rules. {1} carry a signature seen only once, which is an anecdote rather than a pattern.', DISCOVERIES.length, SINGLETON_PATTERNS.length)}
       >

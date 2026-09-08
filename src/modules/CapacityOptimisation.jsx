@@ -158,7 +158,7 @@ function AllocationView({ R }) {
 
       {/* The counter-argument to "there is slack, redeploy it". There is slack;
           it is not reachable, and this says exactly why. */}
-      <Card
+      <Card tone="green"
         title={t('Where the unspent capacity sits')}
         subtitle={<MethodNote short={t('An unspent day is not a spare day.')} full={t('{0} of {1} officer-days went unspent while {2} cases could not be worked. An unspent day is not a spare day: it either sits in a division with no waiting caseload, or is shorter than the smallest case still waiting in its pool.', load.strandedDays, R.totalSupplyDays, R.unworkableCount)} />}
       >
@@ -190,7 +190,7 @@ function AllocationView({ R }) {
       </Card>
 
       {/* Quality of the allocation, stated as a bound rather than a claim. */}
-      <Card
+      <Card tone="blue"
         title={t('How good is this allocation?')}
         subtitle={<MethodNote short={t('A greedy heuristic, measured against a bound rather than claimed optimal.')} full={t('Generalised assignment is NP-hard. This is a greedy heuristic, and rather than assert optimality it is measured against a bound that is unreachable by construction.')} />}
       >
@@ -205,7 +205,7 @@ function AllocationView({ R }) {
         </div>
       </Card>
 
-      <Card
+      <Card tone="red"
         title={t('Allocation for the coming week')}
         subtitle={<MethodNote short={t('Limitation-critical work was placed first, by expiry date, not by value.')} full={t('Limitation-critical cases were placed first and ordered by expiry date, not by value. Everything else competed for the capacity that survived, ranked by recoverable value per officer-day.')} />}
       >
@@ -289,7 +289,7 @@ function ResidualView({ R }) {
       {byReason.map(g => {
         const meta = RESIDUAL_REASONS[g.reason]
         return (
-          <Card
+          <Card tone="yellow"
             key={g.reason}
             title={t(meta.label)}
             subtitle={t('{0} of the {1} unreachable cases · {2} of recoverable value at stake · {3} officer-days would be needed to clear them', g.cases.length, R.unworkableCount, cr(g.value), Math.round(g.days * 10) / 10)}
@@ -335,7 +335,7 @@ function ResidualView({ R }) {
       })}
 
       {R.barredExcluded.length > 0 && (
-        <Card
+        <Card tone="green"
           title={t('Excluded before allocation — already time-barred')}
           subtitle={<MethodNote short={t('Time-barred: no demand can be raised, so an officer-day here returns nothing.')} full={t('{0} cases carrying {1} of exposure, and {2} officer-days of work that was released to live cases. Not a capacity problem and deliberately not competing for officer days: no demand can lawfully be raised, so an officer-day spent here returns nothing.', R.barredExcluded.length, cr(barred.exposure), barred.days)} />}
         >
@@ -367,7 +367,7 @@ function BindingView({ R }) {
       {/* A pool with no eligible officer at all is the strongest finding here:
           no amount of scheduling reaches it. */}
       {gaps.length > 0 && (
-        <Card
+        <Card tone="blue"
           title={t('Deployment gaps — no eligible officer posted at all')}
           subtitle={<MethodNote short={t('Scheduling cannot reach these — only a posting or a jurisdictional change.')} full={t('{0} division-and-case-type pools have caseload but nobody who may lawfully take it. Scheduling cannot reach these; only a posting or a jurisdictional reassignment can.', gaps.length)} />}
         >
@@ -393,7 +393,7 @@ function BindingView({ R }) {
         </Card>
       )}
 
-      <Card
+      <Card tone="red"
         title={t('Capacity pools, most oversubscribed first')}
         subtitle={<MethodNote short={t('Pooled at the level an officer-week can actually be moved.')} full={t('Pooled by division and case type, because that is the granularity at which an officer-week can actually be moved. Subscription is demand-days divided by supply-days — above 1.00 the pool cannot clear its caseload however well it is scheduled.')} />}
       >
@@ -440,7 +440,7 @@ function BindingView({ R }) {
         />
       </Card>
 
-      <Card
+      <Card tone="yellow"
         title={t('Marginal value of the next officer-week')}
         subtitle={<MethodNote short={t('Computed from the cases that would actually become reachable, not an average.')} full={t('Computed from the specific cases that would become reachable, best value-per-day first — not from a pool average. This is the figure that answers where the next posting should go.')} />}
       >
@@ -467,7 +467,7 @@ function BindingView({ R }) {
 
       {/* Every input is a policy choice, exposed so it can be argued with
           rather than buried in the model. */}
-      <Card title={t('Assumptions behind this allocation')} subtitle={t('Policy inputs, not measurements. Each one changes the answer, so each is stated rather than embedded.')}>
+      <Card tone="green" title={t('Assumptions behind this allocation')} subtitle={t('Policy inputs, not measurements. Each one changes the answer, so each is stated rather than embedded.')}>
         <div className="divide-y divide-steel-100">
           {CAPACITY_ASSUMPTIONS.map(a => (
             <div key={a.id} className="py-2.5 flex items-start gap-3">
@@ -479,7 +479,7 @@ function BindingView({ R }) {
         </div>
       </Card>
 
-      <Card title={t('Eligibility rules')} subtitle={t('The hard constraint. Division is territorial and absolute; role determines the case type an officer may take.')}>
+      <Card tone="blue" title={t('Eligibility rules')} subtitle={t('The hard constraint. Division is territorial and absolute; role determines the case type an officer may take.')}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {Object.entries(CASE_TYPES).map(([key, def]) => (
             <div key={key} className="rounded-lg border border-steel-200 bg-white px-3.5 py-3">

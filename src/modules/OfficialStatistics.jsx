@@ -97,7 +97,7 @@ export default function OfficialStatistics() {
         </div>
       </div>
 
-      <Card
+      <Card tone="green"
         className="mb-6"
         title={t('Published figures')}
         subtitle={t('{0} figures over {1} scopes, read on {2}. Each links to the publication that states it and carries the exact date it speaks to.', OFFICIAL_FIGURES.length, D.scopes.length, OFFICIAL_RETRIEVED_ON)}
@@ -134,7 +134,7 @@ export default function OfficialStatistics() {
         </div>
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('Sources not yet transcribed')}
         subtitle={t('{0} sources named as authoritative but not read into the platform. Listed with no figures attached — an unread source gets a link, never an estimate.', DATASET_POINTERS.length)}
         padded={false}

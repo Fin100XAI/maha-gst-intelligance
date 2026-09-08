@@ -24,7 +24,7 @@ export function ComparableCases({ gstin }) {
   if (!r) return null
 
   return (
-    <Card
+    <Card tone="yellow"
       title={t('Comparable concluded proceedings')}
       subtitle={t('Drawn from the {0} proceedings in the department’s record that have actually concluded and carry an outcome.', r.poolSize)}
       padded={false}

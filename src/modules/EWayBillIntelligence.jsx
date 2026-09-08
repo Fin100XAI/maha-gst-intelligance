@@ -399,7 +399,7 @@ export default function EWayBillIntelligence() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
-        <Card
+        <Card tone="red"
           title={t('Unmatched movement value by period')}
           subtitle={<MethodNote short={t('Total movement follows trade; the unmatched share is what to act on.')} full={t('Value with no matching filed return, against a total of ₹{0} L moved in scope. Total movement rises and falls with trade; the unmatched share is what an officer is being asked to act on.', kpis.totalValueLakh.toFixed(1))} />}
         >
@@ -414,7 +414,7 @@ export default function EWayBillIntelligence() {
             <div className="text-xs text-steel-500 py-10 text-center">{t('No e-way bill records match the current filters.')}</div>
           )}
         </Card>
-        <Card
+        <Card tone="yellow"
           title={t('District-wise unmatched rate')}
           subtitle={<MethodNote short={t('A district below the statewide rate is not a priority, whatever its volume.')} full={t('Share of each district’s consignments with no matching return. The statewide rate is {0}% — a district below it is not a priority however many records it carries.', kpis.stateUnmatchedPct)} />}
         >
@@ -434,7 +434,7 @@ export default function EWayBillIntelligence() {
         </Card>
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('Taxpayers ranked by unmatched movement')}
         subtitle={t('{0} taxpayers with at least one unmatched, cancelled or flagged consignment, ranked by the value with no return behind it.', taxpayerRollup.length)}
         className="mb-6"
@@ -453,7 +453,7 @@ export default function EWayBillIntelligence() {
         </div>
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('Consignment register')}
         subtitle={<MethodNote short={t('Use this to check one movement; use the ranking above to decide who to open.')} full={t('{0} of {1} records in scope carry an anomaly flag, a cancellation, or no matching return. Use this to check a specific movement; use the ranking above to decide who to open.', suspiciousRecords.length, kpis.recordCount)} />}
         className="mb-6"
@@ -466,7 +466,7 @@ export default function EWayBillIntelligence() {
         />
       </Card>
 
-      <Card title={t('AI-Generated Movement Mismatch Summary')} subtitle={t('Synthesized narrative for the highest-anomaly taxpayer in the current filter set')}>
+      <Card tone="red" title={t('AI-Generated Movement Mismatch Summary')} subtitle={t('Synthesized narrative for the highest-anomaly taxpayer in the current filter set')}>
         {movementMismatchSummary ? (
           <AIOutputPanel output={movementMismatchSummary} />
         ) : (

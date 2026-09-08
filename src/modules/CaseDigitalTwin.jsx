@@ -138,7 +138,7 @@ export default function CaseDigitalTwin() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
         {/* ---- Index rail ---- */}
-        <Card padded={false} className="h-fit">
+        <Card tone="red" padded={false} className="h-fit">
           <div className="p-3 border-b border-steel-100">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-steel-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
@@ -233,7 +233,7 @@ export default function CaseDigitalTwin() {
             {/* One exposure, one legal position — side by side, because an officer
                 weighs them together and today has to open two systems to do it. */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card title={t('Position')} subtitle={t('What is at stake, what remains of it, and what the delay is costing')}>
+              <Card tone="yellow" title={t('Position')} subtitle={t('What is at stake, what remains of it, and what the delay is costing')}>
                 <div className="grid grid-cols-2 gap-3">
                   <Figure
                     label={t('Estimated exposure')}
@@ -291,7 +291,7 @@ export default function CaseDigitalTwin() {
                 )}
               </Card>
 
-              <Card title={t('Legal position')} subtitle={t('The statutory clock on this proceeding')}>
+              <Card tone="green" title={t('Legal position')} subtitle={t('The statutory clock on this proceeding')}>
                 {twin.legal ? (
                   <div>
                     <div className="flex items-baseline gap-2">
@@ -350,7 +350,7 @@ export default function CaseDigitalTwin() {
             </div>
 
             {/* The chronology — the thing an officer today rebuilds by hand. */}
-            <Card
+            <Card tone="blue"
               title={t('Unified chronology')}
               subtitle={t('{0} events merged from {1} systems. Today this is reconstructed by hand from each system in turn.', twin.chronology.length, activity.systemCount)}
               padded={false}
@@ -389,7 +389,7 @@ export default function CaseDigitalTwin() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card
+              <Card tone="red"
                 title={t('Proceedings on record')}
                 subtitle={t('Each count carries the part that is still live — a closed proceeding decides nothing today.')}
                 padded={false}
@@ -449,7 +449,7 @@ export default function CaseDigitalTwin() {
               {/* Coverage is stated honestly — a section that is empty because a
                   feed is absent must not read as a section that is empty because
                   the taxpayer has no record. */}
-              <Card
+              <Card tone="yellow"
                 title={t('Source coverage')}
                 subtitle={t('{0} of {1} systems contributed a fact to this twin — and {2} of the {1} are not integrated in this build, so what they contributed is a generated stand-in.', coverage.contributed, coverage.total, coverage.absent)}
                 padded={false}
@@ -487,7 +487,7 @@ export default function CaseDigitalTwin() {
             <HumanReviewBadge label={t('A unified view is decision support — verify against the source record before acting')} />
           </div>
         ) : (
-          <Card><p className="text-sm text-steel-500">{t('No cases match the current filters.')}</p></Card>
+          <Card tone="green"><p className="text-sm text-steel-500">{t('No cases match the current filters.')}</p></Card>
         )}
       </div>
     </div>

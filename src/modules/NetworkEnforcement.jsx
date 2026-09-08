@@ -187,7 +187,7 @@ function WhereView() {
         <p className="text-[12px] text-steel-700 leading-relaxed">{t(CUT_METHOD_NOTE)}</p>
       </div>
 
-      <Card
+      <Card tone="green"
         title={t('Which chain first')}
         subtitle={<MethodNote short={t('Ranked by blockable value — but only workable where an officer can act.')} full={t('Ranked by blockable value. A chain is only workable this week if its cut point sits in a division with an officer who may act — the last two columns decide that, and they override the first.')} />}
       >
@@ -269,7 +269,7 @@ function WhereView() {
       </Card>
 
       {NETWORK_PLANS.map(p => (
-        <Card
+        <Card tone="blue"
           key={p.id}
           title={t('{0} — {1} entities', p.id, p.entityCount)}
           subtitle={t('{0} still blockable ({1}% of this chain’s credit; {2} already utilised) of {3} that moved through the chain · signal age {4} days · {5} divisions',
@@ -410,7 +410,7 @@ function CanView({ S }) {
         <p className="text-[12px] text-steel-700 leading-relaxed">{t(COORDINATION_NOTE)}</p>
       </div>
 
-      <Card
+      <Card tone="red"
         title={t('Jurisdictional span of each chain')}
         subtitle={<MethodNote short={t('One economic unit, several jurisdictions — the chain crosses divisions.')} full={t('Every one of these chains crosses a division boundary. The chain is one economic unit and several jurisdictional ones, and the department is organised along the second.')} />}
       >
@@ -470,7 +470,7 @@ function CanView({ S }) {
 
       {/* An honest negative. The coordination cost is small here, and the
           reason it is small is itself the finding. */}
-      <Card title={t('What coordination failure actually costs')}>
+      <Card tone="yellow" title={t('What coordination failure actually costs')}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
             <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1">{t('Lost to sequential action')}</div>
@@ -497,7 +497,7 @@ function CanView({ S }) {
 function MethodView() {
   return (
     <div className="space-y-4">
-      <Card title={t('How the cut point is decided')}>
+      <Card tone="green" title={t('How the cut point is decided')}>
         <p className="text-[12.5px] text-steel-700 leading-relaxed mb-3">{t(CUT_METHOD_NOTE)}</p>
         <div className="rounded-lg border border-steel-200 bg-steel-50 px-3.5 py-3">
           <div className="text-[10px] font-bold uppercase tracking-wider text-steel-500 mb-1.5">{t('Why not a centrality score')}</div>
@@ -505,7 +505,7 @@ function MethodView() {
         </div>
       </Card>
 
-      <Card
+      <Card tone="blue"
         title={t('Lead strength indicators')}
         subtitle={t('A stated rule set, not a learned score. Each contribution is visible on the entity it applies to.')}
       >
