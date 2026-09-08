@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer, Gavel as GavelIcon,
   Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
-  FileBarChart2, BadgeCheck, Layers, ListOrdered, Scale, Users, Scissors, Radar, ShieldCheck as ShieldCheckIcon, History, GitCompare, Library
+  FileBarChart2, BadgeCheck, Layers, ListOrdered, Scale, Users, Scissors, Radar, ShieldCheck as ShieldCheckIcon, History, GitCompare, Library, SlidersHorizontal
 } from 'lucide-react'
 import {
   KPI_SUMMARY, NETWORK_CLUSTERS, EWAY_RECORDS, AUDIT_CASES,
@@ -37,7 +37,8 @@ export const MODULE_ICONS = {
   'early-warning': BellRing,
   'ai-governance': ShieldCheck,
   'reports': FileBarChart2,
-  'official-statistics': BadgeCheck
+  'official-statistics': BadgeCheck,
+  'settings': SlidersHorizontal
 }
 
 // Numeric counts shown on navigation — each one a queue that plausibly demands
@@ -62,12 +63,13 @@ export function useSidebarBadges() {
 
 export const NAV_GROUPS = [
   { id: 'Command Centre', label: 'Command Centre' },
-  { id: 'Revenue at Risk', label: 'Revenue at Risk' },
-  { id: 'Case Priority', label: 'Case Priority' },
+  { id: 'Revenue Position', label: 'Revenue Position' },
+  { id: 'Statutory Time & Decay', label: 'Statutory Time & Decay' },
   { id: 'Risk Discovery', label: 'Risk Discovery' },
-  { id: 'Missed Revenue', label: 'Missed Revenue' },
+  { id: 'Work Allocation', label: 'Work Allocation' },
+  { id: 'Casework', label: 'Casework' },
   { id: 'Legal Standing', label: 'Legal Standing' },
-  { id: 'Benchmarking', label: 'Benchmarking' },
+  { id: 'Revenue Assurance', label: 'Revenue Assurance' },
   { id: 'Data Resources', label: 'Data Resources' },
   { id: 'Governance', label: 'Governance' }
 ]

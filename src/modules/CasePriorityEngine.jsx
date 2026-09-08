@@ -174,7 +174,11 @@ export default function CasePriorityEngine() {
         actions={<ExportBar moduleLabel="Case Priority Engine" />}
       />
 
-      <FilterScope shown={rows.length} total={PRIORITY_QUEUE.length} unit={t('ranked cases')} />
+      <FilterScope shown={rows.length} total={PRIORITY_QUEUE.length} unit={t('ranked cases')}
+        ignores={{
+          dateRange: 'The queue is ranked on what is workable now, so it is built from the open position rather than from cases opened inside a chosen window.'
+        }}
+      />
 
       {/* The formula, stated openly. A ranking an officer cannot interrogate is
           a ranking they will not follow. */}

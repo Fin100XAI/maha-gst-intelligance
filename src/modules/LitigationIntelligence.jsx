@@ -253,7 +253,11 @@ export default function LitigationIntelligence() {
 
       <StatutoryReviewBanner records={filteredCases} context={t('litigation cases')} />
 
-      <FilterScope shown={filteredCases.length} total={LITIGATION_CASES.length} unit={t('litigation proceedings')} />
+      <FilterScope shown={filteredCases.length} total={LITIGATION_CASES.length} unit={t('litigation proceedings')}
+        ignores={{
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
         <KpiCard

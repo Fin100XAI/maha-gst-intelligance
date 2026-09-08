@@ -325,5 +325,11 @@ registerMessages('mr', {
   'Concentration is the flagged share divided by the population share.':
     'संकेंद्रण म्हणजे चिन्हांकितांचा वाटा भागिले संख्येतील वाटा.',
   'Above the benchmark is a question, not a finding. No threshold applies here.':
-    'मानकाच्या वर असणे हा प्रश्न आहे, निष्कर्ष नव्हे. इथे कोणताही उंबरठा लागू नाही.'
+    'मानकाच्या वर असणे हा प्रश्न आहे, निष्कर्ष नव्हे. इथे कोणताही उंबरठा लागू नाही.',
+
+  /* == Section eyebrows after the move into Case Priority ============================ */
+  'Leadership · District Benchmarking':
+    'नेतृत्व · जिल्हा मानकांकन',
+  'Leadership · Sector Benchmarking':
+    'नेतृत्व · क्षेत्रीय मानकांकन'
 })

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill } from '../components/ui/RiskBadge.jsx'
@@ -379,10 +380,16 @@ export default function DistrictDivisionPerformance() {
   return (
     <div>
       <SectionHeader
-        eyebrow={t('Benchmarking')}
+        eyebrow={t('Leadership · District Benchmarking')}
         title={t('District & Division Performance')}
         description={<MethodNote short={t('Every district against its target, its peers and its statutory clock.')} full={t("Every district and division measured against its target, its peers and its statutory clock — collection, compliance, enforcement and the capacity available to act.")} />}
         actions={<ExportBar moduleLabel="District & Division Performance" getBriefingText={briefingText} />}
+      />
+
+      <FilterScope shown={filteredDistricts.length} total={DISTRICT_REVENUE.length} unit={t('districts')}
+        ignores={{
+          dateRange: 'District collection is held as a single current-period book with no monthly series behind it, so there is no period to narrow to.'
+        }}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

@@ -135,7 +135,12 @@ export default function RevenueProtectionCommandCentre() {
         actions={<ExportBar moduleLabel="Revenue Protection Command Centre" />}
       />
 
-      <FilterScope shown={scoped.length} total={AT_RISK.length} unit={t('at-risk cases')} />
+      <FilterScope shown={scoped.length} total={AT_RISK.length} unit={t('at-risk cases')}
+        ignores={{
+          dateRange: 'The window this screen measures runs forward from today, so a past date range would not change what it shows.',
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
+      />
 
       {/* ---------- HERO ---------- */}
       <div className="rounded-2xl border border-navy-200 bg-gradient-to-br from-navy-50 via-white to-steel-50 shadow-card overflow-hidden mb-4">
@@ -168,19 +173,22 @@ export default function RevenueProtectionCommandCentre() {
             anything beside one another. */}
         <div className="bg-red-50/80 border-t border-red-200 px-6 py-3.5 flex items-start gap-3">
           <Ban className="w-4.5 h-4.5 text-[#C5221F] shrink-0 mt-0.5" />
-          <p className="text-[12.5px] text-navy-800 leading-relaxed">
+          <div className="text-[12.5px] text-navy-800 leading-relaxed">
             <strong className="text-[#C5221F]">
               {t('{0} across {1} cases is already beyond its limitation date.', cr(S.forfeitedValue), S.forfeitedCases)}
-            </strong>{' '}
-            {t('Excluded from the figure above, and stated beside it. Money that is gone cannot be counted as an opportunity to protect it — and the size of this number, not the size of the opportunity, is the argument for acting earlier.')}
-          </p>
+            </strong>
+            <MethodNote
+              short={t('Excluded from the figure above, and stated beside it.')}
+              full={t('Excluded from the figure above, and stated beside it. Money that is gone cannot be counted as an opportunity to protect it — and the size of this number, not the size of the opportunity, is the argument for acting earlier.')}
+            />
+          </div>
         </div>
       </div>
 
       {/* ---------- FUNNEL ---------- */}
       <Card
         title={t('Where the money goes between owed and protected')}
-        subtitle={t('Four steps, three different causes, three different owners. They are not netted into one recovery rate because they call for three different decisions.')}
+        subtitle={<MethodNote short={t('Four steps, three causes, three owners — not netted into one rate.')} full={t('Four steps, three different causes, three different owners. They are not netted into one recovery rate because they call for three different decisions.')} />}
         className="mb-4"
         actions={statewidePill}
       >
@@ -283,7 +291,7 @@ export default function RevenueProtectionCommandCentre() {
           many notices have to be signed this month. */}
       <Card
         title={t('When the statutory clock runs out')}
-        subtitle={t('Counted against the BINDING date — the notice date where no notice has issued, which falls months before the order deadline and is the one most often missed.')}
+        subtitle={<MethodNote short={t('Counted against the binding date, not the order deadline.')} full={t('Counted against the BINDING date — the notice date where no notice has issued, which falls months before the order deadline and is the one most often missed.')} />}
         className="mb-4"
         actions={statewidePill}
       >
@@ -351,7 +359,7 @@ export default function RevenueProtectionCommandCentre() {
       {/* ---------- CONCENTRATION ---------- */}
       <Card
         title={t('Where it is concentrated')}
-        subtitle={t('Value at risk by division, with the share no eligible officer can reach. The second bar is the deployment decision.')}
+        subtitle={<MethodNote short={t('Value at risk by division, and the share no officer can reach.')} full={t('Value at risk by division, with the share no eligible officer can reach. The second bar is the deployment decision.')} />}
         className="mb-4"
         actions={statewidePill}
       >
@@ -553,7 +561,7 @@ export default function RevenueProtectionCommandCentre() {
       {/* ---------- PENDING ---------- */}
       <Card
         title={t('Not yet computable')}
-        subtitle={t('Capabilities this screen would normally carry, left visibly empty rather than filled with plausible figures. Each names the input that unblocks it.')}
+        subtitle={<MethodNote short={t('Left visibly empty rather than filled with plausible figures.')} full={t('Capabilities this screen would normally carry, left visibly empty rather than filled with plausible figures. Each names the input that unblocks it.')} />}
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {PENDING_CAPABILITIES.map(c => (

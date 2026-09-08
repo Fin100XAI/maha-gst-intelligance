@@ -4,6 +4,7 @@ import {
   Users, Layers, FileWarning
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
@@ -221,6 +222,13 @@ export default function StatutoryTimeIntelligence() {
         title={t('Statutory Time Intelligence')}
         description={<MethodNote short={t('Every open proceeding against its own limitation clock.')} full={t('Every open proceeding against its own limitation clock. When a deadline passes the demand is extinguished by operation of law — this is the one exposure on the platform that is not a model but a consequence of statute.')} />}
         actions={<ExportBar moduleLabel="Statutory Time Intelligence" getBriefingText={briefingText} />}
+      />
+
+      <FilterScope shown={rows.length} total={LIMITATION_REGISTER.length} unit={t('open proceedings')}
+        ignores={{
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.',
+          dateRange: 'This screen reads a current-state register rather than a stream of dated events, so there is no date on the records to narrow against.'
+        }}
       />
 
       <div className="mb-6 rounded-xl border border-navy-200 bg-gradient-to-br from-navy-50/70 to-surface p-5">

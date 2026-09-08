@@ -79,6 +79,25 @@
   --tone-steel-accent: #5f6368;
   --tone-icon-bg: rgb(255 255 255 / 0.7);
 
+  /* Card accents — the four Google brand hues (see Card.jsx). `-rail` is the
+     brand colour itself, used only as a 3px bar and a tinted header wash;
+     `-ink` is the darkened variant that clears contrast for the title text,
+     because #FBBC04 and #EA4335 do not pass on white at 13px. The card body
+     stays white in every case, so the semantic tones inside it — red for
+     critical, green for good — keep their meaning. */
+  --card-blue-rail: #4285f4;
+  --card-blue-ink: #1967d2;
+  --card-blue-wash: #f5f9ff;
+  --card-red-rail: #ea4335;
+  --card-red-ink: #c5221f;
+  --card-red-wash: #fff7f6;
+  --card-yellow-rail: #fbbc04;
+  --card-yellow-ink: #a06400;
+  --card-yellow-wash: #fffcf2;
+  --card-green-rail: #34a853;
+  --card-green-ink: #137333;
+  --card-green-wash: #f4fbf6;
+
   /* Composite-score ring (ScoreGauge). */
   --gauge-track: #e8eaee;
   --gauge-healthy: #1f8a4c;
@@ -159,6 +178,23 @@ html[data-theme='dark'] {
   --tone-steel-border: #2f3644;
   --tone-steel-accent: #c3c9d4;
   --tone-icon-bg: rgb(255 255 255 / 0.08);
+
+  /* The rails keep the brand hue on the dark ground, where they read as
+     intended; the title inks lighten, since the darkened light-mode variants
+     would disappear against it. The washes drop to a low-alpha tint of the
+     rail so the header separates from the card without glowing. */
+  --card-blue-rail: #4285f4;
+  --card-blue-ink: #8ab4f8;
+  --card-blue-wash: rgb(66 133 244 / 0.10);
+  --card-red-rail: #ea4335;
+  --card-red-ink: #f28b82;
+  --card-red-wash: rgb(234 67 53 / 0.10);
+  --card-yellow-rail: #fbbc04;
+  --card-yellow-ink: #fdd663;
+  --card-yellow-wash: rgb(251 188 4 / 0.10);
+  --card-green-rail: #34a853;
+  --card-green-ink: #81c995;
+  --card-green-wash: rgb(52 168 83 / 0.10);
 
   --gauge-track: #2a323f;
   --gauge-healthy: #5bd18b;

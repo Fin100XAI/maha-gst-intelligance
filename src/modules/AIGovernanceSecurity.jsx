@@ -82,7 +82,7 @@ const CONTROL_REGISTER = [
     control: () => t('Role-based access control'),
     state: 'built',
     owner: 'console',
-    detail: () => t('Access is decided per role at section level and then again at module level. The matrix below is generated from that configuration at render time rather than described alongside it, so it cannot drift from what the platform actually enforces.'),
+    detail: () => t('Access is decided per role at section level and then again at module level. The matrix is generated from that configuration at render time on the Settings screen rather than described alongside it, so it cannot drift from what the platform actually enforces.'),
     production: () => t('Production requirement: enforce the same matrix server-side against an authenticated session. The check in this build runs in the browser and a client-side check is not access control.')
   },
   {
@@ -242,27 +242,6 @@ export default function AIGovernanceSecurity() {
     () => OFFICER_ROLES.filter(role => canAccessModule(role, 'ai-governance')),
     []
   )
-
-  /* The access matrix, generated from ROLE_SECTIONS / canAccessSection /
-   * canAccessModule. `moduleOnlyDenied` is the module-level restriction layer
-   * on its own — modules inside a section the role holds that it still cannot
-   * open. That is the layer a reviewer most often cannot see. */
-  const accessMatrix = useMemo(() => {
-    const sections = [...new Set(MODULES.map(m => m.group))]
-    return OFFICER_ROLES.map(role => {
-      const granted = sections.filter(s => canAccessSection(role, s))
-      const allowed = MODULES.filter(m => canAccessModule(role, m.id))
-      const moduleOnlyDenied = MODULES.filter(m => canAccessSection(role, m.group) && !canAccessModule(role, m.id))
-      return {
-        role,
-        sectionsGranted: granted,
-        allSections: ROLE_SECTIONS[role] === 'all',
-        moduleCount: allowed.length,
-        moduleOnlyDenied,
-        opensThisConsole: canAccessModule(role, 'ai-governance')
-      }
-    })
-  }, [])
 
   /* Integrity properties of the trail itself. Nothing here is asserted — each
    * value is counted off the log the officer is looking at. */
@@ -479,64 +458,23 @@ export default function AIGovernanceSecurity() {
         </p>
       </Card>
 
+      {/* The matrix itself now lives on the Settings screen, which is where
+          the access configuration belongs. Repeating it here would give a
+          reviewer two copies to keep in step, and one of them would drift. */}
       <Card
         title={t('Role-Based Access Control — as enforced')}
-        subtitle={t('Generated from the platform access configuration at render time, not described alongside it')}
+        subtitle={t('The full matrix is on the Settings screen, generated from the same configuration')}
         className="mb-5"
-        actions={<Pill tone="navy">{t('{0} roles · {1} modules', OFFICER_ROLES.length, MODULES.length)}</Pill>}
       >
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="bg-steel-50 border-b border-steel-200">
-                <th className="px-3 py-2.5 text-left font-semibold text-steel-600 uppercase tracking-wide text-[10.5px]">{t('Role')}</th>
-                <th className="px-3 py-2.5 text-left font-semibold text-steel-600 uppercase tracking-wide text-[10.5px]">{t('Sections granted')}</th>
-                <th className="px-3 py-2.5 text-left font-semibold text-steel-600 uppercase tracking-wide text-[10.5px] w-28">{t('Modules reachable')}</th>
-                <th className="px-3 py-2.5 text-left font-semibold text-steel-600 uppercase tracking-wide text-[10.5px]">{t('Denied at module level despite section access')}</th>
-                <th className="px-3 py-2.5 text-left font-semibold text-steel-600 uppercase tracking-wide text-[10.5px] w-36">{t('Opens this console')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accessMatrix.map((row, i) => (
-                <tr key={row.role} className={`border-b border-steel-100 last:border-0 align-top ${i % 2 === 1 ? 'bg-steel-50/40' : ''}`}>
-                  <td className="px-3 py-2.5 font-semibold text-navy-800 whitespace-nowrap">
-                    <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-steel-400" />{t(row.role)}</div>
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <div className="flex flex-wrap gap-1">
-                      {row.allSections && <Pill tone="navy">{t('All sections')}</Pill>}
-                      {!row.allSections && row.sectionsGranted.map(s => <Pill key={s} tone="navy">{t(s)}</Pill>)}
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5 tabular-nums text-navy-700">
-                    {t('{0} of {1}', row.moduleCount, MODULES.length)}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    {row.moduleOnlyDenied.length === 0
-                      ? <span className="text-steel-400">{t('None')}</span>
-                      : (
-                        <div className="flex flex-wrap gap-1">
-                          {row.moduleOnlyDenied.map(m => <Pill key={m.id} tone="red">{t(m.label)}</Pill>)}
-                        </div>
-                      )}
-                  </td>
-                  <td className="px-3 py-2.5">
-                    <Pill tone={row.opensThisConsole ? 'green' : 'steel'}>
-                      {row.opensThisConsole ? t('Yes') : t('No')}
-                    </Pill>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-3 space-y-1.5 max-w-4xl">
-          <MethodNote className="text-[11px] text-steel-500" short={t('A role with a section is not automatically given every module in it.')} full={t('Module counts include the Officer AI Copilot, which is reachable but not listed in the navigation menu. A role with a section is not automatically given every module inside it — the fourth column is that second layer on its own.')} />
-          <p className="text-[11px] text-steel-600 flex items-start gap-1.5">
-            <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
-            <span>{t(DEMO_GATE_NOTE)}</span>
-          </p>
-        </div>
+        <MethodNote
+          tone="plain"
+          short={t('Access is decided per role at section level, then again per module.')}
+          full={t('Access is decided per role at section level and then again at module level. The matrix that shows both layers — sections granted, modules reachable, and the modules a role is denied despite holding their section — is on the Settings screen. It is generated at render time from the same configuration this control register describes, so the two cannot disagree.')}
+        />
+        <p className="text-[11px] text-steel-600 flex items-start gap-1.5 mt-3 max-w-4xl">
+          <ShieldAlert className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
+          <span>{t(DEMO_GATE_NOTE)}</span>
+        </p>
       </Card>
 
       <Card

@@ -325,5 +325,11 @@ registerMessages('hi', {
   'Concentration is the flagged share divided by the population share.':
     'संकेंद्रण अर्थात् चिह्नितों का अंश भाग संख्या में अंश।',
   'Above the benchmark is a question, not a finding. No threshold applies here.':
-    'मानक से ऊपर होना प्रश्न है, निष्कर्ष नहीं। यहाँ कोई सीमा लागू नहीं होती।'
+    'मानक से ऊपर होना प्रश्न है, निष्कर्ष नहीं। यहाँ कोई सीमा लागू नहीं होती।',
+
+  /* == Section eyebrows after the move into Case Priority ============================ */
+  'Leadership · District Benchmarking':
+    'नेतृत्व · ज़िला मानकीकरण',
+  'Leadership · Sector Benchmarking':
+    'नेतृत्व · क्षेत्रीय मानकीकरण'
 })

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill } from '../components/ui/RiskBadge.jsx'
@@ -274,6 +275,12 @@ export default function ComplianceEarlyWarning() {
         title={t('Compliance Early Warning')}
         description={<MethodNote short={t('Slipping compliance, surfaced before the shortfall compounds.')} full={t('Non-filers and slipping compliance, surfaced before the shortfall compounds. Every alert below carries how long it has been open and what is at stake behind it, because an early warning that has sat unworked for a quarter is no longer early.')} />}
         actions={<ExportBar />}
+      />
+
+      <FilterScope shown={globallyFiltered.length} total={COMPLIANCE_ALERTS.length} unit={t('alerts')}
+        ignores={{
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
       />
 
       {/* KPI row */}

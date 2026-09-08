@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
@@ -280,6 +281,12 @@ export default function RefundRiskIntelligence() {
         title={t('Refund Risk Intelligence')}
         description={<MethodNote short={t('Refund intensity against the claimant\'s own sector, not as a flat percentage.')} full={t('Refund claims ranked by risk before sanction. Refund intensity is read against the benchmark for the claimant’s own sector rather than as an absolute percentage — a 15% refund ratio is ordinary in import/export and extreme in professional services.')} />}
         actions={<ExportBar moduleLabel="Refund Risk Intelligence" />}
+      />
+
+      <FilterScope shown={filteredCases.length} total={REFUND_CASES.length} unit={t('refund claims')}
+        ignores={{
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
       />
 
       {isFieldOfficer && (

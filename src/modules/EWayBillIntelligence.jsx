@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill, HumanReviewBadge, RiskBadge } from '../components/ui/RiskBadge.jsx'
@@ -363,6 +364,8 @@ export default function EWayBillIntelligence() {
         description={<MethodNote short={t('Declared movement with no filed return behind it, and whose it is.')} full={t('Transit records checked against filings. The question this screen answers is how much declared goods movement has no filed return behind it, whose movement that is, and how that compares with the rest of the state.')} />}
         actions={<ExportBar />}
       />
+
+      <FilterScope shown={filteredRecords.length} total={EWAY_RECORDS.length} unit={t('transit records')} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <KpiCard

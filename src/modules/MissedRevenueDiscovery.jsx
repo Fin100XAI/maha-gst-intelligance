@@ -150,7 +150,12 @@ function CandidatesView() {
     <div className="space-y-4">
       {/* Stated before the figures, not after them: every number below is
           computed over the narrowed set. */}
-      <FilterScope shown={scoped.length} total={REVISIT_CANDIDATES.length} unit={t('review candidates')} />
+      <FilterScope shown={scoped.length} total={REVISIT_CANDIDATES.length} unit={t('review candidates')}
+        ignores={{
+          dateRange: 'This screen reads a current-state register rather than a stream of dated events, so there is no date on the records to narrow against.',
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <KpiCard

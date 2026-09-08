@@ -213,7 +213,12 @@ function QuestionsView({ logAction }) {
         </div>
       </Card>
 
-      <FilterScope shown={affected.rows.length} total={all.length} unit={t('affected proceedings')} />
+      <FilterScope shown={affected.rows.length} total={all.length} unit={t('affected proceedings')}
+        ignores={{
+          dateRange: 'This screen reads a current-state register rather than a stream of dated events, so there is no date on the records to narrow against.',
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
+      />
 
       {/* The link from the legal question to the actual caseload, with the two
           sides of the exposure counted rather than described. */}

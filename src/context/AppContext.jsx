@@ -56,43 +56,45 @@ function readInitialTheme() {
 // Order within a group is the order the menu lists them, and the first entry a
 // role can access is where that role lands after sign-in.
 export const MODULES = [
-  // ---- Command Centre ----
+  // ---- Command Centre — what needs a decision today ----
   { id: 'command-center', label: 'Executive Command Center', group: 'Command Centre' },
   { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Command Centre' },
-  // ---- Revenue at Risk ----
-  { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue at Risk' },
-  { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Revenue at Risk' },
-  { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Revenue at Risk' },
-  // ---- Case Priority ----
-  { id: 'case-priority', label: 'Case Priority Engine', group: 'Case Priority' },
-  { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Case Priority' },
-  { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Case Priority' },
-  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Case Priority', hidden: true },
-  // ---- Risk Discovery ----
+  // ---- Revenue Position — collection against target, and where the gap sits ----
+  { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue Position' },
+  { id: 'district-performance', label: 'District & Division Performance', group: 'Revenue Position' },
+  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Revenue Position' },
+  // ---- Statutory Time & Decay — the two clocks that destroy revenue ----
+  { id: 'statutory-time', label: 'Statutory Time Intelligence', group: 'Statutory Time & Decay' },
+  { id: 'recovery-window', label: 'Revenue at Risk & Recovery', group: 'Statutory Time & Decay' },
+  // ---- Risk Discovery — where the leads come from ----
   { id: 'unknown-risk', label: 'Unknown Risk Discovery', group: 'Risk Discovery' },
-  { id: 'network-enforcement', label: 'Network Intelligence', group: 'Risk Discovery' },
   { id: 'itc-risk', label: 'ITC Risk Intelligence', group: 'Risk Discovery' },
   { id: 'eway-bill', label: 'E-Way Bill Intelligence', group: 'Risk Discovery' },
-  { id: 'early-warning', label: 'Compliance Early Warning', group: 'Risk Discovery' },
+  { id: 'network-enforcement', label: 'Network Intelligence', group: 'Risk Discovery' },
   { id: 'refund-risk', label: 'Refund Risk Intelligence', group: 'Risk Discovery' },
-  // ---- Missed Revenue ----
-  { id: 'case-twin', label: 'Case Digital Twin', group: 'Missed Revenue' },
-  { id: 'missed-revenue', label: 'Missed Revenue Discovery', group: 'Missed Revenue' },
-  { id: 'counterfactual', label: 'Counterfactual Case Intelligence', group: 'Missed Revenue' },
-  // ---- Legal Standing ----
+  { id: 'early-warning', label: 'Compliance Early Warning', group: 'Risk Discovery' },
+  // ---- Work Allocation — what to work this week, and who can reach it ----
+  { id: 'case-priority', label: 'Case Priority Engine', group: 'Work Allocation' },
+  { id: 'capacity', label: 'Officer Capacity & Deployment', group: 'Work Allocation' },
+  // ---- Casework — working the case itself ----
+  { id: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', group: 'Casework' },
+  { id: 'case-twin', label: 'Case Digital Twin', group: 'Casework' },
+  { id: 'officer-copilot', label: 'Officer AI Copilot', group: 'Casework', hidden: true },
+  // ---- Legal Standing — whether the demand survives challenge ----
   { id: 'precedent', label: 'Precedent Intelligence', group: 'Legal Standing' },
   { id: 'litigation', label: 'Litigation Intelligence', group: 'Legal Standing' },
-  // ---- Benchmarking ----
-  { id: 'district-performance', label: 'District & Division Performance', group: 'Benchmarking' },
-  { id: 'sector-intelligence', label: 'Sector Intelligence', group: 'Benchmarking' },
-  // ---- Data Resources ----
+  // ---- Revenue Assurance — what was lost, and why ----
+  { id: 'missed-revenue', label: 'Missed Revenue Discovery', group: 'Revenue Assurance' },
+  { id: 'counterfactual', label: 'Counterfactual Case Intelligence', group: 'Revenue Assurance' },
+  // ---- Data Resources — what the platform is built on, and where it came from ----
   { id: 'project-resources', label: 'Project Resources', group: 'Data Resources' },
   { id: 'engine-stack', label: 'Engine Stack & Data Readiness', group: 'Data Resources' },
   { id: 'extract-spec', label: 'Pilot Extract Specification', group: 'Data Resources' },
   { id: 'official-statistics', label: 'Official Statistics', group: 'Data Resources' },
-  // ---- Governance ----
+  // ---- Governance — oversight of the platform, and how it is configured ----
   { id: 'ai-governance', label: 'AI Governance & Security', group: 'Governance' },
   { id: 'reports', label: 'Reports & Briefing Notes', group: 'Governance' },
+  { id: 'settings', label: 'Settings', group: 'Governance' },
 ]
 
 // The modules the navigation menus and the landing-page grid list. Routing,
@@ -125,11 +127,11 @@ export const DEMO_GATE_NOTE =
 export const ROLE_SECTIONS = {
   'Commissioner': 'all',
   'Joint Commissioner': 'all',
-  'Division Officer': ['Command Centre', 'Revenue at Risk', 'Case Priority', 'Risk Discovery', 'Missed Revenue', 'Benchmarking'],
-  'Audit Officer': ['Case Priority', 'Legal Standing', 'Missed Revenue'],
-  'Refund Officer': ['Risk Discovery', 'Missed Revenue'],
-  'Investigation Officer': ['Risk Discovery', 'Case Priority', 'Missed Revenue'],
-  'AI Governance Officer': ['Governance', 'Data Resources'],
+  'Division Officer': ['Command Centre', 'Revenue Position', 'Statutory Time & Decay', 'Risk Discovery', 'Work Allocation', 'Casework', 'Revenue Assurance'],
+  'Audit Officer': ['Work Allocation', 'Casework', 'Legal Standing', 'Revenue Assurance'],
+  'Refund Officer': ['Risk Discovery', 'Casework', 'Revenue Assurance'],
+  'Investigation Officer': ['Risk Discovery', 'Work Allocation', 'Casework', 'Revenue Assurance'],
+  'AI Governance Officer': ['Data Resources', 'Governance'],
   'Read-only Policy Viewer': ['Governance']
 }
 
@@ -147,7 +149,15 @@ const RESTRICTED = {
   'command-center': ['Commissioner', 'Joint Commissioner'],
   'ai-governance': ['Commissioner', 'Joint Commissioner', 'AI Governance Officer'],
   'audit-scrutiny': ['Commissioner', 'Joint Commissioner', 'Division Officer', 'Audit Officer', 'Investigation Officer'],
-  'refund-risk': ['Commissioner', 'Joint Commissioner', 'Division Officer', 'Refund Officer']
+  'refund-risk': ['Commissioner', 'Joint Commissioner', 'Division Officer', 'Refund Officer'],
+  /* Regrouping the menu must not regrant a screen. Each entry below pins an
+     audience that the new section boundaries would otherwise widen — the two
+     comparative screens to the roles that held the old Benchmarking section,
+     and the Copilot to the roles that held the old Case Priority section. The
+     before/after matrix was compared role by role; it is unchanged. */
+  'district-performance': ['Commissioner', 'Joint Commissioner', 'Division Officer'],
+  'sector-intelligence': ['Commissioner', 'Joint Commissioner', 'Division Officer'],
+  'officer-copilot': ['Commissioner', 'Joint Commissioner', 'Division Officer', 'Audit Officer', 'Investigation Officer']
 }
 
 export function canAccessModule(role, moduleId) {

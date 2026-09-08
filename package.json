@@ -12,7 +12,7 @@
     "coverage": "node scripts/coverage.mjs",
     "prose": "node scripts/prose.mjs",
     "untranslated": "node scripts/untranslated.mjs",
-    "verify": "node scripts/audit.mjs && node scripts/vocabulary.mjs && node scripts/prose.mjs && node scripts/untranslated.mjs && node scripts/templates.mjs && vite build"
+    "verify": "node scripts/audit.mjs && node scripts/vocabulary.mjs && node scripts/prose.mjs && node scripts/untranslated.mjs && node scripts/templates.mjs && node scripts/filters.mjs && vite build"
   },
   "dependencies": {
     "lucide-react": "^0.462.0",

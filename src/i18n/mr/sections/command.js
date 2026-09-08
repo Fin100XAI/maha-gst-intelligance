@@ -217,5 +217,44 @@ registerMessages('mr', {
   'Computed best-density-first on the cases actually left, not an average.':
     'प्रत्यक्षात उरलेल्या प्रकरणांवर सर्वाधिक घनतेनुसार मोजलेले, सरासरी नव्हे.',
   'Effort is priced only where a rule fired and exposure is non-zero.':
-    'नियम लागू झाला असेल आणि जोखीम रक्कम शून्येतर असेल तिथेच श्रमाची किंमत ठरते.'
+    'नियम लागू झाला असेल आणि जोखीम रक्कम शून्येतर असेल तिथेच श्रमाची किंमत ठरते.',
+
+  /* == Navigation section labels ============================ */
+  'Revenue Position':
+    'महसूल स्थिती',
+  'Statutory Time & Decay':
+    'सांविधिक मुदत व क्षय',
+  'Work Allocation':
+    'कामाचे वाटप',
+  'Casework':
+    'प्रकरण हाताळणी',
+  'Data & Governance':
+    'डेटा व कारभार',
+  /* == Command Centre — bands, and where each queue is worked ============ */
+  Decide: 'ठरवा',
+  Act: 'कृती',
+  Position: 'स्थिती',
+  'Where these are worked': 'ही कोठे हाताळली जातात',
+  'Each queue is held and actioned on its own screen, with the count that matters there':
+    'प्रत्येक रांग तिच्या स्वतःच्या पडद्यावर ठेवली व हाताळली जाते, तेथे महत्त्वाची असणाऱ्या संख्येसह',
+  '₹{0} Cr high-risk exposure': '₹{0} कोटी उच्च-जोखीम रक्कम',
+  '{0} under review': 'पुनर्विलोकनाधीन {0}',
+  '₹{0} Cr in pipeline': 'प्रक्रियेत ₹{0} कोटी',
+  '{0} open alerts': '{0} खुल्या सूचना',
+  '{0} unworkable cases, from three different causes with three different remedies.':
+    'हाताळता न येणारी {0} प्रकरणे — तीन वेगळी कारणे, तीन वेगळे उपाय.',
+  "Generate an executive brief to synthesise the state's current revenue and risk position, with evidence and confidence stated for every finding.":
+    'राज्याची सध्याची महसूल व जोखीम स्थिती एकत्र मांडणारा कार्यकारी सारांश तयार करा — प्रत्येक निष्कर्षासोबत पुरावा व विश्वासपातळी नमूद केलेली.',
+
+  /* == Revenue Protection — one line on screen, the reasoning behind it == */
+  'Excluded from the figure above, and stated beside it.':
+    'वरील आकड्यातून वगळलेले, आणि त्याच्या शेजारी स्वतंत्रपणे नमूद केलेले.',
+  'Four steps, three causes, three owners — not netted into one rate.':
+    'चार टप्पे, तीन कारणे, तीन जबाबदार — एकाच दरात एकत्र केलेले नाहीत.',
+  'Counted against the binding date, not the order deadline.':
+    'बंधनकारक तारखेच्या तुलनेत मोजलेले, आदेशाच्या अंतिम मुदतीच्या नव्हे.',
+  'Value at risk by division, and the share no officer can reach.':
+    'विभागनिहाय जोखमीतील रक्कम, आणि जिच्यापर्यंत एकही अधिकारी पोहोचू शकत नाही असा हिस्सा.',
+  'Left visibly empty rather than filled with plausible figures.':
+    'सयुक्तिक वाटणाऱ्या आकड्यांनी भरण्याऐवजी उघडपणे रिकामे ठेवलेले.'
 })

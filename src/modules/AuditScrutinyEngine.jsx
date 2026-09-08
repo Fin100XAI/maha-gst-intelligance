@@ -350,7 +350,11 @@ export default function AuditScrutinyEngine() {
         <MethodNote className="mb-4 rounded-lg border border-steel-200 bg-steel-50 px-4 py-2.5 text-[12px] text-steel-700 leading-relaxed" short={t('The rest are shown at exposure only — the decay curve is not extrapolated.')} full={t('The recoverable figure covers the {0} of {1} cases in view that carry a record in the recovery engine. The remainder are shown at exposure only — the decay curve is not extrapolated over cases it does not hold.', kpis.recoveryMatched, kpis.totalCount)} />
       )}
 
-      <FilterScope shown={filteredCases.length} total={baseCases.length} unit={t('audit cases')} />
+      <FilterScope shown={filteredCases.length} total={baseCases.length} unit={t('audit cases')}
+        ignores={{
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
+      />
 
       <Card
         title={t('Risk-Ranked Case List')}

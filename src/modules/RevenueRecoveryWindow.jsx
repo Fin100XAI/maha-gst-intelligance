@@ -3,6 +3,7 @@ import {
   Timer, TrendingDown, Banknote, AlertOctagon, ArrowUpRight, ArrowRight, ShieldCheck, Split
 } from 'lucide-react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill, HumanReviewBadge } from '../components/ui/RiskBadge.jsx'
@@ -255,6 +256,12 @@ export default function RevenueRecoveryWindow() {
         title={t('Revenue Recovery Window')}
         description={<MethodNote short={t('Every flagged rupee has a recovery half-life. This measures the delay.')} full={t('Every flagged rupee has a recovery half-life. This page measures the platform against the one variable that decides how much of it survives — the time between a signal firing and an officer acting on it.')} />}
         actions={<ExportBar moduleLabel="Revenue Recovery Window" getBriefingText={briefingText} />}
+      />
+
+      <FilterScope shown={cases.length} total={RECOVERY_CASES.length} unit={t('cases in the recovery window')}
+        ignores={{
+          dateRange: 'The recovery window is measured forward from today, so a past date range would not change what is still recoverable.'
+        }}
       />
 
       {/* The thesis, stated once, in the department's own numbers. */}

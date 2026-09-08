@@ -130,7 +130,11 @@ export default function CaseDigitalTwin() {
         actions={<ExportBar moduleLabel="Case Digital Twin" />}
       />
 
-      <FilterScope shown={scoped.length} total={TWIN_INDEX.length} unit={t('taxpayers')} />
+      <FilterScope shown={scoped.length} total={TWIN_INDEX.length} unit={t('taxpayers')}
+        ignores={{
+          dateRange: 'This screen reads a current-state register rather than a stream of dated events, so there is no date on the records to narrow against.'
+        }}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-4">
         {/* ---- Index rail ---- */}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { Pill } from '../components/ui/RiskBadge.jsx'
@@ -347,6 +348,8 @@ export default function ReportsBriefingNotes() {
         title={t('Reports & Briefing Notes')}
         description={<MethodNote short={t('Structured briefing notes for the Commissioner and senior officers.')} full={t('Generate structured briefing notes and reports for the Commissioner, senior officers and audit/refund/investigation teams. Every report preview is a simulated AI-assisted draft assembled from current platform data for demonstration purposes only. It is not an official departmental record and requires review and sign-off by an authorised officer before circulation or filing. Each report states its own scope: most narrow with the header filters, and the ones that do not say so on the card and again in the draft.')} />}
       />
+
+      <FilterScope shown={scope.taxpayers.length} total={TAXPAYERS.length} unit={t('taxpayers')} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <KpiCard label={t('Report Types Available')} value={REPORT_TYPES.length} tone="navy" icon={FileStack} />

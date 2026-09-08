@@ -216,5 +216,44 @@ registerMessages('hi', {
   'Computed best-density-first on the cases actually left, not an average.':
     'वास्तव में बचे प्रकरणों पर सर्वाधिक घनत्व के क्रम में परिकलित, औसत नहीं।',
   'Effort is priced only where a rule fired and exposure is non-zero.':
-    'श्रम की कीमत वहीं आँकी जाती है जहाँ नियम लागू हुआ हो और जोखिम राशि शून्येतर हो।'
+    'श्रम की कीमत वहीं आँकी जाती है जहाँ नियम लागू हुआ हो और जोखिम राशि शून्येतर हो।',
+
+  /* == Navigation section labels ============================ */
+  'Revenue Position':
+    'राजस्व स्थिति',
+  'Statutory Time & Decay':
+    'सांविधिक समय एवं क्षय',
+  'Work Allocation':
+    'कार्य आवंटन',
+  'Casework':
+    'प्रकरण निष्पादन',
+  'Data & Governance':
+    'डेटा एवं अभिशासन',
+  /* == Command Centre — bands, and where each queue is worked ============ */
+  Decide: 'निर्णय',
+  Act: 'कार्रवाई',
+  Position: 'स्थिति',
+  'Where these are worked': 'ये कहाँ निपटाए जाते हैं',
+  'Each queue is held and actioned on its own screen, with the count that matters there':
+    'प्रत्येक कतार अपने ही पर्दे पर रखी और निपटाई जाती है, वहाँ जो संख्या मायने रखती है उसके साथ',
+  '₹{0} Cr high-risk exposure': '₹{0} करोड़ उच्च जोखिम राशि',
+  '{0} under review': 'समीक्षाधीन {0}',
+  '₹{0} Cr in pipeline': 'शृंखला में ₹{0} करोड़',
+  '{0} open alerts': '{0} खुली चेतावनियाँ',
+  '{0} unworkable cases, from three different causes with three different remedies.':
+    'न निपटाए जा सकने वाले {0} प्रकरण — तीन अलग कारण, तीन अलग उपाय।',
+  "Generate an executive brief to synthesise the state's current revenue and risk position, with evidence and confidence stated for every finding.":
+    'राज्य की वर्तमान राजस्व एवं जोखिम स्थिति को एक साथ प्रस्तुत करने वाला कार्यकारी सारांश बनाएँ — प्रत्येक निष्कर्ष के साथ साक्ष्य और विश्वास-स्तर अंकित।',
+
+  /* == Revenue Protection — one line on screen, the reasoning behind it == */
+  'Excluded from the figure above, and stated beside it.':
+    'ऊपर के आँकड़े से बाहर रखा गया, और उसके बगल में अलग से अंकित।',
+  'Four steps, three causes, three owners — not netted into one rate.':
+    'चार चरण, तीन कारण, तीन उत्तरदायी — एक ही दर में समेटे नहीं गए।',
+  'Counted against the binding date, not the order deadline.':
+    'बाध्यकारी तिथि के सापेक्ष गिना गया, आदेश की अंतिम तिथि के नहीं।',
+  'Value at risk by division, and the share no officer can reach.':
+    'संभागवार जोखिम में राशि, और वह हिस्सा जहाँ तक कोई अधिकारी नहीं पहुँच सकता।',
+  'Left visibly empty rather than filled with plausible figures.':
+    'प्रशंसनीय लगने वाले आँकड़ों से भरने के बजाय खुले तौर पर रिक्त छोड़ा गया।'
 })

@@ -3,6 +3,7 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell
 } from 'recharts'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
@@ -339,10 +340,17 @@ export default function SectorIntelligence() {
   return (
     <div>
       <SectionHeader
-        eyebrow={t('Benchmarking')}
+        eyebrow={t('Leadership · Sector Benchmarking')}
         title={t('Sector Intelligence')}
         description={<MethodNote short={t('Each sector against its own benchmark, not against another sector\'s.')} full={t("Each sector measured against its own benchmark, its share of the population and its statutory clock — what behaviour actually looks like inside a sector, not what the reference table says it should.")} />}
         actions={<ExportBar moduleLabel="Sector Intelligence" getBriefingText={briefingText} />}
+      />
+
+      <FilterScope shown={globallyFilteredTaxpayers.length} total={TAXPAYERS.length} unit={t('taxpayers')}
+        ignores={{
+          sector: 'Dropped on purpose: this screen exists to compare sectors against one another, and narrowing to a single sector would leave nothing to compare it with. Pick a sector in the selector below instead.',
+          dateRange: 'This screen reads a current-state register rather than a stream of dated events, so there is no date on the records to narrow against.'
+        }}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

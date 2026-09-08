@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
@@ -197,6 +198,12 @@ export default function ITCRiskIntelligence() {
         title={t('ITC Risk Intelligence')}
         description={<MethodNote short={t('Credit scored against the filing and payment behaviour behind it.')} full={t('Input tax credit scored against the filing and payment behaviour of the entity claiming it. Every ratio here is set against the benchmark for that taxpayer’s own sector, because credit intensity is a property of the trade before it is a property of the taxpayer.')} />}
         actions={<ExportBar />}
+      />
+
+      <FilterScope shown={pool.length} total={TAXPAYERS.length} unit={t('taxpayers')}
+        ignores={{
+          dateRange: 'ITC ratios describe a taxpayer as they stand today, computed from the whole filing history rather than from returns inside a window.'
+        }}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

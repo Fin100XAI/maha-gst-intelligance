@@ -75,7 +75,12 @@ export default function CounterfactualIntelligence() {
 
       {/* Stated before the figures, not after them: every number below is
           computed over the narrowed set. */}
-      <FilterScope shown={scoped.length} total={COUNTERFACTUALS.length} unit={t('cases')} />
+      <FilterScope shown={scoped.length} total={COUNTERFACTUALS.length} unit={t('cases')}
+        ignores={{
+          dateRange: 'This screen reads a current-state register rather than a stream of dated events, so there is no date on the records to narrow against.',
+          taxpayerType: 'These are case records. Filing status is held on the taxpayer, not on the case, so the platform cannot narrow this list by it without guessing which taxpayer each case belongs to.'
+        }}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
         <KpiCard

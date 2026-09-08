@@ -1,10 +1,51 @@
-export function Card({ title, subtitle, actions, className = '', children, padded = true }) {
+/* The four Google brand hues, in the order they are cycled through. Each entry
+ * is variable-backed rather than literal hex so a theme flip recolours every
+ * card on the next paint with no re-render — the same reason KpiCard's tones
+ * are written this way. */
+export const CARD_TONES = {
+  blue: { rail: 'var(--card-blue-rail)', ink: 'var(--card-blue-ink)', wash: 'var(--card-blue-wash)' },
+  red: { rail: 'var(--card-red-rail)', ink: 'var(--card-red-ink)', wash: 'var(--card-red-wash)' },
+  yellow: { rail: 'var(--card-yellow-rail)', ink: 'var(--card-yellow-ink)', wash: 'var(--card-yellow-wash)' },
+  green: { rail: 'var(--card-green-rail)', ink: 'var(--card-green-ink)', wash: 'var(--card-green-wash)' }
+}
+const TONE_ORDER = ['blue', 'red', 'yellow', 'green']
+
+/* Which hue a card gets when the call site does not name one. Derived from the
+ * title, so a card holds its colour across re-renders and filter changes — a
+ * running counter could not, since cards mount conditionally — and so that the
+ * existing call sites need no edit.
+ *
+ * The title reaching here is already translated, so switching language can
+ * reshuffle which card is which colour. That is deliberate over the
+ * alternatives: the hue carries no meaning (semantic colour stays inside the
+ * card body, where red still means critical), so a different arrangement in
+ * Marathi costs nothing, and the fix would mean threading the untranslated key
+ * through every call site to gain nothing an officer would notice. */
+function toneFromTitle(title) {
+  const s = typeof title === 'string' ? title : ''
+  if (!s) return 'blue'
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0
+  return TONE_ORDER[h % TONE_ORDER.length]
+}
+
+/* `tone` names one of the four explicitly; `plain` opts a card out entirely,
+ * for the few places where a coloured rail would compete with the content it
+ * sits above. */
+export function Card({ title, subtitle, actions, className = '', children, padded = true, tone, plain = false }) {
+  const key = plain ? null : (tone && CARD_TONES[tone] ? tone : toneFromTitle(title))
+  const c = key ? CARD_TONES[key] : null
+
   return (
-    <div className={`bg-white rounded-xl border border-steel-200 shadow-card ${className}`}>
+    <div className={`bg-white rounded-xl border border-steel-200 shadow-card overflow-hidden ${className}`}>
+      {c && <div className="h-[3px] w-full" style={{ backgroundColor: c.rail }} aria-hidden />}
       {(title || actions) && (
-        <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-steel-100">
+        <div
+          className="flex items-start justify-between gap-3 px-5 pt-4 pb-3 border-b border-steel-100"
+          style={c ? { backgroundColor: c.wash } : undefined}
+        >
           <div>
-            {title && <h3 className="text-sm font-semibold text-navy-800">{title}</h3>}
+            {title && <h3 className="text-sm font-semibold" style={c ? { color: c.ink } : undefined}>{title}</h3>}
             {/* A div for the same reason as the header description below: the
                 subtitle is often a <MethodNote>, and a block inside a <p> is
                 invalid markup. */}

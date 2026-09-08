@@ -37,6 +37,7 @@ import ComplianceEarlyWarning from './modules/ComplianceEarlyWarning.jsx'
 import AIGovernanceSecurity from './modules/AIGovernanceSecurity.jsx'
 import ReportsBriefingNotes from './modules/ReportsBriefingNotes.jsx'
 import OfficialStatistics from './modules/OfficialStatistics.jsx'
+import PlatformSettings from './modules/PlatformSettings.jsx'
 
 const MODULE_COMPONENTS = {
   'statutory-time': StatutoryTimeIntelligence,
@@ -66,7 +67,8 @@ const MODULE_COMPONENTS = {
   'early-warning': ComplianceEarlyWarning,
   'ai-governance': AIGovernanceSecurity,
   'reports': ReportsBriefingNotes,
-  'official-statistics': OfficialStatistics
+  'official-statistics': OfficialStatistics,
+  'settings': PlatformSettings
 }
 
 function Shell() {

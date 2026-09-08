@@ -2,15 +2,12 @@ import { useMemo, useRef, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
-import { RiskBadge, HumanReviewBadge, Pill } from '../components/ui/RiskBadge.jsx'
-import { Modal } from '../components/ui/Modal.jsx'
-import { DataTable } from '../components/ui/DataTable.jsx'
+import { Pill } from '../components/ui/RiskBadge.jsx'
 import { RiskDonutChart, HealthRadarChart } from '../components/ui/Charts.jsx'
 import { ScoreGauge } from '../components/ui/ScoreGauge.jsx'
 import { AIOutputPanel } from '../components/ui/AIOutputPanel.jsx'
 import { ExportBar } from '../components/ui/ExportBar.jsx'
 import { FilterScope } from '../components/ui/FilterScope.jsx'
-import { TaxpayerDrilldownModal } from '../components/shared/TaxpayerDrilldownModal.jsx'
 import { CommandBoard } from '../components/shared/CommandBoard.jsx'
 import {
   KPI_SUMMARY, STATE_REVENUE_TREND, DISTRICT_REVENUE,
@@ -25,8 +22,8 @@ import { scaleContext } from '../data/official.js'
  * limitation clock is statutory.js, decay is recovery.js, the establishment is
  * capacity.js, the deduplicated exposure is commandCentre.js, and the standing
  * conditions are commandBoard.js. */
-import { LIMITATION_SUMMARY, LIMITATION_REGISTER } from '../data/statutory.js'
-import { RECOVERY_PORTFOLIO, RECOVERY_CASES } from '../data/recovery.js'
+import { LIMITATION_SUMMARY } from '../data/statutory.js'
+import { RECOVERY_PORTFOLIO } from '../data/recovery.js'
 import { CAPACITY_RESULT } from '../data/capacity.js'
 import { COMMAND_SUMMARY } from '../data/commandCentre.js'
 import { BOARD_SUMMARY } from '../data/commandBoard.js'
@@ -34,19 +31,16 @@ import { useApp, applyGlobalFilters } from '../context/AppContext.jsx'
 import { t } from '../i18n/index.js'
 import {
   ShieldAlert, Sparkles, Landmark, TrendingDown, TrendingUp,
-  MapPin, Bell, Users, FileWarning, Gauge,
+  Bell, FileWarning, Gauge,
   Activity, ClipboardCheck, BadgeCheck, Ban, Clock, UserX, ArrowRight
 } from 'lucide-react'
 
 const caseAgeDays = openedOn => Math.max(0, Math.round((REFERENCE_DATE - new Date(openedOn)) / (1000 * 60 * 60 * 24)))
 const toCr = rupees => Math.round(rupees / 10000000)
-const toLakh = rupees => Math.round(rupees / 100000)
 
 export default function ExecutiveCommandCenter() {
   const { filters, setActiveModule } = useApp()
   const officialScale = scaleContext(TAXPAYERS.length, DISTRICTS.length)
-  const [selectedTaxpayer, setSelectedTaxpayer] = useState(null)
-  const [selectedDistrict, setSelectedDistrict] = useState(null)
   const [briefGenerated, setBriefGenerated] = useState(false)
   const briefRef = useRef(null)
 
@@ -109,10 +103,6 @@ export default function ExecutiveCommandCenter() {
   }, [filteredTaxpayers])
 
 
-  const topRiskTaxpayers = useMemo(
-    () => [...filteredTaxpayers].sort((a, b) => b.risk.score - a.risk.score).slice(0, 10),
-    [filteredTaxpayers]
-  )
 
   const filteredOpenAlerts = useMemo(
     () => [...COMPLIANCE_ALERTS]
@@ -129,22 +119,7 @@ export default function ExecutiveCommandCenter() {
       .sort((a, b) => b.riskScore - a.riskScore),
     [filters]
   )
-  const priorityAlerts = useMemo(() => filteredOpenAlerts.slice(0, 8), [filteredOpenAlerts])
 
-  /* An alert count on its own is a workload figure, not a revenue figure. The
-   * denominator that matters is how many DISTINCT taxpayers those alerts
-   * represent — one entity can trip four rules — and what those entities carry
-   * in exposure. Counted once per taxpayer, the same discipline the command
-   * centre applies to its own headline. */
-  const alertBasis = useMemo(() => {
-    const ids = new Set(filteredOpenAlerts.map(a => a.taxpayerId))
-    const exposure = filteredTaxpayers.filter(tp => ids.has(tp.id)).reduce((s, tp) => s + tp.estimatedRevenueExposure, 0)
-    const totalInScope = COMPLIANCE_ALERTS.filter(a =>
-      (filters.district === 'All Districts' || a.district === filters.district) &&
-      (filters.sector === 'All Sectors' || a.sector === filters.sector)
-    ).length
-    return { taxpayers: ids.size, exposureCr: toCr(exposure), totalInScope }
-  }, [filteredOpenAlerts, filteredTaxpayers, filters.district, filters.sector])
 
   const kpis = useMemo(() => {
     const highRiskEntities = filteredTaxpayers.filter(tp => tp.risk.category === 'High' || tp.risk.category === 'Critical')
@@ -210,12 +185,8 @@ export default function ExecutiveCommandCenter() {
     }
   }, [filteredDistrictRevenue])
 
-  const lateFilerCount = filteredTaxpayers.filter(tp => tp.filingStatus === 'Late Filer').length
   const nonFilerCount = filteredTaxpayers.filter(tp => tp.filingStatus === 'Non-Filer').length
-  const criticalRiskCount = filteredTaxpayers.filter(tp => tp.risk.category === 'Critical').length
-  const highRiskCount = filteredTaxpayers.filter(tp => tp.risk.category === 'High').length
 
-  const districtMax = Math.max(...filteredDistrictRevenue.map(d => d.riskTaxpayers), 1)
 
   const brief = useMemo(
     () => generateExecutiveBrief(KPI_SUMMARY, DISTRICT_REVENUE, KPI_SUMMARY.complianceAlerts),
@@ -361,58 +332,22 @@ export default function ExecutiveCommandCenter() {
     return { sanctionedExposureCr, atRiskCount, delayedCount, highestRisk }
   }, [filteredAuditCasesFull])
 
-  /* The two facts that turn a risk ranking into a work order: how long the
-   * statutory clock has left, and what the case loses by waiting a week. Both
-   * are looked up, never recomputed — the limitation register is built from the
-   * audit caseload and the recovery window from taxpayers carrying a triggered
-   * rule, so a taxpayer absent from either is shown as such rather than
-   * defaulted to a number that would read as a real one. */
-  const limitationByGstin = useMemo(() => new Map(LIMITATION_REGISTER.map(r => [r.gstin, r])), [])
-  const recoveryByGstin = useMemo(() => new Map(RECOVERY_CASES.map(r => [r.gstin, r])), [])
 
-  const tileTone = riskTaxpayers => {
-    const ratio = riskTaxpayers / districtMax
-    if (ratio > 0.75) return RISK_COLORS.Critical
-    if (ratio > 0.5) return RISK_COLORS.High
-    if (ratio > 0.25) return RISK_COLORS.Medium
-    return RISK_COLORS.Low
-  }
 
-  const riskTableColumns = [
-    { key: 'tradeName', label: t('Taxpayer'), render: r => (
-      <div>
-        <div className="font-semibold text-navy-900">{r.tradeName}</div>
-        <div className="text-[11px] text-steel-500">{r.gstin}</div>
-      </div>
-    ) },
-    { key: 'district', label: t('District'), render: r => t(r.district) },
-    { key: 'estimatedRevenueExposure', label: t('Exposure'), align: 'right', render: r => `₹${(r.estimatedRevenueExposure / 100000).toFixed(1)}L` },
-    {
-      key: 'deadline',
-      label: t('Statutory clock'),
-      align: 'right',
-      sortValue: r => limitationByGstin.get(r.gstin)?.daysRemaining ?? 99999,
-      render: r => {
-        const lim = limitationByGstin.get(r.gstin)
-        if (!lim) return <span className="text-[11px] text-steel-400">{t('No proceeding on record')}</span>
-        if (lim.daysRemaining < 0) return <Pill tone="red">{t('Time-barred')}</Pill>
-        if (lim.daysRemaining <= 30) return <Pill tone="red">{t('{0} days', lim.daysRemaining)}</Pill>
-        if (lim.daysRemaining <= 90) return <Pill tone="amber">{t('{0} days', lim.daysRemaining)}</Pill>
-        return <span className="text-[11px] text-steel-600 tabular-nums">{t('{0} days', lim.daysRemaining)}</span>
-      }
-    },
-    {
-      key: 'decay',
-      label: t('Lost if untouched 7 days'),
-      align: 'right',
-      sortValue: r => recoveryByGstin.get(r.gstin)?.decayNextWeek ?? -1,
-      render: r => {
-        const rec = recoveryByGstin.get(r.gstin)
-        if (!rec) return <span className="text-[11px] text-steel-400">{t('Not in the recovery window')}</span>
-        return <span className="tabular-nums font-semibold text-navy-900">{t('₹{0} L', toLakh(rec.decayNextWeek))}</span>
-      }
-    },
-    { key: 'risk', label: t('Risk'), align: 'right', sortValue: r => r.risk.score, render: r => <RiskBadge category={r.risk.category} score={r.risk.score} /> }
+  /* The five screens that hold the actual queues. Each carries its own count so
+   * the officer knows the size of what they are opening, but the count is stated
+   * once — here as a destination, not again as a headline tile. */
+  const workedOn = [
+    { module: 'revenue-intelligence', label: 'Revenue Intelligence', icon: Landmark,
+      count: t('₹{0} Cr high-risk exposure', kpis.highRiskExposureCr.toLocaleString('en-IN')) },
+    { module: 'itc-risk', label: 'ITC Risk Intelligence', icon: FileWarning,
+      count: t('{0} cases', kpis.itcRiskCases) },
+    { module: 'refund-risk', label: 'Refund Risk Intelligence', icon: Gauge,
+      count: t('{0} under review', kpis.refundCasesUnderReview) },
+    { module: 'audit-scrutiny', label: 'Audit & Scrutiny Engine', icon: TrendingUp,
+      count: t('₹{0} Cr in pipeline', kpis.auditRecoveryPipelineCr.toLocaleString('en-IN')) },
+    { module: 'early-warning', label: 'Compliance Early Warning', icon: Bell,
+      count: t('{0} open alerts', filteredOpenAlerts.length) }
   ]
 
   const statewidePill = <Pill tone="steel">{t('Statewide — not narrowed by the filter bar')}</Pill>
@@ -467,8 +402,9 @@ export default function ExecutiveCommandCenter() {
         </button>
       </div>
 
-      {/* ---------- WHAT NEEDS A DECISION TODAY ----------
-          Irreversible loss first, then what is still in play. Ordering these by
+      <Band label={t('Decide')} />
+
+      {/* Irreversible loss first, then what is still in play. Ordering these by
           rupee value would put the recoverable above the irrecoverable. */}
       <Card
         className="mb-5"
@@ -502,7 +438,8 @@ export default function ExecutiveCommandCenter() {
         <CommandBoard onOpen={setActiveModule} />
       </div>
 
-      {/* ---------- CAN THE DEPARTMENT ACT ON IT? ---------- */}
+      <Band label={t('Act')} />
+
       <Card
         className="mb-5"
         title={t('Can the department act on what it has found?')}
@@ -545,12 +482,14 @@ export default function ExecutiveCommandCenter() {
         {/* Three causes, three different remedies. The remedies themselves are
             set out where the deployment decision is actually taken — repeating
             them here would be the same paragraph on two screens. */}
-        <p className="text-[12px] text-steel-700 leading-relaxed mb-4">
-          {capacity.unworkableCount > 0
-            ? t('Of the {0} cases nobody can work: {1} have no eligible officer posted in that division at all, which is a posting decision; {2} have eligible officers whose week is already spent, which is a volume decision; and {3} need more than one officer-week and cannot be placed inside a seven-day horizon however many officers are added.',
-              capacity.unworkableCount, capacity.noEligibleOfficer, capacity.noCapacity, capacity.exceedsWeek)
-            : t('Every case in this week’s demand was placed with an eligible officer.')}
-        </p>
+        {capacity.unworkableCount > 0
+          ? <MethodNote
+            className="mb-4 max-w-4xl"
+            short={t('{0} unworkable cases, from three different causes with three different remedies.', capacity.unworkableCount)}
+            full={t('Of the {0} cases nobody can work: {1} have no eligible officer posted in that division at all, which is a posting decision; {2} have eligible officers whose week is already spent, which is a volume decision; and {3} need more than one officer-week and cannot be placed inside a seven-day horizon however many officers are added.',
+              capacity.unworkableCount, capacity.noEligibleOfficer, capacity.noCapacity, capacity.exceedsWeek)}
+          />
+          : <p className="text-[12px] text-steel-700 leading-relaxed mb-4">{t('Every case in this week’s demand was placed with an eligible officer.')}</p>}
 
         <div className="rounded-lg border border-navy-200 bg-navy-50/50 px-4 py-3 flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <span className="text-[12px] text-navy-800 leading-relaxed">
@@ -567,60 +506,34 @@ export default function ExecutiveCommandCenter() {
         </div>
       </Card>
 
-      {/* KPI row — every tile carries the base it is measured against. */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
-        <div>
-          <KpiCard
-            label={t('GST Revenue Monitored')}
-            value={revenueMonitoredCr.toLocaleString('en-IN')}
-            unit={t('₹ Cr')}
-            tone="navy"
-            icon={Landmark}
-            trend={!districtScoped && revenueComparator ? revenueComparator.pct : undefined}
-            trendLabel={!districtScoped && revenueComparator ? t('vs {0}', revenueComparator.againstMonth) : undefined}
-            onClick={() => setActiveModule('revenue-intelligence')}
-          />
-          <p className="text-[10.5px] text-steel-500 leading-snug mt-1.5 px-1">
-            {districtScoped
-              ? t('Latest month across {0} districts in scope. No per-district monthly series exists, so the year-on-year comparator is not shown rather than borrowed from the statewide figure.', collectionGap.districtCount)
-              : t('{0} months to {1}, against a {2} target.', filteredTrend.length, lastMonth.month, t('₹{0} Cr', lastMonth.target.toLocaleString('en-IN')))}
-          </p>
+      {/* Where the work itself is done. This replaced a row of inventory tiles
+          that restated, as counts, the same five screens the officer reaches
+          from here — the count belongs on the screen that can act on it. */}
+      <Card
+        className="mb-5"
+        title={t('Where these are worked')}
+        subtitle={t('Each queue is held and actioned on its own screen, with the count that matters there')}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+          {workedOn.map(w => (
+            <button
+              key={w.module}
+              onClick={() => setActiveModule(w.module)}
+              className="text-left rounded-lg border border-steel-200 bg-steel-50/60 px-3 py-2.5 hover:border-navy-300 hover:bg-navy-50/40 transition-colors"
+            >
+              <span className="flex items-center gap-1.5 text-[11px] font-semibold text-navy-800">
+                <w.icon className="w-3.5 h-3.5 text-steel-400 shrink-0" />
+                <span className="truncate">{t(w.label)}</span>
+              </span>
+              <span className="block text-[10.5px] text-steel-500 mt-1">{w.count}</span>
+            </button>
+          ))}
         </div>
-        <div>
-          <KpiCard label={t('High-Risk Exposure')} value={kpis.highRiskExposureCr.toLocaleString('en-IN')} unit={t('₹ Cr')} tone="red" icon={ShieldAlert} onClick={() => setActiveModule('revenue-intelligence')} />
-          <p className="text-[10.5px] text-steel-500 leading-snug mt-1.5 px-1">
-            {t('{0}% of ₹{1} Cr assessed exposure in scope, held by {2} entities.', kpis.highRiskSharePct, kpis.totalExposureCr.toLocaleString('en-IN'), kpis.highRiskEntityCount)}
-          </p>
-        </div>
-        <div>
-          <KpiCard label={t('ITC Risk Cases')} value={kpis.itcRiskCases} tone="saffron" icon={FileWarning} onClick={() => setActiveModule('itc-risk')} />
-          <p className="text-[10.5px] text-steel-500 leading-snug mt-1.5 px-1">
-            {t('{0}% of the {1} taxpayers in scope carry an ITC spike or a circular-trading signal.', kpis.itcSharePct, filteredTaxpayers.length.toLocaleString('en-IN'))}
-          </p>
-        </div>
-        <div>
-          <KpiCard label={t('Refund Cases Under Review')} value={kpis.refundCasesUnderReview} tone="steel" icon={Gauge} onClick={() => setActiveModule('refund-risk')} />
-          <p className="text-[10.5px] text-steel-500 leading-snug mt-1.5 px-1">
-            {t('Of {0} claims in scope, together claiming ₹{1} Cr.', kpis.refundTotal, kpis.refundClaimedCr.toLocaleString('en-IN'))}
-          </p>
-        </div>
-        <div>
-          <KpiCard label={t('Audit Recovery Pipeline')} value={kpis.auditRecoveryPipelineCr.toLocaleString('en-IN')} unit={t('₹ Cr')} tone="green" icon={TrendingUp} onClick={() => setActiveModule('audit-scrutiny')} />
-          <p className="text-[10.5px] text-steel-500 leading-snug mt-1.5 px-1">
-            {kpis.recoveryCoveragePct != null
-              ? t('Covers {0}% of the high-risk exposure alongside it.', kpis.recoveryCoveragePct)
-              : t('No high-risk exposure in scope to measure this against.')}
-          </p>
-        </div>
-        <div>
-          <KpiCard label={t('Compliance Alerts (Open)')} value={filteredOpenAlerts.length} tone="red" icon={Bell} onClick={() => setActiveModule('early-warning')} />
-          <p className="text-[10.5px] text-steel-500 leading-snug mt-1.5 px-1">
-            {t('Of {0} raised in scope, on {1} distinct taxpayers carrying ₹{2} Cr of exposure counted once.', alertBasis.totalInScope, alertBasis.taxpayers, alertBasis.exposureCr.toLocaleString('en-IN'))}
-          </p>
-        </div>
-      </div>
+      </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+      <Band label={t('Position')} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
         {/* Revenue & Finance */}
         <Card title={t('Revenue & Finance')} subtitle={t('Collection realisation against target, the district book behind it, and exposure locked in non-filing')}>
           <div className="mb-4">
@@ -705,6 +618,14 @@ export default function ExecutiveCommandCenter() {
             )}
           </div>
         </Card>
+
+        {/* Risk distribution */}
+        <Card title={t('Taxpayer Risk Distribution')} subtitle={isFilteredView ? t('{0} taxpayers matching current filters', filteredTaxpayers.length) : t('{0} taxpayers monitored statewide', filteredTaxpayers.length)}>
+          <RiskDonutChart
+            data={riskDistribution}
+            colors={{ Low: RISK_COLORS.Low.solid, Medium: RISK_COLORS.Medium.solid, High: RISK_COLORS.High.solid, Critical: RISK_COLORS.Critical.solid }}
+          />
+        </Card>
       </div>
 
       {/* Revenue & Compliance Health Index — weighted composite, disclosed not hidden */}
@@ -749,115 +670,6 @@ export default function ExecutiveCommandCenter() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-        {/* Risk distribution */}
-        <Card title={t('Taxpayer Risk Distribution')} subtitle={isFilteredView ? t('{0} taxpayers matching current filters', filteredTaxpayers.length) : t('{0} taxpayers monitored statewide', filteredTaxpayers.length)}>
-          <RiskDonutChart
-            data={riskDistribution}
-            colors={{ Low: RISK_COLORS.Low.solid, Medium: RISK_COLORS.Medium.solid, High: RISK_COLORS.High.solid, Critical: RISK_COLORS.Critical.solid }}
-          />
-        </Card>
-
-        {/* Matters requiring attention */}
-        <Card
-          className="lg:col-span-2"
-          title={t('Matters Requiring Attention')}
-          subtitle={t('The {0} highest-scoring of {1} open alerts, each carrying the action it recommends', priorityAlerts.length, filteredOpenAlerts.length)}
-        >
-          <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
-            {priorityAlerts.map(a => {
-              const category = riskCategoryFromScore(a.riskScore)
-              const sev = category === 'Critical' ? { tone: 'red', label: t('Critical') } : { tone: 'amber', label: t('High') }
-              return (
-                <button
-                  key={a.id}
-                  onClick={() => setSelectedTaxpayer(TAXPAYERS.find(tp => tp.id === a.taxpayerId))}
-                  className="w-full text-left px-3 py-2.5 rounded-lg border border-steel-200 hover:border-navy-300 hover:bg-navy-50/40 transition-colors"
-                >
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Pill tone={sev.tone}>{t(sev.label)}</Pill>
-                    <span className="text-[10px] font-semibold uppercase tracking-wide text-steel-400">{t(a.type)}</span>
-                  </div>
-                  <div className="text-xs font-semibold text-navy-900">{a.tradeName} · {t(a.district)}</div>
-                  <p className="text-[11px] text-steel-500 mt-0.5 leading-snug">{t(a.recommendedAction)}</p>
-                </button>
-              )
-            })}
-            {priorityAlerts.length === 0 && <div className="text-xs text-steel-500 py-4 text-center">{t('No open high-risk alerts.')}</div>}
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
-        {/* District heatmap */}
-        <Card
-          className="lg:col-span-2"
-          title={t('District Risk Heatmap')}
-          subtitle={t('Shaded by count of High/Critical-risk taxpayers, with each district’s collection gap beneath — click a district for detail')}
-          actions={isFilteredView ? <Pill tone="navy">{t('Filtered view active')}</Pill> : null}
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-            {filteredDistrictRevenue.map(d => {
-              const c = tileTone(d.riskTaxpayers)
-              return (
-                <button
-                  key={d.district}
-                  onClick={() => setSelectedDistrict(d)}
-                  className={`text-left rounded-lg border ${c.border} ${c.bg} p-3 hover:-translate-y-0.5 hover:shadow-panel transition-all`}
-                >
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="text-xs font-semibold text-navy-900 truncate">{t(d.district)}</span>
-                    <MapPin className={`w-3 h-3 ${c.text} shrink-0`} />
-                  </div>
-                  <div className={`text-lg font-bold mt-1 ${c.text}`}>{d.riskTaxpayers}</div>
-                  <div className="text-[10px] text-steel-500">{t('high/critical taxpayers')}</div>
-                  <div className="text-[10px] text-steel-500 mt-1">{t('Gap:')} {d.gapPct >= 0 ? '+' : ''}{d.gapPct}%</div>
-                </button>
-              )
-            })}
-            {filteredDistrictRevenue.length === 0 && (
-              <div className="col-span-full text-xs text-steel-500 py-6 text-center">{t('No district matches the current filters.')}</div>
-            )}
-          </div>
-        </Card>
-
-        {/* Supporting stats */}
-        <Card title={t('Filing Behaviour Snapshot')} subtitle={isFilteredView ? t('Filer status — matching current filters') : t('Statewide filer status')}>
-          <div className="space-y-3">
-            <StatRow icon={FileWarning} tone="red" label={t('Non-Filers')} value={nonFilerCount} sub={t('{0}% of taxpayer base', filteredTaxpayers.length ? ((nonFilerCount / filteredTaxpayers.length) * 100).toFixed(1) : '0.0')} />
-            <StatRow icon={TrendingDown} tone="amber" label={t('Late Filers')} value={lateFilerCount} sub={t('{0}% of taxpayer base', filteredTaxpayers.length ? ((lateFilerCount / filteredTaxpayers.length) * 100).toFixed(1) : '0.0')} />
-            <StatRow icon={Users} tone="navy" label={t('Critical Risk Entities')} value={criticalRiskCount} sub={t('Requires immediate officer attention')} />
-            <StatRow icon={ShieldAlert} tone="orange" label={t('High Risk Entities')} value={highRiskCount} sub={t('Prioritised for scrutiny / audit')} />
-          </div>
-        </Card>
-      </div>
-
-      {/* Top risk clusters table */}
-      <Card
-        title={t('Top 10 Highest-Risk Taxpayers')}
-        subtitle={<MethodNote short={t('Risk rank is not work order — the statutory clock decides.')} full={t('Risk rank is not work order. The statutory clock and the value lost by waiting a week are shown beside the score, because a high score with eighty days on the clock can wait and a lower one expiring on Friday cannot.')} />}
-        className="mb-5"
-        actions={topRiskTaxpayers.some(tp => tp.risk.category === 'High' || tp.risk.category === 'Critical')
-          ? <div className="flex items-center gap-2">
-            <HumanReviewBadge />
-            <button
-              onClick={() => setActiveModule('case-priority')}
-              className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-navy-700 hover:underline whitespace-nowrap"
-            >
-              {t('Open work order')} <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-          : null}
-      >
-        <DataTable
-          columns={riskTableColumns}
-          rows={topRiskTaxpayers}
-          onRowClick={row => setSelectedTaxpayer(row)}
-          searchable={false}
-          pageSize={10}
-        />
-      </Card>
-
       {/* Executive brief — governed AI layer, generated inline rather than in a modal */}
       <div ref={briefRef}>
         <Card
@@ -887,44 +699,18 @@ export default function ExecutiveCommandCenter() {
         </Card>
       </div>
 
-      <Modal
-        open={!!selectedDistrict}
-        onClose={() => setSelectedDistrict(null)}
-        size="md"
-        title={t(selectedDistrict?.district)}
-        subtitle={t(selectedDistrict?.division)}
-      >
-        {selectedDistrict && (
-          <div className="grid grid-cols-2 gap-3">
-            <MiniStat label={t('Target Collection')} value={t('₹{0} Cr', selectedDistrict.targetCr.toLocaleString('en-IN'))} />
-            <MiniStat label={t('Actual Collection')} value={t('₹{0} Cr', selectedDistrict.actualCr.toLocaleString('en-IN'))} />
-            <MiniStat label={t('Collection Gap')} value={`${selectedDistrict.gapPct >= 0 ? '+' : ''}${selectedDistrict.gapPct}%`} />
-            <MiniStat label={t('High/Critical Risk Taxpayers')} value={selectedDistrict.riskTaxpayers} />
-            <MiniStat label={t('Non-Filers')} value={selectedDistrict.nonFilers} />
-            <MiniStat label={t('Audit Recovery')} value={t('₹{0} Cr', selectedDistrict.auditRecoveryCr)} />
-            <MiniStat label={t('Officer Workload Index')} value={selectedDistrict.officerWorkload} />
-            <MiniStat label={t('Avg. Case Ageing')} value={t('{0} days', selectedDistrict.caseAgeingDays)} />
-          </div>
-        )}
-      </Modal>
-
-      <TaxpayerDrilldownModal taxpayer={selectedTaxpayer} open={!!selectedTaxpayer} onClose={() => setSelectedTaxpayer(null)} />
     </div>
   )
 }
 
-function StatRow({ icon: Icon, tone, label, value, sub }) {
-  const st = TONE_STYLES[tone] || TONE_STYLES.steel
+/* The three questions this screen answers, in the order an officer asks them.
+ * A band label is cheaper than a paragraph explaining why a card sits where it
+ * does, and it survives translation without carrying a sentence. */
+function Band({ label }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border px-3 py-2.5" style={{ backgroundColor: st.bg, borderColor: st.border }}>
-      <span className="p-2 rounded-lg shrink-0" style={{ backgroundColor: st.iconBg, color: st.accent }}><Icon className="w-4 h-4" /></span>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-xs font-medium" style={{ color: st.accent }}>{label}</span>
-          <span className="text-base font-bold tabular-nums" style={{ color: st.accent }}>{value}</span>
-        </div>
-        <div className="text-[10.5px] text-steel-500">{sub}</div>
-      </div>
+    <div className="flex items-center gap-3 mt-7 mb-3 first:mt-0">
+      <span className="text-[10.5px] font-bold uppercase tracking-[0.13em] text-steel-500 shrink-0">{label}</span>
+      <span className="h-px flex-1 bg-steel-200" />
     </div>
   )
 }

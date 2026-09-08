@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { SectionHeader, Card } from '../components/ui/Card.jsx'
+import { FilterScope } from '../components/ui/FilterScope.jsx'
 import { MethodNote } from '../components/ui/MethodNote.jsx'
 import { KpiCard, TONE_STYLES } from '../components/ui/KpiCard.jsx'
 import { RiskBadge, Pill } from '../components/ui/RiskBadge.jsx'
@@ -384,6 +385,8 @@ export default function RevenueIntelligence() {
         description={<MethodNote short={t('Collection against target, leakage indicators, and near-term risk.')} full={t('Statewide revenue assurance engine — tracks collection performance against target, surfaces leakage indicators and forecasts near-term risk to state GST revenue.')} />}
         actions={<ExportBar moduleLabel="Revenue Intelligence" getBriefingText={briefingText} />}
       />
+
+      <FilterScope shown={filteredDistricts.length} total={DISTRICT_REVENUE.length} unit={t('districts')} />
 
       {/* The gap, stated once, with whose it is. */}
       <div className="mb-6 rounded-xl border border-navy-200 bg-gradient-to-br from-navy-50/70 to-surface p-5">

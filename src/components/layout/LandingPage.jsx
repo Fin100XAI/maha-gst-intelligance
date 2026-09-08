@@ -88,15 +88,20 @@ const TRUST_PRINCIPLES = [
   }
 ]
 
+/* Tone tracks the stage of the revenue lifecycle rather than the section name:
+   red where value is actively being lost, saffron where it is being found,
+   orange where it is being worked, green where it is being defended or
+   assured, steel for the platform itself. */
 const GROUP_TONE = {
   'Command Centre': 'navy',
-  'Revenue at Risk': 'red',
-  'Case Priority': 'orange',
+  'Revenue Position': 'navy',
+  'Statutory Time & Decay': 'red',
   'Risk Discovery': 'saffron',
-  'Missed Revenue': 'navy',
+  'Work Allocation': 'orange',
+  'Casework': 'orange',
   'Legal Standing': 'green',
-  'Benchmarking': 'navy',
-  'Data Resources': 'green',
+  'Revenue Assurance': 'green',
+  'Data Resources': 'steel',
   'Governance': 'steel'
 }
 
@@ -129,7 +134,8 @@ const MODULE_DESCRIPTIONS = {
   'extract-spec': 'The field-level column list for the pilot — format, source and the engine each column unlocks.',
   'engine-stack': 'Fifteen intelligence engines mapped against the fields that actually exist, with what the pilot extract must carry.',
   'ai-governance': 'Model logs, override history and the guardrails every recommendation runs through.',
-  reports: 'Ready-made briefing notes and exportable reports for every review cycle.'
+  reports: 'Ready-made briefing notes and exportable reports for every review cycle.',
+  settings: 'Which role can open which screen, read out of the configuration the platform enforces.'
 }
 
 function tickerItems() {
