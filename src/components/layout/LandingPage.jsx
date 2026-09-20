@@ -164,6 +164,27 @@ export function LandingPage({ onEnter }) {
               <div className="text-sm font-bold tracking-wide truncate">{t('MAHA GST INTELLIGENCE')}</div>
             </div>
           </div>
+          {/* Horizontal section menu. The bar already existed with a brand, the
+              display controls and Officer Sign-In, but nothing linking to the
+              1,145 words below it — a visitor could only scroll. Anchors to this
+              page's own sections, not to app routes, which sit behind sign-in. */}
+          <nav aria-label={t('Sections')} className="hidden lg:flex items-center gap-0.5 mx-auto">
+            {[
+              ['#platform', t('Platform')],
+              ['#surfaces', t('Surfaces')],
+              ['#coverage', t('Coverage')],
+              ['#assurance', t('Assurance')],
+            ].map(([href, label]) => (
+              <a
+                key={href}
+                href={href}
+                className="px-3 py-2 rounded-lg text-[13px] font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+
           <div className="flex items-center gap-2 shrink-0">
             <FontSizeControl className="hidden sm:flex bg-white/10 border-white/15" />
             <ThemeSwitcher className="bg-white/10 border-white/15" />
@@ -258,7 +279,7 @@ export function LandingPage({ onEnter }) {
       </section>
 
       {/* Value props */}
-      <section className="max-w-6xl mx-auto px-6 pb-16">
+      <section id="platform" className="max-w-6xl mx-auto px-6 pb-16">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('What This Platform Does')}</div>
           <h2 className="text-2xl font-bold text-navy-900">{t('Intelligence infrastructure, not another dashboard')}</h2>
@@ -309,7 +330,7 @@ export function LandingPage({ onEnter }) {
       </section>
 
       {/* District coverage */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section id="coverage" className="max-w-6xl mx-auto px-6 py-16">
         <div className="text-center max-w-2xl mx-auto mb-8">
           <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('Coverage In This Demonstration')}</div>
           <h2 className="text-2xl font-bold text-navy-900">{t('{0} districts modelled, one consolidated view', DISTRICTS.length)}</h2>
@@ -328,7 +349,7 @@ export function LandingPage({ onEnter }) {
 
       {/* Built to be accountable — the four properties that hold regardless of which
           module an officer is standing in, each checkable from inside the platform. */}
-      <section className="bg-white border-y border-steel-200">
+      <section id="assurance" className="bg-white border-y border-steel-200">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="max-w-2xl mb-10">
             <div className="text-[11px] font-bold uppercase tracking-wider text-govt-600 mb-2">{t('Assurance')}</div>
