@@ -7,7 +7,7 @@
 ---
 
 ```
-You are building GST DRISHTI - a GST compliance intelligence platform for a State
+You are building GST Intelligence - a GST compliance intelligence platform for a State
 Commercial Taxes Department (first deployment: Government of Maharashtra). Act as a
 principal engineer with deep experience in regulated fintech and government systems.
 

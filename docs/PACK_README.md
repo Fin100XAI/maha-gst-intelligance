@@ -1,4 +1,4 @@
-# GST DRISHTI - Claude Code build pack (v2)
+# GST Intelligence - Claude Code build pack (v2)
 
 Instructions for building a GST compliance intelligence platform for State GST
 officers **and** decision makers. Five documents. No code - this is what you hand to

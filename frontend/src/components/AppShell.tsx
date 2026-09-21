@@ -1,12 +1,11 @@
 import clsx from 'clsx'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronRight, Menu, X } from 'lucide-react'
+import { ChevronRight, X } from 'lucide-react'
 import { useState } from 'react'
 import type { JSX } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useI18n } from '../i18n'
 import { api } from '../lib/api'
-import { ContextBar } from './layout/ContextBar'
 import { Masthead } from './layout/Masthead'
 import { LANGUAGES, LANGUAGE_LABEL } from '../i18n/strings'
 import { NAV_GROUPS, surfaceOf } from '../lib/navigation'
@@ -145,15 +144,21 @@ function PersonPicker(): JSX.Element {
           setOpen((current) => !current)
         }}
         aria-expanded={open}
-        className="flex items-center gap-2 rounded border border-line px-2 py-1 text-left transition-colors hover:bg-sunken"
+        /* The trigger sits on the band, which is fixed dark in both themes,
+           so its colours are fixed too. Themed ink here rendered white on
+           blue in light mode and vanished. Same pairing rule as tokens.css:
+           fixed ground, fixed ink. */
+        className="flex items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-2.5 py-1 text-left transition-colors hover:bg-white/20"
       >
-        <span>
-          <span className="block text-xs font-medium leading-tight">{person.name}</span>
-          <span className="block text-xs leading-tight text-ink-muted">
+        <span className="min-w-0">
+          <span className="block truncate text-xs font-semibold leading-tight text-white">
+            {person.name}
+          </span>
+          <span className="block truncate text-[10px] leading-tight text-white/65">
             {person.designation}
           </span>
         </span>
-        <span aria-hidden="true" className="text-xs text-ink-muted">
+        <span aria-hidden="true" className="text-[10px] text-white/65">
           ▾
         </span>
       </button>
@@ -271,78 +276,61 @@ export function AppShell(): JSX.Element {
         {t('app.skipToContent')}
       </a>
 
-      {/* The department's identity band, then the gold rule that marks where
-          it ends and the working surfaces begin. */}
-      <Masthead />
+      {/* One band. The identity, the run the screens are reading, and the
+          officer's own controls, on a single strip. It replaced three: this
+          band, a separate utility bar, and a breadcrumb line - three borders
+          and three backgrounds before the first figure. The controls travel
+          as children rather than being rebuilt inside the band, so the band
+          stays a layout and the session controls stay here where they are
+          read together. */}
+      <Masthead
+        onOpenNav={() => {
+          setDrawerOpen(true)
+        }}
+      >
+        <NavLink
+          to="/guide"
+          className="rounded-lg border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-white/85 transition-colors hover:bg-white/20 hover:text-white"
+        >
+          {t('nav.guide')}
+        </NavLink>
 
-      {/* The utility bar: who you are, and how the page is displayed.
-          It carries no destinations except the Guide. Navigation is the rail
-          on the left, and it was worth removing this row's copy of it: the
-          same two names appeared here, again in a horizontal group bar, and
-          again in the breadcrumb -- three rows of chrome saying "Dashboard"
-          before a single figure. */}
-      <header className="sticky top-0 z-20 border-b border-line bg-raised/95 backdrop-blur">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-1.5 sm:px-5">
-          <button
-            type="button"
-            aria-label="Open navigation"
-            aria-expanded={drawerOpen}
-            onClick={() => {
-              setDrawerOpen(true)
+        <PersonPicker />
+
+        <label className="flex items-center gap-1.5">
+          <span className="sr-only">{t('language.toggle')}</span>
+          <select
+            className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-xs text-white [&>option]:text-ink"
+            value={language}
+            onChange={(event) => {
+              setLanguage(event.target.value as typeof language)
             }}
-            className="rounded-lg border border-line p-1.5 text-ink-secondary transition-colors hover:bg-sunken hover:text-ink lg:hidden"
           >
-            <Menu className="h-4 w-4" />
-          </button>
+            {LANGUAGES.map((code) => (
+              <option key={code} value={code}>
+                {LANGUAGE_LABEL[code]}
+              </option>
+            ))}
+          </select>
+        </label>
 
-          <NavLink
-            to="/guide"
-            className="rounded border border-line px-2 py-1 text-xs text-ink-secondary transition-colors hover:bg-sunken hover:text-ink"
+        <label className="flex items-center gap-1.5">
+          <span className="sr-only">{t('theme.toggle')}</span>
+          <select
+            className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-xs text-white [&>option]:text-ink"
+            value={theme}
+            onChange={(event) => {
+              setTheme(event.target.value as Theme)
+            }}
           >
-            {t('nav.guide')}
-          </NavLink>
-
-          <div className="ml-auto flex flex-wrap items-center gap-3">
-            <PersonPicker />
-
-            <label className="flex items-center gap-1.5 text-xs text-ink-secondary">
-              <span className="sr-only">{t('language.toggle')}</span>
-              <select
-                className="rounded border border-line bg-raised px-2 py-1 text-xs text-ink"
-                value={language}
-                onChange={(event) => {
-                  setLanguage(event.target.value as typeof language)
-                }}
-              >
-                {LANGUAGES.map((code) => (
-                  <option key={code} value={code}>
-                    {LANGUAGE_LABEL[code]}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex items-center gap-1.5 text-xs text-ink-secondary">
-              <span className="sr-only">{t('theme.toggle')}</span>
-              <select
-                className="rounded border border-line bg-raised px-2 py-1 text-xs text-ink"
-                value={theme}
-                onChange={(event) => {
-                  setTheme(event.target.value as Theme)
-                }}
-              >
-                {THEMES.map((candidate) => (
-                  <option key={candidate} value={candidate}>
-                    {t(THEME_LABEL[candidate])}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </div>
-      </header>
-
-      <ContextBar />
+            {THEMES.map((candidate) => (
+              <option key={candidate} value={candidate}>
+                {t(THEME_LABEL[candidate])}
+              </option>
+            ))}
+          </select>
+        </label>
+      </Masthead>
 
       {/* Below `lg` the groups become a drawer: eleven group names across one
           line is unusable on a phone, and a rail behind a control is still the

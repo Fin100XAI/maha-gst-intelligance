@@ -1,4 +1,4 @@
-# GST DRISHTI
+# GST Intelligence
 #
 # Every gate in docs/04 is reachable from here, and CI runs exactly these
 # targets.  If a check is not in this file it is not a standard.

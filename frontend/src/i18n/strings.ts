@@ -19,7 +19,7 @@ export const LANGUAGES = ['en', 'mr'] as const
 export type Language = (typeof LANGUAGES)[number]
 
 const en = {
-  'app.name': 'GST DRISHTI',
+  'app.name': 'GST Intelligence',
   'app.tagline': 'Commercial Taxes Department, Government of Maharashtra',
   'app.skipToContent': 'Skip to content',
 
@@ -92,7 +92,7 @@ const en = {
 export type StringKey = keyof typeof en
 
 const mr: Record<StringKey, string> = {
-  'app.name': 'जीएसटी दृष्टी',
+  'app.name': 'जीएसटी इंटेलिजन्स',
   'app.tagline': 'वाणिज्य कर विभाग, महाराष्ट्र शासन',
   'app.skipToContent': 'मजकुराकडे जा',
 

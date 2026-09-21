@@ -64,7 +64,10 @@ class TestTheRequestIdentifiesItself:
 
         # urllib title-cases header names.
         agent = seen["headers"].get("User-agent", "")
-        assert "DRISHTI" in agent
+        # The product token names the platform and carries no space: a space
+        # in a User-Agent product token is a malformed header, which is what
+        # renaming it to "GST Intelligence/0.1" produced before this caught it.
+        assert agent.startswith("GST-Intelligence/")
         assert "urllib" not in agent.lower()
 
     def test_the_key_is_sent_as_a_bearer_token_and_nowhere_else(

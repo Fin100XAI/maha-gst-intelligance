@@ -192,7 +192,7 @@ export default function Landing(): JSX.Element {
           <div className="flex min-w-0 items-center gap-2.5">
             <Logo size="sm" />
             <div className="min-w-0 truncate text-sm font-bold tracking-wide">
-              GST DRISHTI
+              GST Intelligence
             </div>
           </div>
 
@@ -461,7 +461,7 @@ export default function Landing(): JSX.Element {
 
       <footer className="bg-govt-900 text-[11px] text-govt-200">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 border-b border-white/10 px-6 pb-5 pt-6 sm:flex-row">
-          <span>GST DRISHTI · Commercial Taxes Department</span>
+          <span>GST Intelligence · Commercial Taxes Department</span>
           <span className="hidden sm:inline">
             Built in line with GIGW, W3C and WCAG 2.1 accessibility guidance
           </span>

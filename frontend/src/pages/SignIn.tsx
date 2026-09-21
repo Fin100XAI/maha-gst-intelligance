@@ -57,7 +57,7 @@ export default function SignIn(): JSX.Element {
         <div className="mx-auto max-w-md py-8 lg:mx-0">
           <Logo size="xl" className="mb-4" />
           <h1 className="font-display text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
-            GST DRISHTI
+            GST Intelligence
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-govt-100">
             Scrutiny, reconciliation and demand for the Commercial Taxes Department - from the

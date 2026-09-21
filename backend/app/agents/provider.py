@@ -53,7 +53,7 @@ _TEMPERATURE_SLOT: Final[str] = "__drishti_temperature__"
 
 
 #: Sent on every request. Some gateways 403 urllib's default agent.
-_USER_AGENT: Final[str] = "GST-DRISHTI/0.1 (Commercial Taxes Department, Maharashtra)"
+_USER_AGENT: Final[str] = "GST-Intelligence/0.1 (Commercial Taxes Department, Maharashtra)"
 
 #: How much of an error body to carry into the exception message.
 _DETAIL_CHARS: Final[int] = 300

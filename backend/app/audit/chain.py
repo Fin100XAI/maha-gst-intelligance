@@ -41,6 +41,10 @@ __all__ = [
 
 #: The anchor the first entry chains to.  Changing this string invalidates every
 #: existing chain, which is the point: it is a version marker for the scheme.
+# The genesis seed is frozen, and is NOT renamed with the product. Every
+# audit row's hash descends from it, so changing these bytes would make every
+# chain already written fail verification -- and the chain is the evidence
+# that an officer's action happened when the log says it did.
 GENESIS_HASH: Final[str] = hashlib.sha256(b"GST-DRISHTI-AUDIT-GENESIS-v1").hexdigest()
 
 #: The fields that are bound into the chain.  Adding a field here is a breaking

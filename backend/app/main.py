@@ -171,7 +171,7 @@ def integrations() -> dict[str, Any]:
 def create_app(settings: Settings | None = None) -> FastAPI:
     active = settings or get_settings()
     app = FastAPI(
-        title="GST DRISHTI",
+        title="GST Intelligence",
         version=active.engine_version,
         description=(
             "GST compliance intelligence for a State Commercial Taxes Department. "

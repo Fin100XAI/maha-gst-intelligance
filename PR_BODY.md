@@ -1,12 +1,12 @@
-## GST DRISHTI - the scrutiny and demand platform, on this design system
+## GST Intelligence - the scrutiny and demand platform, on this design system
 
-This adds **GST DRISHTI** to the repository: a working GST compliance platform
+This adds **GST Intelligence** to the repository: a working GST compliance platform
 for the Commercial Taxes Department, and adopts this repo's landing page,
 officer sign-in and shell so the two read as one system.
 
 The two codebases answer different questions and are complementary.
 `maha-gst-intelligance` is an intelligence storefront over a seeded dataset -
-29 modules, no backend. GST DRISHTI is the engine underneath one of those
+29 modules, no backend. GST Intelligence is the engine underneath one of those
 questions: **take the returns a taxpayer actually filed, reconcile them, and
 produce a figure defensible enough to put in a notice.**
 

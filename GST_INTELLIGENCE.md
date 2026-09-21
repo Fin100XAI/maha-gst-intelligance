@@ -1,4 +1,4 @@
-# GST DRISHTI
+# GST Intelligence
 
 A GST compliance intelligence platform for a State Commercial Taxes Department.
 One engine, two surfaces: a **Dashboard** for decision makers at portfolio scale

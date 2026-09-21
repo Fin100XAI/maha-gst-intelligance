@@ -80,4 +80,4 @@ def test_the_integration_index_lists_every_module(client: TestClient) -> None:
 def test_openapi_is_served(client: TestClient) -> None:
     response = client.get("/api/v1/openapi.json")
     assert response.status_code == 200
-    assert response.json()["info"]["title"] == "GST DRISHTI"
+    assert response.json()["info"]["title"] == "GST Intelligence"

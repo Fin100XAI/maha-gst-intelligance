@@ -16,7 +16,7 @@ and it awaits the department's law officer.
 belonging to an unrelated project (an LLM evaluation harness) was present in the
 parent directory and was being loaded as project instructions.
 
-**Decision.** The GST DRISHTI `CLAUDE.md` is placed at this repository's root so
+**Decision.** The GST Intelligence `CLAUDE.md` is placed at this repository's root so
 it governs every future session, and `01`–`04` live in `docs/`. The unrelated
 file is left untouched and is not applied to this codebase.
 

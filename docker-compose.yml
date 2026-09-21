@@ -1,4 +1,4 @@
-# GST DRISHTI -- local development stack.
+# GST Intelligence -- local development stack.
 # `make dev` brings this up.  Deployment targets the State Data Centre or
 # NIC/MeghRaj inside the State network; nothing here reaches outside it.
 

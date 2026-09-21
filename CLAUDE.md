@@ -1,4 +1,4 @@
-# CLAUDE.md - GST DRISHTI
+# CLAUDE.md - GST Intelligence
 ### Repo root. Claude Code reads this every session.
 
 A GST compliance intelligence platform for a State Commercial Taxes Department.
