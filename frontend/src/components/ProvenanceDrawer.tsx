@@ -72,7 +72,7 @@ export function ProvenanceDrawer({
         {query.isLoading && <p className="text-sm text-ink-secondary">Resolving…</p>}
         {query.isError && (
           <p className="text-sm text-status-critical">
-            That calc_id does not resolve. A figure without provenance is a bug — please
+            That calc_id does not resolve. A figure without provenance is a bug - please
             report it.
           </p>
         )}
@@ -159,11 +159,11 @@ function TraceBody({ trace }: { trace: CalcTrace }): JSX.Element {
                     {parameter.parameter_id}.{parameter.key}
                   </td>
                   <td className="tabular">{parameter.value}</td>
-                  <td className="tabular">{parameter.effective_from ?? '—'}</td>
+                  <td className="tabular">{parameter.effective_from ?? '-'}</td>
                   <td className="text-ink-secondary">
                     {parameter.notification_ref ?? (
                       <span className="text-status-warning">
-                        ◯ provisional — awaiting the law officer
+                        ◯ provisional - awaiting the law officer
                       </span>
                     )}
                   </td>
@@ -207,7 +207,7 @@ function TraceBody({ trace }: { trace: CalcTrace }): JSX.Element {
                 </>
               ) : (
                 <span className="text-ink-muted">
-                  {source.id.slice(0, 16)}… — {source.reason ?? 'not resolvable here'}
+                  {source.id.slice(0, 16)}… - {source.reason ?? 'not resolvable here'}
                 </span>
               )}
             </li>
@@ -224,7 +224,7 @@ function TraceBody({ trace }: { trace: CalcTrace }): JSX.Element {
 }
 
 function renderValue(value: unknown): string {
-  if (value === null || value === undefined) return '—'
+  if (value === null || value === undefined) return '-'
   if (typeof value === 'string' || typeof value === 'number') return String(value)
   if (typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>)
@@ -238,7 +238,7 @@ function renderValue(value: unknown): string {
 /** A trace value is untrusted JSON; render it without ever producing
  *  "[object Object]" on an officer's screen. */
 function stringify(value: unknown): string {
-  if (value === null || value === undefined) return '—'
+  if (value === null || value === undefined) return '-'
   if (typeof value === 'string') return value
   if (typeof value === 'number' || typeof value === 'boolean') return String(value)
   return JSON.stringify(value)

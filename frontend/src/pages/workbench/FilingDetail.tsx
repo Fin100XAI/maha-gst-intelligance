@@ -17,7 +17,7 @@ import { DISPOSITION_LABEL, dispositionLevel, severityLevel } from '../../lib/fi
 import type { FilingFlag, FilingRule } from '../../lib/api'
 
 /**
- * W8 detail — one filing, against everything the platform knows.
+ * W8 detail - one filing, against everything the platform knows.
  *
  * Four sections, and the third is the one usually missing from a screen like
  * this: the rules that did **not** fire, and why. An officer asked two years

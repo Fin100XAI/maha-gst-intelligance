@@ -7,10 +7,10 @@ import type { JSX, ReactNode } from 'react'
  * "Enforcement Funnel" means nothing to a reader on their first morning, and
  * the people who most need to know what a screen is for are exactly the ones
  * who will not ask. So every screen states, in one plain sentence, what it
- * shows and what it is for — and offers the longer answer behind a disclosure
+ * shows and what it is for - and offers the longer answer behind a disclosure
  * for anyone who wants it.
  *
- * `meta` keeps the technical provenance line — which run, which date — which
+ * `meta` keeps the technical provenance line - which run, which date - which
  * matters and belongs on screen, just not as the first thing read.
  */
 export function ScreenHeader({
@@ -25,7 +25,7 @@ export function ScreenHeader({
   title: string
   /** One sentence: what this screen shows, and what to do with it. */
   lead: ReactNode
-  /** Run id, date, scope — the provenance line. */
+  /** Run id, date, scope - the provenance line. */
   meta?: ReactNode
   /** Anything the header itself should carry, such as a status chip. */
   children?: ReactNode

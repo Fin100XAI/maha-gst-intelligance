@@ -7,7 +7,7 @@ import type { CaseRow } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * W5 — Cases.
+ * W5 - Cases.
  *
  * Sorted by how little time is left, not by how much money is in them. A case
  * worth ten lakh that becomes time-barred next month outranks a case worth a
@@ -90,9 +90,9 @@ function Card({ row, onOpen }: { row: CaseRow; onOpen: () => void }): JSX.Elemen
         <Pair label="Type" value={row.type} />
         <Pair label="Status" value={row.status} />
         <Pair label="Findings" value={String(row.finding_count)} />
-        <Pair label="Section" value={row.section_applied ?? '—'} />
-        <Pair label="SCN by" value={row.scn_deadline ?? '—'} />
-        <Pair label="Order by" value={row.order_deadline ?? '—'} />
+        <Pair label="Section" value={row.section_applied ?? '-'} />
+        <Pair label="SCN by" value={row.scn_deadline ?? '-'} />
+        <Pair label="Order by" value={row.order_deadline ?? '-'} />
       </dl>
 
       {row.notices.length > 0 && (

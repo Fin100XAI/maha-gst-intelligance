@@ -111,7 +111,7 @@ def list_parameters(
         "note": (
             "PROVISIONAL is a working value the platform shipped with and nobody has "
             "adopted. DEPARTMENT means the department set it, and the register names "
-            "who. NOTIFIED means a notification backs it — that is what a notice "
+            "who. NOTIFIED means a notification backs it - that is what a notice "
             "quotes."
         ),
     }

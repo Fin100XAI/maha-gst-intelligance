@@ -8,7 +8,7 @@ import type { RiskBandRow } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * D4 — Risk Landscape.
+ * D4 - Risk Landscape.
  *
  * The two distributions sit side by side and are never fused. P-Score answers
  * *who should we audit*; F-Score answers *what can we demand, and on what
@@ -55,7 +55,7 @@ export default function Risk(): JSX.Element {
       <div className="mb-4 grid gap-4 lg:grid-cols-2">
         <ChartCard
           title="Who should we look at?"
-          subtitle="P-Score — how many businesses fall in each risk band"
+          subtitle="P-Score - how many businesses fall in each risk band"
           data={toData(data.p_bands, pBandStatus)}
           unit="taxpayers"
           onDrill={(href) => {
@@ -65,7 +65,7 @@ export default function Risk(): JSX.Element {
         />
         <ChartCard
           title="What can we actually demand?"
-          subtitle="F-Score — the same businesses, by how much the findings are worth"
+          subtitle="F-Score - the same businesses, by how much the findings are worth"
           data={toData(data.f_bands, fBandStatus)}
           unit="taxpayers"
           onDrill={(href) => {
@@ -89,7 +89,7 @@ export default function Risk(): JSX.Element {
           <ul className="space-y-1 text-xs text-ink-muted">
             {data.revenue_at_risk_by_confidence.map((row) => (
               <li key={row.confidence}>
-                <span className="font-medium">{row.confidence}</span> — {row.note}
+                <span className="font-medium">{row.confidence}</span> - {row.note}
               </li>
             ))}
           </ul>
@@ -125,10 +125,10 @@ function BandTable({
             <td className="py-1">{row.band}</td>
             <td className="py-1 text-right tabular">{row.taxpayer_count}</td>
             <td className="py-1 text-right tabular">
-              {(kind === 'P' ? row.p_score_mean : row.f_score_mean) ?? '—'}
+              {(kind === 'P' ? row.p_score_mean : row.f_score_mean) ?? '-'}
             </td>
             {kind === 'P' && (
-              <td className="py-1 text-right tabular">{row.p_coverage_mean ?? '—'}</td>
+              <td className="py-1 text-right tabular">{row.p_coverage_mean ?? '-'}</td>
             )}
             <td className="py-1 text-right">
               <Money

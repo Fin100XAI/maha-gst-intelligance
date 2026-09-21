@@ -9,7 +9,7 @@ import type { RevenuePeriodRow } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * D3 — Revenue & Liability.
+ * D3 - Revenue & Liability.
  *
  * Turnover and liability are two charts, never two axes on one chart. A second
  * y-axis invites a comparison of two series whose units have nothing to do
@@ -44,7 +44,7 @@ export default function Revenue(): JSX.Element {
       <ScreenHeader
         code="D3"
         title="Money at stake"
-        lead="What the returns say is owed, where it came from, and how firmly the evidence supports it. This is what the returns show — not what has been demanded, and not what has been recovered."
+        lead="What the returns say is owed, where it came from, and how firmly the evidence supports it. This is what the returns show - not what has been demanded, and not what has been recovered."
         meta={`run ${data.engine_run_id.slice(0, 8)}`}
       />
 
@@ -165,9 +165,9 @@ function Row({
           }}
         />
       </td>
-      <td className="py-1 text-right tabular">{row.cash_ratio ?? '—'}</td>
-      <td className="py-1 text-right tabular">{row.itc_ratio ?? '—'}</td>
-      <td className="py-1 text-right tabular">{row.effective_rate ?? '—'}</td>
+      <td className="py-1 text-right tabular">{row.cash_ratio ?? '-'}</td>
+      <td className="py-1 text-right tabular">{row.itc_ratio ?? '-'}</td>
+      <td className="py-1 text-right tabular">{row.effective_rate ?? '-'}</td>
     </tr>
   )
 }

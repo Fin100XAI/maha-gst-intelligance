@@ -8,12 +8,12 @@ import { api } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * D2 — Filing Compliance.
+ * D2 - Filing Compliance.
  *
  * The three-year bar leads, because it is the only number on this screen that
  * expires. A period not filed within three years of its due date can never be
  * filed (s.39(11)), and the revenue in it stops being recoverable through the
- * return — so it is shown first, not buried under compliance rates.
+ * return - so it is shown first, not buried under compliance rates.
  *
  * Compliance rates appear only when the filing-status register is present.
  * The filing facts are built from periods the engine found *unfiled*; a rate
@@ -42,7 +42,7 @@ export default function Filing(): JSX.Element {
       <ScreenHeader
         code="D2"
         title="Who is filing"
-        lead="Which businesses filed their returns, which filed late, and which have not filed at all. A return that was never filed still carries a liability — and a deadline after which it cannot be recovered."
+        lead="Which businesses filed their returns, which filed late, and which have not filed at all. A return that was never filed still carries a liability - and a deadline after which it cannot be recovered."
         meta={`run ${data.engine_run_id.slice(0, 8)}${data.jurisdiction === null ? '' : ` · ${data.jurisdiction}`}`}
       />
 
@@ -119,7 +119,7 @@ export default function Filing(): JSX.Element {
                 <td className="py-1 text-right tabular">{row.near_bar}</td>
                 <td className="py-1 text-right">
                   {row.rates_evaluated ? (
-                    <span className="tabular">{row.compliance_rate ?? '—'}</span>
+                    <span className="tabular">{row.compliance_rate ?? '-'}</span>
                   ) : (
                     <NotEvaluatedCell />
                   )}

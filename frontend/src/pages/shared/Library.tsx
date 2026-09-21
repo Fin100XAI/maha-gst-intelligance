@@ -6,10 +6,10 @@ import { api } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * S2 — Rule & Parameter Library.
+ * S2 - Rule & Parameter Library.
  *
  * The law officer's screen. For every rule: what it tests, under which
- * provision, and which of its thresholds are **provisional** — a working value
+ * provision, and which of its thresholds are **provisional** - a working value
  * that nobody has signed.
  *
  * The provisional column is the point of the screen. Every finding computed
@@ -226,7 +226,7 @@ function Thresholds(): JSX.Element {
                 {row.value}
                 {row.unit !== null && <span className="ml-1 text-ink-muted">{row.unit}</span>}
               </td>
-              <td className="py-1 tabular">{row.effective_from ?? '—'}</td>
+              <td className="py-1 tabular">{row.effective_from ?? '-'}</td>
               <td className="py-1">
                 {row.notification_ref ?? (
                   <StatusChip

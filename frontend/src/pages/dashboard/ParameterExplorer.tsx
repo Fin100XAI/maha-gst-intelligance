@@ -9,7 +9,7 @@ import { ScreenHeader } from '../../components/ScreenHeader'
 import { Explain } from '../../components/Explain'
 
 /**
- * D5 — Parameter Explorer. The screen that makes the department's own risk
+ * D5 - Parameter Explorer. The screen that makes the department's own risk
  * framework legible at scale.
  *
  * The NOT_EVALUATED column is **not an embarrassment to hide**: it is the
@@ -137,7 +137,7 @@ function Cell({
   label?: string | undefined
   onDrill: () => void
 }): JSX.Element {
-  if (count === 0) return <span className="text-ink-muted">—</span>
+  if (count === 0) return <span className="text-ink-muted">-</span>
   const level = levelForFlag(flag)
   return (
     <button
@@ -146,7 +146,7 @@ function Cell({
       className="underline decoration-dotted underline-offset-2 hover:decoration-solid"
       title={
         label !== undefined
-          ? `${String(count)} taxpayer(s) — awaits ${label}`
+          ? `${String(count)} taxpayer(s) - awaits ${label}`
           : `${String(count)} taxpayer(s) at flag ${String(flag)}`
       }
     >

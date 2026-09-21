@@ -1,4 +1,4 @@
-"""S1 — the upload path, and what it refuses.
+"""S1 - the upload path, and what it refuses.
 
 Every refusal here happens before a single cell is read, because the cheapest
 place to stop a bad file is at the door. The reconciliation test is the one

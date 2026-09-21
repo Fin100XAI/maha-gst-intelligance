@@ -9,11 +9,11 @@ import { useProvenance } from '../lib/provenance'
  * provenance drawer. Gate G8: every rendered figure carries a `calc_id`.
  *
  * A figure with no provenance at all renders with a visible warning rather than
- * silently looking like every other number — that is the bug surfacing, which
+ * silently looking like every other number - that is the bug surfacing, which
  * is the point.
  *
- * An **aggregate** — the sum of a division's findings, a band's revenue at risk
- * — has no single `calc_id`, because it is not one computation. Its provenance
+ * An **aggregate** - the sum of a division's findings, a band's revenue at risk
+ * - has no single `calc_id`, because it is not one computation. Its provenance
  * is the drill: the taxpayers behind it, each of whose findings carries its own
  * `calc_id`. Pass `drill` for those, and the figure is a handle to that list
  * rather than a warning. This distinction matters: a screen where every number
@@ -99,7 +99,7 @@ export function Money({
   )
 }
 
-/** A non-money figure — a count, a score, a ratio — with the same calc handle. */
+/** A non-money figure - a count, a score, a ratio - with the same calc handle. */
 export function Figure({
   value,
   calcId,

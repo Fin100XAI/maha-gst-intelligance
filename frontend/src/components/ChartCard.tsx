@@ -15,7 +15,7 @@ import { Button } from './ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card'
 
 /**
- * `<ChartCard>` — a real chart, a table view, and a **mandatory drill handler**.
+ * `<ChartCard>` - a real chart, a table view, and a **mandatory drill handler**.
  *
  * `onDrill` is required, not optional. A ChartCard without a drill handler
  * fails code review, so the type system refuses to build one: a bar a
@@ -39,7 +39,7 @@ export interface ChartDatum {
   label: string
   /** The value, as a string: money and ratios never become JS numbers. */
   value: string
-  /** A numeric magnitude for the bar length only — never displayed. */
+  /** A numeric magnitude for the bar length only - never displayed. */
   magnitude: number
   /** Where clicking this element goes. */
   drill: string

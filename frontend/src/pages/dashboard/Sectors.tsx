@@ -8,11 +8,11 @@ import { api } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * D9 — Sectors.
+ * D9 - Sectors.
  *
  * A sector below the minimum cohort size is shown, and marked unusable as a
  * cohort. A percentile over four taxpayers is not a percentile, and banding
- * one against it would produce a comparison the data cannot support — which
+ * one against it would produce a comparison the data cannot support - which
  * would then be quoted in a notice.
  */
 export default function Sectors(): JSX.Element {
@@ -81,8 +81,8 @@ export default function Sectors(): JSX.Element {
               <tr key={row.sector} className="border-b border-line">
                 <td className="py-1 tabular">{row.sector}</td>
                 <td className="py-1 text-right tabular">{row.taxpayers}</td>
-                <td className="py-1 text-right tabular">{row.p_score_mean ?? '—'}</td>
-                <td className="py-1 text-right tabular">{row.f_score_mean ?? '—'}</td>
+                <td className="py-1 text-right tabular">{row.p_score_mean ?? '-'}</td>
+                <td className="py-1 text-right tabular">{row.f_score_mean ?? '-'}</td>
                 <td className="py-1 text-right">
                   <Money
                     value={row.revenue_at_risk}

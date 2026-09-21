@@ -2,7 +2,7 @@
 
 Source: *Risk Flags and Action Points for Decision support*, the circular
 supplied by the department. The ``source_text`` of every entry below is that
-document's own cell, stored verbatim and never edited — if the platform's
+document's own cell, stored verbatim and never edited - if the platform's
 reading of a flag is wrong, the way to find out is to read the original beside
 it, not to read a paraphrase of it.
 
@@ -11,7 +11,7 @@ the reader and carries no authority: where the two differ, the circular wins,
 and the alignment screen shows both so that the difference is visible.
 
 The circular closes by stating that each flag is followed by a numeral 1 to 4,
-rising with risk — which is the Flag 0–4 ladder the engine implements, with 0
+rising with risk - which is the Flag 0–4 ladder the engine implements, with 0
 added for "tested and clear", a state the circular does not need to name but a
 platform does.
 
@@ -62,8 +62,8 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "turnover to purchase turnover in 18-19 vis-à-vis 17-18 Check the reason for higher "
         "purchase turnover and lower sales turnover. Select some high value Purchase and Sales "
         "invoices and verify the correct accounting of the same.",
-        "The business bought more than it sold. That can be genuine — stock building, a bad "
-        "year — but it is also what under-declared sales look like.",
+        "The business bought more than it sold. That can be genuine - stock building, a bad "
+        "year - but it is also what under-declared sales look like.",
     ),
     _f(
         "P 02",
@@ -85,7 +85,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "(a)+(b)+(c) of GSTR-3B)}. Check the correctness of Nil/Exempt supplies. Whether the "
         "conditions of NIL/exempt supplies correctly fulfilled including ITC "
         "non-availment/reversal. Verify sample contracts/supply orders.",
-        "How much of what they sell is claimed to be exempt from tax — and whether that share "
+        "How much of what they sell is claimed to be exempt from tax - and whether that share "
         "has grown. Exempt sales carry no tax, so the claim has to hold up.",
     ),
     _f(
@@ -106,7 +106,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "charge) to total turnover [{col. 2 of 3.1(d)} / {col. 2 of 3.1(a+b+c}] Verify the "
         "correctness of total inward supplies liable to reverse charge. Select sample invoices "
         "of high value for test checking. Verify contracts/supply orders.",
-        "Purchases on which the buyer, not the seller, owes the tax — measured against the "
+        "Purchases on which the buyer, not the seller, owes the tax - measured against the "
         "size of the business.",
     ),
     _f(
@@ -132,7 +132,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "entire tax liability is paid out of ITC, extra efforts needed to check wrong availment "
         "of ITC.",
         "Almost all the tax was settled with credit rather than cash. The circular is explicit: "
-        "if the whole liability went out through credit, look harder — this is the shape "
+        "if the whole liability went out through credit, look harder - this is the shape "
         "fake-invoice credit takes.",
     ),
     _f(
@@ -159,7 +159,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "{( col. 2 of Table 3.1 (e) /( col. 2 of Table 3.1 (a)+(b)+(c)+(e) of GSTR-3B)} Verify "
         "Sample invoices of Non-GST supplies and ensure that the same is not liable to GST. "
         "Verify that no ITC pertaining to Non GST supply is taken.",
-        "How much is declared as outside GST altogether — and whether credit was taken on it "
+        "How much is declared as outside GST altogether - and whether credit was taken on it "
         "anyway, which it should not have been.",
     ),
     _f(
@@ -177,7 +177,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "correct liability for the period for which the returns are not filed is arrived at and "
         "recovered with interest and penalty. Cross verify the details from e way bills issued "
         "by the taxpayer as well as details shown in GSTR 2(A) returns",
-        "Returns missing for the year. The liability for those months still exists — e-way "
+        "Returns missing for the year. The liability for those months still exists - e-way "
         "bills and the suppliers' filings show roughly what it was.",
     ),
     _f(
@@ -188,7 +188,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "duty free inputs to DTA units. Also to check that goods manufactured in SEZ units are "
         "not shown cleared from DTA unit to reduce duty liability to the extent of BCD. To "
         "check wrong availment of ITC in DTA unit on the procurements made for SEZ unit",
-        "The same PAN holds both an SEZ and an ordinary registration in this State — the "
+        "The same PAN holds both an SEZ and an ordinary registration in this State - the "
         "structure through which duty-free inputs can be moved to the taxed side.",
     ),
     _f(
@@ -210,7 +210,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "Verify the point in details to ascertain the reasons and to ensure that wrong ITC "
         "credit taken is reversed and also to rule out the possibility of taking ITC credit on "
         "bill of entry in the name of other person or credit of BCD taken as well.",
-        "Credit claimed on imports exceeds the IGST customs actually received — including the "
+        "Credit claimed on imports exceeds the IGST customs actually received - including the "
         "possibility of claiming on another person's bill of entry.",
     ),
     _f(
@@ -236,7 +236,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "to check the admissibility of ITC to ISD and the reason of transferring high value of "
         "ITC through ISD be ascertained and analysed.",
         "A large share of the credit arrived from the group's own distribution arm rather than "
-        "from purchases this unit made — a route for credit that could not be used elsewhere.",
+        "from purchases this unit made - a route for credit that could not be used elsewhere.",
     ),
     _f(
         "P 18",
@@ -302,7 +302,7 @@ SOURCE_FLAGS: Final[tuple[SourceFlag, ...]] = (
         "to total supplies {table 3.1(a)+(b) of GSTR-3B}] in 18-19 vis-à-vis 17-18. Check the "
         "ratio and in case the ratio is adverse, verify all the related accounting details and "
         "check sample documents of zero rated supply.",
-        "Zero-rated sales that customs cannot account for — what is left after the goods "
+        "Zero-rated sales that customs cannot account for - what is left after the goods "
         "exports customs saw are taken out.",
     ),
     _f(

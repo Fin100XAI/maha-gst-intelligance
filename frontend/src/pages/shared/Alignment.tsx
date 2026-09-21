@@ -7,13 +7,13 @@ import { api } from '../../lib/api'
 import type { AlignmentRow, AlignmentView } from '../../lib/api'
 
 /**
- * S5 — Check against the circular.
+ * S5 - Check against the circular.
  *
  * The department's circular sets out 34 risk flags. This platform implements
  * 34 audit risk parameters. Those two numbers matching proves nothing, so this
  * screen puts them side by side and lets a reader check the match themselves:
  * the circular's own words on the left, what the platform actually computes on
- * the right, and — when a run is chosen — how many businesses each flag was
+ * the right, and - when a run is chosen - how many businesses each flag was
  * really evaluated for.
  *
  * That last column is the part nobody can argue with. A parameter that is
@@ -48,7 +48,7 @@ export default function Alignment(): JSX.Element {
         <h1 className="text-2xl font-semibold">Check against the circular</h1>
         <p className="mt-2 text-base text-ink-secondary">
           The department&rsquo;s {data.source.flag_count} risk flags, in its own words, beside
-          what this platform actually does about each one. Read them against each other — that is
+          what this platform actually does about each one. Read them against each other - that is
           what the screen is for.
         </p>
         <p className="mt-1 text-sm text-ink-muted">
@@ -62,7 +62,7 @@ export default function Alignment(): JSX.Element {
         <h2 className="text-sm font-semibold">What is stopping the rest</h2>
         <p className="mt-1 text-sm text-ink-secondary">
           Ten of the {data.source.flag_count} flags need data the State does not receive today.
-          Four connections would switch all ten on — that is the whole business case, and it is
+          Four connections would switch all ten on - that is the whole business case, and it is
           countable:
         </p>
         <ul className="mt-2 grid gap-1.5 text-sm sm:grid-cols-2">
@@ -89,7 +89,7 @@ export default function Alignment(): JSX.Element {
             }}
             className="w-72 rounded border border-line bg-raised px-2 py-1 text-sm text-ink"
           >
-            <option value="">Do not count — just compare the definitions</option>
+            <option value="">Do not count - just compare the definitions</option>
             {(runs.data?.items ?? []).map((run) => (
               <option key={run.engine_run_id} value={run.engine_run_id}>
                 {run.started_at.slice(0, 16).replace('T', ' ')} · {run.fy ?? 'all years'} ·{' '}
@@ -147,7 +147,7 @@ export default function Alignment(): JSX.Element {
 
       {rows.length === 0 && (
         <p className="rounded border border-line p-4 text-sm text-ink-secondary">
-          No flag matches that filter — which, for &ldquo;never actually evaluated&rdquo;, is the
+          No flag matches that filter - which, for &ldquo;never actually evaluated&rdquo;, is the
           answer you want.
         </p>
       )}
@@ -222,7 +222,7 @@ function RunNote({ data }: { data: AlignmentView }): JSX.Element {
       <h2 className="flex items-baseline text-sm font-semibold">
         {evaluated} of {total} flags actually produced a result in this run
         <Explain title="Why this number matters">
-          A flag can be implemented, documented, and still never run — because the return it
+          A flag can be implemented, documented, and still never run - because the return it
           needs was not uploaded, or because there were too few similar businesses to compare
           against. Counting is the only way to tell the difference between a platform that
           covers the circular and one that merely claims to.

@@ -1,7 +1,7 @@
-# GST DRISHTI — Claude Code build pack (v2)
+# GST DRISHTI - Claude Code build pack (v2)
 
 Instructions for building a GST compliance intelligence platform for State GST
-officers **and** decision makers. Five documents. No code — this is what you hand to
+officers **and** decision makers. Five documents. No code - this is what you hand to
 Claude Code.
 
 ```
@@ -33,7 +33,7 @@ were duplicating.
 **P01–P34 added as a first-class layer.** Each parameter carries its deterministic
 metric in GSTR table references, a banding strategy, flag levels 0–4, the departmental
 action point verbatim, and its data dependency. Ten of the thirty-four need external
-feeds (ICEGATE, ITD, DGARM, refunds) — those are implemented, return `NOT_EVALUATED`,
+feeds (ICEGATE, ITD, DGARM, refunds) - those are implemented, return `NOT_EVALUATED`,
 and are excluded from both sides of the score so that **coverage falls rather than the
 score quietly understating risk**.
 
@@ -66,7 +66,7 @@ workbook. Build that path in Phase 2, before the first chart is styled.
 
 ## Before production
 
-Statutory thresholds in `01_DOMAIN_AND_RISK.md` are cited from secondary sources —
+Statutory thresholds in `01_DOMAIN_AND_RISK.md` are cited from secondary sources -
 adequate for engineering, not for issuing notices. The **flag cut-offs for P01–P34 are
 platform defaults, not departmental policy**: the source document defines flags 1–4 as
 increasing risk without prescribing numbers, so the defaults are peer-cohort

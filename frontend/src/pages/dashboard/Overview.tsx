@@ -23,7 +23,7 @@ import { cn } from '../../lib/utils'
 import type { Coverage } from '../../lib/api'
 
 /**
- * D1 — Overview. The landing screen.
+ * D1 - Overview. The landing screen.
  *
  * Laid out across the full width rather than down a column on the left: on a
  * 1920px desk the old single column left two thirds of the screen empty and
@@ -34,7 +34,7 @@ import type { Coverage } from '../../lib/api'
  * the screen is for. Then the four things worth acting on this morning, spread
  * across the rest of the row. Then the two distributions side by side, because
  * they answer different questions and have to be read together. Then the
- * caveat — what the scores could not see — which stays on the first screen
+ * caveat - what the scores could not see - which stays on the first screen
  * rather than in a footnote.
  *
  * What has not changed, and must not: every figure drills, the two scores are
@@ -136,7 +136,7 @@ export default function Overview(): JSX.Element {
           <Stat
             icon={<Clock className="h-3.5 w-3.5" aria-hidden="true" />}
             label="Running out of time"
-            value={nearBar?.value ?? '—'}
+            value={nearBar?.value ?? '-'}
             hint="periods near the three-year bar"
             tone={nearBar !== undefined && nearBar.value !== '0' ? 'critical' : 'good'}
             drill={nearBar?.drill}
@@ -145,7 +145,7 @@ export default function Overview(): JSX.Element {
           <Stat
             icon={<CircleSlash className="h-3.5 w-3.5" aria-hidden="true" />}
             label="Already out of time"
-            value={barred?.value ?? '—'}
+            value={barred?.value ?? '-'}
             hint="the deadline has passed"
             tone={barred !== undefined && barred.value !== '0' ? 'critical' : 'good'}
             drill={barred?.drill}
@@ -154,7 +154,7 @@ export default function Overview(): JSX.Element {
           <Stat
             icon={<FileWarning className="h-3.5 w-3.5" aria-hidden="true" />}
             label="Returns never filed"
-            value={notFiled?.value ?? '—'}
+            value={notFiled?.value ?? '-'}
             hint="the liability still exists"
             tone="warning"
             drill={notFiled?.drill}
@@ -175,7 +175,7 @@ export default function Overview(): JSX.Element {
       <section className="animate-rise stagger-1 mb-4 grid gap-4 xl:grid-cols-3">
         <ChartCard
           title="Who should we look at?"
-          subtitle="P-Score — from the department's 34 risk flags"
+          subtitle="P-Score - from the department's 34 risk flags"
           data={pBands}
           unit="Businesses"
           onDrill={drill}
@@ -188,7 +188,7 @@ export default function Overview(): JSX.Element {
         />
         <ChartCard
           title="What can we actually demand?"
-          subtitle="F-Score — from the 57 detection rules, with the rupees attached"
+          subtitle="F-Score - from the 57 detection rules, with the rupees attached"
           data={fBands}
           unit="Businesses"
           onDrill={drill}
@@ -205,7 +205,7 @@ export default function Overview(): JSX.Element {
           data={confidence}
           unit="Rupees"
           onDrill={drill}
-          footer="Advisory findings are excluded from the headline figure — worth raising, not worth demanding."
+          footer="Advisory findings are excluded from the headline figure - worth raising, not worth demanding."
         />
       </section>
 
@@ -249,7 +249,7 @@ function Stat({
         {value}
       </span>
       <span className="mt-1 block text-xs text-ink-muted">{hint}</span>
-      {value !== '0' && value !== '—' && tone !== 'good' && (
+      {value !== '0' && value !== '-' && tone !== 'good' && (
         <span className="mt-2 block">
           <StatusChip level={tone} label={TONE_LABEL[tone]} />
         </span>

@@ -7,7 +7,7 @@ import { Card, CardTitle } from '../../components/ui/card'
 import { api } from '../../lib/api'
 
 /**
- * W9 index — pick a taxpayer to look at.
+ * W9 index - pick a taxpayer to look at.
  *
  * The insight panels are per taxpayer by construction: a supplier
  * concentration averaged across a portfolio describes nobody. So this screen
@@ -27,7 +27,7 @@ export default function InsightsIndex(): JSX.Element {
         title="Shape of the year"
         lead={
           <>
-            Six descriptive views of a taxpayer&apos;s filed year — where the purchases come from,
+            Six descriptive views of a taxpayer&apos;s filed year - where the purchases come from,
             what rates were declared, when credit notes were issued. Pick a taxpayer to open them.
           </>
         }

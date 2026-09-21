@@ -5,13 +5,13 @@ import { Explain, Term } from '../../components/Explain'
 import { StatusChip } from '../../components/StatusChip'
 
 /**
- * S0 — How this works.
+ * S0 - How this works.
  *
  * Written for somebody who has not used the platform before and does not want
  * a tour of its features: what it is for, what to put into it, what comes out,
  * and what it will refuse to do. Everything on this page is checkable against
- * the platform's actual behaviour — the column names it recognises, the file
- * types it takes, the limits it enforces — because a guide that describes an
+ * the platform's actual behaviour - the column names it recognises, the file
+ * types it takes, the limits it enforces - because a guide that describes an
  * idealised version of the software is worse than no guide.
  */
 export default function Guide(): JSX.Element {

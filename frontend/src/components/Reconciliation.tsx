@@ -8,13 +8,13 @@ import { api } from '../lib/api'
 import type { ReconCell } from '../lib/api'
 
 /**
- * The Reconciliation Workbench — the eleven identities across every period.
+ * The Reconciliation Workbench - the eleven identities across every period.
  *
  * Three states, three different cells:
  *
- * * **Holds** — the identity balanced.
- * * **Breached** — by a stated, head-wise amount.
- * * **Not evaluated** — a dataset was absent, and the cell names it.
+ * * **Holds** - the identity balanced.
+ * * **Breached** - by a stated, head-wise amount.
+ * * **Not evaluated** - a dataset was absent, and the cell names it.
  *
  * A blank where the third should be is exactly the failure this screen exists
  * to prevent. An officer reading a matrix of ticks and gaps will read the gaps
@@ -165,7 +165,7 @@ function Cell({
       ? 'Holds'
       : cell.status === 'BREACHED'
         ? `Breached by ${cell.delta_total}`
-        : `Not evaluated — needs ${cell.missing_inputs.join(', ') || 'an unnamed dataset'}`
+        : `Not evaluated - needs ${cell.missing_inputs.join(', ') || 'an unnamed dataset'}`
 
   return (
     <button

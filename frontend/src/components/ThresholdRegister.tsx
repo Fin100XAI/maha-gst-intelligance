@@ -9,15 +9,15 @@ import { useCan } from '../lib/can'
 import type { RegisterRow } from '../lib/api'
 
 /**
- * The threshold register — every number the engine runs on, editable.
+ * The threshold register - every number the engine runs on, editable.
  *
  * Three states, and the whole point of the screen is that they stay apart:
  *
- * * **Provisional** — a working value the platform shipped with. Nobody has
+ * * **Provisional** - a working value the platform shipped with. Nobody has
  *   adopted it. Enough to analyse with; not enough to demand on.
- * * **Department** — the department set it, and the register names who and
+ * * **Department** - the department set it, and the register names who and
  *   when. Defensible as policy, not as a citation.
- * * **Notified** — a notification backs it. This is what a notice quotes.
+ * * **Notified** - a notification backs it. This is what a notice quotes.
  *
  * Editing writes a new effective-dated row and closes the old one. Nothing is
  * overwritten, because the engine resolves a threshold as at the tax period
@@ -83,7 +83,7 @@ export function ThresholdRegister(): JSX.Element {
           </h3>
           <p className="mt-1 text-sm text-ink-secondary">
             Every finding computed from one is correct arithmetic on a number nobody has
-            signed. Adopting them records that the department owns these values — the
+            signed. Adopting them records that the department owns these values - the
             figures do not change.
           </p>
           <button
@@ -292,7 +292,7 @@ function EditForm({
           />
         </label>
         <label className="flex flex-col gap-1 text-xs text-ink-muted">
-          Notification reference — optional; makes this citable in a notice
+          Notification reference - optional; makes this citable in a notice
           <input
             type="text"
             value={ref}
@@ -382,7 +382,7 @@ function AdoptForm({
       </p>
 
       <label className="mt-3 flex flex-col gap-1 text-xs text-ink-muted">
-        Acknowledgement — recorded in the audit chain
+        Acknowledgement - recorded in the audit chain
         <input
           type="text"
           value={text}

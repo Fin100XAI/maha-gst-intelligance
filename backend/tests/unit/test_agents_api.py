@@ -1,8 +1,8 @@
-"""W7 — the Copilot endpoint.
+"""W7 - the Copilot endpoint.
 
 The agent layer is optional. With no model configured the endpoint answers 501
 naming what is missing, because every figure it would quote is already computed
-and drillable without one — degrading into a plausible-sounding answer would be
+and drillable without one - degrading into a plausible-sounding answer would be
 strictly worse than refusing.
 """
 
@@ -242,5 +242,5 @@ class TestWithAModel:
         assert response.status_code == 200
         body = response.json()
         assert "Umang Fabricators LLP" in body["text"]
-        assert body["badge"] == "AI-DRAFTED — OFFICER RESPONSIBLE"
+        assert body["badge"] == "AI-DRAFTED - OFFICER RESPONSIBLE"
         assert body["fidelity"]["ok"] is True

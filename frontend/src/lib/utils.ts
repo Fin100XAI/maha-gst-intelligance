@@ -3,7 +3,7 @@ import type { ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
 /**
- * `cn` — the shadcn/ui class helper.
+ * `cn` - the shadcn/ui class helper.
  *
  * `clsx` resolves conditionals; `tailwind-merge` then drops the earlier of any
  * two classes that set the same property, so a caller's `p-6` beats a

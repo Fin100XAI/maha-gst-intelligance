@@ -13,7 +13,7 @@ import { useProvenance } from '../lib/provenance'
  *
  * Rendered raw, the marker is 64 characters of hexadecimal noise in the middle
  * of a sentence. Rendered as a handle, it is the same guarantee the rest of
- * the platform makes — click the number, see where it came from — which is
+ * the platform makes - click the number, see where it came from - which is
  * exactly the claim that makes an AI-drafted paragraph usable by an officer
  * who has to sign it.
  */

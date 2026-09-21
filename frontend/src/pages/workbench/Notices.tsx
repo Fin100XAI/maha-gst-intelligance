@@ -8,13 +8,13 @@ import { NeedsRole } from '../../components/NeedsRole'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * W6 — Notices.
+ * W6 - Notices.
  *
  * The register of what has been drafted, approved and served, and the
  * catalogue of forms the platform can produce.
  *
  * Two things on this screen are not cosmetic. The **numeric slots** column
- * states, for each form, exactly which figures are locked — they bind to
+ * states, for each form, exactly which figures are locked - they bind to
  * finding fields and the API rejects an attempt to edit one with 422. And the
  * **preconditions** are shown beside the form rather than discovered at
  * drafting time, because a form that cannot lawfully issue should be obvious
@@ -103,8 +103,8 @@ function Register(): JSX.Element {
             <td className="py-1">
               <StatusChip level={statusLevel(row)} label={row.status} />
             </td>
-            <td className="py-1 tabular">{row.din ?? '—'}</td>
-            <td className="py-1 tabular">{row.reply_due ?? '—'}</td>
+            <td className="py-1 tabular">{row.din ?? '-'}</td>
+            <td className="py-1 tabular">{row.reply_due ?? '-'}</td>
           </tr>
         ))}
       </tbody>

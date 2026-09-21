@@ -1,8 +1,8 @@
 """S2 Rule & Parameter Library, S3 Admin, W5 Cases.
 
 The library is the law officer's screen. It states, for every rule and every
-parameter, what it tests, under which provision, and — the column that matters
-— which of its thresholds are **provisional**, meaning the platform is using a
+parameter, what it tests, under which provision, and - the column that matters
+- which of its thresholds are **provisional**, meaning the platform is using a
 working value that no one has signed.
 
 A provisional threshold is not a bug. Refusing to show which ones are

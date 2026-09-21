@@ -9,12 +9,12 @@ import type { WorklistRow } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * W1 — Worklist.
+ * W1 - Worklist.
  *
  * What this officer should look at next, ordered by what can be acted on
  * rather than by what is most alarming. An ADVISORY finding cannot support a
  * notice however severe it is, so it sits below everything that can be taken
- * forward today — and says so on its face.
+ * forward today - and says so on its face.
  *
  * Every disposition needs a reason. Not because a form demands it, but
  * because M-Q01 rule precision is computed from these notes next cycle, and
@@ -246,7 +246,7 @@ function DecisionForm({ row, onDone }: { row: WorklistRow; onDone: () => void })
       </div>
 
       <label className="mt-3 flex flex-col gap-1 text-xs text-ink-muted">
-        Reason — required, and read next cycle when rule precision is computed
+        Reason - required, and read next cycle when rule precision is computed
         <textarea
           value={note}
           rows={2}

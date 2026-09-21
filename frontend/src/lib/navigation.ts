@@ -101,7 +101,7 @@ export function surfaceOf(pathname: string): Surface | 'shared' {
  * **Longest match wins, and that is the whole point.** `/workbench/filings`
  * begins with `/workbench`, so a first-match search names the wrong screen:
  * the breadcrumb read "My Queue" while the reader was standing on Filings.
- * A breadcrumb that is wrong is worse than no breadcrumb — it is a confident
+ * A breadcrumb that is wrong is worse than no breadcrumb - it is a confident
  * statement about where you are, and the reader has no reason to doubt it.
  */
 export function screenAt(pathname: string): { group: NavGroup; item: NavItem } | null {

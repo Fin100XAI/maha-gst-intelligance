@@ -131,12 +131,12 @@ All figures, taxpayer names, GSTINs and case data in this build are **synthetica
 
 ---
 
-## GST DRISHTI — the scrutiny and demand engine
+## GST DRISHTI - the scrutiny and demand engine
 
 This repository also carries **GST DRISHTI**, under `backend/` and
 `frontend/`: a working scrutiny and demand platform that reads the returns a
-taxpayer actually filed — GSTR-1, GSTR-3B, GSTR-2A, GSTR-2B and the
-electronic ledgers — reconciles them, and produces a figure defensible enough
+taxpayer actually filed - GSTR-1, GSTR-3B, GSTR-2A, GSTR-2B and the
+electronic ledgers - reconciles them, and produces a figure defensible enough
 to put in a notice.
 
 Where this application is an intelligence storefront over a seeded dataset,

@@ -86,7 +86,7 @@ function NavSection({
                   title={
                     waiting === undefined
                       ? undefined
-                      : `No data in this upload — needs ${waiting}`
+                      : `No data in this upload - needs ${waiting}`
                   }
                   className={({ isActive }) =>
                     clsx(
@@ -130,7 +130,7 @@ function NavSection({
  * department can answer "am I an Addl. Commissioner (Enforcement)?".
  *
  * The panel states plainly what the selected person may and may not do,
- * because the difference between them is real and load-bearing — it is the
+ * because the difference between them is real and load-bearing - it is the
  * maker-and-checker rule that keeps a notice defensible.
  */
 function PersonPicker(): JSX.Element {

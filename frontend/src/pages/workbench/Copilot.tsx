@@ -9,11 +9,11 @@ import type { AgentAnswer } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * W7 — Copilot.
+ * W7 - Copilot.
  *
  * A read-only conversational surface over results the engine already
  * computed. It cannot run the engine, change a parameter, open a case or
- * issue anything, and it has no tool that performs arithmetic — there is
+ * issue anything, and it has no tool that performs arithmetic - there is
  * nothing here to misuse.
  *
  * Two states of this screen matter more than the happy path:
@@ -24,7 +24,7 @@ import { ScreenHeader } from '../../components/ScreenHeader'
  *   be strictly worse than refusing.
  * * **The model invented a figure.** The numeric-fidelity middleware rejects
  *   the whole response, and the officer is shown that it was rejected and
- *   why — not a cleaned-up version of it.
+ *   why - not a cleaned-up version of it.
  */
 export default function Copilot(): JSX.Element {
   const [question, setQuestion] = useState('')
@@ -146,7 +146,7 @@ export default function Copilot(): JSX.Element {
               {(agents.data.items.find((item) => item.key === 'copilot')?.tools ?? []).map(
                 (tool) => (
                   <li key={tool.name}>
-                    <span className="tabular text-ink-muted">{tool.name}</span> —{' '}
+                    <span className="tabular text-ink-muted">{tool.name}</span> -{' '}
                     {tool.description}
                   </li>
                 ),
@@ -169,7 +169,7 @@ function Refusal({ refusal }: { refusal: { code: string; message: string } }): J
         </div>
         <p className="text-sm text-ink-secondary">
           The agent layer is optional by design. Every figure this would quote is already
-          computed and drillable without a model — the taxpayer file, the worklist and the
+          computed and drillable without a model - the taxpayer file, the worklist and the
           provenance drawer all work with no model at all.
         </p>
         <p className="mt-2 text-sm text-ink-secondary">

@@ -1,7 +1,7 @@
 /**
  * Every heavy word on this platform, said plainly.
  *
- * The department's vocabulary is not optional — a notice cites "section 74A",
+ * The department's vocabulary is not optional - a notice cites "section 74A",
  * not "the rule about deliberate under-declaration". But a screen that uses
  * only that vocabulary is readable by the people who already know it, which is
  * the smaller half of the room. So both appear: the term stays, and an ⓘ
@@ -32,8 +32,8 @@ export const GLOSSARY = {
     term: 'P-Score',
     short: 'A 0-to-1 score answering one question: how much does this business need a closer look?',
     more:
-      'It is built from the 34 risk flags the department set out. Each flag is scored 0 to 4 — ' +
-      '0 means tested and clear, 4 means seriously adverse — and the P-Score is the weighted ' +
+      'It is built from the 34 risk flags the department set out. Each flag is scored 0 to 4 - ' +
+      '0 means tested and clear, 4 means seriously adverse - and the P-Score is the weighted ' +
       'average of the flags that could actually be tested. It is a sorting tool, not evidence: ' +
       'a high P-Score says "look here first", never "this business owes money".',
     also: ['fScore', 'flag', 'coverage'],
@@ -70,7 +70,7 @@ export const GLOSSARY = {
     term: 'Coverage',
     short: 'How many of the 34 risk flags could actually be tested for this business.',
     more:
-      'Ten of the 34 need data the State does not yet receive — customs, income tax, refunds, ' +
+      'Ten of the 34 need data the State does not yet receive - customs, income tax, refunds, ' +
       'central analytics. Those are left out of the score entirely rather than counted as clear, ' +
       'so the score stays honest and the coverage figure falls instead. A P-Score of 0.7 over 3 ' +
       'flags and a P-Score of 0.7 over 30 are not the same claim, so coverage is printed beside ' +
@@ -84,7 +84,7 @@ export const GLOSSARY = {
     short: 'The test could not be run, and the screen says which data was missing.',
     more:
       'This is not the same as "no problem found". A rule that cannot run reports what it needed ' +
-      '— a GSTR-3B for July, the customs feed, a peer group big enough to compare against — and ' +
+      '- a GSTR-3B for July, the customs feed, a peer group big enough to compare against - and ' +
       'is left out of the score on both sides. Treating an untested flag as clear is the quiet ' +
       'failure that turns a risk score into a fiction.',
     also: ['coverage', 'flag'],
@@ -105,7 +105,7 @@ export const GLOSSARY = {
     more:
       'It is a fingerprint of the rule, the data snapshot and the inputs. It is not random and ' +
       'it does not involve the clock, so re-running the same data next year produces the same ' +
-      'calc_id — which is what makes a figure in a notice defensible two years later.',
+      'calc_id - which is what makes a figure in a notice defensible two years later.',
     also: ['provenance'],
   },
   drill: {
@@ -127,13 +127,13 @@ export const GLOSSARY = {
     short: 'How likely this finding is to survive the business’s reply.',
     more:
       'A figure that is arithmetic on the returns is near-certain. One that depends on an ' +
-      'assumption about intent is not. Advisory findings — worth mentioning, not worth ' +
-      'demanding — are excluded from the headline money figure and the screen says so.',
+      'assumption about intent is not. Advisory findings - worth mentioning, not worth ' +
+      'demanding - are excluded from the headline money figure and the screen says so.',
     also: ['finding'],
   },
   headWise: {
     term: 'Head-wise',
-    short: 'Tax kept split into IGST, CGST, SGST and Cess — never added into one number.',
+    short: 'Tax kept split into IGST, CGST, SGST and Cess - never added into one number.',
     more:
       'They go to different governments and are demanded under different columns of the notice. ' +
       'A single total would have to be split again later, and the split would be guessed. The ' +
@@ -158,13 +158,13 @@ export const GLOSSARY = {
     short: 'The monthly summary return: what was sold, what credit was claimed, what tax was paid.',
     more:
       'It is a summary, so it is one row per line of the return rather than one row per invoice. ' +
-      'Twenty-one of the 57 rules need it — without a GSTR-3B most of the platform cannot say ' +
+      'Twenty-one of the 57 rules need it - without a GSTR-3B most of the platform cannot say ' +
       'anything at all.',
     also: ['gstr1', 'itc'],
   },
   gstr2b: {
     term: 'GSTR-2B',
-    short: 'What the suppliers said they sold to this business — the credit it is entitled to.',
+    short: 'What the suppliers said they sold to this business - the credit it is entitled to.',
     also: ['itc', 'gstr3b'],
   },
   itc: {
@@ -181,7 +181,7 @@ export const GLOSSARY = {
     short: 'Cases where the buyer pays the tax instead of the seller.',
     more:
       'Imported services and some notified supplies work this way. The buyer pays the tax and ' +
-      'claims it back as credit in the same breath — so claiming the credit without having paid ' +
+      'claims it back as credit in the same breath - so claiming the credit without having paid ' +
       'the tax is a thing worth testing for.',
     also: ['itc'],
   },
@@ -189,7 +189,7 @@ export const GLOSSARY = {
     term: 'Zero-rated',
     short: 'Exports and supplies to an SEZ: no tax charged, and credit still allowed.',
     more:
-      'Exempt supplies are different — no tax, and no credit either. The distinction matters ' +
+      'Exempt supplies are different - no tax, and no credit either. The distinction matters ' +
       'because a zero-rated claim usually comes with a refund attached, so the goods have to ' +
       'have actually left.',
     also: ['exempt'],
@@ -218,8 +218,8 @@ export const GLOSSARY = {
     term: 'Held row',
     short: 'A row the platform could not read with confidence, kept aside with the reason.',
     more:
-      'Held is not deleted. Every uploaded row lands in exactly one of three places — read, ' +
-      'held, or duplicate — and the three are added up on screen against the number of rows in ' +
+      'Held is not deleted. Every uploaded row lands in exactly one of three places - read, ' +
+      'held, or duplicate - and the three are added up on screen against the number of rows in ' +
       'the file. If they do not balance, nothing is saved at all.',
     also: ['reconciles'],
   },
@@ -242,7 +242,7 @@ export const GLOSSARY = {
   },
   drc01a: {
     term: 'DRC-01A',
-    short: 'An intimation before a formal demand — the chance to pay or explain first.',
+    short: 'An intimation before a formal demand - the chance to pay or explain first.',
     also: ['asmt10', 'section74a'],
   },
   section74a: {
@@ -271,12 +271,12 @@ export const GLOSSARY = {
     short: 'A tamper-evident log: every entry carries the fingerprint of the one before it.',
     more:
       'Change or remove any entry and every later fingerprint stops matching. It records who ' +
-      'looked at what and who approved what — including, deliberately, the things nobody enjoys ' +
+      'looked at what and who approved what - including, deliberately, the things nobody enjoys ' +
       'recording.',
   },
   threshold: {
     term: 'Threshold',
-    short: 'A number a rule compares against — a percentage, a limit, a number of days.',
+    short: 'A number a rule compares against - a percentage, a limit, a number of days.',
     more:
       'Each one is either provisional (a working value nobody has signed), departmental (the ' +
       'department adopted it, and the register names who and when), or notified (a notification ' +
@@ -287,7 +287,7 @@ export const GLOSSARY = {
     term: 'Provisional',
     short: 'A working value the platform shipped with. Correct arithmetic on an unsigned number.',
     more:
-      'Findings computed from a provisional threshold are perfectly good arithmetic — but the ' +
+      'Findings computed from a provisional threshold are perfectly good arithmetic - but the ' +
       'number they compare against is one nobody has adopted. Adopting them changes nothing ' +
       'about the figures and everything about who owns them.',
     also: ['threshold'],
@@ -296,7 +296,7 @@ export const GLOSSARY = {
     term: 'Peer group',
     short: 'Businesses of similar size, trade and location, used as the comparison.',
     more:
-      'Several flags have no fixed threshold — "a high share of exempt sales" only means ' +
+      'Several flags have no fixed threshold - "a high share of exempt sales" only means ' +
       'anything relative to similar businesses. If the group is too small to compare against, ' +
       'the flag reports not evaluated rather than inventing a number.',
     also: ['notEvaluated'],

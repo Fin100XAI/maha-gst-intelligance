@@ -11,7 +11,7 @@ import type { SheetCellRow } from '../lib/api'
  * This is the far end of the provenance chain. The drawer can say "row 8 of
  * sheet B2B_072025" and be believed; showing that row, in the grid it came
  * from, is what makes the claim checkable rather than trusted. It is the last
- * step of the ninety-second test — dashboard figure to spreadsheet cell — and
+ * step of the ninety-second test - dashboard figure to spreadsheet cell - and
  * without it the chain ends in a sentence rather than in evidence.
  *
  * The cells are read back from the stored file, never rebuilt from the
@@ -55,7 +55,7 @@ export function SheetViewer({
         <h3 className="text-base font-semibold">The workbook cannot be shown</h3>
         <p className="mt-1 text-sm text-ink-secondary">
           The stored file may have passed its retention period. The canonical rows and
-          their provenance record remain — only the original bytes are gone.
+          their provenance record remain - only the original bytes are gone.
         </p>
       </section>
     )

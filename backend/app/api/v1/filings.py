@@ -1,4 +1,4 @@
-"""W8 — filings: one return, one period, worked on its own.
+"""W8 - filings: one return, one period, worked on its own.
 
 The platform was built around two units, and neither is the one an officer
 actually holds in their hand. A *taxpayer* is a year of behaviour; a *case* is
@@ -7,11 +7,11 @@ between sits the thing on the desk: **this business, this month, this return**.
 
 That gap showed. An officer could see that a taxpayer had thirty findings
 across a year and could see the portfolio they sat in, but had nowhere to
-stand and ask "what about July?" — and July is the question, because a notice
+stand and ask "what about July?" - and July is the question, because a notice
 is issued for a period.
 
 So: a list of every filing the platform holds, each with its own risk profile,
-and a detail view that puts one filing through everything the platform knows —
+and a detail view that puts one filing through everything the platform knows -
 every rule that fired, every rule that did not and why, the 34 risk flags for
 the year it falls in, and the declared figures themselves. An officer can then
 record what they concluded, including "nothing", which is the outcome no

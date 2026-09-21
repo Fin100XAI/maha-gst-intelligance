@@ -6,16 +6,16 @@ import { ThresholdRegister } from '../../components/ThresholdRegister'
 import { api } from '../../lib/api'
 
 /**
- * S3 — Admin: what the platform knows it does not know.
+ * S3 - Admin: what the platform knows it does not know.
  *
  * Three lists, and the department should be uncomfortable about all of them:
  *
- * 1. **Unconfigured statutory values** — a due date, rate or form number the
+ * 1. **Unconfigured statutory values** - a due date, rate or form number the
  *    spec does not state. The platform raises rather than guessing, so a rule
  *    that needs one cannot run at all.
- * 2. **Provisional thresholds** — a working value with no notification behind
+ * 2. **Provisional thresholds** - a working value with no notification behind
  *    it. Findings computed from one are correct arithmetic on an assumption.
- * 3. **Dark parameters** — excluded from both sides of the P-Score because the
+ * 3. **Dark parameters** - excluded from both sides of the P-Score because the
  *    feed does not exist yet. The count is the business case for building it.
  *
  * This screen exists so that "the platform does not know" is a fact someone

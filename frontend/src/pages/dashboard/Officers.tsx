@@ -6,7 +6,7 @@ import { api } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * D8 — Officers.
+ * D8 - Officers.
  *
  * Capacity and case mix. **Not** a league table, and deliberately not
  * sortable into one.
@@ -42,7 +42,7 @@ export default function Officers(): JSX.Element {
 
       {data.items.length === 0 && (
         <p className="text-ink-secondary">
-          No officer facts were recorded in this run. That is not a throughput of zero — no
+          No officer facts were recorded in this run. That is not a throughput of zero - no
           case activity was supplied.
         </p>
       )}
@@ -61,7 +61,7 @@ export default function Officers(): JSX.Element {
               <Cell label="Open" value={String(officer.cases_open)} />
               <Cell label="Closed" value={String(officer.cases_closed)} />
               <Cell label="Awaiting approval" value={String(officer.notices_pending_approval)} />
-              <Cell label="Mean age" value={officer.mean_age_days ?? '—'} suffix=" days" />
+              <Cell label="Mean age" value={officer.mean_age_days ?? '-'} suffix=" days" />
             </dl>
 
             <div className="mt-3">

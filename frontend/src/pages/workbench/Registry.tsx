@@ -11,7 +11,7 @@ import type { RegistryRow } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * W3 — Taxpayer Registry.
+ * W3 - Taxpayer Registry.
  *
  * Every filter, the sort and the paging happen in the database. The table is
  * specified to hold fifty thousand rows, and filtering that in the browser is
@@ -71,7 +71,7 @@ export default function Registry(): JSX.Element {
       <ScreenHeader
         code="W3"
         title="Find a business"
-        lead="Search by GSTIN, name or trade. Only the businesses in your jurisdiction appear —
+        lead="Search by GSTIN, name or trade. Only the businesses in your jurisdiction appear -
           one outside it reads as not found rather than as refused, because refusing would
           confirm that the registration exists."
         meta={data === undefined ? 'Loading…' : `${String(data.total)} in scope · ${data.scope}`}
@@ -237,10 +237,10 @@ function Row({ row, onOpen }: { row: RegistryRow; onOpen: () => void }): JSX.Ele
         </button>
         <div className="text-xs text-ink-muted tabular">{row.gstin}</div>
       </td>
-      <td className="py-1 text-ink-secondary">{row.division ?? '—'}</td>
+      <td className="py-1 text-ink-secondary">{row.division ?? '-'}</td>
       <td className="py-1 text-right">
         {row.aato === null ? (
-          <span className="text-ink-muted">—</span>
+          <span className="text-ink-muted">-</span>
         ) : (
           <Money value={row.aato} calcId={null} symbol={false} drill={onOpen} />
         )}
@@ -253,25 +253,25 @@ function Row({ row, onOpen }: { row: RegistryRow; onOpen: () => void }): JSX.Ele
         )}
       </td>
       <td className="py-1 text-right tabular text-ink-secondary">
-        {row.p_evaluated === null ? '—' : `${String(row.p_evaluated)}/34`}
+        {row.p_evaluated === null ? '-' : `${String(row.p_evaluated)}/34`}
       </td>
       <td className="py-1">
         {row.p_band === null ? (
-          <span className="text-ink-muted">—</span>
+          <span className="text-ink-muted">-</span>
         ) : (
           <StatusChip level={bandLevel(row.p_band)} label={row.p_band} />
         )}
       </td>
       <td className="py-1 text-right">
         {row.f_score === null ? (
-          <span className="text-ink-muted">—</span>
+          <span className="text-ink-muted">-</span>
         ) : (
           <Figure value={row.f_score} calcId={row.f_calc_id} />
         )}
       </td>
       <td className="py-1">
         {row.f_band === null ? (
-          <span className="text-ink-muted">—</span>
+          <span className="text-ink-muted">-</span>
         ) : (
           <StatusChip level={fBandLevel(row.f_band)} label={row.f_band} />
         )}

@@ -9,8 +9,8 @@ import { useSession } from '../../lib/session'
  * The secondary bar under the navigation: where you are, and who you are.
  *
  * Ported from maha-gst-intelligance, with its filter row left out
- * deliberately. The reference carries six global scope selects here —
- * date range, division, district, sector, taxpayer type, risk level — because
+ * deliberately. The reference carries six global scope selects here -
+ * date range, division, district, sector, taxpayer type, risk level - because
  * its modules read a shared filter object.
  *
  * This platform does not work that way, and should not be made to. Its

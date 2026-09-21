@@ -25,7 +25,7 @@ import { cn } from '../lib/utils'
  * reader to already know what an "Addl. Commissioner (Enforcement)" may do
  * that a "Deputy Commissioner" may not. The three people cover the whole
  * platform between them, every screen is reachable by all three, and what
- * differs is which *actions* each may take — which is shown here, before
+ * differs is which *actions* each may take - which is shown here, before
  * signing in, rather than discovered at the moment a button is refused.
  */
 export default function SignIn(): JSX.Element {
@@ -60,7 +60,7 @@ export default function SignIn(): JSX.Element {
             GST DRISHTI
           </h1>
           <p className="mt-4 text-sm leading-relaxed text-govt-100">
-            Scrutiny, reconciliation and demand for the Commercial Taxes Department — from the
+            Scrutiny, reconciliation and demand for the Commercial Taxes Department - from the
             filed return to the source cell.
           </p>
 
@@ -80,8 +80,8 @@ export default function SignIn(): JSX.Element {
         </div>
 
         <p className="text-[11px] leading-relaxed text-govt-200">
-          This picker is not a security control. There is no identity provider yet — State SSO
-          arrives with OIDC — and authorisation is enforced on the server whatever is chosen
+          This picker is not a security control. There is no identity provider yet - State SSO
+          arrives with OIDC - and authorisation is enforced on the server whatever is chosen
           here.
         </p>
       </div>
@@ -94,7 +94,7 @@ export default function SignIn(): JSX.Element {
           </div>
           <h2 className="font-display text-xl font-bold">Who are you signing in as?</h2>
           <p className="mt-1.5 text-sm text-ink-secondary">
-            All three reach every screen. What differs is what each may do — shown below, so you
+            All three reach every screen. What differs is what each may do - shown below, so you
             know before you start rather than when a button refuses you.
           </p>
 

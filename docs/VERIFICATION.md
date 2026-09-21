@@ -1,4 +1,4 @@
-# Verification record — 20 September 2026
+# Verification record - 20 September 2026
 
 *Updated at the close of the end-to-end evaluation: a realistic workbook walked
 from upload to served notice, and the seven defects that walk found, fixed.*
@@ -38,27 +38,27 @@ Toolchain: `backend/.venv` (Python 3.12.7), Node 22, on Windows.
 Against the database `make demo` built, through the running API and the running
 web app:
 
-* **Ingestion** — portal-shaped workbooks with a title block, a merged two-row
+* **Ingestion** - portal-shaped workbooks with a title block, a merged two-row
   header, a spacer column, a trailing totals row, mixed date formats and one
   Marathi-headed sheet. Every taxpayer reported `rows in = parsed + quarantined
   + duplicates` and reconciled.
-* **The engine** — 34 parameters and 57 rules over 12 taxpayers. Taxpayer #1,
+* **The engine** - 34 parameters and 57 rules over 12 taxpayers. Taxpayer #1,
   the control, fires nothing.
-* **The dashboard** — the KPI strip, Indian-formatted money
+* **The dashboard** - the KPI strip, Indian-formatted money
   (`₹1,23,57,15,130.85`), and the coverage sentence: *"P-Score computed over an
-  average of 3 of 34 parameters — 31 await DGARM red-flag feed, ICEGATE
+  average of 3 of 34 parameters - 31 await DGARM red-flag feed, ICEGATE
   customs, ITD / AIS turnover, Refund module."*
-* **W4, the taxpayer file** — all 34 parameters, 31 of them greyed as not
+* **W4, the taxpayer file** - all 34 parameters, 31 of them greyed as not
   evaluated and named with the feed they wait on; the two scores side by side
   with the note that they are never combined; findings with their head-wise
   split; and the "why these rules did not fire" section.
 * **The provenance drawer**, opened from a P11 flag on that screen:
   `P11 · calc_id b22c5613ee20… · engine 0.1.0 · params defaults`, the formula,
   and both decomposed steps.
-* **A case and its demand** — section 74A, head-wise tax, a total of
+* **A case and its demand** - section 74A, head-wise tax, a total of
   `₹49,34,810.00`, 26 contributing lines, and one ADVISORY finding excluded with
   its reason stated.
-* **The notice lifecycle over HTTP** — DRC-01A drafted with every figure slotted
+* **The notice lifecycle over HTTP** - DRC-01A drafted with every figure slotted
   from the demand; self-approval refused **403**; approval by a second officer
   minting `CBIC202609PUNEI0000010AA`; a slot edit refused **422**; the notice
   read from another division **404**; service recorded with a reply clock of
@@ -72,17 +72,17 @@ Every one of the twenty routed screens was rendered against the demo database
 and read, not merely compiled. The interactive paths were driven rather than
 assumed:
 
-* **S1 Ingestion** — a real portal-shaped workbook uploaded through the file
+* **S1 Ingestion** - a real portal-shaped workbook uploaded through the file
   input, reconciling on screen as `5 rows in = 4 parsed + 1 held + 0
   duplicates`, the filer's GSTIN read from the title block, and the held row
   shown as the trailing totals row it is.
-* **W1 Worklist** — a finding disposed of with a reason; the queue dropped from
+* **W1 Worklist** - a finding disposed of with a reason; the queue dropped from
   28 to 27 and the entry appeared in the audit chain, which still verifies.
-* **W2 Audit Planner** — a taxpayer selected with a rationale, and the
+* **W2 Audit Planner** - a taxpayer selected with a rationale, and the
   selection listed back with its basis and author.
-* **W7 Copilot** — asked a question with no model configured, and told plainly
+* **W7 Copilot** - asked a question with no model configured, and told plainly
   that none is, rather than given an answer.
-* **W4 Reconciliation** — the 12 × 11 matrix, a breached R1 cell opened to its
+* **W4 Reconciliation** - the 12 × 11 matrix, a breached R1 cell opened to its
   head-wise split, and on into the provenance drawer showing the formula, the
   as-executed line and both steps.
 
@@ -104,13 +104,13 @@ with a regression test and a decision recorded:
 
 | # | What went wrong | Decision |
 |---|---|---|
-| 1 | The ingested returns were invisible to the engine — nothing read them back | D-0030 |
+| 1 | The ingested returns were invisible to the engine - nothing read them back | D-0030 |
 | 2 | A credit note was quarantined: the document type was read from a hard-coded column name | D-0032 |
-| 3 | A credit note was **added** to the demand — a negative amount and a negative sign | D-0032 |
+| 3 | A credit note was **added** to the demand - a negative amount and a negative sign | D-0032 |
 | 4 | Marathi tax columns read as zero, silently | D-0035 |
 | 5 | A period with no GSTR-3B was reconciled as though it had declared nil | D-0033 |
 | 6 | A notice was addressed "To 27AAGCS4521P1ZX" | D-0034 |
-| 7 | GSTR-3B could not be ingested at all — 21 of the 57 rules need one | D-0035 |
+| 7 | GSTR-3B could not be ingested at all - 21 of the 57 rules need one | D-0035 |
 
 Defects 3 and 5 would each have produced a demand for money that was not owed.
 
@@ -124,7 +124,7 @@ as `CBIC202609PUNEI0000010AA`; and the audit chain verifying from genesis.
 
 ## The workbook on screen
 
-The stored file is rendered back as a grid — column letters, the detected header
+The stored file is rendered back as a grid - column letters, the detected header
 row tinted, held rows flagged ▲ with their reason on hover, and the derived
 mapping available as an overlay. The file's own inconsistencies survive the
 round trip: `2025-07-04`, `05-07-2025` and the raw Excel serial `45845` are each
@@ -134,7 +134,7 @@ would be showing the platform's reading rather than the officer's file.
 ## What was exercised by test only
 
 The Marathi ASMT-10; the s.128A amnesty and limitation refusals; the six agents
-(against a scripted provider — **no live model has been called**); the
+(against a scripted provider - **no live model has been called**); the
 numeric-fidelity middleware including the adversarial case; pseudonymisation and
 leak detection; RBAC's 404 rule; and slot locking.
 
@@ -145,7 +145,7 @@ test, and the accessibility audit.
 
 SQLite is now the supported database and the one everything above ran on, with
 `foreign_keys`, WAL and a busy timeout set on every connection (D-0038).
-PostgreSQL remains a URL change and remains untested — the dialect difference in
+PostgreSQL remains a URL change and remains untested - the dialect difference in
 `NUMERIC(18,2)`, JSONB and partial indexes is real, and a passing SQLite suite is
 not evidence about it.
 
@@ -239,7 +239,7 @@ done, and now matters more than before, because the interface changed.
 | Law | Enforcement |
 |---|---|
 | Determinism | **Code.** G1 across eight trees with no suppression comment; `calc_id` is a hash of inputs, never a UUID and never the clock. |
-| Provenance | **Code** on the engine path — a `Finding` without a trace cannot be constructed, and `clear()` builds a tracer. **Convention** in the UI, guarded by `<Money>` rendering a visible ⚠ for a figure with no `calc_id`. |
+| Provenance | **Code** on the engine path - a `Finding` without a trace cannot be constructed, and `clear()` builds a tracer. **Convention** in the UI, guarded by `<Money>` rendering a visible ⚠ for a figure with no `calc_id`. |
 | Head-wise integrity | **Code.** `TaxVector` has no scalar constructor and `.total` is the one collapse, at the presentation boundary. |
 | The LLM never calculates | **Code**, four ways: no tool returns a live number (asserted by a test that runs every tool of every agent), the fidelity middleware raises rather than warns, the drafter's prompt never contains slot syntax, and slots are filled from the demand. |
 | Nothing silently dropped | **Code** in ingestion (`RowLedger.assert_reconciled`) and in the rules (`NOT_EVALUATED` cannot be constructed without naming the missing dataset). |
@@ -249,7 +249,7 @@ done, and now matters more than before, because the interface changed.
 Every figure on a screen is traceable to a spreadsheet cell, so a wrong input
 changes the figure and the drawer shows where it came from. The numbers most
 sensitive to a *missing* input are the two scores: the P-Score is computed over
-the parameters that could be evaluated, and its coverage — currently 3 of 34 —
+the parameters that could be evaluated, and its coverage - currently 3 of 34 -
 is printed beside it every time precisely because the score alone would mislead.
 
 **3. What is the largest untested surface?**
@@ -266,7 +266,7 @@ have to run.
 Four, all of them in the direction of a smaller or absent demand:
 
 * A credit note is now subtracted rather than added. On the test workbook this
-  moved a demand from ₹86,000 to ₹50,000 — the correct figure (D-0032).
+  moved a demand from ₹86,000 to ₹50,000 - the correct figure (D-0032).
 * A period with no GSTR-3B now reports `NOT_EVALUATED` instead of reconciling
   against an assumed nil return (D-0033).
 * Marathi-headed tax columns now map, so the tax they carry is counted instead

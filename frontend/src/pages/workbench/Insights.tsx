@@ -12,7 +12,7 @@ import { api } from '../../lib/api'
 import type { InsightItem, InsightPanel } from '../../lib/api'
 
 /**
- * W9 — what this taxpayer's year looks like.
+ * W9 - what this taxpayer's year looks like.
  *
  * The parameters answer *who should we audit*, the rules answer *what can we
  * demand*. This screen answers the question the filed data can answer on its
@@ -22,7 +22,7 @@ import type { InsightItem, InsightPanel } from '../../lib/api'
  * purchases in one supplier is not an offence; ten counterparties who are
  * both customer and supplier is not circular trading. Each panel carries its
  * own reading, in the officer's words, stating what the figure is and what it
- * does not mean — because a descriptive number placed next to a demand screen
+ * does not mean - because a descriptive number placed next to a demand screen
  * will be read as a finding unless the screen refuses that reading out loud.
  *
  * **Every bar still reaches the spreadsheet.** A rule-backed figure drills
@@ -87,7 +87,7 @@ export default function Insights(): JSX.Element {
           </p>
           <p className="mt-2">
             Nothing on this screen does that, because nothing on this screen is measured against
-            anything. These are sums of the rows as filed — who the purchases came from, what
+            anything. These are sums of the rows as filed - who the purchases came from, what
             rates were declared, when credit notes were issued. They carry no threshold, because
             the department has published none for these shapes.
           </p>
@@ -148,7 +148,7 @@ function PanelCard({
 
       {panel.items.length === 0 ? (
         <p className="mt-3 text-sm text-ink-muted">
-          Nothing filed under this heading. Not zero — nothing to sum.
+          Nothing filed under this heading. Not zero - nothing to sum.
         </p>
       ) : (
         <ul className="mt-3 space-y-1.5">
@@ -310,8 +310,8 @@ function DrillPanel({
                       </span>
                     )}
                   </td>
-                  <td className="py-1 pr-3 tabular">{row.doc_date ?? '—'}</td>
-                  <td className="py-1 pr-3 font-mono">{row.counterparty ?? '—'}</td>
+                  <td className="py-1 pr-3 tabular">{row.doc_date ?? '-'}</td>
+                  <td className="py-1 pr-3 font-mono">{row.counterparty ?? '-'}</td>
                   <td className="py-1 pr-3 text-right tabular">
                     <Money value={row.taxable_value} symbol={false} />
                   </td>

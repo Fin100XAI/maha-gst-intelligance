@@ -11,7 +11,7 @@ import type { DrillRow } from '../lib/api'
  * The taxpayer list behind a chart element.
  *
  * Every visual element on every dashboard resolves here. No exceptions, no
- * dead ends — and from a row here, the taxpayer's own file is one more click.
+ * dead ends - and from a row here, the taxpayer's own file is one more click.
  */
 export default function Drill(): JSX.Element {
   const [params] = useSearchParams()
@@ -34,7 +34,7 @@ export default function Drill(): JSX.Element {
         <StatusChip level="critical" label="This element did not resolve" />
         <p className="mt-3 text-sm text-ink-secondary">
           A bar a Commissioner cannot click is a bar a Commissioner cannot act on. This is a
-          bug — please report it with the address below.
+          bug - please report it with the address below.
         </p>
         <p className="mt-2 break-all rounded bg-sunken p-2 text-xs tabular">{target}</p>
       </section>
@@ -53,7 +53,7 @@ export default function Drill(): JSX.Element {
           <span className="tabular">{data.total}</span> taxpayer(s)
         </p>
         <p className="mt-1 text-xs text-ink-muted">
-          {data.metric.formula} — grain: {data.metric.grain}
+          {data.metric.formula} - grain: {data.metric.grain}
         </p>
         {data.metric.note !== null && (
           <p className="mt-1 text-xs text-ink-muted">{data.metric.note}</p>
@@ -95,11 +95,11 @@ function Row({ row }: { row: DrillRow }): JSX.Element {
   return (
     <tr className="border-b border-line hover:bg-sunken">
       <td className="p-2 tabular">{row.gstin}</td>
-      <td className="p-2">{row.trade_name ?? row.legal_name ?? '—'}</td>
-      <td className="p-2">{row.division ?? '—'}</td>
+      <td className="p-2">{row.trade_name ?? row.legal_name ?? '-'}</td>
+      <td className="p-2">{row.division ?? '-'}</td>
       <td className="p-2 text-right">
         {row.p_score === null ? (
-          '—'
+          '-'
         ) : (
           <span className="inline-flex items-center gap-2">
             <Figure value={row.p_score} calcId={row.p_calc_id} />
@@ -109,11 +109,11 @@ function Row({ row }: { row: DrillRow }): JSX.Element {
       </td>
       {/* Coverage sits beside the score, at the same weight, always. */}
       <td className="p-2 text-right tabular text-ink-secondary">
-        {row.p_coverage ?? '—'}
+        {row.p_coverage ?? '-'}
       </td>
       <td className="p-2 text-right">
         {row.f_score === null ? (
-          '—'
+          '-'
         ) : (
           <span className="inline-flex items-center gap-2">
             <Figure value={row.f_score} calcId={row.f_calc_id} />
@@ -121,7 +121,7 @@ function Row({ row }: { row: DrillRow }): JSX.Element {
           </span>
         )}
       </td>
-      <td className="p-2 text-ink-secondary">{row.officer_id ?? '—'}</td>
+      <td className="p-2 text-ink-secondary">{row.officer_id ?? '-'}</td>
     </tr>
   )
 }

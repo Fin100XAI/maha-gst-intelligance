@@ -8,7 +8,7 @@ import type { CandidateRow } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * W2 — Audit Planner.
+ * W2 - Audit Planner.
  *
  * Select from the P-Score, filter on an individual parameter flag, and state
  * why. The rationale is required by the API, not merely requested here: P30
@@ -81,7 +81,7 @@ export default function Planner(): JSX.Element {
         code="W2"
         title="Who to audit"
         lead="Choosing the year&rsquo;s audits. Sort by risk, by size or by what the flags found,
-          and record why each business was picked — the reason is kept with the selection, so
+          and record why each business was picked - the reason is kept with the selection, so
           the choice can be explained a year later."
         meta={data === undefined ? 'Loading…' : `${String(data.total)} candidates`}
       />
@@ -155,7 +155,7 @@ export default function Planner(): JSX.Element {
       {paramId !== '' && (
         <p className="mb-3 rounded border border-line bg-sunken p-2 text-xs text-ink-secondary">
           A taxpayer whose {paramId} could not be evaluated is excluded from this filter
-          entirely — not read as flag 0. A parameter shown as zero when it was never
+          entirely - not read as flag 0. A parameter shown as zero when it was never
           tested is what turns a risk score into a lie.
         </p>
       )}
@@ -214,7 +214,7 @@ export default function Planner(): JSX.Element {
         </label>
 
         <label className="mt-3 flex flex-col gap-1 text-xs text-ink-muted">
-          Rationale — required, and read next cycle when P30 is computed
+          Rationale - required, and read next cycle when P30 is computed
           <textarea
             value={rationale}
             rows={2}
@@ -297,18 +297,18 @@ function Candidate({
         </a>
         <div className="text-xs text-ink-muted tabular">{row.gstin}</div>
       </td>
-      <td className="py-1 text-ink-secondary">{row.division ?? '—'}</td>
+      <td className="py-1 text-ink-secondary">{row.division ?? '-'}</td>
       <td className="py-1 text-right">
-        {row.p_score === null ? '—' : <Figure value={row.p_score} calcId={row.p_calc_id} />}
+        {row.p_score === null ? '-' : <Figure value={row.p_score} calcId={row.p_calc_id} />}
       </td>
       <td className="py-1 text-right">
         <span className={thin ? 'tabular text-status-warning' : 'tabular'}>
-          {row.p_evaluated === null ? '—' : `${String(row.p_evaluated)}/${String(row.p_of)}`}
+          {row.p_evaluated === null ? '-' : `${String(row.p_evaluated)}/${String(row.p_of)}`}
         </span>
       </td>
       <td className="py-1">
         {row.p_band === null ? (
-          <span className="text-ink-muted">—</span>
+          <span className="text-ink-muted">-</span>
         ) : (
           <StatusChip
             level={row.p_band === 'HIGH' ? 'serious' : row.p_band === 'LOW' ? 'good' : 'warning'}

@@ -2,7 +2,7 @@
 
 The claim this screen makes is that all 34 risk flags in the department's
 circular are implemented. That claim is worth very little unless something
-checks it, so these tests check it — including the part that is easy to fake,
+checks it, so these tests check it - including the part that is easy to fake,
 which is whether a parameter that exists is ever actually evaluated.
 """
 

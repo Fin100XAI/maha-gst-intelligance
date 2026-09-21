@@ -11,7 +11,7 @@ import { cn } from '../../lib/utils'
  * Primary navigation as a horizontal menu bar.
  *
  * Ported from maha-gst-intelligance, and it answers the department's own
- * note on the earlier build — that everything sat down the left and the width
+ * note on the earlier build - that everything sat down the left and the width
  * of the screen went unused. Every group is named on the bar; none is hidden
  * behind an overflow control. A group's screens open on hover *and* on click,
  * so it works from a keyboard and on a touchscreen, not only under a mouse.
@@ -214,7 +214,7 @@ function GroupButton({
                 key={item.path}
                 to={item.path}
                 end={item.path === group.end}
-                title={waiting === undefined ? undefined : `No data in this upload — needs ${waiting}`}
+                title={waiting === undefined ? undefined : `No data in this upload - needs ${waiting}`}
                 className={({ isActive }) =>
                   cn(
                     'flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left transition-colors',

@@ -1,4 +1,4 @@
-# 02 — PLATFORM SPEC
+# 02 - PLATFORM SPEC
 ### Architecture · data model · ingestion · engine · metrics · API
 
 ## 1. Shape
@@ -20,7 +20,7 @@
 │ ENGINE       P01–P34 flag evaluator  +  57 detection rules              │
 │              pure functions · Decimal only · replayable · traced        │
 ├─────────────────────────────────────────────────────────────────────────┤
-│ AGGREGATION  nightly rollup into portfolio fact tables — this is what   │
+│ AGGREGATION  nightly rollup into portfolio fact tables - this is what   │
 │              makes a 50k-taxpayer dashboard load in 400 ms              │
 ├─────────────────────────────────────────────────────────────────────────┤
 │ CASE & NOTICE  lifecycle · limitation clocks · slot-filled statutory    │
@@ -35,7 +35,7 @@
 
 **Deployment:** State Data Centre or NIC/MeghRaj, inside the State network. No
 taxpayer data leaves Indian soil. The LLM layer sits behind one `LLMProvider`
-interface with a hosted adapter and an on-premise open-weights adapter — assume
+interface with a hosted adapter and an on-premise open-weights adapter - assume
 procurement eventually mandates on-premise inference, and make that a config change
 rather than a rewrite.
 
@@ -45,7 +45,7 @@ rather than a rewrite.
 gst-drishti/
 ├── CLAUDE.md · docker-compose.yml · Makefile · docs/
 ├── backend/app/
-│   ├── money.py            Decimal + TaxVector — read this first
+│   ├── money.py            Decimal + TaxVector - read this first
 │   ├── canonical.py        enums · Period · GSTIN validation · records
 │   ├── ingestion/          sniffer header synonyms coerce validators quarantine pipeline
 │   ├── engine/
@@ -64,7 +64,7 @@ gst-drishti/
         pages/workbench/    officer surfaces
 ```
 
-## 3. Ingestion — the layer that decides whether the platform survives
+## 3. Ingestion - the layer that decides whether the platform survives
 
 An officer will upload a portal export, a consultant's working file, or a 40-tab
 workbook with merged cells, a logo in row 1 and Marathi headers. **Sniff, don't
@@ -92,7 +92,7 @@ Non-negotiables for this layer:
 - **Quarantine carries a reason and the original row**, and replays after a mapping
   fix without re-uploading.
 - **Duplicate detection** on `(gstin, period, return_type, doc_no, doc_date,
-  counterparty, taxable_value)` — re-uploading the same file is a non-event.
+  counterparty, taxable_value)` - re-uploading the same file is a non-event.
 - **Marathi and Hindi column synonyms from day one**, not v2.
 
 ## 4. Data model
@@ -158,7 +158,7 @@ audit_log         seq PK · at · actor · action · entity · entity_id
 any column matching `igst|cgst|sgst|cess|value|amount` is floating-point. A demand
 that is off by a paisa is a demand competent counsel uses to attack the whole order.
 
-**Four columns per tax field, not a JSON blob** — every rule compares head-wise and
+**Four columns per tax field, not a JSON blob** - every rule compares head-wise and
 every index you will need is on one of these four.
 
 ## 5. Engine
@@ -167,9 +167,9 @@ every index you will need is on one of these four.
 class RuleContext:       # immutable · pre-indexed · no I/O · no clock
     gstin; fy; period; regime          # PRE_HARD_LOCK | POST_HARD_LOCK
     profile; outward; inward; returns_3b; ledgers; ewb; einv; filing
-    peers          # cohort percentile bands — drives every RATIO_PEER flag
+    peers          # cohort percentile bands - drives every RATIO_PEER flag
     graph          # lazy; only NET-* and ITC-16 touch it
-    params         # params.get(id, key, on=period) — period-aware, never today
+    params         # params.get(id, key, on=period) - period-aware, never today
     trace          # trace.step(label, expression, inputs, result)
     as_of          # injected. A rule calling date.today() is a build failure.
 ```
@@ -178,7 +178,7 @@ Execution: resolve `requires` topologically → run in deterministic ID order �
 missing dataset ⇒ `NOT_EVALUATED(missing_inputs=[...])` → apply suppressions (§128A,
 limitation, accepted prior replies) → score → persist under one `engine_run_id`.
 
-**`calc_id` is a deterministic hash** of `rule_id + snapshot_id + inputs` — never a
+**`calc_id` is a deterministic hash** of `rule_id + snapshot_id + inputs` - never a
 random UUID. Replay depends on it. `tests/test_replay.py` runs the same snapshot
 twice and asserts identical `calc_id`s, findings, flags and scores. Write it in
 Phase 3; it is cheap then and near-impossible to retrofit.
@@ -188,7 +188,7 @@ convert back to `Decimal` at every boundary and never let a numpy float reach a
 `Finding`. Targets: 1 taxpayer × 12 periods × (34 params + 57 rules) < 5 s;
 50,000 taxpayers < 1 hour.
 
-## 6. Aggregation — what makes the dashboard fast
+## 6. Aggregation - what makes the dashboard fast
 
 A Commissioner's dashboard spans every taxpayer in a commissionerate. Computing that
 live is impossible. After each engine run, roll up into fact tables:
@@ -365,7 +365,7 @@ Error codes: `VALIDATION_FAILED` · `SHEET_UNRECOGNISED` · `MAPPING_REQUIRED` �
 `RULE_INPUT_MISSING` · `PARAM_NOT_EVALUATED` · `JURISDICTION_DENIED` ·
 `APPROVAL_REQUIRED` · `LIMITATION_EXPIRED` · `NOT_IMPLEMENTED`.
 
-## 9. Agents — advisory only
+## 9. Agents - advisory only
 
 Six agents behind one `LLMProvider`: **Column Mapper** (proposes ingestion mappings,
 human-confirmed, and writes accepted mappings back to the synonym lexicon so the
@@ -381,10 +381,10 @@ Four enforcement layers:
 1. **No agent has a tool that performs arithmetic.** There is nothing to misuse.
 2. **Numeric-fidelity middleware** scans every completion; any number not present in
    that call's tool results and not carrying a `calc_id` fails the response. Test it
-   adversarially — prompt the model to invent a figure and assert rejection. **This
+   adversarially - prompt the model to invent a figure and assert rejection. **This
    test is build-breaking.**
-3. **Template slotting** — the model never sees numeric slot syntax.
-4. **Provenance** — every figure renders as a chip carrying its `calc_id`.
+3. **Template slotting** - the model never sees numeric slot syntax.
+4. **Provenance** - every figure renders as a chip carrying its `calc_id`.
 
 Prompts carry a pseudonymous reference (`TP-0447`), never a GSTIN or trade name; the
 reverse mapping stays server-side. Every call is logged with prompt, completion,
@@ -393,7 +393,7 @@ tools, tokens, latency, cost, model version, officer and case.
 ## 10. Security
 
 OIDC against the State SSO. **RBAC enforced at the query layer** with a mandatory
-jurisdiction predicate, not in the UI — and an out-of-scope GSTIN returns **404, not
+jurisdiction predicate, not in the UI - and an out-of-scope GSTIN returns **404, not
 403**, because 403 leaks existence. Roles: Inspector · STO · Asst. Commissioner ·
 Deputy/Joint Commissioner · Addl. Commissioner (Enforcement) · Systems Administrator ·
 Auditor (read-only) · Analytics (de-identified only).

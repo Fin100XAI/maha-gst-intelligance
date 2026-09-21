@@ -1,4 +1,4 @@
-# CLAUDE.md — GST DRISHTI
+# CLAUDE.md - GST DRISHTI
 ### Repo root. Claude Code reads this every session.
 
 A GST compliance intelligence platform for a State Commercial Taxes Department.
@@ -11,7 +11,7 @@ statutory notices that create legal liability. Build accordingly.
 1. **Determinism.** Every rupee, ratio, day-count, flag and score comes from pure
    Python over `Decimal`. No LLM, no float, no randomness. Same input bytes ⇒
    byte-identical output, forever.
-2. **Provenance.** Every number — including every bar on every dashboard chart —
+2. **Provenance.** Every number - including every bar on every dashboard chart -
    carries a `calc_id` resolving to the rule or parameter, its basis, the formula as
    executed, the intermediate terms and the source rows. A figure without one is a bug.
 3. **Head-wise integrity.** IGST, CGST, SGST and Cess are never summed into one
@@ -20,7 +20,7 @@ statutory notices that create legal liability. Build accordingly.
 5. **Nothing is silently dropped or silently assumed.** Every row lands in `PARSED`,
    `QUARANTINED` (with a reason) or `DUPLICATE`, and the counts reconcile on screen.
    A rule or parameter that cannot run reports `NOT_EVALUATED` naming the missing
-   dataset — never "no issue found", never a default of zero.
+   dataset - never "no issue found", never a default of zero.
 
 ## Two scores, never fused
 
@@ -41,7 +41,7 @@ Recharts · Zustand.
 - A float literal or `float()` under `app/engine/` or `app/ingestion/` fails the build.
   The lint rule exists; do not disable it.
 - Money columns are `NUMERIC(18,2)`; a migration test enforces it.
-- Rules and parameters are pure: no I/O, no clock (`as_of` is injected — never
+- Rules and parameters are pure: no I/O, no clock (`as_of` is injected - never
   `date.today()`), no randomness, no mutation.
 - `calc_id` is a **deterministic hash** of `rule_id + snapshot_id + inputs`, never a
   random UUID. Replay depends on it.
@@ -62,7 +62,7 @@ Recharts · Zustand.
 ## Layout
 
 ```
-backend/app/money.py                 Decimal + TaxVector — read first
+backend/app/money.py                 Decimal + TaxVector - read first
 backend/app/canonical.py             enums · Period · GSTIN validation
 backend/app/ingestion/               sniff → header → map → coerce → quarantine
 backend/app/engine/params_p01_p34.py the 34 audit risk parameters
@@ -72,7 +72,7 @@ backend/app/aggregation/             nightly rollups → the dashboard's speed
 frontend/src/components/             Money · ProvenanceDrawer · FlagLadder ·
                                      ChartCard are the four that matter
 frontend/src/pages/dashboard|workbench
-docs/                                the spec pack — it is the contract
+docs/                                the spec pack - it is the contract
 docs/DECISIONS.md                    every ambiguity resolved, with reasoning
 ```
 

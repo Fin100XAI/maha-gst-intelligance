@@ -9,7 +9,7 @@ import { api } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * D7 — Jurisdictions.
+ * D7 - Jurisdictions.
  *
  * Ranked on revenue at risk, not on a mean score. A division of two hundred
  * small taxpayers and a division of twenty large ones do not compare on a mean
@@ -37,7 +37,7 @@ export default function Jurisdictions(): JSX.Element {
       <ScreenHeader
         code="D7"
         title="By office"
-        lead="The same figures, broken down by commissionerate and division — so a difference between two offices can be seen rather than assumed."
+        lead="The same figures, broken down by commissionerate and division - so a difference between two offices can be seen rather than assumed."
         meta={`run ${data.engine_run_id.slice(0, 8)}`}
       />
 

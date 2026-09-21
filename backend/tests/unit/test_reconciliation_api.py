@@ -2,7 +2,7 @@
 
 The state that matters is the third one. An identity that could not be tested
 must not render as one that passed, and a matrix of ticks and gaps will be read
-as ticks — so NOT_EVALUATED is a cell with a reason in it, not an absence.
+as ticks - so NOT_EVALUATED is a cell with a reason in it, not an absence.
 """
 
 from __future__ import annotations

@@ -3,7 +3,7 @@
  *
  * Every monetary value arrives as a string and stays one. No response is
  * passed through `JSON.parse` into a `number` for a rupee field, and nothing
- * here does arithmetic — if a total is needed, the server computes it and
+ * here does arithmetic - if a total is needed, the server computes it and
  * attaches a `calc_id`.
  */
 
@@ -24,7 +24,7 @@ export class ApiError extends Error {
  * The development identity.
  *
  * Until OIDC is wired to the State SSO, the server reads the caller from these
- * headers — and refuses to do so outside development. Nothing here is a
+ * headers - and refuses to do so outside development. Nothing here is a
  * security control: authorisation is enforced at the query layer on the
  * server, and an out-of-scope GSTIN comes back 404 whatever this says.
  */

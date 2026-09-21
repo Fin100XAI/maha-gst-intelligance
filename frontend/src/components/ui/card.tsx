@@ -3,7 +3,7 @@ import type { HTMLAttributes, JSX } from 'react'
 import { cn } from '../../lib/utils'
 
 /**
- * Card — shadcn/ui, bound to this platform's tokens.
+ * Card - shadcn/ui, bound to this platform's tokens.
  *
  * shadcn/ui is copy-in rather than a dependency, which is why it suits this
  * codebase: the components live here and read `--surface-chart`, `--border`
@@ -84,7 +84,7 @@ export const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEleme
 /**
  * The eyebrow above a card title: small, letter-spaced, mono.
  *
- * It carries the screen or metric reference — D1, M-K05 — which matters for
+ * It carries the screen or metric reference - D1, M-K05 - which matters for
  * traceability and is exactly the thing that should not be the first words a
  * reader meets.
  */

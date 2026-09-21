@@ -7,14 +7,14 @@ import { api } from '../../lib/api'
 import { ScreenHeader } from '../../components/ScreenHeader'
 
 /**
- * D6 — Enforcement Funnel.
+ * D6 - Enforcement Funnel.
  *
  * Flagged → selected → notices → replies → appeals → sustained, with the drop
  * at each step shown as a share of the step above it *and* of the top, because
  * those two numbers answer different questions and the one you are not shown
  * is the one you would have wanted.
  *
- * A stage reading zero means nothing has reached it yet — not that the stage
+ * A stage reading zero means nothing has reached it yet - not that the stage
  * failed. The screen says so rather than letting an empty bar imply a
  * collapse in enforcement.
  */
@@ -78,9 +78,9 @@ export default function Funnel(): JSX.Element {
                     <td className="py-1">{step.label}</td>
                     <td className="py-1 text-right tabular">{step.count}</td>
                     <td className="py-1 text-right tabular">
-                      {step.share_of_previous ?? '—'}
+                      {step.share_of_previous ?? '-'}
                     </td>
-                    <td className="py-1 text-right tabular">{step.share_of_flagged ?? '—'}</td>
+                    <td className="py-1 text-right tabular">{step.share_of_flagged ?? '-'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -157,7 +157,7 @@ function MoneyTile({
       </p>
       {rate !== undefined && (
         <p className="mt-1 text-sm text-ink-secondary tabular">
-          {rate === null ? `— ${rateLabel ?? ''}` : `${rate} ${rateLabel ?? ''}`}
+          {rate === null ? `- ${rateLabel ?? ''}` : `${rate} ${rateLabel ?? ''}`}
         </p>
       )}
     </article>

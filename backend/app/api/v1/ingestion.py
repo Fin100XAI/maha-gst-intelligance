@@ -1,4 +1,4 @@
-"""S1 — Ingestion: upload, classify, reconcile.
+"""S1 - Ingestion: upload, classify, reconcile.
 
 The screen this serves is the one that decides whether the platform survives
 contact with a real portal export.  Three things it must never do:

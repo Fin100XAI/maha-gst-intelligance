@@ -1,4 +1,4 @@
-"""W7 — Copilot, and the agent log.
+"""W7 - Copilot, and the agent log.
 
 The agent layer is optional by design.  Every figure on every screen is
 computed without a model, so a deployment with no model configured is fully
@@ -8,7 +8,7 @@ degrading into something that looks like an answer.
 Nothing here reimplements the guarantees in :mod:`app.agents`: the prompt is
 pseudonymised there, the completion is grounded there, and the call is logged
 there whether it passed or failed.  This module is the HTTP surface and the
-jurisdiction check, and it adds one thing of its own — a refusal to answer
+jurisdiction check, and it adds one thing of its own - a refusal to answer
 about a taxpayer the caller may not see, checked before the pseudonym is
 minted, so an out-of-scope GSTIN never reaches a prompt at all.
 """

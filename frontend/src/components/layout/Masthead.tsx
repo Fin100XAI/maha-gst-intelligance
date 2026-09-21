@@ -13,8 +13,8 @@ import { api } from '../../lib/api'
  * computed last week tells an officer the numbers are current to the second
  * when they are not.
  *
- * So this band shows the engine run the screens below are reading — its id and
- * its as-at date — and nothing else. If no run has been recorded it says that
+ * So this band shows the engine run the screens below are reading - its id and
+ * its as-at date - and nothing else. If no run has been recorded it says that
  * plainly rather than showing today's date, because "as at today" over an
  * empty database is the most misleading thing this strip could say.
  *

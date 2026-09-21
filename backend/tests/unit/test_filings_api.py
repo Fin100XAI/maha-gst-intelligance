@@ -1,8 +1,8 @@
-"""W8 — one return, one period, worked on its own.
+"""W8 - one return, one period, worked on its own.
 
 The unit an officer holds is a filing. The platform had a screen for the year
 and a screen for the portfolio and nothing for the thing on the desk, so there
-was nowhere to stand and ask "what about July?" — which is the question,
+was nowhere to stand and ask "what about July?" - which is the question,
 because a notice is issued for a period.
 
 Three properties are load-bearing here and each is asserted rather than

@@ -6,7 +6,7 @@ import { useSession } from '../lib/session'
 /**
  * "You cannot do this. Here is who can."
  *
- * The alternative — hiding the control — teaches the reader that the feature
+ * The alternative - hiding the control - teaches the reader that the feature
  * does not exist, and leaves them with no idea who to take the work to. That
  * is a worse answer than a plain sentence, and it is a particularly bad answer
  * here, because the reason an officer cannot approve their own draft is not an

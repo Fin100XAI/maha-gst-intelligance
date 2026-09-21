@@ -29,8 +29,8 @@ import { useI18n } from '../i18n'
  * The reference fills its ticker from a seeded mock dataset and labels it
  * "Simulated". This build has a real engine over real filed returns, and the
  * fifth law forbids fabricated data anywhere. So the strip reads the same
- * counts the screens behind it read — from `/coverage/screens`, which reports
- * what is actually in the database — and when that call fails the strip does
+ * counts the screens behind it read - from `/coverage/screens`, which reports
+ * what is actually in the database - and when that call fails the strip does
  * not render at all. An officer is never shown a number here that they would
  * not find again after signing in.
  */
@@ -144,7 +144,7 @@ const ASSURANCE = [
   {
     icon: Lock,
     title: 'Determinism',
-    text: 'The same input bytes produce byte-identical output, today and in three years. Every figure is pure Python over Decimal — no floats, no randomness, no clock.',
+    text: 'The same input bytes produce byte-identical output, today and in three years. Every figure is pure Python over Decimal - no floats, no randomness, no clock.',
   },
   {
     icon: Eye,
@@ -270,12 +270,12 @@ export default function Landing(): JSX.Element {
         />
         <div className="relative mx-auto max-w-6xl px-6 pb-16 pt-16">
           <h1 className="max-w-3xl text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
-            <span className="text-intel-300">Scrutiny, reconciliation</span> and demand — from
+            <span className="text-intel-300">Scrutiny, reconciliation</span> and demand - from
             the filed return to the source cell
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-relaxed text-govt-100 sm:text-lg">
             {t('app.tagline')} Thirty-four risk parameters and fifty-seven detection rules over
-            GSTR-1, GSTR-3B and GSTR-2B — every figure determinate, every figure traceable, and
+            GSTR-1, GSTR-3B and GSTR-2B - every figure determinate, every figure traceable, and
             every rule that could not run saying so by name.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">

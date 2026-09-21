@@ -105,7 +105,7 @@ class AgentResult:
             "model": self.completion.model,
             "tokens": self.completion.usage.total_tokens,
             "latency_ms": self.completion.latency_ms,
-            "badge": "AI-DRAFTED — OFFICER RESPONSIBLE",
+            "badge": "AI-DRAFTED - OFFICER RESPONSIBLE",
         }
 
 

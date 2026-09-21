@@ -1,6 +1,6 @@
 """A bill of entry has no supplier GSTIN, and that is not a defect.
 
-GSTR-2B sections IMPG and IMPGSEZ — and the GSTR-2A equivalent, IMPGOS —
+GSTR-2B sections IMPG and IMPGSEZ - and the GSTR-2A equivalent, IMPGOS -
 record **import of goods**. The credit arises on a bill of entry filed with
 Customs. There is no supplier GSTIN on such a line because the counterparty is
 not a registered person under the Act; the line names a port code and a bill
@@ -12,7 +12,7 @@ of them:
     {"Month": "May", "Port Code": "INMUN1", "Number": "9758797",
      "Taxable Value": "2708909.25", "Integrated Tax": "487604", ...}
 
-That is Rs 4.87 lakh of integrated tax — real, available credit — dropped from
+That is Rs 4.87 lakh of integrated tax - real, available credit - dropped from
 the GSTR-2B for want of a field that cannot exist. Forty-three lines across
 one workbook.
 

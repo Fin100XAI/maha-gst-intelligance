@@ -3,7 +3,7 @@ import { Landmark } from 'lucide-react'
 import { cn } from '../../lib/utils'
 
 /**
- * The departmental mark — one definition.
+ * The departmental mark - one definition.
  *
  * Ported from Fin100XAI/maha-gst-intelligance, where the note beside it is
  * worth keeping: the mark had previously existed as four hand-copied

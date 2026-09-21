@@ -1,4 +1,4 @@
-"""S6 — Alignment with the department's 34 risk flags.
+"""S6 - Alignment with the department's 34 risk flags.
 
 The department's circular defines 34 risk flags. This platform implements 34
 audit risk parameters. That those two numbers match proves nothing on its own,
@@ -7,7 +7,7 @@ so this endpoint puts them side by side, flag by flag, and lets a reader check:
 * the circular's own words, verbatim (``app/reference/risk_flags.py``);
 * what the platform actually computes for that flag, and from which return;
 * whether it can be computed today or is waiting on a feed the State does not
-  yet receive — and, if so, which feed;
+  yet receive - and, if so, which feed;
 * and, when an engine run is named, how many taxpayers it was actually
   evaluated for and how many it flagged.
 
@@ -15,8 +15,8 @@ The last of those is the reconciliation. A parameter that is implemented,
 documented and never evaluated is not doing any work, and the only way to know
 is to count.
 
-Nothing here computes a risk figure. It reads the registry, the circular and —
-when asked — the counts from a completed run.
+Nothing here computes a risk figure. It reads the registry, the circular and -
+when asked - the counts from a completed run.
 """
 
 from __future__ import annotations
@@ -161,7 +161,7 @@ def risk_flag_alignment(
             "The left column is the department's circular, stored word for word. The right "
             "column is what this platform does about it. Where a flag needs data the State "
             "does not yet receive, it is reported as not evaluated and is left out of both "
-            "sides of the P-Score — it is never quietly scored as clear."
+            "sides of the P-Score - it is never quietly scored as clear."
         ),
         "items": items,
     }

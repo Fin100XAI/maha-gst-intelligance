@@ -13,13 +13,13 @@ import { Explain } from '../../components/Explain'
 import { ScoreMeter } from '../../components/ScoreMeter'
 
 /**
- * W4 — the Taxpayer File.
+ * W4 - the Taxpayer File.
  *
  * The screen an officer works a case from. Three things are deliberate:
  *
  * 1. **All 34 parameters are always shown.** A parameter that could not be
  *    evaluated is greyed, labelled with the feed it waits on, and stated as
- *    excluded from the score — never hidden, and never drawn as Flag 0.
+ *    excluded from the score - never hidden, and never drawn as Flag 0.
  * 2. **Why a rule did *not* fire is as prominent as why it did.** The findings
  *    list shows CLEAR and NOT_EVALUATED alongside TRIGGERED.
  * 3. **Every figure opens the provenance drawer**, because a figure an officer
@@ -150,7 +150,7 @@ function FlagLadder({ rows }: { rows: readonly FlagRow[] }): JSX.Element {
   return (
     <section>
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-lg font-semibold">Risk profile — all 34 parameters</h2>
+        <h2 className="text-lg font-semibold">Risk profile - all 34 parameters</h2>
         <button
           type="button"
           className="rounded border border-line px-2 py-1 text-sm text-ink-secondary hover:text-ink"
@@ -223,10 +223,10 @@ function LadderRow({ row }: { row: FlagRow }): JSX.Element {
         <>
           <p className="mt-2 text-sm">
             <span className="text-ink-muted">Value </span>
-            <Figure value={row.value ?? '—'} calcId={row.calc_id} />
+            <Figure value={row.value ?? '-'} calcId={row.calc_id} />
             {row.cohort.n !== null && (
               <span className="ml-2 text-ink-muted tabular">
-                cohort p50 {row.cohort.p50 ?? '—'} · p90 {row.cohort.p90 ?? '—'} · n{' '}
+                cohort p50 {row.cohort.p50 ?? '-'} · p90 {row.cohort.p90 ?? '-'} · n{' '}
                 {row.cohort.n}
               </span>
             )}

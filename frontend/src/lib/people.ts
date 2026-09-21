@@ -3,7 +3,7 @@ import type { Role } from './rbac'
 /**
  * Who you are signed in as, for the demonstration build.
  *
- * There is no identity provider yet — the State SSO arrives with OIDC — so the
+ * There is no identity provider yet - the State SSO arrives with OIDC - so the
  * shell lets you pick a person. It used to offer a list of nine role names,
  * which asked the reader to already know what an "Addl. Commissioner
  * (Enforcement)" may do that a "Deputy / Joint Commissioner" may not. Three
@@ -91,7 +91,7 @@ export function personById(id: string): Person | null {
   return PEOPLE.find((person) => person.id === id) ?? null
 }
 
-/** The person who can do the thing this one cannot — for the "switch" prompt. */
+/** The person who can do the thing this one cannot - for the "switch" prompt. */
 export function whoCan(capability: keyof Person['can'], not: Person): Person | null {
   return PEOPLE.find((person) => person.can[capability] && person.id !== not.id) ?? null
 }

@@ -9,7 +9,7 @@ import { api } from '../../lib/api'
 import type { QuarantinedRowView, UploadCounts, UploadResult } from '../../lib/api'
 
 /**
- * S1 — Ingestion.
+ * S1 - Ingestion.
  *
  * The screen that decides whether the platform survives contact with a real
  * portal export. Its central claim is arithmetic and is checked in front of
@@ -84,7 +84,7 @@ export default function Ingestion(): JSX.Element {
         </label>
 
         <label className="mt-3 flex flex-col gap-1 text-xs text-ink-muted">
-          Filer&rsquo;s GSTIN — optional; read from the workbook&rsquo;s title block when absent
+          Filer&rsquo;s GSTIN - optional; read from the workbook&rsquo;s title block when absent
           <input
             type="text"
             value={gstin}
@@ -215,7 +215,7 @@ function Report({ result }: { result: UploadResult }): JSX.Element {
     <section className="mb-6 rounded border border-line p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold">
-          {result.committed ? 'Ingested' : 'Dry run — nothing was written'}
+          {result.committed ? 'Ingested' : 'Dry run - nothing was written'}
         </h2>
         <StatusChip
           level={result.counts.reconciles === false ? 'critical' : 'good'}
@@ -270,7 +270,7 @@ function Report({ result }: { result: UploadResult }): JSX.Element {
               <td className="py-1">
                 {sheet.detected_type ?? <span className="text-ink-muted">unclassified</span>}
               </td>
-              <td className="py-1 text-right tabular">{sheet.header_row_index ?? '—'}</td>
+              <td className="py-1 text-right tabular">{sheet.header_row_index ?? '-'}</td>
               <td className="py-1 text-right tabular">{sheet.counts.rows_in}</td>
               <td className="py-1 text-right tabular">{sheet.counts.parsed}</td>
               <td className="py-1 text-right tabular">{sheet.counts.quarantined}</td>

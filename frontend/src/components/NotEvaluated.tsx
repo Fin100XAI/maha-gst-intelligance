@@ -5,7 +5,7 @@ import { StatusChip } from './StatusChip'
  * What a screen shows when a number could not be computed.
  *
  * Law 5: a metric that cannot run reports `NOT_EVALUATED` naming the dataset
- * it needed — never "no issue found", never a default of zero. This component
+ * it needed - never "no issue found", never a default of zero. This component
  * is the one place that renders that state, so it cannot drift into looking
  * like an empty result.
  *

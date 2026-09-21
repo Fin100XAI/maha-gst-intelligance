@@ -6,7 +6,7 @@ import type { ButtonHTMLAttributes } from 'react'
 import { cn } from '../../lib/utils'
 
 /**
- * Button — shadcn/ui, on this platform's tokens.
+ * Button - shadcn/ui, on this platform's tokens.
  *
  * Note what is missing: there is no `destructive` variant in the reserved
  * status red. Status colour carries a Flag level, a risk band or a finding

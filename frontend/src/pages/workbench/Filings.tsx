@@ -15,12 +15,12 @@ import { cn } from '../../lib/utils'
 import type { FilingRow } from '../../lib/api'
 
 /**
- * W8 — Filings: the risk profile of every return, one row each.
+ * W8 - Filings: the risk profile of every return, one row each.
  *
  * The unit an officer works is a filing: this business, this month, this
  * return. The platform had a screen for the year (the taxpayer file) and a
  * screen for the portfolio (the dashboard), and nothing for the thing actually
- * on the desk — so there was nowhere to stand and ask "what about July?",
+ * on the desk - so there was nowhere to stand and ask "what about July?",
  * which is the question, because a notice is issued for a period.
  *
  * Ordered worst first and largest first, so the list is worked from the top.
@@ -214,7 +214,7 @@ function Row({ row }: { row: FilingRow }): JSX.Element {
       </td>
       <td className="px-3 py-2 text-right">
         {row.at_stake === '0.00' ? (
-          <span className="text-ink-muted">—</span>
+          <span className="text-ink-muted">-</span>
         ) : (
           // An aggregate of this filing's findings, so its provenance is the
           // drill into them -- each one carries its own calc_id there. Passing
