@@ -1,0 +1,92 @@
+{
+  "27AAGCS4521P1ZX": {
+    "dialect": "portal",
+    "legal_name": "Shivneri Engineering Works Private Limited",
+    "division": "Pune-II",
+    "defect": "GSTR-3B under-declares outward tax against the GSTR-1",
+    "months_affected": 3,
+    "understatement_per_month": "300000.00",
+    "total_understatement": "900000.00"
+  },
+  "27AABCT2345L1Z7": {
+    "dialect": "tally",
+    "legal_name": "Konkan Distributors LLP",
+    "division": "Pune-I",
+    "defect": "Sustained under-declaration across most of the year",
+    "months_affected": 9,
+    "understatement_per_month": "148000.00",
+    "total_understatement": "1332000.00"
+  },
+  "27AACCB2894G1ZL": {
+    "dialect": "cleartax",
+    "legal_name": "Deccan Motors Private Limited",
+    "division": "Pune-I",
+    "defect": "Clean filer. Nothing should fire; this is the control.",
+    "months_affected": 0,
+    "understatement_per_month": "0.00",
+    "total_understatement": "0.00"
+  },
+  "27AAACN1234M1ZI": {
+    "dialect": "busy",
+    "legal_name": "Nashik Agro Processing Company Limited",
+    "division": "Nashik",
+    "defect": "One large month under-declared, the rest clean",
+    "months_affected": 1,
+    "understatement_per_month": "412500.00",
+    "total_understatement": "412500.00"
+  },
+  "27AAFCV8765R1Z5": {
+    "dialect": "marathi",
+    "legal_name": "Vidarbha Textiles Private Limited",
+    "division": "Nagpur",
+    "defect": "Small, persistent shortfall -- below most thresholds by design",
+    "months_affected": 6,
+    "understatement_per_month": "14000.00",
+    "total_understatement": "84000.00"
+  },
+  "27AAGCK5678T1ZD": {
+    "dialect": "hindi",
+    "legal_name": "Kolhapur Foundry and Castings Limited",
+    "division": "Kolhapur",
+    "defect": "Under-declared in the last quarter only",
+    "months_affected": 3,
+    "understatement_per_month": "520000.00",
+    "total_understatement": "1560000.00"
+  },
+  "27AAJCA3456N1Z8": {
+    "dialect": "csv_flat",
+    "legal_name": "Aurangabad Auto Components Private Limited",
+    "division": "Aurangabad",
+    "defect": "Clean filer",
+    "months_affected": 0,
+    "understatement_per_month": "0.00",
+    "total_understatement": "0.00"
+  },
+  "27AAHCJ9012W1ZN": {
+    "dialect": "merged",
+    "legal_name": "Jalgaon Pulses Trading Company",
+    "division": "Jalgaon",
+    "defect": "Under-declared in the first two months, then corrected",
+    "months_affected": 2,
+    "understatement_per_month": "31000.00",
+    "total_understatement": "62000.00"
+  },
+  "27AABFM7890K1ZQ": {
+    "dialect": "accountant",
+    "legal_name": "Mumbai Marine Services LLP",
+    "division": "Pune-II",
+    "defect": "Large single-month shortfall, over the DRC-01B threshold",
+    "months_affected": 1,
+    "understatement_per_month": "2700000.00",
+    "total_understatement": "2700000.00"
+  },
+  "27AAECS2468H1Z6": {
+    "dialect": "minimal",
+    "legal_name": "Satara Solar Energy Private Limited",
+    "division": "Kolhapur",
+    "defect": "Alternating months under-declared",
+    "months_affected": 4,
+    "understatement_per_month": "186000.00",
+    "total_understatement": "744000.00"
+  }
+}

@@ -1,0 +1,353 @@
+/* Design tokens -- docs/03_UI_SPEC.md section 1, on the InQAI design system.
+ *
+ * The palette, type and motion come from inqai.in: sovereign navy, gold and
+ * saffron, a Fraunces display face over Inter, and spring easings. It is the
+ * right register for a State department -- it looks like an instrument of
+ * government rather than a SaaS dashboard -- and it carries Devanagari
+ * properly, which matters when half the deployment is in Marathi.
+ *
+ * Three things did NOT come from it, and must not:
+ *
+ *   1. The STATUS palette is reserved and unchanged. Gold and saffron are
+ *      brand colours; they never carry a Flag level, a risk band or a finding
+ *      severity. If a reader has to work out whether this gold means "brand"
+ *      or "serious", the palette has failed.
+ *   2. The categorical series stays the validated four. Brand colours are not
+ *      accessible as a data series -- gold against saffron is a CVD trap.
+ *   3. Numbers never animate. Movement belongs to chrome: surfaces settling,
+ *      panels arriving. A demand figure that counts up looks like a game, and
+ *      this one goes into a statutory notice.
+ *
+ * Dark mode is SELECTED, not auto-inverted. The dark values are declared twice
+ * on purpose:
+ *
+ *   1. under @media (prefers-color-scheme: dark), guarded with
+ *      :root:where(:not([data-theme="light"])), so the OS preference applies
+ *      only while the user has not chosen light; and
+ *   2. under :root[data-theme="dark"], so an explicit choice of dark applies on
+ *      a light OS.
+ *
+ * The :where() guard keeps specificity at zero, so the explicit attribute
+ * selector always wins. The user's toggle therefore beats the OS setting in
+ * both directions.
+ *
+ * `warning` and `serious` sit below 3:1 on the light surface by design, so
+ * every status mark ships with an icon and a label: meaning is never carried
+ * by hue alone.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* -- brand: InQAI sovereign navy, gold, saffron --------------------- */
+  --navy: #1a2e5e;
+  --navy-2: #16284f;
+  --navy-deep: #13234c;
+  --navy-900: #0f1c3d;
+  --navy-ink: #0d1834;
+  --gold: #c9a028;
+  --gold-soft: #e3c873;
+  --gold-bright: #f0d488;
+  --gold-deep: #a8841e;
+  --gold-ink: #8a6c14;
+  --saffron: #e07b2a;
+  --saffron-deep: #cf6f23;
+  --saffron-ink: #9c4c0d;
+
+  /* -- surfaces ------------------------------------------------------- */
+  --surface-page: #f7f9fd;
+  --surface-chart: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-sunken: #eef3fa;
+
+  /* -- ink ------------------------------------------------------------ */
+  --ink-primary: #1a2233;
+  --ink-secondary: #54607a;
+  --ink-muted: #8792a8;
+  --ink-inverse: #ffffff;
+
+  /* -- structure ------------------------------------------------------ */
+  --gridline: #e7ebf3;
+  --baseline: #cdd6e6;
+  --border: #e7ebf3;
+  --border-strong: #cdd6e6;
+  --focus-ring: #1a2e5e;
+  --accent: var(--navy);
+  --accent-soft: var(--gold);
+
+  /* -- glass: chrome only, never a data surface ----------------------- *
+   * A figure read through a blur is a figure an officer will mistrust, so
+   * translucency is for the header, the sidebar, popovers and overlays --
+   * things you look PAST -- and never for a cell, a bar or a total.      */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-strong: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(26, 46, 94, 0.08);
+  --glass-blur: 16px;
+  --glass-tint: linear-gradient(
+    180deg,
+    rgba(201, 160, 40, 0.05),
+    rgba(26, 46, 94, 0.02)
+  );
+
+  /* -- elevation ------------------------------------------------------ */
+  --shadow: 0 1px 2px rgba(20, 28, 46, 0.04), 0 8px 24px rgba(20, 28, 46, 0.06);
+  --shadow-lg: 0 8px 24px rgba(20, 28, 46, 0.07), 0 30px 64px rgba(15, 28, 61, 0.12);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* -- categorical series: fixed order, never cycled ------------------ */
+  /* Validated: worst adjacent CVD dE 9.1, normal vision 22.9.           */
+  --cat-1: #2a78d6; /* blue   */
+  --cat-2: #eb6834; /* orange */
+  --cat-3: #1baf7a; /* aqua   */
+  --cat-4: #eda100; /* yellow */
+
+  /* -- status: reserved, always paired with an icon and a label ------- */
+  --status-good: #0ca30c; /* Flag 0 - LOW band    - CLEAR finding   */
+  --status-warning: #fab219; /* Flag 1-2 - MODERATE  - MEDIUM          */
+  --status-serious: #ec835a; /* Flag 3   - HIGH      - HIGH            */
+  --status-critical: #d03b3b; /* Flag 4   - SEVERE    - CRITICAL        */
+  --status-unknown: #8792a8; /* NOT_EVALUATED -- never rendered as good */
+
+  /* -- sequential: one blue hue (heatmaps, the P01-P34 matrix) -------- */
+  --seq-1: #cde2fb;
+  --seq-2: #a5c9f5;
+  --seq-3: #6fa5e8;
+  --seq-4: #3d7fd1;
+  --seq-5: #245ba6;
+  --seq-6: #0d366b;
+  --ordinal-start: #86b6ef; /* ordinal ramps start no lighter than this */
+
+  /* -- diverging: blue to red with a GREY midpoint, never a rainbow --- */
+  --diverge-low: #2a78d6;
+  --diverge-mid: #f0efec;
+  --diverge-high: #d03b3b;
+
+  /* -- type ----------------------------------------------------------- *
+   * Declared as stacks with real fallbacks rather than fetched from a
+   * CDN: a government deployment should not call out to a font host on
+   * every page load. Vendoring the woff2 files is a deployment step;
+   * until then Georgia and the system sans carry the same hierarchy.    */
+  --font-display: "Fraunces", "Georgia", "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-devanagari: "Noto Sans Devanagari", "Nirmala UI", system-ui, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 26px;
+  --text-2xl: 34px;
+  --leading: 1.5;
+  --tracking-eyebrow: 0.14em;
+
+  /* -- rhythm: 4px base, 8px rhythm ----------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+
+
+  /* -- institutional bands: the maha-gst-intelligance system --------- */
+  /* Ported from Fin100XAI/maha-gst-intelligance so the landing page, the
+     officer sign-in and the shell's identity band read as one system with
+     the department's other intelligence platforms.
+     These families are FIXED in both themes on purpose: every surface that
+     uses them is a dark band to begin with, and inverting a masthead that is
+     already dark produces a light strip across the top of a dark page.
+     They are chrome, never data: a `govt` blue never carries a Flag level and
+     `gold` never carries a severity -- see the three rules at the top of this
+     file, which are unchanged.
+
+     Declared as CHANNEL TRIPLETS rather than hex, and read back through
+     `rgb(var(--x) / <alpha-value>)` in tailwind.config.js. Tailwind cannot
+     apply a slash opacity to a colour that is an opaque `var()` string: it
+     emits an invalid value and the element renders transparent. That is not
+     theoretical -- the masthead, the sticky landing bar and every tinted
+     tone card were all invisible until this changed. */
+  --govt-50: 238 244 255;
+  --govt-100: 218 231 255;
+  --govt-200: 188 211 255;
+  --govt-300: 141 180 254;
+  --govt-400: 90 143 250;
+  --govt-500: 47 107 239;
+  --govt-600: 29 79 216;
+  --govt-700: 26 63 175;
+  --govt-800: 27 55 138;
+  /* The civic blue itself, read off the corporation's own utility bar. */
+  --govt-900: 0 81 187;
+  --govt-950: 16 29 69;
+
+  /* The one THEMED member of the family. Every other govt stop is fixed
+     because it lands on a dark band; this one is used as *text on the page*
+     -- the eyebrow labels, the dropdown headings -- where the ground does
+     invert, and a fixed mid-blue on near-black does not clear contrast. */
+  --govt-accent: 29 79 216;
+
+  /* The gold ramp the mark and the masthead rule are drawn from. Our own
+     --gold stays exactly as it was; these are additional stops, not a
+     redefinition, so nothing that referenced --gold changes. */
+  --govt-gold-50: 253 249 236;
+  --govt-gold-100: 245 235 204;
+  --govt-gold-200: 236 219 160;
+  --govt-gold-300: 214 186 95;
+  --govt-gold-400: 210 176 64;
+  --govt-gold-500: 205 166 41;
+  --govt-gold-600: 194 160 30;
+  --govt-gold-700: 154 125 22;
+
+  /* The near-black the mark sits on. */
+  --rail-900: 7 13 28;
+  --rail-700: 16 29 56;
+
+  /* The cyan used once, as the light behind the hero copy. */
+  --intel-300: 95 223 236;
+  --intel-400: 34 196 216;
+
+  /* Motion. NUMBERS NEVER ANIMATE -- a counting-up demand figure looks
+     like a game, and this one ends up in a statutory notice. */
+  --motion-fast: 120ms;
+  --motion: 180ms;
+  --motion-slow: 320ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.32, 0.44, 1);
+}
+
+/* The dark values, declared once here and applied by both rules below. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+
+    --govt-accent: 141 180 254;
+
+    --surface-page: #0d0d0d;
+    --surface-chart: #13234c;
+    --surface-raised: #16284f;
+    --surface-sunken: #0a1329;
+
+    --ink-primary: #eef3fa;
+    --ink-secondary: rgba(236, 240, 249, 0.74);
+    --ink-muted: rgba(236, 240, 249, 0.54);
+    --ink-inverse: #0d1834;
+
+    --gridline: rgba(201, 160, 40, 0.16);
+    --baseline: rgba(201, 160, 40, 0.34);
+    --border: rgba(201, 160, 40, 0.2);
+    --border-strong: rgba(201, 160, 40, 0.34);
+    --focus-ring: #e3c873;
+    --accent: var(--gold-soft);
+    --accent-soft: var(--saffron);
+
+    --glass-bg: rgba(19, 35, 76, 0.66);
+    --glass-bg-strong: rgba(19, 35, 76, 0.88);
+    --glass-border: rgba(201, 160, 40, 0.18);
+    --glass-tint: linear-gradient(
+      180deg,
+      rgba(201, 160, 40, 0.08),
+      rgba(13, 24, 52, 0.04)
+    );
+
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 30px 64px rgba(0, 0, 0, 0.5);
+    --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    --cat-1: #3987e5;
+    --cat-2: #d95926;
+    --cat-3: #199e70;
+    --cat-4: #c98500;
+
+    /* Lifted so the reserved meanings keep their contrast on navy. The
+       hues are the same; only the lightness moves. */
+    --status-good: #3ecf3e;
+    --status-warning: #ffc94d;
+    --status-serious: #ff9e74;
+    --status-critical: #ff6b6b;
+    --status-unknown: rgba(236, 240, 249, 0.54);
+
+    --diverge-mid: #383835;
+    --ordinal-start: #184f95; /* ordinal ramps start no darker than this */
+  }
+}
+
+/* 2. The user explicitly chose dark, whatever the OS says. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --govt-accent: 141 180 254;
+
+  --surface-page: #0d0d0d;
+  --surface-chart: #13234c;
+  --surface-raised: #16284f;
+  --surface-sunken: #0a1329;
+
+  --ink-primary: #eef3fa;
+  --ink-secondary: rgba(236, 240, 249, 0.74);
+  --ink-muted: rgba(236, 240, 249, 0.54);
+  --ink-inverse: #0d1834;
+
+  --gridline: rgba(201, 160, 40, 0.16);
+  --baseline: rgba(201, 160, 40, 0.34);
+  --border: rgba(201, 160, 40, 0.2);
+  --border-strong: rgba(201, 160, 40, 0.34);
+  --focus-ring: #e3c873;
+  --accent: var(--gold-soft);
+  --accent-soft: var(--saffron);
+
+  --glass-bg: rgba(19, 35, 76, 0.66);
+  --glass-bg-strong: rgba(19, 35, 76, 0.88);
+  --glass-border: rgba(201, 160, 40, 0.18);
+  --glass-tint: linear-gradient(
+    180deg,
+    rgba(201, 160, 40, 0.08),
+    rgba(13, 24, 52, 0.04)
+  );
+
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4), 0 30px 64px rgba(0, 0, 0, 0.5);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  --cat-1: #3987e5;
+  --cat-2: #d95926;
+  --cat-3: #199e70;
+  --cat-4: #c98500;
+
+  --status-good: #3ecf3e;
+  --status-warning: #ffc94d;
+  --status-serious: #ff9e74;
+  --status-critical: #ff6b6b;
+  --status-unknown: rgba(236, 240, 249, 0.54);
+
+  --diverge-mid: #383835;
+  --ordinal-start: #184f95;
+}
+
+/* Marathi and Hindi get a Devanagari-capable stack. */
+:root[lang="mr"],
+:root[lang="hi"] {
+  --font-sans: var(--font-devanagari);
+  --font-display: var(--font-devanagari);
+}
+
+/* Tabular figures belong on table columns and axis ticks ONLY.  Hero figures
+   and stat-tile values use proportional figures, per the spec. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  letter-spacing: -0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,236 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--surface-page);
+    color: var(--ink-primary);
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  /* The page sits on a very slow sovereign wash: gold at the top left, navy
+     at the bottom right, both almost invisible. It gives the glass surfaces
+     something to be glass over. It is fixed, so nothing moves while an
+     officer is reading a column of figures. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        1100px 620px at 8% -8%,
+        rgba(201, 160, 40, 0.1),
+        transparent 62%
+      ),
+      radial-gradient(
+        900px 560px at 102% 12%,
+        rgba(26, 46, 94, 0.09),
+        transparent 60%
+      ),
+      radial-gradient(
+        800px 500px at 50% 110%,
+        rgba(224, 123, 42, 0.05),
+        transparent 62%
+      );
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  /* WCAG 2.1 AA: a visible focus ring on every interactive element.
+     Accessibility here is procurement, not polish. */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--ink-secondary);
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: var(--space-2);
+    background: var(--surface-raised);
+    color: var(--ink-primary);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    z-index: 100;
+  }
+  .skip-link:focus {
+    left: var(--space-4);
+  }
+
+  /* -- glass ---------------------------------------------------------- *
+   * Chrome only: the header, the sidebar, popovers, overlays. Things you
+   * look PAST. Never a cell, a bar or a total -- a figure read through a
+   * blur is a figure an officer will mistrust, and rightly.
+   *
+   * `backdrop-filter` is unsupported in a few browsers and disabled in
+   * some hardened configurations, so the background colour underneath is
+   * opaque enough to carry the contrast on its own.                      */
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  }
+
+  .glass-strong {
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(150%);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(150%);
+    box-shadow: var(--shadow-lg);
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    .glass,
+    .glass-strong {
+      background: var(--surface-raised);
+    }
+  }
+
+  /* A panel that holds figures: solid, lifted, with a hairline of gold at
+     the top edge. Reads as paper on a desk rather than as a card in a
+     feed. */
+  .panel {
+    background: var(--surface-chart);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(201, 160, 40, 0.5),
+      transparent
+    );
+  }
+
+  /* A panel that responds to the pointer. The lift is 1px: enough to feel,
+     not enough to shift a row under a reader's finger. */
+  .panel-interactive {
+    transition:
+      transform var(--motion) var(--ease-out),
+      box-shadow var(--motion) var(--ease-out),
+      border-color var(--motion) var(--ease-out);
+  }
+
+  .panel-interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-strong);
+  }
+
+  /* The eyebrow: small, letter-spaced, mono. The InQAI register. */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-eyebrow);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  /* Gold-to-saffron, for the one or two things per screen that are the
+     point. Never applied to a figure: a gradient on a number makes the
+     number harder to read and the screen harder to trust. */
+  .brand-gradient {
+    background: linear-gradient(100deg, var(--saffron), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .brand-rule {
+    height: 2px;
+    border: 0;
+    background: linear-gradient(90deg, var(--saffron), var(--gold), transparent);
+    border-radius: 2px;
+  }
+}
+
+@layer utilities {
+  /* Entrance. Chrome and panels only -- see the note in tokens.css about
+     figures. `animation-fill-mode: both` so the element is not visible at
+     its final position for a frame before the animation starts. */
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-rise {
+    animation: rise var(--motion-slow) var(--ease-out) both;
+  }
+
+  .animate-fade {
+    animation: fade var(--motion) var(--ease) both;
+  }
+
+  /* Stagger, for a grid of panels arriving together. Five steps is enough:
+     past that the last card arrives late enough to feel like a fault. */
+  .stagger-1 {
+    animation-delay: 40ms;
+  }
+  .stagger-2 {
+    animation-delay: 80ms;
+  }
+  .stagger-3 {
+    animation-delay: 120ms;
+  }
+  .stagger-4 {
+    animation-delay: 160ms;
+  }
+  .stagger-5 {
+    animation-delay: 200ms;
+  }
+}
