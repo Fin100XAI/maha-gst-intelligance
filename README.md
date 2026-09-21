@@ -128,3 +128,24 @@ In a production deployment, these controls must be enforced **server-side** (rea
 ## 7. Disclaimer
 
 All figures, taxpayer names, GSTINs and case data in this build are **synthetically generated** for demonstration purposes only and do not correspond to real taxpayers, real revenue figures, or real enforcement action.
+
+---
+
+## GST Intelligence - the scrutiny and demand engine
+
+This repository also carries **GST Intelligence**, under `backend/` and
+`frontend/`: a working scrutiny and demand platform that reads the returns a
+taxpayer actually filed - GSTR-1, GSTR-3B, GSTR-2A, GSTR-2B and the
+electronic ledgers - reconciles them, and produces a figure defensible enough
+to put in a notice.
+
+Where this application is an intelligence storefront over a seeded dataset,
+GST Intelligence is the engine underneath one of its questions. It runs on real
+filed data, computes every figure deterministically over `Decimal`, and makes
+every number on every screen drill to the cell of the spreadsheet it came
+from.
+
+It shares this application's landing page, officer sign-in and shell so the
+two read as one system.
+
+See **[GST_INTELLIGENCE.md](GST_INTELLIGENCE.md)** to run it.

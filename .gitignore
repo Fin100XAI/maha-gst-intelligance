@@ -1,6 +1,36 @@
+# ---------------------------------------------------------------- node
 node_modules/
 dist/
-.claude/
 .env
 .env.local
+.env.*
 *.log
+
+# -------------------------------------------------------------- python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+htmlcov/
+.coverage
+
+# -------------------------------------------------------------- sqlite
+# `*.db` alone is not enough: a write-ahead log holds pages not yet
+# checkpointed into the database, so it carries exactly the same taxpayer
+# data. Both sidecars were being staged for commit while the database itself
+# was correctly ignored.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+_verify.db
+_autogen.db
+
+# --------------------------------------------------------------- local
+.claude/
+.DS_Store
+backend/uploads/
