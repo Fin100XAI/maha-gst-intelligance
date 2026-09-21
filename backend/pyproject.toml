@@ -1,0 +1,131 @@
+[project]
+name = "gst-drishti"
+version = "0.1.0"
+description = "GST compliance intelligence platform for a State Commercial Taxes Department"
+readme = "README.md"
+# Docker and CI pin 3.11, which is the deployment target.  Local development on
+# 3.12 is supported because nothing here depends on 3.11-only behaviour; see
+# docs/DECISIONS.md D-0002.
+requires-python = ">=3.11"
+
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "sqlalchemy>=2.0.36",
+    "alembic>=1.14",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "psycopg[binary]>=3.2",
+    "redis>=5.2",
+    "minio>=7.2",
+    "python-multipart>=0.0.17",
+    "openpyxl>=3.1",
+    "structlog>=24.4",
+    "httpx>=0.27",
+    "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "pytest-asyncio>=0.24",
+    "hypothesis>=6.119",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-python-dateutil",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+# ---------------------------------------------------------------------------
+# ruff
+# ---------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["."]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "ANN", "ARG", "PTH", "TRY", "S", "C4", "PL", "N"]
+ignore = [
+    "ANN401",  # a deliberately typed Any escape hatch is documented where used
+    "TRY003",  # long messages inside raise: an officer-readable reason beats a code
+    "PLR0913", # statutory functions genuinely take many parameters
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101",      # asserts are the point
+    "ANN",       # a test signature is not an API
+    "PLR2004",   # a hand-computed figure IS the magic value under test
+    "ARG",
+    "PLC0415",   # an import inside a test keeps it beside its assertion
+    "PLR0402",
+    "E501",      # a rendered narrative under assertion is not wrapped
+]
+"alembic/**" = ["ANN", "ARG", "E501", "PLR0915"]    # generated migration shape
+"tools/**" = ["S101"]
+# The department's circular is stored word for word, en dashes and all.
+# "Fixing" its punctuation would make it no longer verbatim.
+"app/reference/**" = ["RUF001", "RUF002"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------------------------------------------------------------------------
+# mypy -- strict on the engine (gate G4), and on the modules it rests upon
+# ---------------------------------------------------------------------------
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_reexport = true
+namespace_packages = true
+explicit_package_bases = true
+plugins = []
+
+[[tool.mypy.overrides]]
+module = ["app.engine.*", "app.money", "app.canonical", "app.audit.*", "app.ingestion.*"]
+strict = true
+disallow_any_explicit = false
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "alembic.*", "tools.*"]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["minio.*", "redis.*", "openpyxl.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "golden: a hand-computed fixture pinning a statutory outcome",
+    "slow: excluded from the fast loop",
+    "integration: needs the docker-compose stack",
+]
+filterwarnings = ["error::DeprecationWarning:app.*"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/api/*", "*/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:", "raise NotImplementedError"]

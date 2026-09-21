@@ -1,0 +1,16 @@
+# Normalise line endings in the repository, whatever the checkout platform.
+# Without this, a Windows checkout stages CRLF into files a Linux CI reads
+# back as changed, and every review carries a wall of whitespace noise that
+# hides the change actually being reviewed.
+* text=auto eol=lf
+
+# Binary, never normalised.
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.xlsx binary
+*.xls binary
+*.pdf binary
+*.db binary

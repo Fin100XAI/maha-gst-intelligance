@@ -1,0 +1,140 @@
+name: CI
+
+# The global gates in docs/04 are enforced here.  A gate that is not in CI is
+# not a standard, so each one is a named step you can point at in a review.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11" # the deployment target, per docs/00 STACK
+  NODE_VERSION: "22"
+
+jobs:
+  backend:
+    name: Backend - lint, types, gates, tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Lint (ruff)
+        run: ruff check .
+
+      - name: Format (ruff)
+        run: ruff format --check .
+
+      - name: G4 - types (mypy, strict on the engine)
+        run: mypy app
+
+      - name: G1 - no binary float under engine or ingestion
+        run: python tools/lint_no_float.py
+
+      - name: G1 - prove the lint fails when violated
+        run: |
+          printf 'RATE = 0.18\n' > app/engine/_ci_probe.py
+          if python tools/lint_no_float.py; then
+            echo "::error::G1 did not fail on a deliberate float literal"
+            rm -f app/engine/_ci_probe.py
+            exit 1
+          fi
+          rm -f app/engine/_ci_probe.py
+          echo "G1 correctly failed the deliberate violation"
+
+      - name: Tests (offline, no credentials)
+        run: pytest -q --cov=app --cov-report=term-missing
+
+      - name: G2 - money columns are NUMERIC(18,2)
+        run: pytest -q tests/migration/test_money_columns.py
+
+      - name: G11 - audit chain verifies from genesis
+        run: pytest -q tests/unit/test_audit_chain.py
+
+      - name: Migration applies and reverses
+        env:
+          DATABASE_URL: sqlite:///./ci.db
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+          rm -f ci.db
+
+  frontend:
+    name: Frontend - types, lint, tests, build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: G5 - types (tsc --noEmit, strict)
+        run: npx tsc --noEmit
+
+      - name: Lint (eslint, zero warnings)
+        run: npx eslint . --max-warnings 0
+
+      - name: Tests
+        run: npx vitest run
+
+      - name: Build
+        run: npx vite build
+
+  postgres-migration:
+    name: Migration against PostgreSQL 16
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: drishti
+          POSTGRES_PASSWORD: drishti
+          POSTGRES_DB: drishti
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U drishti"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - name: Apply and reverse on the real dialect
+        env:
+          DATABASE_URL: postgresql+psycopg://drishti:drishti@localhost:5432/drishti
+        run: |
+          alembic upgrade head
+          alembic downgrade base

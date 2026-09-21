@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.env.*
+# SQLite, including its write-ahead log and shared-memory sidecars. `*.db`
+# alone is not enough: a `-wal` holds pages not yet checkpointed into the
+# database, so it carries exactly the same taxpayer data -- and both were
+# staged for commit while real.db itself was correctly ignored.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+_verify.db
+_autogen.db
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+htmlcov/
+.coverage
+node_modules/
+dist/
+.DS_Store
+*.log
+.coverage
+backend/uploads/
