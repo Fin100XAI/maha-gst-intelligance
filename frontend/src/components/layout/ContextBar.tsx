@@ -34,31 +34,31 @@ export function ContextBar(): JSX.Element | null {
   const { group, item } = found
 
   return (
-    <div className="border-b border-line bg-gradient-to-r from-sunken via-raised to-sunken">
-      <div className="scrollbar-none flex items-center gap-2 overflow-x-auto px-4 py-2 text-xs sm:px-5">
-        <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-ink-muted">
-          Where you are
-        </span>
-        <span className="h-3 w-px shrink-0 bg-line-strong" aria-hidden="true" />
-        <span className="shrink-0 rounded-full border border-line bg-sunken px-2 py-0.5 font-medium text-ink-secondary">
-          GST DRISHTI
-        </span>
+    <div className="border-b border-line bg-sunken">
+      <nav
+        aria-label="Breadcrumb"
+        className="scrollbar-none flex items-center gap-1.5 overflow-x-auto px-4 py-1.5 text-xs sm:px-5"
+      >
+        {/* Plain text, not pills. A pill reads as a control, and these are
+            not controls -- the rail on the left is where you navigate. Three
+            rows of pill-shaped chrome all saying "Dashboard" was the reader
+            being told the same thing three times in three different shapes,
+            two of which could not be clicked. */}
+        <span className="shrink-0 text-ink-muted">GST DRISHTI</span>
         <ChevronRight className="h-3 w-3 shrink-0 text-ink-muted" aria-hidden="true" />
-        <span className="shrink-0 rounded-full border border-govt-200 bg-govt-50 px-2 py-0.5 font-medium text-govt-700">
-          {t(group.headingKey)}
-        </span>
+        <span className="shrink-0 text-ink-secondary">{t(group.headingKey)}</span>
         <ChevronRight className="h-3 w-3 shrink-0 text-ink-muted" aria-hidden="true" />
-        <span className="shrink-0 rounded-full border border-govtgold-200 bg-govtgold-50 px-2 py-0.5 font-semibold text-govtgold-700">
+        <span aria-current="page" className="shrink-0 font-semibold text-ink">
           {t(item.labelKey)}
         </span>
 
         <div className="flex-1" />
 
-        <span className="shrink-0 whitespace-nowrap rounded-full border border-line bg-sunken px-2 py-0.5 font-medium text-ink-secondary">
-          Acting as {person.name} ·{' '}
+        <span className="shrink-0 whitespace-nowrap text-ink-muted">
+          Acting as <span className="font-medium text-ink-secondary">{person.name}</span> ·{' '}
           {person.divisions.length === 0 ? 'Whole State' : person.divisions.join(', ')}
         </span>
-      </div>
+      </nav>
     </div>
   )
 }

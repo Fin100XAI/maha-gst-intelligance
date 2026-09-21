@@ -8,7 +8,6 @@ import { useI18n } from '../i18n'
 import { api } from '../lib/api'
 import { ContextBar } from './layout/ContextBar'
 import { Masthead } from './layout/Masthead'
-import { TopNav } from './layout/TopNav'
 import { LANGUAGES, LANGUAGE_LABEL } from '../i18n/strings'
 import { NAV_GROUPS, surfaceOf } from '../lib/navigation'
 import type { NavItem } from '../lib/navigation'
@@ -276,8 +275,12 @@ export function AppShell(): JSX.Element {
           it ends and the working surfaces begin. */}
       <Masthead />
 
-      {/* The utility bar: who you are, and how the page is displayed. It is
-          deliberately not navigation -- navigation is the band below it. */}
+      {/* The utility bar: who you are, and how the page is displayed.
+          It carries no destinations except the Guide. Navigation is the rail
+          on the left, and it was worth removing this row's copy of it: the
+          same two names appeared here, again in a horizontal group bar, and
+          again in the breadcrumb -- three rows of chrome saying "Dashboard"
+          before a single figure. */}
       <header className="sticky top-0 z-20 border-b border-line bg-raised/95 backdrop-blur">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-1.5 sm:px-5">
           <button
@@ -291,30 +294,6 @@ export function AppShell(): JSX.Element {
           >
             <Menu className="h-4 w-4" />
           </button>
-
-          {/* Both surfaces stay one click apart. Who you are decides where you
-              land, never what you are allowed to understand. */}
-          <nav aria-label="Surface" className="flex gap-1 rounded border border-line p-0.5">
-            {(
-              [
-                ['/dashboard', 'surface.dashboard', 'dashboard'],
-                ['/workbench', 'surface.workbench', 'workbench'],
-              ] as const
-            ).map(([path, key, name]) => (
-              <NavLink
-                key={path}
-                to={path}
-                className={clsx(
-                  'rounded px-3 py-1 text-sm transition-colors',
-                  surface === name
-                    ? 'bg-sunken font-medium text-ink'
-                    : 'text-ink-secondary hover:text-ink',
-                )}
-              >
-                {t(key)}
-              </NavLink>
-            ))}
-          </nav>
 
           <NavLink
             to="/guide"
@@ -363,7 +342,6 @@ export function AppShell(): JSX.Element {
         </div>
       </header>
 
-      <TopNav coverage={waitingFor} />
       <ContextBar />
 
       {/* Below `lg` the groups become a drawer: eleven group names across one
@@ -420,11 +398,44 @@ export function AppShell(): JSX.Element {
         </div>
       )}
 
-      <main id="main" className="min-w-0 flex-1 px-4 py-6 sm:px-6">
-        <div className="mx-auto w-full max-w-[1600px]">
-          <Outlet />
-        </div>
-      </main>
+      {/* The rail is the navigation. It carries every group, every screen,
+          the code each is known by and the "no data" chip where a screen's
+          dataset is absent -- everything the horizontal bar carried, in a
+          shape that holds twenty-four destinations without scrolling
+          sideways. Data still runs the full width beside it: the rail is
+          chrome, and the main column is not narrowed by it. */}
+      <div className="flex min-h-0 flex-1">
+        <nav
+          aria-label="Sections"
+          className="hidden w-60 shrink-0 overflow-y-auto border-r border-line bg-raised px-1.5 py-4 lg:block"
+        >
+          {NAV_GROUPS.map((group) => (
+            <NavSection
+              key={group.id}
+              heading={t(group.headingKey)}
+              items={group.items}
+              count={group.items.length}
+              coverage={waitingFor}
+              open={openGroups.includes(group.id)}
+              onToggle={() => {
+                toggleGroup(group.id)
+              }}
+              {...(group.end === undefined ? {} : { end: group.end })}
+            />
+          ))}
+          <p className="mt-4 border-t border-line px-2 pt-3 text-xs text-ink-muted">
+            {person.name} &middot; {person.designation}
+            <br />
+            {person.divisions.length === 0 ? 'Whole State' : person.divisions.join(', ')}
+          </p>
+        </nav>
+
+        <main id="main" className="min-w-0 flex-1 px-4 py-6 sm:px-6">
+          <div className="mx-auto w-full max-w-[1600px]">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
