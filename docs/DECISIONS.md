@@ -1408,3 +1408,280 @@ reproduces to the row.
 produce those 250 notices - nor run `G-03`/`G-04`, which need it. The detector
 must be wired before `irn_date` is mapped, or the 250 arrive with the mapping.
 Recorded in `docs/GAP_V3.md` rather than left to be rediscovered.
+
+---
+
+## D-0069 — The ten invariants are gates, not rules
+
+**Evaluation.** Law 4 of the pack puts `I-01` to `I-10` before every check. The
+distinction that matters is what an invariant is *for*: it asserts a fact that
+cannot be false in a well-formed document, not a fact about whether the
+taxpayer complied.
+
+**Decision.** `app/ingestion/invariants.py`. A row failing one is quarantined
+and is invisible to every check, parameter and join.
+
+**Reasoning, and the line drawn in the module docstring.** An IRN dated
+before its own invoice is impossible; an IRN dated ninety days late is a
+`G-04` finding. The first is quarantined, the second must reach an officer.
+Quarantining the second would make a real breach invisible, which is the
+opposite of what this layer is for - so every invariant has a test asserting
+it stays quiet on data that is merely unusual, and `I-04` skips nil-rated
+lines entirely rather than asserting `0 x 0 == 0` on every exempt supply.
+
+The cost of a wrong invariant is not a wrong finding. It is a *missing* one,
+and nobody notices a missing finding.
+
+---
+
+## D-0070 — The match ladder refuses to cross counterparties
+
+**Evaluation.** `docs/02` Part B specifies five rungs from exact to fuzzy.
+The failure mode that matters is not matching too little - unmatched rows sit
+in their own bucket where an officer sees them - it is matching too much,
+because a confident pairing between two unrelated documents is wrong in a way
+nothing on screen reveals.
+
+**Decision.** The counterparty must agree on every rung, including L3 and L4.
+Two documents from different suppliers are never the same document however
+identical their number, date and value.
+
+**Reasoning.** L3 matches on value and a fifteen-day window with no document
+number to lean on. Without the counterparty constraint that rung would pair
+invoices across suppliers on value alone, which is exactly how a
+reconciliation tool produces confident nonsense. Two rows with no counterparty
+at all - import lines, which have none by nature - do not match each other
+either, or every bill of entry would pair with every other.
+
+`normalise_doc_no` strips leading zeros; `digits_of` reads the **original**
+string. X-02 ties credit note `CNM118` to invoice `1118` by digit
+containment, and a normaliser applied to both sides would destroy the only
+link between them.
+
+---
+
+## D-0071 — X-01's exposure is every later line, not the two that contradict
+
+**Evaluation.** The detection is the contradiction; the question is what the
+contradiction is worth.
+
+**Decision.** The exposure is every line to that counterparty at the lower
+rate for the whole year.
+
+**Reasoning, with the arithmetic.** Restricting it to the two contradicting
+invoices gives Rs 47.7 lakh. The correct base is Rs 14,67,02,560 at 5%, and
+the differential at 18% is **Rs 1,90,71,332.80**. `docs/07` Finding 1 states
+Rs 1,90,71,333, which is that to the rupee.
+
+Verified twice: against the live ingestion of the workbook, which returned
+19071332.80 on a base of 146702560.00, and by
+`tests/engine/test_worked_case_x01.py`, which transcribes the sequence from
+the document so the assertion commits without taxpayer data.
+
+**And what it is not.** X-01 identifies a rate *dispute*. The taxpayer
+classified the supply themselves, twice, four days apart, and may be able to
+justify the second. The card says so and the finding routes to **ASMT-10 for
+the contract**, never to a DRC-01A. The strongest family in the rulebook is
+the one that must be most careful about what it claims.
+
+---
+
+## D-0072 — A proviso not implemented is a wrong rule, not a cautious one
+
+**Evaluation.** `docs/07` Part C2: Rule 86B fired on two months with zero cash
+against seven crore of turnover, and a demand of Rs 2,61,545. Clause (d) of
+the first proviso exempts anyone already above 1% *cumulative* cash for the
+year; April's payment put them at 12.99% and the figure never fell below
+3.5%. Rule 86B does not bite in any month of that file.
+
+**Decision.** `app/engine/exemptions.py`. A TESTABLE exemption suppresses the
+finding and records the arithmetic that settled it. An UNTESTABLE one leaves
+the figure standing but drops it to ADVISORY with the question attached.
+
+**Reasoning.** Never silently ignore an exemption, and never silently apply
+one. A suppression an officer cannot see is indistinguishable from a rule
+that did not run, so the suppression carries its own observed figures and
+renders as its own card.
+
+---
+
+## D-0073 — Netting keeps the exposure-direction finding, not the larger one
+
+**Evaluation.** `docs/07` Part D: April under-claimed Rs 22.67 lakh, May
+over-claimed Rs 22.01 lakh. One carry-forward event, net Rs 66,222.
+
+**Decision.** `app/engine/netting.py` collapses opposing same-rule deltas
+inside a three-period window, and the finding that survives is the one with
+the largest **signed** delta - the exposure direction.
+
+**Reasoning.** April's under-claim is larger in magnitude, so a
+largest-absolute rule would keep it. But an under-claim is the taxpayer
+claiming less than they were entitled to: it is not a demand and no officer
+would open it. The over-claim is the finding; the under-claim is what reduces
+it. Both figures stay on the card with the periods named, because an officer
+asked why Rs 22 lakh became Rs 66,000 must see the arithmetic.
+
+What must not net is tested more heavily than what must: two shortfalls in
+the same direction stay two, deltas six months apart stay two, and different
+rules never net against each other however neatly the rupees cancel.
+
+---
+
+## D-0074 — The scorecard has five states and refuses an unexplained abstention
+
+**Evaluation.** The officer's unit of work is a filing, not a taxpayer.
+
+**Decision.** `app/engine/scorecard.py`, per (GSTIN, period), with the annual
+roll-up computed separately. `Cell.__post_init__` raises if a
+`NOT_EVALUATED` or `NEEDS_DOCUMENT` cell carries no reason.
+
+**Reasoning.** The scorecard's entire value is that a reader can tell "I
+looked and it is fine" from "I could not look". An unexplained abstention
+reads as a pass to anyone scanning a twelve-column grid, so the object will
+not let one be constructed at all - it is cheaper to fail at the point of
+construction than to find out from a notice.
+
+`is_the_sum_of_the_monthlies` returns False and is rendered on screen rather
+than left as a comment, because a twelve-column grid with a thirteenth column
+invites exactly that assumption. Netting, s.16(4), Rule 37A cut-offs and
+annual true-ups are FY-level tests no monthly cell can see.
+
+---
+
+## D-0075 — GSTR-2A and GSTR-2B were conflated, and it was my doing
+
+**Evaluation.** `docs/06` point 7: *"Ingest both, keep them separate, and never
+reconcile 3B against 2A - 2B is the statutory gate under s.16(2)(aa). 2A is
+for supplier behaviour (filing status, Rule 37A); 2B is for entitlement.
+Conflating them is a defect that will be found on reply."*
+
+They were conflated. D-0057 made `GSTR2A_*` sheets classify into the `GSTR2B`
+**family** so a sheet named `GSTR2A_B2B` would stop being read as an outward
+return. That fixed 631 phantom taxpayers and created this: `source_form` was
+defaulted to `GSTR2B` rather than recorded, so every 2A row was stored as a 2B
+row.
+
+**What it cost.** On the ingested SSR Marine workbook:
+
+    GSTR-2B   4,678 rows   Rs 14,72,18,156.94
+    GSTR-2A   4,772 rows   Rs 14,11,52,211.94
+    combined  9,450 rows   Rs 28,83,70,368.88   <- what the engine saw
+
+Available ITC roughly doubled. P14 and B-01 ask whether ITC **claimed**
+exceeds ITC **available**; against a doubled denominator they cannot fire. A
+silent false negative across all nine taxpayers, and across every taxpayer
+the platform would ever ingest.
+
+That is the worst shape a defect can take. Nothing on screen was wrong -
+there was simply nothing on screen, and no count anywhere reconciled to
+something a reader could have questioned.
+
+**Decision.** The family decision stands: 2A and 2B carry the same columns
+and want the same mapping, and undoing it brings back 631 phantom taxpayers.
+What was wrong was defaulting the **source form**. `_inward_source_form`
+reads it from the sheet's own name, which is the only place the distinction
+survives - nothing in the data itself says which statement a row came from.
+
+A sheet naming neither defaults to `GSTR2B`, because that is the statutory
+gate and treating an unknown inward row as entitlement is the conservative
+direction: it can only reduce a claimed-versus-available gap, never invent
+one.
+
+**What this does not fix.** B-04 (Rule 37A) still cannot run. It needs the
+supplier's **GSTR-3B filing status**, the column `docs/06` calls the most
+valuable in the workbook, and there is no field for it on `inward_line` and
+no synonym mapping it. `docs/07` Finding 2 is Rs 95,79,967 and `CERTAIN`,
+and it stays dark until that column is carried. Recorded in `docs/GAP_V3.md`
+rather than left implicit.
+
+---
+
+## D-0076 — The catalogue count is derived, not restated
+
+**Evaluation.** Registering the X family broke four tests that asserted
+`len(RULES) == 57`. They were right to break: the catalogue changed.
+
+**Decision.** The tests now assert the v2 catalogue is intact
+(`57` rules not starting with `X-`) and that the X family is registered
+alongside it. The library API and the demo-dataset tests derive their counts
+from `RULES` rather than restating a literal.
+
+**Reasoning.** A literal count in two places is a count that will disagree
+with itself. Deriving it means the library screen cannot silently list fewer
+rules than the engine runs, which is the failure those tests existed to
+catch in the first place.
+
+`rules_x` is imported in `runner.py` alongside the others, so the registry no
+longer depends on which test happened to import what. A registry that
+reports different catalogues to different callers is not a registry.
+
+---
+
+## D-0077 — B-04 Rule 37A, and the column that makes it computable
+
+**Evaluation.** `docs/07` calls Rule 37A the highest-yield rule per hour of
+engineering: one join, one column, Rs 95,79,967, `CERTAIN`, and nothing asked
+of the taxpayer. It was dark because `inward_line` had no field for the
+supplier's own GSTR-3B filing status and no synonym mapped the column.
+
+**Decision.** `supplier_3b_filed` on `inward_line` (migration 0006), the
+synonym `gstr 3b filing status`, carried through coercion, persistence and
+the loader, and `app/engine/rules_b.py` with the check itself.
+
+**Three-valued, never two.** `True` and `False` are the supplier's status as
+GSTR-2A records it. `None` means the column was absent - which is every
+GSTR-2B row, because 2B does not carry it - and B-04 returns `NOT_EVALUATED`
+naming what it needed. Defaulting an absent status to "filed" would silently
+clear the highest-yield check in the rulebook on the majority of rows, and
+nothing on screen would say so.
+
+**Verified against the live workbook.**
+
+    GSTR2A_B2B invoices, supplier 3B unfiled   Rs 95,79,967.02
+    plus the B2BA amendment                    Rs  2,68,664.76
+    less the credit note, correctly signed     Rs     -1,344.00
+    = B-04 as the engine reports it            Rs 98,47,287.78
+
+    29 suppliers - docs/07 says 29.
+    SSR Shipyard 27ABQCS3690E1ZW: Rs 77,99,266.80
+      - docs/07 says Rs 77,99,267. Exact to the paisa.
+
+The B2B-only component is `docs/07`'s figure exactly. The engine's headline
+differs because it also reads the amendment and the credit note, which the
+document's table does not - and which is the more complete answer.
+
+**A defect found while writing it.** The first version summed `row.tax` over
+every defaulting row, which *added* credit notes to the exposure. Inward
+credit notes are stored positive and signed at the identity layer, never at
+the row layer, so a Rule 37A demand would have been inflated by the very
+documents that reduce it. Signed explicitly, with the reason in the code.
+
+**The figure is gross.** It must be reduced by any reversal already made, and
+the engine cannot net the two: a Table 4(B)(2) total does not say which
+invoices it covered. On this file the Rs 80.05 lakh August reversal cannot
+cover October and November invoices, but that is a reading of dates rather
+than arithmetic the engine can do in general. The card asks for the reversal
+working and says why.
+
+---
+
+## D-0078 — The invariants are wired last in coercion, first before rules
+
+**Evaluation.** Law 4 is about ordering, and the ordering is the whole
+protection: a row that fails an invariant must be invisible to every rule,
+not merely flagged for one.
+
+**Decision.** `check_invariants` runs as the final gate in `ingest_sheet`,
+after coercion and validation and before the canonical record exists. A
+failure quarantines under a new `INVARIANT_FAILED` reason carrying the
+invariant id and the contradicting fields.
+
+**Reasoning.** Placing it earlier would test uncoerced strings; placing it in
+the rules would mean every rule reading a transposed date column repeats the
+same mistake the last one made. One gate, once, before anything downstream
+can see the row.
+
+The quarantine record carries `violation.observed` merged into the original
+cells, so an officer sees the contradiction itself - `irn_date 2025-12-01`
+against `doc_date 2026-01-12` - rather than an invariant number they would
+have to look up.

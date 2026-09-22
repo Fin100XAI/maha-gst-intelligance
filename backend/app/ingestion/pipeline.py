@@ -44,6 +44,7 @@ from app.ingestion.coerce import (
     coerce_uqc,
 )
 from app.ingestion.header import detect_header
+from app.ingestion.invariants import check_invariants
 from app.ingestion.quarantine import QuarantineReason, RowLedger
 from app.ingestion.reader import RawSheet
 from app.ingestion.sniffer import NOT_INGESTED, Classification, classify_sheet
@@ -99,6 +100,8 @@ _COERCERS: Final[dict[str, Any]] = {
     "reverse_charge": coerce_bool,
     "part_b_filled": coerce_bool,
     "itc_available": coerce_bool,
+    "supplier_3b_filed": coerce_bool,
+    "supplier_1_filed": coerce_bool,
     "ims_action": coerce_ims_action,
 }
 
@@ -536,6 +539,19 @@ def ingest_sheet(  # noqa: PLR0911, PLR0912, PLR0915
 
         if family in {"GSTR1", "GSTR2B"}:
             fields["section"] = classification.section or _default_section(family)
+            if family == "GSTR2B":
+                # WHICH inward statement this row came from, recorded rather
+                # than defaulted. 2A and 2B share a family because they share
+                # their columns (D-0057), but they are different documents:
+                # 2B is the statutory gate under s.16(2)(aa) and 2A is the
+                # record of supplier behaviour that Rule 37A reads.
+                #
+                # Defaulting this to GSTR2B stored 13,501 GSTR-2A rows as 2B
+                # and roughly doubled available ITC, so "ITC claimed in
+                # excess of 2B" could not fire on any taxpayer. docs/06
+                # point 7 calls conflating them a defect that will be found
+                # on reply, and it was right.
+                fields["source_form"] = _inward_source_form(sheet.name)
             # The document type comes from whichever column the lexicon mapped
             # to it -- "Invoice Type" on a B2B sheet, "Note Type" on a CDNR
             # sheet, and their Marathi and Hindi equivalents.  Reading a
@@ -573,6 +589,23 @@ def ingest_sheet(  # noqa: PLR0911, PLR0912, PLR0915
                 reason="; ".join(issue.reason for issue in issues),
                 original_cells=original,
                 field_name=first.field,
+            )
+            continue
+
+        # Law 4: the invariants run LAST in coercion and FIRST relative to
+        # every rule. A row that fails one is quarantined here and is
+        # invisible to every check, parameter and join downstream -- which is
+        # the whole point, because the next rule to read a transposed date
+        # column would have made the same mistake as the last one.
+        violation = check_invariants(fields)
+        if violation is not None:
+            outcome.ledger.quarantine(
+                sheet_name=sheet.name,
+                row_index=row_index,
+                reason_code=QuarantineReason.INVARIANT_FAILED,
+                reason=f"{violation.invariant}: {violation.reason}",
+                original_cells={**original, **violation.observed},
+                field_name=next(iter(violation.observed), None),
             )
             continue
 
@@ -849,6 +882,20 @@ def period_from_sheet_name(sheet_name: str) -> Period | None:
         return Period.parse(match.group(1).replace("_", "-"))
     except ValueError:
         return None
+
+
+def _inward_source_form(sheet_name: str) -> str:
+    """`GSTR2A` or `GSTR2B`, read from the sheet's own name.
+
+    The name is the only place the distinction survives: the two statements
+    carry the same columns, so nothing in the data itself says which one this
+    is. A sheet that names neither defaults to 2B, because that is the
+    statutory gate and treating an unknown inward row as entitlement is the
+    conservative direction -- it can only ever reduce a claimed-versus-
+    available gap, never invent one.
+    """
+    normalised = sheet_name.upper().replace("-", "").replace("_", "").replace(" ", "")
+    return "GSTR2A" if "GSTR2A" in normalised else "GSTR2B"
 
 
 def _default_section(family: str) -> str:

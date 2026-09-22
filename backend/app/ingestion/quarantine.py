@@ -39,6 +39,11 @@ class QuarantineReason(StrEnum):
     #: different statements, only one of them is true, and only one tells an
     #: officer what to do next.
     SHEET_NOT_INGESTED = "SHEET_NOT_INGESTED"
+    #: The row is internally contradictory in a way no well-formed document
+    #: can be -- an acknowledgement before its own invoice, a ledger that
+    #: loses money between two rows. Law 4: it is quarantined BEFORE any rule
+    #: sees it, so a fabricated finding can never be built on it.
+    INVARIANT_FAILED = "INVARIANT_FAILED"
 
 
 @dataclass(frozen=True, slots=True)

@@ -130,6 +130,8 @@ def _inward(record: CanonicalRecord, snapshot_id: str, prov_id: str, row_id: str
         sgst=_money(f.get("sgst")),
         cess=_money(f.get("cess")),
         itc_available=f.get("itc_available"),
+        supplier_3b_filed=f.get("supplier_3b_filed"),
+        source_form=f.get("source_form") or "GSTR2B",
         itc_unavailable_reason=f.get("itc_unavailable_reason"),
         supplier_filing_date=_as_date(f.get("supplier_filing_date")),
         supplier_return_period=_period_str(f.get("supplier_return_period")),

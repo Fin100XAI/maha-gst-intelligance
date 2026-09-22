@@ -191,6 +191,8 @@ def _inward(session: Session, gstin: str, snapshot_id: str) -> tuple[InwardRecor
                 # taxpayer at the top of the ladder and looks like a working
                 # screen while doing it.
                 itc_available=row.itc_available,
+                supplier_3b_filed=row.supplier_3b_filed,
+                source_form=row.source_form,
                 itc_unavailable_reason=row.itc_unavailable_reason,
                 ims_action=row.ims_action,
                 # Three rules ask whether the supplier filed, and when.

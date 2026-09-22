@@ -29,7 +29,7 @@ workbooks. Every claim below marked *verified* was checked against it.
 | Money `NUMERIC(18,2)`, no float under the engine | gates G1, G2 |
 | Hash-chained audit log | `app/audit/chain.py` |
 
-## Closed this session
+## Closed
 
 | Item | Evidence |
 |---|---|
@@ -38,22 +38,25 @@ workbooks. Every claim below marked *verified* was checked against it.
 
 ## Absent — the v3 build, in the pack's own phase order
 
-| # | Requirement | Phase | Notes |
+Updated 2026-09-22 after the second build session.
+
+| # | Requirement | Phase | State |
 |---|---|---|---|
-| 1 | **`I-01`–`I-10` post-coercion invariants** | 1 | Law 4. No module exists. A row failing one must be quarantined and invisible to every rule (gate G11). |
-| 2 | **Transposition detector wired into the pipeline** | 1 | The detector is built and proven; nothing calls it yet. See the note below on `irn_date`. |
-| 3 | **`NIL_BY_IDENTITY` coverage state** | 1 | Only absent/empty are distinguished today. The third state is what lets R1 run on a GSTR-1 with genuinely nil sections instead of abstaining. |
-| 4 | **`app/matching/` — 21 named joins, L1–L5 key ladder, four buckets** | 2 | Does not exist. The pack calls matching the product, and every material finding in `docs/07` came from a join. **Do not compress this phase.** |
-| 5 | **`X-01`–`X-12` self-contradiction family** | 3 | Does not exist. Worth ₹1.91 crore on the fixture, more than every other finding combined. The pack says build it first. |
-| 6 | **Tier model AUTO / ASSISTED / MANUAL / CASE** | 3 | The registry has no tier concept. Only `AUTO` may emit a rupee finding. |
-| 7 | **The 141-check A–L matrix** | 3–4 | 57 rules exist in the v2 ID space (`OUT`/`ITC`/`PAY`/`BEH`/`EWB`/`NET`/`REG`/`SEC`/`EIN`). The pack supersedes them with the department's own IDs and calls duplicate ID spaces a maintenance trap. This is a migration, not an addition. |
-| 8 | **Exemption engine** | 3 | Rule 86B without clause (d) of its first proviso produced a confident wrong demand on the fixture. |
-| 9 | **Multi-period netting** | 3 | April under-claim ₹22.67 L against May over-claim ₹22.01 L is one event; a single-period engine raises ₹22 L and loses it. |
-| 10 | **Per-filing scorecard + separate annual roll-up** | 4 | The officer's unit of work is a filing. Today the engine is per taxpayer per FY. |
-| 11 | **Applicability grid → `NOT_APPLICABLE`** | 4 | A non-applicable check is not `CLEAR`. |
-| 12 | **Module K case engine** | 4 | Section by FY, limitation clocks, penalty by payment stage, s.128A, COVID extension as `LITIGATION_UNCERTAIN`. |
-| 13 | **Screen count** | 5 | v3 wants 5 dashboard + 5 workbench. Today: 9 + 9. W1 Scorecard Grid, W2 Match Workbench and W4 Call Book do not exist. |
-| 14 | **Numeric-fidelity middleware** | 6 | Gate G10, build-breaking, tested adversarially. |
+| 1 | `I-01`–`I-10` post-coercion invariants | 1 | **Built** — `app/ingestion/invariants.py`, 26 tests |
+| 2 | Transposition detector wired into the pipeline | 1 | Detector built and proven; **not yet called**. See the `irn_date` note below |
+| 3 | `NIL_BY_IDENTITY` coverage state | 1 | **Modelled** in `scorecard.Coverage`; the pipeline does not yet compute it |
+| 4 | `app/matching/` — L1–L5 ladder | 2 | **Built** — `keys.py`, 22 tests |
+| 5 | The 21 named joins | 2 | **Declared** with their `feeds` in `joins.py`; `run_join` works; the per-join data adapters are not written |
+| 6 | `X-01`–`X-12` self-contradiction | 3 | **X-01, X-02, X-06, X-11 built.** X-01 reproduces `docs/07` Finding 1 to the paisa. X-03/04/05/07/08/09/10/12 not written |
+| 7 | Tier model AUTO/ASSISTED/MANUAL/CASE | 3 | **Built** — `app/engine/tiers.py` with `DocumentCall` and `ChecklistItem` |
+| 8 | Exemption engine | 3 | **Built** — `app/engine/exemptions.py`, Rule 86B clause (d) testable |
+| 9 | Multi-period netting | 3 | **Built** — `app/engine/netting.py`, 10 tests |
+| 10 | Per-filing scorecard + annual roll-up | 4 | **Built** — `app/engine/scorecard.py`, 15 tests |
+| 11 | Module K case engine | 4 | **Already present** — `app/cases/limitation.py` implements s.73/74 to FY 2023-24 and s.74A from FY 2024-25 with the 42-month rule. Verified |
+| 12 | The 141-check A–L matrix | 3–4 | **Not started.** 57 rules exist in the v2 ID space. This is the open migration below |
+| 13 | Applicability grid → `NOT_APPLICABLE` | 4 | Modelled in the scorecard; the grid itself is not loaded |
+| 14 | Screen count 5 + 5, W1 grid, W2 match workbench, W4 call book | 5 | **Not started** |
+| 15 | Numeric-fidelity middleware | 6 | **Already present** — `app/agents/fidelity.py` |
 
 ---
 

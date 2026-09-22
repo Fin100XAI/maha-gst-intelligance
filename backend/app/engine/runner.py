@@ -19,14 +19,19 @@ from typing import Any
 
 from app.canonical import FindingStatus
 
-# Importing the rule modules is what populates the registry.
+# Importing the rule modules is what populates the registry. The X family
+# is listed here so it registers on every path, not only when a test
+# happens to import it -- a registry that depends on import order is a
+# registry that reports different catalogues to different callers.
 from app.engine import (  # noqa: F401  - registration side effect, confined here
+    rules_b,
     rules_beh,
     rules_ewb,
     rules_itc,
     rules_net,
     rules_out,
     rules_pay,
+    rules_x,
 )
 from app.engine.context import RuleContext
 from app.engine.identities import IdentityResult, identity_matrix

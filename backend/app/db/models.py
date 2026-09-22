@@ -302,6 +302,14 @@ class InwardLine(Base):
     ims_action_at: Mapped[datetime | None] = mapped_column(TIMESTAMP)
     hsn: Mapped[str | None] = mapped_column(String(8))
     source_form: Mapped[str] = mapped_column(String(8), nullable=False, default="GSTR2B")
+    #: Did the SUPPLIER file their own GSTR-3B? Present only on GSTR-2A.
+    #:
+    #: Three-valued on purpose. True and False are the supplier's status as
+    #: the statement records it; None means the column was absent -- which is
+    #: the case for every 2B row -- and B-04 abstains rather than assuming
+    #: compliance. Defaulting an absent status to True would silently clear
+    #: the highest-yield check in the rulebook.
+    supplier_3b_filed: Mapped[bool | None] = mapped_column(Boolean, index=True)
     prov_id: Mapped[str | None] = mapped_column(ForeignKey("provenance.id"))
 
 

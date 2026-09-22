@@ -24,6 +24,8 @@ from sqlalchemy.pool import StaticPool
 from app.db.base import Base
 from app.db.facts import FactParamIncidence
 from app.db.models import Finding, OutwardLine, QuarantineRow, RiskScore, Taxpayer, Upload
+from app.engine.registry import RULES
+from app.engine.runner import run_for_taxpayer  # noqa: F401 - registers every rule module
 from app.seed.demo import seed
 from app.seed.synthetic import PROFILES
 
@@ -100,7 +102,10 @@ def test_the_control_still_had_every_rule_run_against_it(seeded: Session) -> Non
     carry a CLEAR or NOT_EVALUATED finding for every rule."""
     control = _by_number(1)
     rules = seeded.execute(select(Finding.rule_id).where(Finding.gstin == control)).scalars().all()
-    assert len(set(rules)) == 57
+    # Every registered rule ran against the control taxpayer, whatever the
+    # catalogue currently holds. Pinning the literal count here made adding
+    # the X family look like a regression in the demo dataset.
+    assert len(set(rules)) == len(RULES)
 
 
 # ---------------------------------------------------------------------------

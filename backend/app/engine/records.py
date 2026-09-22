@@ -111,6 +111,8 @@ class InwardRecord:
     ims_action: str | None = None
     hsn: str | None = None
     source_form: str = "GSTR2B"
+    #: The supplier's own GSTR-3B status, from GSTR-2A. None = not stated.
+    supplier_3b_filed: bool | None = None
     prov_id: str | None = None
     row_id: str | None = None
 

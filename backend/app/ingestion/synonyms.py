@@ -233,6 +233,21 @@ _INWARD: Final[dict[str, tuple[str, ...]]] = {
         "date of filing",
     ),
     "ims_action": ("ims action", "ims status", "invoice management action", "action taken"),
+    # docs/06 point 7 calls this the most valuable column in the workbook,
+    # and it is: it makes Rule 37A computable from this one file, with
+    # nothing asked of the taxpayer and no external feed. Supplier filed
+    # GSTR-1 (so the credit appeared in 2B and was claimed) but not GSTR-3B
+    # (so the tax never reached the exchequer) => the recipient must reverse.
+    #
+    # It exists only on GSTR-2A. 2B does not carry it, which is one more
+    # reason the two statements must stay separate (D-0075).
+    "supplier_3b_filed": (
+        "gstr 3b filing status",
+        "supplier gstr 3b status",
+        "3b filing status",
+        "gstr3b filed",
+    ),
+    "supplier_1_filed": ("gstr 1 iff gstr 5 filing status", "gstr 1 filing status"),
 }
 
 _EWB: Final[dict[str, tuple[str, ...]]] = {

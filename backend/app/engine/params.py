@@ -200,6 +200,23 @@ def _p(
 #: source_note cites where; where it does not, the parameter is simply absent
 #: and the rule reports NOT_EVALUATED rather than guessing.
 DEFAULT_PARAMETERS: Final[tuple[ParameterRow, ...]] = (
+    # -- X family: self-contradiction (docs/01 section 7) -------------------
+    # These are the pack's own stated thresholds, not invented ones. X-01's
+    # table gives N=30; X-06 gives 120 days and Rs 1 lakh; X-12 gives
+    # Rs 25,000. They are configurable and effective-dated like every other
+    # threshold, so a law officer signs a row rather than a pull request.
+    _p("X-01", "window_days", "30", unit="days", note="docs/01 section 7: N=30"),
+    _p(
+        "X-01",
+        "min_exposure",
+        "100000",
+        unit="INR",
+        note="docs/01 section 7 X-03 floor, applied to X-01 so a small "
+        "rate difference is not a critical finding",
+    ),
+    _p("X-06", "window_days", "120", unit="days", note="docs/01 section 7: within 120 days"),
+    _p("X-06", "min_value", "100000", unit="INR", note="docs/01 section 7: value > Rs 1 L"),
+    _p("X-12", "min_delta", "25000", unit="INR", note="docs/01 section 7: delta > Rs 25 K"),
     # -- Rule 88C: GSTR-1 vs 3B liability mismatch (OUT-01) ------------------
     _p("OUT-01", "pct_threshold", "20", unit="percent", note="docs/01 A4 R1, C2, C3"),
     _p("OUT-01", "amount_threshold", "2500000", unit="INR", note="docs/01 A4 R1: 25 lakh"),

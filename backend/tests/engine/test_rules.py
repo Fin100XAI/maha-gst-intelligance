@@ -25,6 +25,11 @@ from tests.engine.factories import JUN
 
 ALL_PERIODS = tuple(Period(2025, 4).plus(n) for n in range(12))
 
+#: The v2 rule families, kept apart from the A-L matrix by name rather than
+#: by ID prefix. `B-04` is a v3 check and `BEH-04` is a v2 one; a
+#: `startswith` on the letter would silently count one as the other.
+V2_FAMILIES = frozenset({"OUT", "ITC", "PAY", "BEH", "EWB", "EIN", "REG", "SEC", "NET"})
+
 
 def _only(ctx, rule_id: str):  # type: ignore[no-untyped-def]
     return RULES[rule_id].function(ctx)
@@ -41,8 +46,20 @@ def _fired(findings, rule_id: str) -> list:  # type: ignore[no-untyped-def]
 
 class TestRegistry:
     @pytest.mark.golden
-    def test_all_fifty_seven_rules_are_registered(self) -> None:
-        assert len(RULES) == 57
+    def test_the_v2_catalogue_is_still_intact(self) -> None:
+        """The 57 v2 rules are live on nine real workbooks and are not
+        deleted until each has been mapped onto its A-L identity. The v3
+        CHANGELOG calls them superseded, but that was written for a
+        greenfield build - see docs/GAP_V3.md."""
+        assert len({rule for rule in RULES if RULES[rule].family in V2_FAMILIES}) == 57
+
+    def test_the_v3_families_are_registered_alongside_them(self) -> None:
+        """docs/01 sections 7 and 8. The A-L matrix arrives one check at a
+        time and each one must be visible here the day it lands, so that
+        adding a rule without registering it fails rather than passing
+        quietly."""
+        v3 = {rule for rule in RULES if RULES[rule].family not in V2_FAMILIES}
+        assert v3 == {"X-01", "X-02", "X-06", "X-11", "B-04"}
 
     @pytest.mark.golden
     def test_every_rule_has_a_non_empty_legal_basis(self) -> None:
@@ -55,6 +72,8 @@ class TestRegistry:
         for spec in RULES.values():
             counts[spec.family] = counts.get(spec.family, 0) + 1
         assert counts == {
+            "X": 4,
+            "B": 1,
             "OUT": 10,
             "ITC": 13,
             "PAY": 7,
