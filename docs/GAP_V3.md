@@ -43,11 +43,12 @@ Updated 2026-09-22 after the second build session.
 | # | Requirement | Phase | State |
 |---|---|---|---|
 | 1 | `I-01`–`I-10` post-coercion invariants | 1 | **Built** — `app/ingestion/invariants.py`, 26 tests |
-| 2 | Transposition detector wired into the pipeline | 1 | Detector built and proven; **not yet called**. See the `irn_date` note below |
+| 2 | Transposition detector wired into the pipeline | 1 | **Done.** Runs over whole date columns before coercion. 1,832 cells corrected on the reference workbook across six sheets; negative lags 314 -> 0, own-document Rule 48(4) breaches 250 -> 0. `irn_date` now mapped (migration 0007), so `G-03`/`G-04` are computable |
 | 3 | `NIL_BY_IDENTITY` coverage state | 1 | **Modelled** in `scorecard.Coverage`; the pipeline does not yet compute it |
 | 4 | `app/matching/` — L1–L5 ladder | 2 | **Built** — `keys.py`, 22 tests |
 | 5 | The 21 named joins | 2 | **Declared** with their `feeds` in `joins.py`; `run_join` works; the per-join data adapters are not written |
 | 6 | `X-01`–`X-12` self-contradiction | 3 | **X-01, X-02, X-06, X-11 built.** X-01 reproduces `docs/07` Finding 1 to the paisa. X-03/04/05/07/08/09/10/12 not written |
+| 6b | `B-04` Rule 37A | 3 | **Built.** Reproduces `docs/07` Finding 2 exactly: Rs 95,79,967.02 on B2B, 29 suppliers, SSR Shipyard Rs 77,99,266.80. Needed migration 0006 for `supplier_3b_filed` |
 | 7 | Tier model AUTO/ASSISTED/MANUAL/CASE | 3 | **Built** — `app/engine/tiers.py` with `DocumentCall` and `ChecklistItem` |
 | 8 | Exemption engine | 3 | **Built** — `app/engine/exemptions.py`, Rule 86B clause (d) testable |
 | 9 | Multi-period netting | 3 | **Built** — `app/engine/netting.py`, 10 tests |
@@ -62,18 +63,23 @@ Updated 2026-09-22 after the second build session.
 
 ## Two things the pack assumes that are not true here
 
-**`irn_date` is not ingested.** 2,783 of 10,145 outward lines carry an IRN
-*number*, but no synonym maps the IRN *date*, so the column is dropped at the
-mapping stage. Two consequences, and they pull in opposite directions:
+**~~`irn_date` is not ingested.~~ Closed 2026-09-23.** It is mapped now, and
+in the order this section demanded: the detector was wired into the pipeline
+first, then the column landed (migration 0007). Mapping it first would have
+shipped the capability and the 250 false notices together.
 
-* the platform cannot currently produce the 250 false Rule 48(4) notices,
-  because it never reads the column; and
-* it cannot run `G-03` or `G-04` either.
+Measured after wiring, on the reference workbook: 1,832 cells corrected across
+six sheets, all `CERTAIN`; 5,954 lines carry an IRN date; **zero** are
+acknowledged before their own invoice and **zero** of this taxpayer's own
+documents are reported late. `docs/07` part C1 says 314 -> 0 and 250 -> 0.
+Held rows were 593 before the mapping and 593 after.
 
-So the transposition detector is pre-emptive rather than corrective today. It
-becomes load-bearing the moment `irn_date` is mapped, which `G-04` requires —
-and the mapping must not land before the detector is wired, or the 250 arrive
-with it.
+One thing that took a second pass. `GSTR2A_CDN` has fourteen credit notes
+whose dates all fall between the 4th and the 10th, so Excel parsed every one
+and the column's own signature went silent while all fourteen values were
+still wrong. The fix is a second signature - the row's own document date as a
+witness, since an acknowledgement cannot precede what it acknowledges - and it
+reproduces the 314 on `GSTR1_B2B` independently. D-0080.
 
 **The 57 rules are not a subset of the 141.** The CHANGELOG describes the v2
 catalogue as superseded, but it was written for a greenfield build. Here the

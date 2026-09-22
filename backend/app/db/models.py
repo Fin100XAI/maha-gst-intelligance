@@ -264,6 +264,10 @@ class OutwardLine(Base):
     amends_doc_no: Mapped[str | None] = mapped_column(String(64))
     amends_doc_date: Mapped[date | None] = mapped_column(Date)
     irn: Mapped[str | None] = mapped_column(String(64))
+    #: The IRP's acknowledgement date. Nullable because most documents
+    #: carry no IRN at all, and an absent IRN date is not a late one:
+    #: G-03 and G-04 abstain on it rather than reading it as zero days.
+    irn_date: Mapped[date | None] = mapped_column(Date)
     prov_id: Mapped[str | None] = mapped_column(ForeignKey("provenance.id"))
 
 

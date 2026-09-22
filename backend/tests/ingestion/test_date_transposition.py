@@ -118,3 +118,66 @@ class TestTheNegativeLagThatGivesItAway:
         corrected = correct_transposed(irn_as_stored)
         assert isinstance(corrected, datetime)
         assert (corrected - invoice).days == 0
+
+
+class TestTheSecondSignature:
+    """The partition goes silent on a small column; the row does not.
+
+    If every date in a column happens to fall in the first twelve days of its
+    month, Excel parses all of them, nothing is left as text, and there is no
+    partition to read - while every value in the column is still wrong. That
+    is `GSTR2A_CDN` on the reference workbook: fourteen credit notes, days 4
+    to 10, nine of them acknowledged before they were issued.
+
+    So the row is asked instead. The witness is the same row's document date,
+    and an acknowledgement cannot precede the document it acknowledges.
+    """
+
+    @pytest.mark.golden
+    def test_an_all_datetime_column_is_diagnosable_from_the_row(self) -> None:
+        # As stored: 5 Mar, 10 Jun, 8 Apr - each before the note it
+        # acknowledges. Swapped: 3 May, 6 Oct, 4 Aug - each after.
+        column = [_dt(5, 3), _dt(10, 6), _dt(8, 4)]
+        witness = [_dt(28, 4), _dt(26, 9), _dt(2, 8)]
+        assert detect_transposition(column) is Verdict.ABSENT
+        assert detect_transposition(column, witness=witness) is Verdict.CERTAIN
+
+    def test_a_clean_column_is_never_corrected_by_this_route(self) -> None:
+        """The important half. Nothing contradicts, so there is no evidence,
+        so there is no correction - however small the column is."""
+        column = [_dt(5, 3), _dt(10, 6)]
+        witness = [_dt(1, 3), _dt(2, 6)]
+        assert detect_transposition(column, witness=witness) is Verdict.ABSENT
+
+    def test_a_contradiction_the_swap_does_not_fix_is_not_explained(self) -> None:
+        """Swapping must account for every contradiction, not most of them.
+        One left standing means something else is going on, and acting on a
+        partial explanation is how a wrong date is written in silence."""
+        column = [_dt(5, 3), _dt(2, 1)]
+        witness = [_dt(28, 4), _dt(28, 4)]
+        assert detect_transposition(column, witness=witness) is Verdict.AMBIGUOUS
+
+    def test_a_swap_that_creates_a_new_contradiction_is_refused(self) -> None:
+        """Row two is consistent as it stands. Correcting the column would
+        break it, which means the column is not what the correction assumes."""
+        column = [_dt(5, 3), _dt(4, 10)]
+        witness = [_dt(28, 4), _dt(1, 10)]
+        assert detect_transposition(column, witness=witness) is Verdict.AMBIGUOUS
+
+    def test_a_witness_that_cannot_prove_itself_is_not_used(self) -> None:
+        """The witness must contain one date with a day above 12: that is the
+        proof that this locale parsed *it* faithfully. Without it the witness
+        may be transposed too, and two swapped columns agree with each other
+        perfectly while both being wrong."""
+        column = [_dt(5, 3)]
+        witness = [_dt(4, 8)]
+        assert detect_transposition(column, witness=witness) is Verdict.ABSENT
+
+    def test_the_two_signatures_must_agree_before_anything_moves(self) -> None:
+        """A clean partition is not enough if the row still contradicts after
+        the swap. The question is not whether there is an explanation but
+        whether any part of the column is left unexplained."""
+        column = [_dt(20, 5), _dt(3, 1)]  # a datetime with day 20 breaks the partition
+        witness = [_dt(1, 5), _dt(28, 4)]
+        assert detect_transposition(column) is Verdict.ABSENT
+        assert detect_transposition(column, witness=witness) is Verdict.AMBIGUOUS

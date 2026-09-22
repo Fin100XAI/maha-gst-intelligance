@@ -70,9 +70,24 @@ def _invoices(ctx: RuleContext) -> list[OutwardRecord]:
     rows: list[OutwardRecord] = []
     for period in ctx.periods:
         rows.extend(
-            row for row in ctx.outward(period) if row.doc_type == "INVOICE" and not row.is_amendment
+            row
+            for row in ctx.outward(period)
+            if row.doc_type == "INVOICE" and not _amends_something(row)
         )
     return rows
+
+
+def _amends_something(row: OutwardRecord) -> bool:
+    """Both spellings, because a row can carry either.
+
+    `is_amendment` is a column the loader fills from the section, and the
+    section itself survives on the row. Testing only the flag was wrong: on a
+    B2BA sheet the section says AMENDMENT and the flag agrees, but a row
+    reaching the engine any other way carries only one of them, and X-01
+    would then count an amendment as an ordinary invoice and compare it with
+    the very line it amends.
+    """
+    return row.is_amendment or row.section == "AMENDMENT"
 
 
 def _credit_notes(ctx: RuleContext) -> list[OutwardRecord]:

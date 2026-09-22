@@ -44,6 +44,11 @@ class QuarantineReason(StrEnum):
     #: loses money between two rows. Law 4: it is quarantined BEFORE any rule
     #: sees it, so a fabricated finding can never be built on it.
     INVARIANT_FAILED = "INVARIANT_FAILED"
+    #: The sheet's date column is mixed string and datetime, and the
+    #: partition that would prove a day/month transposition does not hold.
+    #: Only the cells whose meaning actually depends on the verdict are held;
+    #: a silent wrong correction is worse than a refusal an officer can see.
+    DATE_TRANSPOSITION_AMBIGUOUS = "DATE_TRANSPOSITION_AMBIGUOUS"
 
 
 @dataclass(frozen=True, slots=True)

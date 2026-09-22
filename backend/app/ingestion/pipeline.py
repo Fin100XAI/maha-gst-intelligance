@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
@@ -50,6 +51,12 @@ from app.ingestion.reader import RawSheet
 from app.ingestion.sniffer import NOT_INGESTED, Classification, classify_sheet
 from app.ingestion.synonyms import FieldMatch, match_headers, normalise_header
 from app.ingestion.three_b import read_three_b
+from app.ingestion.transposition import (
+    Verdict,
+    correct_transposed,
+    detect_transposition,
+    is_suspect,
+)
 from app.ingestion.validators import validate_line
 
 __all__ = [
@@ -73,6 +80,7 @@ _COERCERS: Final[dict[str, Any]] = {
     "doc_date": coerce_date,
     "ewb_date": coerce_date,
     "ack_date": coerce_date,
+    "irn_date": coerce_date,
     "valid_upto": coerce_date,
     "cancelled_on": coerce_date,
     "supplier_filing_date": coerce_date,
@@ -104,6 +112,12 @@ _COERCERS: Final[dict[str, Any]] = {
     "supplier_1_filed": coerce_bool,
     "ims_action": coerce_ims_action,
 }
+
+#: The canonical fields read as dates. Derived from the coercer table so a
+#: new date column cannot be added without the transposition check seeing it.
+_DATE_FIELDS: Final[frozenset[str]] = frozenset(
+    {name for name, coercer in _COERCERS.items() if coercer is coerce_date}
+)
 
 #: GSTIN columns, and whether a blank is acceptable.  A B2C line legitimately
 #: has no counterparty GSTIN; a B2B line without one is not a B2B line.
@@ -163,6 +177,12 @@ class SheetOutcome:
     records: list[CanonicalRecord] = field(default_factory=list)
     ledger: RowLedger = field(default_factory=RowLedger)
     status: str = "PARSED"
+    #: canonical date field -> what the transposition detector said about its
+    #: column, and how many cells that verdict moved. Reported rather than
+    #: applied silently: a date this platform changed is a date an officer is
+    #: entitled to be told about, because the reporting lag computed from it
+    #: is what a Rule 48(4) notice would be built on.
+    date_corrections: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     @property
     def unmapped_headers(self) -> list[str]:
@@ -178,6 +198,7 @@ class SheetOutcome:
             "header_row_index": self.header_row,
             "status": self.status,
             "unmapped_headers": self.unmapped_headers,
+            "date_corrections": self.date_corrections,
             "counts": self.ledger.as_dict(),
         }
 
@@ -213,6 +234,100 @@ class IngestionReport:
 # ---------------------------------------------------------------------------
 # duplicates
 # ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+# date transposition
+# ---------------------------------------------------------------------------
+
+
+#: Which date field can vouch for which. An acknowledgement cannot precede
+#: the document it acknowledges, so the document date is a witness against the
+#: IRN date -- and the only such pair the rulebook actually states. Others
+#: would be invented, and an invented witness is how a correct column gets
+#: "corrected".
+_DATE_WITNESS: Final[dict[str, str]] = {"irn_date": "doc_date"}
+
+
+def _column_verdicts(
+    rows: Sequence[Sequence[object]],
+    start: int,
+    columns: dict[str, int],
+) -> dict[str, Verdict]:
+    """Run the transposition detector over every mapped date column.
+
+    Whole columns, before any row is coerced. The signature the detector looks
+    for -- every text cell a day above 12, every parsed cell a day of 12 or
+    less -- exists only in the column, never in one row, so this cannot be
+    decided row by row however convenient that would be.
+
+    Where the sheet also carries the field's witness, that column is handed
+    over with it. It is what catches a small column whose dates all happen to
+    fall in the first twelve days of their months: Excel parses every one of
+    them, so the partition has nothing to see, while every value is wrong.
+    """
+    verdicts: dict[str, Verdict] = {}
+    for name, index in columns.items():
+        if name not in _DATE_FIELDS:
+            continue
+        column = [row[index] if index < len(row) else None for row in rows[start:]]
+        witness_at = columns.get(_DATE_WITNESS.get(name, ""))
+        witness = (
+            None
+            if witness_at is None
+            else [row[witness_at] if witness_at < len(row) else None for row in rows[start:]]
+        )
+        verdict = detect_transposition(column, witness=witness)
+        if verdict is not Verdict.ABSENT:
+            verdicts[name] = verdict
+    return verdicts
+
+
+def _unresolved_date(
+    row: Sequence[object],
+    columns: dict[str, int],
+    verdicts: dict[str, Verdict],
+) -> str | None:
+    """The first date field on this row whose value cannot be resolved.
+
+    Only under ``AMBIGUOUS``, and only for a cell that a swap could actually
+    have produced. A text cell was never parsed and a parsed cell with a day
+    above 12 cannot have been swapped; both are safe to read, and holding them
+    would quarantine thousands of rows that were never in doubt.
+    """
+    for name, verdict in verdicts.items():
+        if verdict is not Verdict.AMBIGUOUS:
+            continue
+        index = columns[name]
+        if index < len(row) and is_suspect(row[index]):
+            return name
+    return None
+
+
+def _undo_transposition(
+    row: Sequence[object],
+    columns: dict[str, int],
+    verdicts: dict[str, Verdict],
+) -> tuple[list[object], dict[str, int]]:
+    """Put the ``CERTAIN`` columns back the way the taxpayer wrote them.
+
+    Returns the repaired row and a count per field, so the sheet's report can
+    say how many cells moved rather than only that something did.
+    """
+    repaired = list(row)
+    moved: dict[str, int] = {}
+    for name, verdict in verdicts.items():
+        if verdict is not Verdict.CERTAIN:
+            continue
+        index = columns[name]
+        if index >= len(repaired):
+            continue
+        before = repaired[index]
+        after = correct_transposed(before)
+        if after is not before:
+            repaired[index] = after
+            moved[name] = 1
+    return repaired, moved
 
 
 def duplicate_key(record: CanonicalRecord) -> str:
@@ -477,6 +592,19 @@ def ingest_sheet(  # noqa: PLR0911, PLR0912, PLR0915
         outcome.ledger.assert_reconciled(f"sheet {sheet.name}")
         return outcome
 
+    # The transposition detector runs over whole columns, before a single row
+    # is coerced. A producing tool writes dd-mm-yyyy, an mm-dd locale opens the
+    # sheet, and Excel parses the cells it can while leaving the rest as text --
+    # so half the column is silently a different date from the one the taxpayer
+    # wrote. Read naively on the reference workbook that produced 250 breaches
+    # of the Rule 48(4) window and 314 acknowledgements dated before their own
+    # invoices; corrected, both are zero. docs/07 part C1.
+    verdicts = _column_verdicts(sheet.rows, detection.data_starts_at, columns)
+    outcome.date_corrections = {
+        name: {"verdict": verdict.value, "cells_corrected": 0, "cells_held": 0}
+        for name, verdict in verdicts.items()
+    }
+
     seen: set[str] = set()
     for row_index in range(detection.data_starts_at, len(sheet.rows)):
         row = sheet.rows[row_index]
@@ -508,6 +636,28 @@ def ingest_sheet(  # noqa: PLR0911, PLR0912, PLR0915
                 original_cells=original,
             )
             continue
+
+        unresolved = _unresolved_date(row, columns, verdicts)
+        if unresolved is not None:
+            outcome.ledger.quarantine(
+                sheet_name=sheet.name,
+                row_index=row_index,
+                reason_code=QuarantineReason.DATE_TRANSPOSITION_AMBIGUOUS,
+                reason=(
+                    f"{unresolved}: this column mixes text and parsed dates, but "
+                    "not in the pattern that proves Excel swapped day and month, "
+                    "so this cell could be either reading and the platform will "
+                    "not choose one"
+                ),
+                original_cells=original,
+                field_name=unresolved,
+            )
+            outcome.date_corrections[unresolved]["cells_held"] += 1
+            continue
+
+        row, moved = _undo_transposition(row, columns, verdicts)
+        for name, count in moved.items():
+            outcome.date_corrections[name]["cells_corrected"] += count
 
         try:
             fields = _coerce_row(row, columns, family, fy)

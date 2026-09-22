@@ -106,6 +106,7 @@ def _outward(record: CanonicalRecord, snapshot_id: str, prov_id: str, row_id: st
         ecom_gstin=f.get("ecom_gstin"),
         is_amendment=record.section == "AMENDMENT",
         irn=f.get("irn"),
+        irn_date=_as_date(f.get("irn_date")),
         prov_id=prov_id,
     )
 

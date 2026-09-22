@@ -67,6 +67,10 @@ class OutwardRecord:
     ecom_gstin: str | None = None
     is_amendment: bool = False
     irn: str | None = None
+    #: When the IRP acknowledged this document. `None` on every line that
+    #: carries no IRN, which is most of them; a check reading it must
+    #: abstain rather than treat the absence as a lag of zero days.
+    irn_date: date | None = None
     prov_id: str | None = None
     row_id: str | None = None
 

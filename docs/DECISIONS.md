@@ -1685,3 +1685,116 @@ The quarantine record carries `violation.observed` merged into the original
 cells, so an officer sees the contradiction itself - `irn_date 2025-12-01`
 against `doc_date 2026-01-12` - rather than an invariant number they would
 have to look up.
+
+---
+
+## D-0079 — The transposition detector is wired, and `irn_date` lands after it
+
+**Evaluation.** The detector was written, proven against the reference
+workbook, and never called. `docs/GAP_V3.md` recorded why: `irn_date` was not
+mapped, so the platform could not produce the 250 false Rule 48(4) notices -
+and could not run `G-03` or `G-04` either. The mapping and the detector had to
+land in that order or the capability would arrive with the defect.
+
+**Decision.** `_column_verdicts` runs over every mapped date column before a
+single row is coerced, `CERTAIN` columns are put back the way the taxpayer
+wrote them, and only then is `irn_date` mapped (migration 0007).
+
+**Why whole columns and not rows.** The signature - every text cell a day
+above 12, every parsed cell a day of 12 or less - exists only in the column.
+No row can show it. A row-by-row check would have been convenient and would
+have diagnosed nothing.
+
+**Measured on the reference workbook after wiring:**
+
+    GSTR1_B2B    CERTAIN  635 cells      GSTR2B_B2B   CERTAIN  501 cells
+    GSTR1_CDN    CERTAIN   71 cells      GSTR2B_CDNR  CERTAIN   14 cells
+    GSTR2A_B2B   CERTAIN  597 cells      GSTR2A_CDN   CERTAIN   14 cells
+                                         1,832 cells in all
+
+    5,954 lines carry an IRN date.
+    Acknowledgements dated before their own invoice:  0   (docs/07: 314 -> 0)
+    This taxpayer's own documents reported late:      0   (docs/07: 250 -> 0)
+
+    Rows in 12,449 = parsed 11,777 + held 593 + duplicates 79.
+
+Both of `docs/07` part C1's figures reproduce exactly. The seven remaining
+thirty-day breaches are all on inward sheets - other suppliers' e-invoices,
+which is their obligation and not this taxpayer's, and is a finding about
+counterparties rather than a false positive here.
+
+**Held rows did not go up.** 593 before the column was mapped and 593 after.
+Mapping it added a capability and cost nothing.
+
+---
+
+## D-0080 — A second signature: the row contradicts itself and the swap fixes it
+
+**Evaluation.** The first version of this correction missed `GSTR2A_CDN`.
+Fourteen credit notes, every date falling between the 4th and the 10th of its
+month, so Excel parsed all fourteen, nothing was left as text, and the
+partition had nothing to partition. The column read `ABSENT` - while every
+value in it was still wrong.
+
+Nine of the fourteen then failed `I-01` and were quarantined, which is Law 4
+working: no fabricated finding was built on them. But the other five were
+stored with a date the taxpayer never wrote, and nothing on screen said so.
+A held row is a refusal an officer can see. A silently wrong date is not.
+
+**Decision.** A second, independent signature. The row's own document date is
+a witness - an acknowledgement cannot precede the document it acknowledges -
+and if the naive reading contradicts it, and swapping every swappable cell in
+the column leaves no contradiction anywhere, the swap is the explanation.
+
+The two signatures must agree. Either alone can say `CERTAIN`; either alone
+saying `AMBIGUOUS` overrules the other. The question is not whether there is
+*an* explanation but whether any part of the column is left unexplained.
+
+**The safety property is that silence is the default.** A clean column offers
+no contradiction, so this route has no evidence, so it cannot correct
+anything - however small the column. The signal only ever fires on data that
+is already contradicting itself.
+
+**A witness must prove itself first.** Either a parsed cell with a day above
+12, which no swap could have produced, or no parsed cell at all, because
+nothing was parsed and so nothing was swapped. A column of parsed cells that
+all fall in the first twelve days cannot vouch for anything: that is exactly
+the shape a fully transposed column has, and two swapped columns agree with
+each other perfectly while both being wrong.
+
+**Independently reproduced.** On `GSTR1_B2B` the witness route alone, with no
+reference to how cells are stored, finds 314 contradictions and resolves all
+314 - the same number `docs/07` reports from the other signature entirely.
+`GSTR2A_CDN` goes 9 to 0, and the nine `I-01` quarantines disappear because
+they were a symptom of the same defect rather than nine bad documents.
+
+Only one witness pair is declared, `irn_date` against `doc_date`, because it
+is the only one the rulebook states. Inventing others is how a correct column
+gets "corrected".
+
+---
+
+## D-0081 — Two defects found while threading `irn_date` through the loader
+
+Neither is about dates. Both surfaced because adding a field to
+`OutwardRecord` meant reading the loader line by line.
+
+**The loader never read `is_amendment`.** `persist` writes it, the column
+exists, and `_outward` in `app/engine/load.py` did not carry it - so every
+outward line reached the engine with `is_amendment=False`. Two of the three
+call sites survived it by testing `row.is_amendment or row.section ==
+"AMENDMENT"`, and the section *was* carried. The third did not.
+
+**`X-01` tested only the flag.** `rules_x.py` excluded amendments with `not
+row.is_amendment` alone, so with the loader dropping the flag it excluded
+nothing: an amendment would have been compared against the very line it
+amends, and the rate difference between them read as a self-contradiction.
+
+It did not fire on the reference workbook because that file has no outward
+amendment sheet - `GSTR1_B2BA` is absent - so `X-01` still reproduces
+`docs/07` Finding 1 to the paisa. The next file with a B2BA sheet would have
+produced a fabricated finding, and the figure it produced would have looked
+entirely reasonable.
+
+Both fixed: the loader carries the column, and the test is factored into
+`_amends_something`, which checks both spellings and says why.

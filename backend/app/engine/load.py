@@ -153,7 +153,11 @@ def _outward(session: Session, gstin: str, snapshot_id: str) -> tuple[OutwardRec
                 cess=_money(row.cess),
                 reverse_charge=bool(row.reverse_charge),
                 hsn=row.hsn,
+                is_amendment=row.is_amendment,
+                irn=row.irn,
+                irn_date=row.irn_date,
                 prov_id=row.prov_id,
+                row_id=row.id,
             )
         )
     return tuple(out)

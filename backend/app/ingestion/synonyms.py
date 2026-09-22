@@ -199,6 +199,11 @@ _OUTWARD: Final[dict[str, tuple[str, ...]]] = {
     "uqc": ("uqc", "unit", "unit of measure", "uom"),
     "quantity": ("quantity", "qty", "total quantity", "प्रमाण"),
     "irn": ("irn", "invoice reference number", "irn number"),
+    # The IRP's acknowledgement date, not the invoice date. Mapping it is
+    # what makes Rule 48(4) computable, and it is also the column that
+    # arrives with its day and month swapped on half its rows -- so it is
+    # read only because app/ingestion/transposition.py now runs over it.
+    "irn_date": ("irn date", "irn generated date", "irn generation date", "ack date"),
     "period": ("period", "tax period", "return period", "month", "कर कालावधी"),
     # NOT bare "gstin uin": on an outward return that column is the
     # recipient's, and the filer's own GSTIN is in the title block. Listing
@@ -305,6 +310,7 @@ _EINVOICE: Final[dict[str, tuple[str, ...]]] = {
     "irn": ("irn", "invoice reference number"),
     "ack_no": ("ack no", "acknowledgement number", "ack number"),
     "ack_date": ("ack date", "acknowledgement date"),
+    "irn_date": ("irn date", "irn generated date", "irn generation date"),
     "doc_no": ("document number", "invoice number", "doc no"),
     "doc_date": ("document date", "invoice date"),
     "doc_type": ("document type", "doc type"),
