@@ -27,6 +27,7 @@ from typing import Final
 
 from app.canonical import ActionForm, Confidence, FindingStatus, Period, RiskDimension, Severity
 from app.engine.context import RuleContext
+from app.engine.tiers import ChecklistItem, DocumentCall, Tier
 from app.engine.trace import CalcKind, CalcTrace
 from app.money import TaxVector
 
@@ -139,7 +140,17 @@ class Finding:
         }
 
 
-RuleFunction = Callable[[RuleContext], list[Finding]]
+#: What a check hands back. An AUTO check returns `Finding`s; an ASSISTED one
+#: returns `DocumentCall`s and a MANUAL one `ChecklistItem`s. The union is
+#: here rather than in three parallel registries because a check's tier is a
+#: property of the check, not a different kind of thing to run - and because
+#: one registry is what makes "every check appears on the scorecard" true by
+#: construction rather than by remembering.
+Output = Finding | DocumentCall | ChecklistItem
+#: `Sequence`, not `list`, and the variance is the point: a rule that
+#: returns `list[Finding]` satisfies this without annotating a union it
+#: never produces.
+RuleFunction = Callable[[RuleContext], Sequence[Output]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -159,6 +170,12 @@ class RuleSpec:
     suggested_form: ActionForm | None
     function: RuleFunction
     threshold_note: str | None = None
+    #: What this check is allowed to output. Declared, never inferred, and
+    #: never promoted at runtime because a figure happened to look complete.
+    #: The 57 v2 rules are all AUTO by construction - each one computes a
+    #: head-wise figure from the returns alone - so AUTO is the default and
+    #: the A-L matrix declares the other three explicitly.
+    tier: Tier = Tier.AUTO
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -174,6 +191,7 @@ class RuleSpec:
             "relates_to": list(self.relates_to),
             "suggested_form": self.suggested_form.value if self.suggested_form else None,
             "threshold": self.threshold_note,
+            "tier": self.tier.value,
         }
 
 
@@ -202,6 +220,7 @@ def rule(
     relates_to: Sequence[str] = (),
     form: ActionForm | None = None,
     threshold: str | None = None,
+    tier: Tier = Tier.AUTO,
 ) -> Callable[[RuleFunction], RuleFunction]:
     """Register a detection rule.
 
@@ -228,6 +247,7 @@ def rule(
             suggested_form=form,
             function=function,
             threshold_note=threshold,
+            tier=tier,
         )
         return function
 

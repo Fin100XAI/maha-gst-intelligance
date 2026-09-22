@@ -59,7 +59,7 @@ class TestRegistry:
         adding a rule without registering it fails rather than passing
         quietly."""
         v3 = {rule for rule in RULES if RULES[rule].family not in V2_FAMILIES}
-        assert v3 == {"X-01", "X-02", "X-06", "X-11", "B-04"}
+        assert v3 == {"X-01", "X-02", "X-03", "X-04", "X-05", "X-06", "X-11", "B-04"}
 
     @pytest.mark.golden
     def test_every_rule_has_a_non_empty_legal_basis(self) -> None:
@@ -72,7 +72,7 @@ class TestRegistry:
         for spec in RULES.values():
             counts[spec.family] = counts.get(spec.family, 0) + 1
         assert counts == {
-            "X": 4,
+            "X": 7,
             "B": 1,
             "OUT": 10,
             "ITC": 13,

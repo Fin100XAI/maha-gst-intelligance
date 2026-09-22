@@ -214,6 +214,7 @@ DEFAULT_PARAMETERS: Final[tuple[ParameterRow, ...]] = (
         note="docs/01 section 7 X-03 floor, applied to X-01 so a small "
         "rate difference is not a critical finding",
     ),
+    _p("X-03", "min_delta", "100000", unit="INR", note="docs/01 section 7: delta value > Rs 1 L"),
     _p("X-06", "window_days", "120", unit="days", note="docs/01 section 7: within 120 days"),
     _p("X-06", "min_value", "100000", unit="INR", note="docs/01 section 7: value > Rs 1 L"),
     _p("X-12", "min_delta", "25000", unit="INR", note="docs/01 section 7: delta > Rs 25 K"),

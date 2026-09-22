@@ -31,7 +31,7 @@ from app.canonical import ActionForm, Confidence, RiskDimension, Severity
 from app.engine.context import RuleContext
 from app.engine.records import OutwardRecord
 from app.engine.registry import Finding, clear, not_evaluated, rule, triggered
-from app.engine.tiers import Tier
+from app.engine.tiers import DocumentCall, Tier
 from app.engine.trace import CalcKind
 from app.matching.keys import shares_digit_run
 from app.money import TaxVector
@@ -58,6 +58,13 @@ MIN_CONTRADICTING_RATES: Final[int] = 2
 
 #: An intra-State differential splits equally between the two State heads.
 _HALF: Final[Decimal] = Decimal("2")
+
+#: Chapter 99 is services; 01 to 98 are goods.
+_SERVICE_CHAPTER: Final[str] = "99"
+
+#: X-05: three identical billings to one counterparty are a contract, not a
+#: coincidence. Two are what X-01 already looks at, with a window.
+MIN_SERIES_LENGTH: Final[int] = 3
 
 
 def _invoices(ctx: RuleContext) -> list[OutwardRecord]:
@@ -95,6 +102,32 @@ def _credit_notes(ctx: RuleContext) -> list[OutwardRecord]:
     for period in ctx.periods:
         rows.extend(row for row in ctx.outward(period) if row.doc_type == "CREDIT_NOTE")
     return rows
+
+
+def _rate(value: Decimal) -> str:
+    """A rate as a person writes it. `5` and `18`, not `5.0000000000`.
+
+    The column arrives as a high-precision decimal and goes straight into the
+    sentence an officer reads on a notice. Trailing zeros there are not a
+    cosmetic problem: they read as a machine's output rather than a
+    department's statement.
+    """
+    return format(value.normalize(), "f")
+
+
+def _days_between_rates(bucket: list[OutwardRecord]) -> int | None:
+    """Smallest gap in days between two lines of this bucket at different rates.
+
+    `None` when the bucket does not actually contain two rates, which the
+    callers have already excluded - it is here so the type says so.
+    """
+    gaps = [
+        abs((a.doc_date - b.doc_date).days)
+        for a in bucket
+        for b in bucket
+        if a.doc_date and b.doc_date and a.rate != b.rate
+    ]
+    return min(gaps) if gaps else None
 
 
 # ---------------------------------------------------------------------------
@@ -153,13 +186,8 @@ def x01_same_value_two_rates(ctx: RuleContext) -> list[Finding]:
             if len(rates) < MIN_CONTRADICTING_RATES:
                 continue
             high, low = max(rates), min(rates)
-            gap = min(
-                abs((a.doc_date - b.doc_date).days)
-                for a in bucket
-                for b in bucket
-                if a.doc_date and b.doc_date and a.rate != b.rate
-            )
-            if gap > window_days:
+            gap = _days_between_rates(bucket)
+            if gap is None or gap > window_days:
                 continue
 
             # Every line to this counterparty at the lower rate, for the whole
@@ -216,7 +244,7 @@ def x01_same_value_two_rates(ctx: RuleContext) -> list[Finding]:
             evidence_ids=tuple(r.row_id for r in affected[:50] if r.row_id),
             form=ActionForm.ASMT_10,
             narrative=(
-                f"Supplies to {party} appear at {low}% and {high}% within "
+                f"Supplies to {party} appear at {_rate(low)}% and {_rate(high)}% within "
                 f"{X01_WINDOW_DAYS} days at the same taxable value. This is a rate "
                 f"dispute, not an established error: the taxpayer may be able to "
                 f"justify the classification. Call for the contract and the basis "
@@ -431,11 +459,339 @@ def x11_reversal_without_interest(ctx: RuleContext) -> list[Finding]:
     ]
 
 
-#: Which tier each X rule occupies. X-01, X-02 and X-11 compute a figure from
-#: returns alone; X-06 reports a shape and deliberately emits no demand.
-X_TIERS: Final[dict[str, Tier]] = {
-    "X-01": Tier.AUTO,
-    "X-02": Tier.AUTO,
-    "X-06": Tier.AUTO,
-    "X-11": Tier.AUTO,
-}
+# ---------------------------------------------------------------------------
+# X-03 — one HSN, two rates, one period
+# ---------------------------------------------------------------------------
+
+
+def _has_hsn(ctx: RuleContext) -> bool:
+    """Whether any outward line carries an HSN at all.
+
+    The portal's B2B export does not have an HSN column - it lives in Table
+    12, the HSN summary, which this platform recognises and does not yet
+    ingest. So on the reference workbook every HSN check is dark, and the two
+    below say so by name instead of returning nothing and being read as a
+    clean pass.
+    """
+    return any(row.hsn for row in ctx.data.outward)
+
+
+def _hsn_chapter(hsn: str) -> str:
+    """The first two digits. 99 is services; 01 to 98 are goods."""
+    return hsn[:2]
+
+
+@rule(
+    id="X-03",
+    title="One HSN taxed at two rates inside a single tax period",
+    legal_basis="Rate notifications under s.9(1) CGST Act, 2017",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.HIGH,
+    confidence=Confidence.ADVISORY,
+    requires=("gstr1",),
+    params=("X-03.min_delta",),
+    relates_to=("X-01", "OUT-07"),
+    form=ActionForm.ASMT_10,
+    threshold="same HSN at two rates in one period, differential above Rs 1 lakh",
+    tier=Tier.ASSISTED,
+)
+def x03_one_hsn_two_rates(ctx: RuleContext) -> list[DocumentCall] | list[Finding]:
+    """ASSISTED, and the tier is the whole design of this check.
+
+    `docs/01` states the test as *two rates on one HSN in one period **with no
+    rate notification effective in that period***. The first limb is
+    arithmetic over the return. The second needs an effective-dated rate
+    master, which this platform declares as a seam (`OUT-07`) and does not yet
+    hold.
+
+    The rate structure changed on **22 September 2025**, inside the financial
+    year under scrutiny. So the exclusion this check cannot apply is not
+    hypothetical: for September 2025 it is the likely explanation, and a rupee
+    finding emitted without it would be a demand resting on a notification the
+    engine never read.
+
+    So it calls for the document instead. The differential is computed and
+    shown, because an officer needs to know whether this is worth a letter -
+    but it is carried as `unquantified_exposure` on a `DocumentCall`, which
+    does not move the F-Score and cannot reach a notice. Law 5 expressed as a
+    tier rather than as an abstention: "the second limb could not be checked"
+    is more useful than silence and safer than a number.
+    """
+    if not _has_hsn(ctx):
+        return [not_evaluated(ctx, "X-03", ("HSN on the outward lines (GSTR-1 Table 12)",))]
+
+    floor = ctx.params.get("X-03", "min_delta", on=ctx.fy.end)
+    calls: list[DocumentCall] = []
+
+    for period in ctx.periods:
+        by_hsn: dict[str, list[OutwardRecord]] = defaultdict(list)
+        for row in ctx.outward(period):
+            if row.hsn and row.rate is not None and row.taxable_value > _ZERO:
+                by_hsn[row.hsn].append(row)
+
+        for hsn, lines in sorted(by_hsn.items()):
+            rates = {row.rate for row in lines if row.rate is not None}
+            if len(rates) < MIN_CONTRADICTING_RATES:
+                continue
+            high, low = max(rates), min(rates)
+            at_low = [row for row in lines if row.rate == low]
+            base = sum((row.taxable_value for row in at_low), _ZERO)
+            differential = (base * (high - low) / _HUNDRED).quantize(Decimal("0.01"))
+            if differential < floor.decimal:
+                continue
+
+            calls.append(
+                DocumentCall(
+                    check_id="X-03",
+                    gstin=ctx.gstin,
+                    period=period,
+                    document=(
+                        f"the classification basis for HSN {hsn} - the rate "
+                        f"notification relied on, and the date it took effect"
+                    ),
+                    legal_basis="Rate notifications under s.9(1) CGST Act, 2017",
+                    question=(
+                        f"HSN {hsn} was billed at both {_rate(low)}% and {_rate(high)}% within "
+                        f"{period.mmyyyy}. If a notification changed the rate inside "
+                        f"this period that is a complete answer and no further reply "
+                        f"is needed; otherwise state the basis on which the same "
+                        f"goods or service bore two rates. Differential on the "
+                        f"{len(at_low)} lines at {_rate(low)}%: Rs {differential}."
+                    ),
+                    unquantified_exposure=differential,
+                    severity=Severity.HIGH,
+                    evidence_ids=tuple(r.row_id for r in at_low[:50] if r.row_id),
+                )
+            )
+    return calls
+
+
+# ---------------------------------------------------------------------------
+# X-04 — the same supply under a goods chapter and a service SAC
+# ---------------------------------------------------------------------------
+
+
+@rule(
+    id="X-04",
+    title="The same value billed under both a goods chapter and a service SAC",
+    legal_basis="Schedule II CGST Act, 2017; classification under s.9(1)",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.HIGH,
+    confidence=Confidence.ADVISORY,
+    requires=("gstr1",),
+    relates_to=("X-03",),
+    form=ActionForm.ASMT_10,
+    threshold="identical taxable value under chapters 01-98 and 99xxxx",
+    tier=Tier.ASSISTED,
+)
+def x04_goods_and_service_for_one_supply(ctx: RuleContext) -> list[DocumentCall] | list[Finding]:
+    """Whether a supply is goods or a service is a contract question.
+
+    The return carries an HSN and a value; it does not carry what was
+    supplied. Two lines of identical value to one counterparty, one under a
+    goods chapter and one under a service SAC, is a real signal - a works
+    contract split, or a composite supply billed twice - and it is also
+    exactly what a legitimate supply of goods plus its installation looks
+    like.
+
+    The engine cannot tell those apart from the return, and `ASSISTED` is the
+    honest way to say so. It asks for the contract and the description rather
+    than attaching a rupee figure to a judgement it has no basis for.
+    """
+    if not _has_hsn(ctx):
+        return [not_evaluated(ctx, "X-04", ("HSN on the outward lines (GSTR-1 Table 12)",))]
+
+    calls: list[DocumentCall] = []
+    by_party: dict[str, list[OutwardRecord]] = defaultdict(list)
+    for row in _invoices(ctx):
+        if row.counterparty_gstin and row.hsn and row.taxable_value > _ZERO:
+            by_party[row.counterparty_gstin].append(row)
+
+    for party, lines in sorted(by_party.items()):
+        buckets: dict[Decimal, list[OutwardRecord]] = defaultdict(list)
+        for row in lines:
+            buckets[row.taxable_value.quantize(Decimal("1"))].append(row)
+
+        for value, bucket in sorted(buckets.items()):
+            chapters = {_hsn_chapter(row.hsn) for row in bucket if row.hsn}
+            services = {c for c in chapters if c == _SERVICE_CHAPTER}
+            goods = chapters - services
+            if not services or not goods:
+                continue
+            calls.append(
+                DocumentCall(
+                    check_id="X-04",
+                    gstin=ctx.gstin,
+                    period=None,
+                    document=(
+                        f"the contract and the supply description for the "
+                        f"Rs {value} billings to {party}"
+                    ),
+                    legal_basis="Schedule II CGST Act, 2017; classification under s.9(1)",
+                    question=(
+                        f"Supplies of the same taxable value to {party} appear under "
+                        f"both a goods chapter ({', '.join(sorted(goods))}) and a "
+                        f"service SAC (99). State whether this is one composite "
+                        f"supply, a works contract, or separate supplies of goods and "
+                        f"of installation, and produce the contract."
+                    ),
+                    severity=Severity.HIGH,
+                    evidence_ids=tuple(r.row_id for r in bucket[:50] if r.row_id),
+                )
+            )
+    return calls
+
+
+# ---------------------------------------------------------------------------
+# X-05 — a rate break in a recurring series
+# ---------------------------------------------------------------------------
+
+
+@rule(
+    id="X-05",
+    title="A recurring same-value milestone series changes rate mid-contract",
+    legal_basis="Rate notifications; s.14 time of supply. Scrutiny position, not a demand.",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.CRITICAL,
+    confidence=Confidence.STRONG,
+    requires=("gstr1",),
+    params=("X-01.min_exposure",),
+    relates_to=("X-01",),
+    form=ActionForm.ASMT_10,
+    threshold="three or more same-value milestones to one counterparty, then a rate change",
+)
+def x05_rate_break_in_a_series(ctx: RuleContext) -> list[Finding]:
+    """X-01's sibling, and the stronger of the two where it applies.
+
+    X-01 asks whether two invoices of the same value carry different rates
+    within thirty days. X-05 drops the window entirely and asks a different
+    question: was there an established *series* - the same value, to the same
+    counterparty, three times or more - and did the rate change part-way
+    through it?
+
+    The window is what X-01 uses to argue that two lines are the same supply.
+    A series argues it far better and needs no window: three identical
+    milestone billings to one counterparty are a contract, and a contract does
+    not change its classification in the middle without a reason. That is why
+    this one can look across the whole year where X-01 cannot.
+
+    **Same exposure rule as X-01, and for the same reason.** The break is the
+    detection; the exposure is every milestone in the series that took the
+    lower rate, not the one where it changed. `docs/01` is explicit that
+    confining it to the contradicting pair is the mistake that turns
+    Rs 1.91 crore into Rs 47.7 lakh.
+
+    Still a dispute, not an error. Routes to ASMT-10 for the contract.
+    """
+    rows = _invoices(ctx)
+    if not rows:
+        return [not_evaluated(ctx, "X-05", ("outward supplies (GSTR-1 Table 4)",))]
+
+    floor = ctx.params.get("X-01", "min_exposure", on=ctx.fy.end)
+    window = ctx.params.get("X-01", "window_days", on=ctx.fy.end)
+    window_days = int(window.decimal)
+    tracer = ctx.tracer(CalcKind.RULE, "X-05")
+    tracer.used_parameter(floor.use())
+    tracer.used_parameter(window.use())
+    tracer.note("ceded_to_x01_within_days", window_days)
+
+    by_party: dict[str, list[OutwardRecord]] = defaultdict(list)
+    for row in rows:
+        if row.counterparty_gstin and row.rate is not None and row.doc_date is not None:
+            by_party[row.counterparty_gstin].append(row)
+
+    worst: tuple[Decimal, str, Decimal, Decimal, int, list[OutwardRecord]] | None = None
+
+    for party, lines in sorted(by_party.items()):
+        buckets: dict[Decimal, list[OutwardRecord]] = defaultdict(list)
+        for row in lines:
+            buckets[row.taxable_value.quantize(Decimal("1"))].append(row)
+
+        for _value, bucket in sorted(buckets.items()):
+            if len(bucket) < MIN_SERIES_LENGTH:
+                continue
+            rates = {row.rate for row in bucket if row.rate is not None}
+            if len(rates) < MIN_CONTRADICTING_RATES:
+                continue
+
+            # X-01 owns any break that falls inside its window, and the two
+            # checks must not both report one event. On the reference file
+            # they did, briefly: X-05's evidence was a strict subset of
+            # X-01's, the same counterparty and the same two rates, and an
+            # officer reading both cards would have seen Rs 2.86 crore where
+            # there is Rs 1.91 crore. The division of labour is the window -
+            # X-01 argues two lines are one supply because they are days
+            # apart, X-05 argues it because they are the third and fourth
+            # identical milestone of a contract - so X-05 takes exactly the
+            # breaks the window excludes.
+            gap = _days_between_rates(bucket)
+            if gap is not None and gap <= window_days:
+                continue
+
+            high, low = max(rates), min(rates)
+
+            # Every milestone in the series that took the lower rate, whenever
+            # it fell - not the two either side of the break.
+            affected = [row for row in bucket if row.rate == low]
+            base = sum((row.taxable_value for row in affected), _ZERO)
+            exposure = (base * (high - low) / _HUNDRED).quantize(Decimal("0.01"))
+            if exposure < floor.decimal:
+                continue
+            if worst is None or exposure > worst[0]:
+                worst = (exposure, party, high, low, len(bucket), affected)
+
+    if worst is None:
+        return [clear(ctx, "X-05", trace=tracer.finish(result=_ZERO))]
+
+    exposure, party, high, low, series_length, affected = worst
+    base = sum((row.taxable_value for row in affected), _ZERO)
+    tracer.note("counterparty", party)
+    tracer.note("series_length", series_length)
+    tracer.step("milestones at the lower rate", "count", {"rate": format(low, "f")}, len(affected))
+    tracer.step("taxable at the lower rate", "sum(taxable_value)", {}, base)
+    tracer.step(
+        "rate differential",
+        "taxable x (high - low) / 100",
+        {"high": format(high, "f"), "low": format(low, "f")},
+        exposure,
+    )
+
+    igst_share = sum((row.igst for row in affected), _ZERO)
+    delta = (
+        TaxVector(
+            cgst=(exposure / _HALF).quantize(Decimal("0.01")),
+            sgst=(exposure / _HALF).quantize(Decimal("0.01")),
+        )
+        if igst_share == _ZERO
+        else TaxVector(igst=exposure)
+    )
+
+    return [
+        triggered(
+            ctx,
+            "X-05",
+            delta=delta,
+            taxable_value_effect=base,
+            confidence=Confidence.STRONG,
+            trace=tracer.finish(
+                result=exposure,
+                formula_template="exposure = taxable at low rate x (high rate - low rate) / 100",
+                formula_rendered=f"{base} x ({high} - {low}) / 100 = {exposure}",
+            ),
+            evidence_ids=tuple(r.row_id for r in affected[:50] if r.row_id),
+            form=ActionForm.ASMT_10,
+            narrative=(
+                f"A series of {series_length} billings of the same taxable value to "
+                f"{party} changes rate part-way through, from {_rate(high)}% to {_rate(low)}%. A "
+                f"repeated identical milestone is a contract, and a contract does not "
+                f"reclassify itself mid-way without a reason. The reason may be a good "
+                f"one - this is a rate dispute, not an established error. Call for the "
+                f"contract and the basis for the change before raising any demand. "
+                f"This break falls outside X-01's {window_days}-day window; a break "
+                f"inside it is reported there, so the two figures never overlap."
+            ),
+        )
+    ]

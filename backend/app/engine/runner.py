@@ -40,6 +40,7 @@ from app.engine.params_p01_p34 import ParamResult, evaluate_parameters
 from app.engine.registry import Finding, clear, rules_in_order
 from app.engine.scorecard import AnnualRollup, FilingScorecard, annual_rollup, build_scorecard
 from app.engine.scoring import FScore, PScore, compute_f_score, compute_p_score
+from app.engine.tiers import ChecklistItem, DocumentCall, may_emit_finding
 from app.engine.trace import CalcTrace
 
 __all__ = ["TaxpayerOutcome", "run_for_taxpayer", "suppression_for"]
@@ -62,6 +63,11 @@ class TaxpayerOutcome:
     #: checks is not a clean file, and this is the only object that says so.
     scorecards: tuple[FilingScorecard, ...] = ()
     annual: AnnualRollup | None = None
+    #: What the ASSISTED and MANUAL checks produced. Never folded into
+    #: `findings`, never scored: a file with 3 findings and 18 open document
+    #: calls is not a clean file, and the two counts say so side by side.
+    document_calls: tuple[DocumentCall, ...] = ()
+    checklist: tuple[ChecklistItem, ...] = ()
 
     @property
     def traces(self) -> list[CalcTrace]:
@@ -146,6 +152,8 @@ def run_for_taxpayer(
 ) -> TaxpayerOutcome:
     """Run every rule and every parameter for one taxpayer, in a fixed order."""
     findings: list[Finding] = []
+    calls: list[DocumentCall] = []
+    checklist: list[ChecklistItem] = []
     errors: list[dict[str, str]] = []
 
     for spec in rules_in_order():
@@ -156,20 +164,48 @@ def run_for_taxpayer(
         except Exception as exc:
             errors.append({"rule_id": spec.id, "error": f"{type(exc).__name__}: {exc}"})
             continue
+        for item in produced:
+            # The tier constrains what a check may ASSERT, not whether it may
+            # abstain. A DocumentCall or a ChecklistItem goes to its own book;
+            # a Finding that triggers must come from an AUTO check, because
+            # that is the only output that carries a rupee figure to a notice.
+            # An abstention or a clean pass is safe from any tier and is the
+            # thing that keeps a dark check visible on the scorecard.
+            if isinstance(item, DocumentCall):
+                calls.append(item)
+            elif isinstance(item, ChecklistItem):
+                checklist.append(item)
+            elif item.status is not FindingStatus.TRIGGERED or may_emit_finding(spec.tier):
+                findings.append(item)
+            else:
+                errors.append(
+                    {
+                        "rule_id": spec.id,
+                        "error": (
+                            f"tier {spec.tier.value} may not emit a triggered Finding; "
+                            f"it must return a DocumentCall or a ChecklistItem"
+                        ),
+                    }
+                )
+
         if not produced:
-            # Showing why a rule did NOT fire is as important as showing why it
+            # Showing why a check did NOT fire is as important as showing why it
             # did: it is how an officer learns to trust the engine's silence,
-            # and silence is most of what the engine produces.  A rule that
+            # and silence is most of what the engine produces.  A check that
             # simply returned nothing would be indistinguishable on screen from
-            # a rule that never ran.
-            produced = [
+            # one that never ran.
+            #
+            # This `clear` is the engine's own statement about the check, not
+            # the check's own output, so it is right for every tier - an
+            # ASSISTED check with nothing to call for has genuinely found
+            # nothing, and the scorecard must say so rather than omit the row.
+            findings.append(
                 clear(
                     ctx,
                     spec.id,
-                    narrative="The rule ran across every period and found nothing to report.",
+                    narrative="The check ran across every period and found nothing to report.",
                 )
-            ]
-        findings.extend(produced)
+            )
 
     # Suppressions are applied after every rule has spoken, so the officer can
     # see what was found *and* that it was set aside.
@@ -195,6 +231,8 @@ def run_for_taxpayer(
             ctx.gstin,
             period,
             list(suppressed),
+            calls=[c for c in calls if c.period == period],
+            checklist=checklist,
             coverage=coverage_for(ctx.data, period),
         )
         for period in ctx.periods
@@ -217,4 +255,6 @@ def run_for_taxpayer(
         rule_errors=tuple(errors),
         scorecards=tuple(cards),
         annual=annual,
+        document_calls=tuple(calls),
+        checklist=tuple(checklist),
     )

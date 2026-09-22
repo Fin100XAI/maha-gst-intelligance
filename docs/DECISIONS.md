@@ -1881,3 +1881,87 @@ Four things it refuses to do, each with a test:
 `PRESENT_EMPTY` is reserved for a dataset held for the year but not for this
 period. That distinction is not pedantry: `ABSENT` is a question for whoever
 did the upload and `PRESENT_EMPTY` is a question for the taxpayer.
+
+---
+
+## D-0084 — The tier is on the registry, and the runner enforces it
+
+**Evaluation.** `app/engine/tiers.py` defined AUTO / ASSISTED / MANUAL / CASE,
+`DocumentCall` and `ChecklistItem`, and nothing produced any of them. A check
+that cannot compute a rupee figure had two options, both bad: invent one, or
+say nothing and be read as a clean pass.
+
+**Decision.** `RuleSpec` carries `tier`, defaulting to `AUTO` because all 57
+v2 rules compute a head-wise figure from the returns alone. A check function
+may return `Finding`, `DocumentCall` or `ChecklistItem` - one registry, one
+execution order, so "every check appears on the scorecard" stays true by
+construction rather than by remembering.
+
+**What the runner enforces, and what it does not.** The tier constrains what a
+check may *assert*, never whether it may abstain. A `DocumentCall` goes to the
+call book, a `ChecklistItem` to the checklist, and a **triggered** `Finding`
+is refused unless the check is `AUTO` - that is the output which carries a
+rupee figure to a notice. A `CLEAR` or `NOT_EVALUATED` finding is safe from
+any tier and is exactly what keeps a dark check visible.
+
+That distinction was found by getting it wrong. The first version rejected
+every `Finding` from a non-AUTO check, which also rejected the engine's own
+"ran and found nothing" row - so X-03 and X-04 produced two rule errors and
+no scorecard rows at all. The synthetic `clear` is the engine's statement
+about the check, not the check's output, and no tier forbids it.
+
+`may_score` already excludes ASSISTED from the F-Score, and the unquantified
+exposure is shown beside the score rather than inside it. A score that moved
+with how much the engine could not see would be measuring the wrong thing.
+
+---
+
+## D-0085 — X-03 and X-04 ask; X-05 is X-01's complement
+
+**X-03, ASSISTED, and the tier is the design.** `docs/01` states the test as
+two rates on one HSN in one period **with no rate notification effective in
+that period**. The first limb is arithmetic. The second needs an
+effective-dated rate master, which the platform declares as a seam (`OUT-07`)
+and does not hold.
+
+The rate structure changed on **22 September 2025**, inside the year under
+scrutiny, so the exclusion this check cannot apply is not hypothetical - for
+September it is the likely explanation. A rupee finding emitted without it
+would be a demand resting on a notification the engine never read. So it
+computes the differential, shows it as `unquantified_exposure`, and asks for
+the notification relied on. Law 5 expressed as a tier rather than as silence.
+
+**X-04, ASSISTED, because goods or service is a contract question.** The
+return carries an HSN and a value, not what was supplied. Two lines of
+identical value to one counterparty under a goods chapter and a service SAC is
+a real signal - and is also what a supply of goods plus its installation looks
+like. A figure attached to that judgement would be a guess wearing a rupee
+sign.
+
+**Both abstain by name where the HSN is absent**, which on the reference
+workbook is everywhere: the portal's B2B export has no HSN column, it is in
+Table 12, and the platform recognises Table 12 without ingesting it. Returning
+nothing would have read as a clean pass on every real file.
+
+**X-05 double-counted X-01 and now cannot.** As first written it fired
+Rs 95,35,666.40 against X-01's Rs 1,90,71,332.80 on the same taxpayer - same
+counterparty (IWAI, `09AAATI7021F1ZW`), same two rates, and its evidence rows
+were a strict subset of X-01's. An officer reading both cards would have seen
+Rs 2.86 crore where there is Rs 1.91 crore.
+
+The division of labour is the window, and it is structural rather than a
+suppression. X-01 argues two lines are one supply because they are days apart;
+X-05 argues it because they are the third and fourth identical milestone of a
+contract, which needs no window. So X-05 takes exactly the breaks X-01's
+window excludes, and the two figures can never overlap. On the reference file
+X-05 is now `CLEAR` - correctly, because that break is four days wide and
+belongs to X-01.
+
+Same exposure rule as X-01: every milestone at the lower rate, not the pair
+either side of the break. `docs/01` is explicit that confining it is what
+turns Rs 1.91 crore into Rs 47.7 lakh.
+
+**One cosmetic fix with a real edge.** Rates were rendered
+`5.0000000000%` in the narrative that goes onto a notice. `_rate()` normalises
+them. A trailing-zero decimal there reads as a machine's output rather than a
+department's statement.

@@ -47,9 +47,9 @@ Updated 2026-09-22 after the second build session.
 | 3 | `NIL_BY_IDENTITY` coverage state | 1 | **Done.** `app/engine/coverage.py`, computed per GSTR-1 section and per dataset, wired into the runner so every taxpayer gets twelve scorecards. On the reference taxpayer eight of twelve months reconcile to 3B table 3.1 exactly and four do not. D-0083 |
 | 4 | `app/matching/` — L1–L5 ladder | 2 | **Built** — `keys.py`, 22 tests |
 | 5 | The 21 named joins | 2 | **Declared** with their `feeds` in `joins.py`; `run_join` works; the per-join data adapters are not written |
-| 6 | `X-01`–`X-12` self-contradiction | 3 | **X-01, X-02, X-06, X-11 built.** X-01 reproduces `docs/07` Finding 1 to the paisa. X-03/04/05/07/08/09/10/12 not written |
+| 6 | `X-01`–`X-12` self-contradiction | 3 | **X-01 to X-06 and X-11 built** (seven of twelve). X-01 reproduces `docs/07` Finding 1 to the paisa; X-03 and X-04 are ASSISTED and ask for the document; X-05 is X-01's complement by construction, so the two can never double-count. X-07/08/09/10/12 not written |
 | 6b | `B-04` Rule 37A | 3 | **Built.** Reproduces `docs/07` Finding 2 exactly: Rs 95,79,967.02 on B2B, 29 suppliers, SSR Shipyard Rs 77,99,266.80. Needed migration 0006 for `supplier_3b_filed` |
-| 7 | Tier model AUTO/ASSISTED/MANUAL/CASE | 3 | **Built** — `app/engine/tiers.py` with `DocumentCall` and `ChecklistItem` |
+| 7 | Tier model AUTO/ASSISTED/MANUAL/CASE | 3 | **Built and enforced** — `RuleSpec.tier`, and the runner refuses a triggered `Finding` from a non-AUTO check. X-03 and X-04 are the first two ASSISTED checks. D-0084 |
 | 8 | Exemption engine | 3 | **Built** — `app/engine/exemptions.py`, Rule 86B clause (d) testable |
 | 9 | Multi-period netting | 3 | **Built** — `app/engine/netting.py`, 10 tests |
 | 10 | Per-filing scorecard + annual roll-up | 4 | **Built and wired** — `app/engine/scorecard.py`; the runner now returns `scorecards` and `annual` on every `TaxpayerOutcome` |
