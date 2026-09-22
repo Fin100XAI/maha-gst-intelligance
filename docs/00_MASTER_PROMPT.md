@@ -1,116 +1,122 @@
-# 00 - MASTER PROMPT
+# 00 — MASTER PROMPT
 
-> Create a folder, put `01`–`04` in `docs/`, put `CLAUDE.md` at the root, start
-> Claude Code, paste the block below. Then work through `docs/04_BUILD_PHASES.md`,
+> Create a folder, put `01`–`07` and `CHANGELOG.md` in `docs/`, `CLAUDE.md` at the root,
+> start Claude Code, paste the block below. Then work through `docs/05_BUILD_PHASES.md`,
 > one phase at a time.
 
 ---
 
 ```
-You are building GST Intelligence - a GST compliance intelligence platform for a State
-Commercial Taxes Department (first deployment: Government of Maharashtra). Act as a
-principal engineer with deep experience in regulated fintech and government systems.
+You are building GST DRISHTI — a GST scrutiny, reconciliation and fraud-detection
+platform for a State Commercial Taxes Department (first deployment: Government of
+Maharashtra). Act as a principal engineer with deep experience in regulated fintech and
+government systems.
 
-It serves TWO audiences from one engine:
-  • DECISION MAKERS (Commissioner, Addl./Joint Commissioner) - a portfolio dashboard
-    over tens of thousands of filings: compliance posture, risk distribution, revenue
-    at risk, enforcement funnel, jurisdiction and officer performance.
-  • OFFICERS (STO / Asst. Commissioner / auditor) - a case workbench: reconciliation,
-    findings, evidence, demand computation, statutory notices.
-Same numbers, same provenance, two entry points. Every chart on the dashboard drills
-to the taxpayer list, then to the case, then to the source spreadsheet cell.
+WHAT IT DOES
+Excel returns in → sniffed, coerced, invariant-checked, canonicalised → 21 named
+cross-sheet joins → 34 audit risk parameters (P01–P34), 141 departmental scrutiny checks
+(modules A–L) and 12 self-contradiction rules (X-01–X-12) → a scorecard per filing → a
+case with a limitation clock → a statutory notice with maker-checker approval.
 
-Read these before writing code. They are the contract:
-  docs/01_DOMAIN_AND_RISK.md   GST lifecycle · 11 reconciliation identities ·
-                               the 34 CBIC/DGARM audit risk parameters (P01–P34)
-                               with the flag model · 57 detection rules
-  docs/02_PLATFORM_SPEC.md     architecture · canonical data model · ingestion ·
-                               rule engine · metrics catalogue · API
-  docs/03_UI_SPEC.md           the dashboard, the workbench, the design system
-  docs/04_BUILD_PHASES.md      seven phases, each with its acceptance tests
+TWO AUDIENCES, ONE ENGINE
+  • DECISION MAKERS — a portfolio dashboard: compliance posture, P-Score distribution,
+    revenue at risk, enforcement funnel.
+  • OFFICERS — a workbench: the filing scorecard grid, the match workbench, the flag
+    ladders, the call book, the case file.
+Same numbers, same provenance. Every chart drills to the taxpayer, the filing, the
+matched pair, and the source spreadsheet cell.
 
-THE FIVE LAWS - violating any of these is a build failure:
+READ BEFORE WRITING CODE — these are the contract:
+  docs/01_RULEBOOK.md               tiers · P01–P34 · X-01–X-12 · the 141 A–L checks · scoring
+  docs/02_INGESTION_AND_MATCHING.md coercion · the 10 invariants · the 21 joins · the scorecard
+  docs/03_PLATFORM_SPEC.md          architecture · data model · engine order · API
+  docs/04_UI_SPEC.md                dashboard · workbench · design system
+  docs/05_BUILD_PHASES.md           eight phases, each with its gate
+  docs/06_WORKBOOK_ANATOMY.md       a real 29-sheet GSP export, dissected — fixture #1
+  docs/07_WORKED_SCRUTINY_CASE.md   the findings that fixture must reproduce, to the paisa
+  docs/CHANGELOG.md                 what was cut and why — do not rebuild it
+
+THE SEVEN LAWS — violating any is a build failure:
 
 1. DETERMINISM. Every rupee, ratio, day-count, flag and score comes from pure Python
-   over Decimal. No LLM, no float, no randomness touches a number an officer could
-   put in a notice. Same input bytes ⇒ byte-identical output, forever.
+   over Decimal. No LLM, no float, no randomness. Same input bytes ⇒ byte-identical
+   output, forever.
 
-2. PROVENANCE. Every number rendered anywhere - including every bar in every
-   dashboard chart - carries a calc_id that resolves in one call to: the rule or
-   parameter, its legal or policy basis, the formula as executed, the intermediate
-   terms, and the source rows (file → sheet → row → original cell values). A figure
-   without a calc_id is a bug.
+2. PROVENANCE. Every number anywhere — including every bar on the Commissioner's
+   dashboard — carries a calc_id resolving in one call to the check, its legal basis,
+   the formula as executed, the intermediate terms, the matched pair, and the source
+   rows. A figure without a calc_id is a bug.
 
-3. HEAD-WISE INTEGRITY. IGST, CGST, SGST and Cess are never summed into one scalar
-   in any computation, comparison or column. A ₹1L IGST shortfall against a ₹1L CGST
-   excess is two findings, not zero. Use a TaxVector type; make the collapse
-   structurally impossible.
+3. HEAD-WISE INTEGRITY. IGST, CGST, SGST and Cess are never summed into one scalar. A
+   ₹1L IGST shortfall against a ₹1L CGST excess is two findings, not zero. Use a
+   TaxVector; make the collapse structurally impossible.
 
-4. THE LLM IS A SCRIBE AND A LIBRARIAN, NEVER A CALCULATOR. It maps spreadsheet
-   columns (human-confirmed), writes prose, retrieves statute, triages replies,
-   answers questions over computed results. It never computes, adjusts, rounds or
-   estimates a figure.
+4. INVARIANTS BEFORE RULES. The ten invariants in docs/02 §A3 run first. A row that
+   fails one is quarantined and is invisible to every rule. An acknowledgement date
+   earlier than its document date never becomes a finding — reading one real column
+   naively manufactured 250 fabricated notices.
 
-5. NOTHING IS SILENTLY DROPPED OR SILENTLY ASSUMED. Every uploaded row lands in
-   PARSED, QUARANTINED (with a reason) or DUPLICATE, and the counts reconcile on
-   screen. A rule or parameter that cannot run reports NOT_EVALUATED naming the
-   exact missing dataset - never "no issue found", and never a plausible guess.
+5. TIER HONESTY. A check declares AUTO, ASSISTED, MANUAL or CASE. Only AUTO emits a
+   rupee finding. ASSISTED emits a document call naming the document it needs. MANUAL
+   emits a checklist item and no number. Never let a tier promote itself.
+
+6. PROVISOS ARE PART OF THE RULE. Implement every exemption. Testable ones suppress the
+   finding visibly; untestable ones downgrade it to ADVISORY with an officer prompt.
+   Rule 86B without clause (d) of its first proviso produced a confident wrong demand
+   on real data.
+
+7. NOTHING SILENTLY DROPPED OR SILENTLY ASSUMED. Every row lands in PARSED, QUARANTINED
+   (with a reason) or DUPLICATE, and the counts reconcile on screen. A check that cannot
+   run reports NOT_EVALUATED naming the exact missing dataset — never "no issue found",
+   never a default of zero, never a guess.
+
+TWO SCORES, NEVER FUSED
+  P-Score (P01–P34, with COVERAGE always displayed beside it) answers *who to audit*.
+  F-Score (AUTO findings) answers *what to demand and on what evidence*.
+  Different questions, different evidentiary weight. Side by side, always.
 
 STACK
-  Backend  Python 3.11 · FastAPI · SQLAlchemy 2 · Pydantic v2 · PostgreSQL 16 ·
-           Alembic · Redis · MinIO
-  Frontend React 18 · TypeScript strict · Vite · Tailwind · shadcn/ui ·
-           TanStack Query + Table + Virtual · Recharts · Zustand
-  Money    Decimal server-side, strings on the wire, a Money value object client-side.
-           A float literal under app/engine or app/ingestion fails the build -
-           write that lint rule in Phase 0.
-  Tests    pytest. Every parameter and every rule ships four golden tests: positive,
-           negative, boundary at the exact threshold, not-evaluated. ≥90% on engine.
+  Python 3.11 · FastAPI · SQLAlchemy 2 · Pydantic v2 · PostgreSQL 16 · Alembic · Redis · MinIO
+  React 18 · TS strict · Vite · Tailwind · shadcn/ui · TanStack Query/Table/Virtual ·
+  Recharts · Zustand
+  Decimal server-side, strings on the wire. A float literal under app/engine,
+  app/matching or app/ingestion fails the build — write that lint rule in Phase 0.
+  Every check ships four golden tests: positive, negative, boundary AT the exact
+  threshold, not-evaluated.
 
 WORKING AGREEMENT
-- One phase at a time from docs/04_BUILD_PHASES.md. At each gate: run the full check
-  suite, print that phase's acceptance tests, stop for review.
-- On ambiguity: pick the interpretation most defensible in a quasi-judicial
-  proceeding, implement it, log it in docs/DECISIONS.md with reasoning. Do not stop
-  to ask unless the choice changes a statutory outcome.
+- One phase at a time. At each gate: full check suite, print that phase's acceptance
+  tests, stop for review.
+- On ambiguity: pick the reading most defensible in a quasi-judicial proceeding,
+  implement it, log it in docs/DECISIONS.md. Do not stop to ask unless the choice
+  changes a statutory outcome.
 - Never invent a threshold, rate, due date or form number. Not in docs/01 ⇒
-  TODO(statute) in code, surfaced in the admin screen as unconfigured, logged in
-  docs/DECISIONS.md. A wrong threshold applied silently is worse than a missing feature.
-- Coming-soon modules are real routed screens with a status chip, a described
-  capability, a stated data dependency and a roadmap reference. Their APIs return
-  501. No fabricated data anywhere, ever.
+  TODO(statute), surfaced in admin as unconfigured, logged in DECISIONS.md.
+- Build order inside Phase 3 is X family first. It found more money on the real file
+  than every other check combined.
 
 Start with Phase 0. Print the repo tree, the pinned versions and your plan, then build.
 ```
 
 ---
 
-## What changed from a longer draft of this pack
+## The shape of the thing
 
-Four documents instead of nine. Detection rules cut from 95 to the 57 that carry
-real weight, because **P01–P34 now covers the audit-selection surface** those extra
-rules were duplicating. The UI spec is rewritten around two personas rather than one.
-
-## The two scores - keep them apart
-
-| | **P-Score** (Audit Risk) | **F-Score** (Scrutiny Findings) |
-|---|---|---|
-| Source | P01–P34 flags, 0–4 each | Quantified rule findings |
-| Question it answers | *Who should we audit?* | *What can we demand, and on what evidence?* |
-| Output | A ranked selection list | A head-wise figure with a statutory form |
-| Audience | Decision makers | Officers |
-
-**Never blend them into one number.** They answer different questions, they carry
-different evidentiary weight, and a Commissioner who is shown a single fused score
-loses the ability to ask the only two questions that matter. Display both, side by
-side, always.
+```
+34 audit parameters  ──┐
+141 A–L checks       ──┼──► one engine ──► per-filing scorecard ──► case ──► notice
+12 X-family rules    ──┘         ▲
+                                 │
+      21 named joins ────────────┤
+      10 invariants  ────────────┘
+```
 
 ## The test that decides adoption
 
-An officer points at a figure - any figure, including a bar on the Commissioner's
-dashboard - and asks *"where did that come from?"* The answer must be three clicks
-and ninety seconds: chart → taxpayer → finding → provenance drawer → the row in the
+An officer points at any figure — a bar on the Commissioner's dashboard included — and
+asks *"where did that come from?"* The answer is ninety seconds: chart → taxpayer →
+scorecard cell → check card → provenance drawer → the matched pair → the row in the
 uploaded spreadsheet.
 
-Build that path in Phase 3, before the first chart is styled. Everything else in
-this pack is downstream of it.
+Build that path in Phase 2, before the first chart is styled. Everything else is
+downstream of it.

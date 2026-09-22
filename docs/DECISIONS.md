@@ -1321,3 +1321,90 @@ harms the taxpayer.
 The exemption is deliberately narrow. An ordinary inward line with no supplier
 is a real defect - there is no way to tell whose compliance the credit rests
 on - and a test pins that it is still held.
+
+---
+
+## D-0065 — The v3 build pack is installed, and the v2 pack is archived not deleted
+
+**Evaluation.** The v3 pack renumbers: its `01` is the RULEBOOK where v2's `01`
+was DOMAIN_AND_RISK, its `03` is the PLATFORM_SPEC where v2's `03` was the UI
+spec. Installing it over the top would have left a docs directory where half
+the cross-references pointed at the wrong document.
+
+**Decision.** v2's numbered files move to `docs/v2/`; v3 installs at `docs/`.
+`DECISIONS.md` and `VERIFICATION.md` stay where they are - they are this
+repository's own running record, not part of either pack.
+
+**Reasoning.** The v2 pack is the provenance of everything built so far. Sixty
+four decisions in this file cite it by section number, and deleting it would
+turn every one of those citations into a dead reference.
+
+---
+
+## D-0066 — The product keeps the name it was given, not the pack's
+
+**Evaluation.** The v3 pack's `CLAUDE.md` is titled GST DRISHTI. The platform
+was renamed to GST Intelligence one session earlier, on instruction.
+
+**Decision.** The pack's constitution is installed with its content intact and
+its name replaced.
+
+**Reasoning.** A spec's cover page is not its content. Undoing an explicit
+instruction because a later document happened to use the earlier name would be
+following the wrong authority.
+
+---
+
+## D-0067 — GSTIN position 14 accepts Z, D and C
+
+**Evaluation.** The validator required the literal `Z`. `Z` is the ordinary
+taxpayer; `D` is a s.51 deductor and `C` is a s.52 collector, so the validator
+rejected every government department in India. `docs/07` Part C3 records it
+flagging two BSF units on the real workbook.
+
+**Decision.** `GSTIN_RE` accepts `[ZDC]` at position 14, and
+`REGISTRATION_CLASS` names what each one is. The refusal message now names all
+three rather than asserting that the character must be `Z`.
+
+**Reasoning, and what it recovered.** This is a Phase 0 gate in `docs/05` and
+it was failing. On the real data it releases 12 held rows carrying four
+deductor registrations - including **`09AAATI7021F1D5`, IWAI's own**, which is
+the third-party corroboration `docs/07` Finding 1 rests on: GSTR-7 shows TDS
+deducted on payments of Rs 3,66,75,640 in December and again in March, which
+is how the engine knows the supply was performed and paid for and only its
+characterisation changed. Rejecting the GSTIN discarded the evidence.
+
+The widening is exactly three characters. A test asserts every other letter is
+still refused, because "accept anything at position 14" would lose the
+checksum's whole purpose.
+
+---
+
+## D-0068 — The date transposition is detected, and ambiguity is refused
+
+**Evaluation.** A producing tool wrote `dd-mm-yyyy` into a sheet an `mm-dd`
+locale opened. Excel parsed the cells it could - day 12 or less - and silently
+swapped day and month; it left the rest as strings. The column looks fine.
+
+**Decision.** `app/ingestion/transposition.py`, pure, returning `CERTAIN`,
+`ABSENT` or `AMBIGUOUS`. `CERTAIN` only when every string cell has day > 12
+**and** every datetime cell has day <= 12, in both directions.
+
+**Reasoning.** One datetime with day > 12 proves Excel did not swap that cell;
+one string with day <= 12 proves Excel could have parsed it and did not.
+Either breaks the explanation, and a broken explanation may not be acted on -
+so the column is quarantined for a human instead. A wrong correction here is
+worse than a refusal because it is silent.
+
+**Verified against the fixture.** On SSR Marine's IRN Date column: 1,408
+strings with days 13-31, 635 datetimes with days 1-12, verdict `CERTAIN`.
+Reading it naively produces 314 negative IRN lags - an acknowledgement before
+its own invoice - and 250 breaches of the Rule 48(4) thirty-day window.
+Corrected: **0 and 0**. `docs/07` Part C1 states 314 to 0 and 250 to 0. It
+reproduces to the row.
+
+**Not yet load-bearing, and the order matters.** No synonym maps the IRN
+*date*, so the column is dropped at mapping and the platform cannot currently
+produce those 250 notices - nor run `G-03`/`G-04`, which need it. The detector
+must be wired before `irn_date` is mapped, or the 250 arrive with the mapping.
+Recorded in `docs/GAP_V3.md` rather than left to be rediscovered.

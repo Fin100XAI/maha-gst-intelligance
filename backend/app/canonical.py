@@ -321,18 +321,33 @@ def is_intrastate(supplier_state: str, place_of_supply: str) -> bool:
 # GSTIN
 # ---------------------------------------------------------------------------
 
-#: SS PPPPPPPPPP E Z C -- State code, PAN, entity code, literal Z, checksum.
+#: What position 14 may be, and what each one means.
+#:
+#: It is NOT always ``Z``. ``Z`` is the ordinary taxpayer; ``D`` is a section
+#: 51 deductor and ``C`` is a section 52 collector. A validator hard-coded to
+#: ``Z`` rejects every government department in India -- on the real SSR Marine
+#: workbook it flagged two BSF units as structurally invalid, and those two are
+#: not suppliers at all: they deducted TDS on Rs 8.00 crore of payments TO the
+#: taxpayer, which is the third-party corroboration of declared turnover that
+#: G-14 and X-10 are built on. docs/07 Part C3.
+REGISTRATION_CLASS: Final[dict[str, str]] = {
+    "Z": "ordinary taxpayer",
+    "D": "s.51 deductor",
+    "C": "s.52 collector",
+}
+
+#: SS PPPPPPPPPP E [ZDC] C -- State code, PAN, entity code, class, checksum.
 GSTIN_RE: Final[re.Pattern[str]] = re.compile(
     r"^(?P<state>[0-9]{2})"
     r"(?P<pan>[A-Z]{5}[0-9]{4}[A-Z])"
     r"(?P<entity>[1-9A-Z])"
-    r"(?P<z>Z)"
+    r"(?P<klass>[ZDC])"
     r"(?P<check>[0-9A-Z])$"
 )
 
 _CHECKSUM_ALPHABET: Final[str] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-#: A GSTIN is SS + PAN(10) + entity + Z + checksum.
+#: A GSTIN is SS + PAN(10) + entity + [ZDC] + checksum.
 GSTIN_LENGTH: Final[int] = 15
 #: The checksum is computed over everything before it.
 GSTIN_BODY_LENGTH: Final[int] = GSTIN_LENGTH - 1
@@ -382,9 +397,14 @@ def validate_gstin(candidate: str, *, normalise: bool = True) -> str:
 
     match = GSTIN_RE.match(value)
     if match is None:
-        if value[13] != "Z":
-            raise GstinError(candidate, "14th character is not the literal 'Z'")
-        raise GstinError(candidate, "does not match the SS-PAN-E-Z-C structure")
+        if value[13] not in REGISTRATION_CLASS:
+            raise GstinError(
+                candidate,
+                f"14th character is {value[13]!r}; expected "
+                f"'Z' (ordinary taxpayer), 'D' (s.51 deductor) or "
+                f"'C' (s.52 collector)",
+            )
+        raise GstinError(candidate, "does not match the SS-PAN-E-[ZDC]-C structure")
 
     state = match.group("state")
     if state not in STATE_CODES:
