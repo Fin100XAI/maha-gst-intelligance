@@ -1798,3 +1798,86 @@ entirely reasonable.
 
 Both fixed: the loader carries the column, and the test is factored into
 `_amends_something`, which checks both spellings and says why.
+
+---
+
+## D-0082 — Correcting D-0075, and finishing the fix it started
+
+**What D-0075 got right.** GSTR-2A rows were stored with `source_form` set to
+`GSTR2B`, because the field was defaulted rather than read from the sheet
+name. 13,501 rows across the portfolio carried the wrong label. That was real
+and it is fixed.
+
+**What D-0075 got wrong.** It said the conflation meant *"P14 and B-01 - ITC
+claimed in excess of 2B - could not fire on any taxpayer"*, and gave
+Rs 28,83,70,368.88 as the credit the engine believed was available. Measured
+against the ingested data, that is not what happened:
+
+    bucket ignoring the statement label   Rs 12,92,86,091.72
+    bucket honouring it                   Rs 12,92,86,091.72
+
+The two are identical, and ITC-01 fires on eight of twelve periods on the
+reference taxpayer. The Rs 28.84 crore was the raw sum of every inward row
+in both statements; it was never what the Rule 88D comparison used.
+
+**Why not.** `counts_toward_2b_available` requires `itc_available is True`,
+and that column is `ITC Availability`, which only GSTR-2B carries. A 2A
+export has `GSTR-3B Filing Status` in its place. So all 4,772 2A rows arrived
+with `itc_available` unset and were already failing the bucket test.
+
+**Accident is not a control, so the fix stands and is now complete.** The
+exclusion was a side effect of one vendor's column layout. A 2A export from a
+tool that did emit an availability column would have doubled the credit the
+comparison is made against, and nothing on screen would have said so.
+`counts_toward_2b_available` now requires `source_form == "GSTR2B"` - one
+line, at the single definition site every affected check reads.
+
+**And `present_datasets` now reports by statement.** It added `gstr2b`
+whenever any inward row existed, so a 2A-only upload satisfied
+`requires=("gstr2b",)` and ITC-01 would have compared a 3B claim against a
+bucket of zero and reported the whole of it as excess. It now reports `gstr2b`
+and `gstr2a` separately, so such a file abstains - and `B-04`, which declares
+`requires=("gstr2a",)`, can finally have that requirement met.
+
+The correction is recorded rather than edited into D-0075 because the log is
+append-only, and a reader following the reasoning is entitled to see that the
+first diagnosis overstated its own consequence.
+
+---
+
+## D-0083 — Coverage is computed, not asserted
+
+**Evaluation.** `Coverage` and its four states existed in the scorecard and
+nothing produced them. A check that could not run and a check that ran and
+found nothing both render as silence, and Law 5 turns on telling them apart.
+
+**Decision.** `app/engine/coverage.py`, pure, one state per GSTR-1 section and
+one per whole dataset, computed from the taxpayer's own data and handed to
+`build_scorecard` by the runner. Twelve cards per taxpayer per year, built on
+every run.
+
+**`NIL_BY_IDENTITY` is the only one that is an inference**, and it is
+narrow. 3B table 3.1 is auto-populated from GSTR-1, so if the sections present
+sum head-wise and exactly to the 3.1 outward liability, nothing else was
+filed: B2C, exports and advances are nil rather than unknown, and every check
+over them is computable. Measured on the reference taxpayer, eight of twelve
+months reconcile that way and four do not.
+
+Four things it refuses to do, each with a test:
+
+* **No tolerance.** A rupee out and nothing is nil. A tolerance here would be
+  a threshold nobody voted for, applied to closing files.
+* **Head-wise.** An IGST line declared as CGST plus SGST sums to the same
+  scalar and is a different tax to a different government. `TaxVector`
+  equality already refuses it; Law 3 requires that it does.
+* **An empty return cannot prove itself nil.** Zero equals zero and proves
+  nothing, and a file with no outward rows is exactly the file whose GSTR-1
+  may never have been uploaded.
+* **Only GSTR-1.** The same arithmetic on the inward side is not an identity,
+  it is check B-01. Reading a match there as proof that the unseen sections
+  are nil would use the answer to a question to decide whether the question
+  may be asked.
+
+`PRESENT_EMPTY` is reserved for a dataset held for the year but not for this
+period. That distinction is not pedantry: `ABSENT` is a question for whoever
+did the upload and `PRESENT_EMPTY` is a question for the taxpayer.

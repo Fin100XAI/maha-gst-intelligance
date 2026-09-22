@@ -34,9 +34,11 @@ from app.engine import (  # noqa: F401  - registration side effect, confined her
     rules_x,
 )
 from app.engine.context import RuleContext
+from app.engine.coverage import coverage_for
 from app.engine.identities import IdentityResult, identity_matrix
 from app.engine.params_p01_p34 import ParamResult, evaluate_parameters
 from app.engine.registry import Finding, clear, rules_in_order
+from app.engine.scorecard import AnnualRollup, FilingScorecard, annual_rollup, build_scorecard
 from app.engine.scoring import FScore, PScore, compute_f_score, compute_p_score
 from app.engine.trace import CalcTrace
 
@@ -55,6 +57,11 @@ class TaxpayerOutcome:
     p_score: PScore
     f_score: FScore
     rule_errors: tuple[dict[str, str], ...] = ()
+    #: One card per period, carrying the coverage states computed from the
+    #: data rather than assumed. A file with three findings and eighteen dark
+    #: checks is not a clean file, and this is the only object that says so.
+    scorecards: tuple[FilingScorecard, ...] = ()
+    annual: AnnualRollup | None = None
 
     @property
     def traces(self) -> list[CalcTrace]:
@@ -180,6 +187,25 @@ def run_for_taxpayer(
     f_score = compute_f_score(ctx, suppressed)
     identities = identity_matrix(ctx) if with_identities else {}
 
+    # Coverage is computed here, from the data, not asserted by a rule. It is
+    # what separates "checked and found nothing" from "could not check", and
+    # both render as silence until something states which one it is.
+    cards = [
+        build_scorecard(
+            ctx.gstin,
+            period,
+            list(suppressed),
+            coverage=coverage_for(ctx.data, period),
+        )
+        for period in ctx.periods
+    ]
+    annual = annual_rollup(
+        ctx.gstin,
+        ctx.fy.label,
+        cards,
+        [f for f in suppressed if f.period is None],
+    )
+
     return TaxpayerOutcome(
         gstin=ctx.gstin,
         fy=ctx.fy.label,
@@ -189,4 +215,6 @@ def run_for_taxpayer(
         p_score=p_score,
         f_score=f_score,
         rule_errors=tuple(errors),
+        scorecards=tuple(cards),
+        annual=annual,
     )

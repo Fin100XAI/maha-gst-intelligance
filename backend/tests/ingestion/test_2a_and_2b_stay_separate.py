@@ -28,8 +28,13 @@ screen is wrong, there is simply nothing on screen.
 
 from __future__ import annotations
 
+from datetime import date
+from decimal import Decimal
+
 import pytest
 
+from app.canonical import Period
+from app.engine.records import InwardRecord, TaxpayerData, TaxpayerProfile
 from app.ingestion.pipeline import ingest_sheets
 from app.ingestion.reader import RawSheet
 
@@ -142,3 +147,72 @@ class TestTheFamilyDecisionIsUnchanged:
     def test_the_filer_is_still_the_company_in_the_banner(self) -> None:
         report = ingest_sheets([_sheet("GSTR2A_B2B", HEADER_2A, "Y")], filename="all_report.xlsx")
         assert {record.fields.get("gstin") for record in report.records} == {GSTIN}
+
+
+class TestTheRulesReadTheLabelToo:
+    """Recording which statement a row came from only helps if something asks.
+
+    The first fix to this defect stopped at the ingestion layer: the source
+    form was recorded correctly and then nothing downstream read it. That half
+    was invisible on the reference workbook for a reason worth writing down -
+    a GSTR-2A export carries a `GSTR-3B Filing Status` column where 2B carries
+    `ITC Availability`, so every 2A row arrives with `itc_available` unset and
+    was already failing the bucket test by accident.
+
+    Accident is not a control. A 2A export from a tool that did emit an
+    availability column would have doubled the credit the Rule 88D comparison
+    is made against, and nothing would have said so.
+    """
+
+    @staticmethod
+    def _row(source_form: str, *, available: bool | None) -> InwardRecord:
+        return InwardRecord(
+            gstin=GSTIN,
+            period=Period.parse("102025"),
+            section="B2B",
+            doc_type="INVOICE",
+            doc_no="AZ/25-26/05",
+            doc_date=date(2025, 10, 4),
+            supplier_gstin="24ABVFA2224Q1Z0",
+            pos="27",
+            rate=Decimal("18"),
+            taxable_value=Decimal("2760000.00"),
+            igst=Decimal("496800.00"),
+            cgst=Decimal("0.00"),
+            sgst=Decimal("0.00"),
+            cess=Decimal("0.00"),
+            itc_available=available,
+            source_form=source_form,
+        )
+
+    @pytest.mark.golden
+    def test_a_2a_line_is_not_credit_available_under_2b(self) -> None:
+        """2B is the statutory gate under s.16(2)(aa). A 2A line is evidence
+        about the supplier, never entitlement - even when it says available."""
+        assert self._row("GSTR2A", available=True).counts_toward_2b_available is False
+        assert self._row("GSTR2B", available=True).counts_toward_2b_available is True
+
+    def test_a_2a_only_file_cannot_answer_an_entitlement_question(self) -> None:
+        """It must abstain, not compare a 3B claim against nothing and report
+        the whole of it as excess. `requires=("gstr2b",)` has to mean the
+        statement, not the family."""
+        data = TaxpayerData(
+            profile=TaxpayerProfile(
+                gstin=GSTIN, pan=GSTIN[2:12], legal_name="SSR Marine", state_code="27"
+            ),
+            inward=(self._row("GSTR2A", available=None),),
+        )
+        present = data.present_datasets()
+        assert "gstr2a" in present
+        assert "gstr2b" not in present
+
+    def test_a_2b_file_answers_it_and_says_2a_is_missing(self) -> None:
+        data = TaxpayerData(
+            profile=TaxpayerProfile(
+                gstin=GSTIN, pan=GSTIN[2:12], legal_name="SSR Marine", state_code="27"
+            ),
+            inward=(self._row("GSTR2B", available=True),),
+        )
+        present = data.present_datasets()
+        assert "gstr2b" in present
+        assert "gstr2a" not in present

@@ -132,13 +132,23 @@ class InwardRecord:
     def counts_toward_2b_available(self) -> bool:
         """The GSTR-2B 'all other ITC' bucket, as Rule 88D compares it.
 
+        **From GSTR-2B and only GSTR-2B.** 2B is the statutory gate under
+        s.16(2)(aa); 2A is the record of supplier behaviour that Rule 37A
+        reads. They share a family here because they share their columns
+        (D-0057) and the ingestion layer records which is which (D-0075) - but
+        until this line, nothing downstream read the label, so a file carrying
+        both counted every credit twice. On the reference taxpayer that turned
+        Rs 14.72 crore of available credit into Rs 28.84 crore, and "ITC
+        claimed in excess of 2B" could not fire.
+
         Only B2B lines marked available, and only where the recipient accepted
         the record or left it to be deemed accepted.  IMPG, IMPS, ISD and RCM
         credit sit in 4(A)(1)-(4) and are NOT part of this bucket -- comparing
         gross 4(A) against 2B is the mistake that collapses on reply.
         """
         return (
-            self.itc_available is True
+            self.source_form == "GSTR2B"
+            and self.itc_available is True
             and self.section in {"B2B", "CDNR"}
             and (self.ims_action is None or self.ims_action in {"ACCEPTED", "NO_ACTION"})
         )
@@ -380,8 +390,14 @@ class TaxpayerData:
         present: set[str] = set()
         if self.outward:
             present.add("gstr1")
-        if self.inward:
+        # By statement, not by family. A file carrying only GSTR-2A can answer
+        # Rule 37A and cannot answer entitlement, and a check that declares it
+        # requires 2B must abstain on it rather than compare a 3B claim against
+        # nothing and call the whole of it excess.
+        if any(row.source_form == "GSTR2B" for row in self.inward):
             present.add("gstr2b")
+        if any(row.source_form == "GSTR2A" for row in self.inward):
+            present.add("gstr2a")
         if self.returns_3b:
             present.add("gstr3b")
         if self.ledgers:

@@ -44,7 +44,7 @@ Updated 2026-09-22 after the second build session.
 |---|---|---|---|
 | 1 | `I-01`–`I-10` post-coercion invariants | 1 | **Built** — `app/ingestion/invariants.py`, 26 tests |
 | 2 | Transposition detector wired into the pipeline | 1 | **Done.** Runs over whole date columns before coercion. 1,832 cells corrected on the reference workbook across six sheets; negative lags 314 -> 0, own-document Rule 48(4) breaches 250 -> 0. `irn_date` now mapped (migration 0007), so `G-03`/`G-04` are computable |
-| 3 | `NIL_BY_IDENTITY` coverage state | 1 | **Modelled** in `scorecard.Coverage`; the pipeline does not yet compute it |
+| 3 | `NIL_BY_IDENTITY` coverage state | 1 | **Done.** `app/engine/coverage.py`, computed per GSTR-1 section and per dataset, wired into the runner so every taxpayer gets twelve scorecards. On the reference taxpayer eight of twelve months reconcile to 3B table 3.1 exactly and four do not. D-0083 |
 | 4 | `app/matching/` — L1–L5 ladder | 2 | **Built** — `keys.py`, 22 tests |
 | 5 | The 21 named joins | 2 | **Declared** with their `feeds` in `joins.py`; `run_join` works; the per-join data adapters are not written |
 | 6 | `X-01`–`X-12` self-contradiction | 3 | **X-01, X-02, X-06, X-11 built.** X-01 reproduces `docs/07` Finding 1 to the paisa. X-03/04/05/07/08/09/10/12 not written |
@@ -52,7 +52,7 @@ Updated 2026-09-22 after the second build session.
 | 7 | Tier model AUTO/ASSISTED/MANUAL/CASE | 3 | **Built** — `app/engine/tiers.py` with `DocumentCall` and `ChecklistItem` |
 | 8 | Exemption engine | 3 | **Built** — `app/engine/exemptions.py`, Rule 86B clause (d) testable |
 | 9 | Multi-period netting | 3 | **Built** — `app/engine/netting.py`, 10 tests |
-| 10 | Per-filing scorecard + annual roll-up | 4 | **Built** — `app/engine/scorecard.py`, 15 tests |
+| 10 | Per-filing scorecard + annual roll-up | 4 | **Built and wired** — `app/engine/scorecard.py`; the runner now returns `scorecards` and `annual` on every `TaxpayerOutcome` |
 | 11 | Module K case engine | 4 | **Already present** — `app/cases/limitation.py` implements s.73/74 to FY 2023-24 and s.74A from FY 2024-25 with the 42-month rule. Verified |
 | 12 | The 141-check A–L matrix | 3–4 | **Not started.** 57 rules exist in the v2 ID space. This is the open migration below |
 | 13 | Applicability grid → `NOT_APPLICABLE` | 4 | Modelled in the scorecard; the grid itself is not loaded |
