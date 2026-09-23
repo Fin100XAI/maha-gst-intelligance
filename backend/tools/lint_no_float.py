@@ -40,6 +40,9 @@ GUARDED: Final[tuple[str, ...]] = (
     # differently on a different machine. CLAUDE.md names this tree
     # explicitly; the lint was written before the tree existed.
     "app/matching",
+    # A report is what an officer shows a taxpayer. Every figure on one is
+    # a statutory figure whether or not a rule concluded it.
+    "app/reports",
     "app/aggregation",
     "app/cases",
     "app/notices",

@@ -34,3 +34,8 @@ _autogen.db
 .claude/
 .DS_Store
 backend/uploads/
+
+# Generated reports carry real taxpayer figures - names, GSTINs, turnover,
+# supplier lists. They are an output to hand to an officer, never something
+# to commit.
+reports_out/

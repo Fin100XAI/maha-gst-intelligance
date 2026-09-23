@@ -25,6 +25,7 @@ from app.api.v1.ingestion import router as ingestion_router
 from app.api.v1.insights import router as insights_router
 from app.api.v1.library import router as library_router
 from app.api.v1.parameters import router as parameters_router
+from app.api.v1.reports import router as reports_router
 from app.api.v1.workbench import router as workbench_router
 from app.api.v1.worklist import router as worklist_router
 from app.canonical import UNCONFIGURED
@@ -195,6 +196,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(alignment_router, prefix=active.api_prefix)
     app.include_router(coverage_router, prefix=active.api_prefix)
     app.include_router(insights_router, prefix=active.api_prefix)
+    app.include_router(reports_router, prefix=active.api_prefix)
     app.include_router(filings_router, prefix=active.api_prefix)
     app.include_router(parameters_router, prefix=active.api_prefix)
     app.include_router(ingestion_router, prefix=active.api_prefix)
