@@ -85,3 +85,57 @@ export function toCsv(report: Report): string {
   )
   return [header, ...lines].join('\n')
 }
+
+/* ------------------------------------------------------------------ *
+ * The scorecard: a taxpayer's whole year, one cell per check.
+ * ------------------------------------------------------------------ */
+
+export interface ScorecardCell {
+  readonly check_id: string
+  readonly tier: string
+  /** PASS · FAIL · NEEDS_DOCUMENT · NOT_EVALUATED · NOT_APPLICABLE · SUPPRESSED */
+  readonly status: string
+  readonly severity: string | null
+  readonly delta: Readonly<Record<string, string>>
+  readonly reason: string | null
+  readonly calc_id: string | null
+}
+
+export interface ScorecardMonth {
+  readonly period: string
+  readonly coverage: Readonly<Record<string, string>>
+  readonly counts: Readonly<Record<string, number>>
+  readonly cells: readonly ScorecardCell[]
+  readonly quarantined_rows: number
+  readonly open_documents: number
+}
+
+export interface ScorecardFinding {
+  readonly rule_id: string
+  readonly title: string
+  readonly status: string
+  readonly confidence: string
+  readonly legal_basis: string
+  readonly delta: Readonly<Record<string, string>>
+  /** Head-wise total, as a string. Never a JavaScript number. */
+  readonly delta_total: string
+  readonly narrative: string | null
+  readonly missing_inputs: readonly string[]
+  readonly calc_id: string | null
+}
+
+export interface Scorecard {
+  readonly gstin: string
+  readonly fy: string
+  readonly legal_name: string | null
+  readonly p_score: {
+    readonly p_score: string
+    readonly p_coverage: string
+    readonly coverage_sentence: string
+    readonly p_band: string
+  }
+  readonly f_score: { readonly f_score: string; readonly f_band: string }
+  readonly months: readonly ScorecardMonth[]
+  readonly findings: readonly ScorecardFinding[]
+  readonly document_calls: readonly { readonly check_id: string; readonly document: string }[]
+}

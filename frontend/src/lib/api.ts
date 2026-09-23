@@ -1109,10 +1109,15 @@ export interface InsightRows {
   items: InsightRow[]
 }
 
-import type { Report as ReportPayload, ReportListing } from './reports'
+import type { Report as ReportPayload, ReportListing, Scorecard } from './reports'
 
 export const api = {
   health: () => request<{ status: string; params_version: string }>('/health'),
+  /** A taxpayer's whole year: twelve cards, the findings, and the dark checks. */
+  scorecard: (gstin: string, snapshotId: string) =>
+    request<Scorecard>(
+      `/scorecard/${gstin}?${new URLSearchParams({ snapshot_id: snapshotId }).toString()}`,
+    ),
   /** Every report, buildable or not - the absent ones say what they need. */
   reports: () => request<{ reports: ReportListing[] }>('/reports'),
   report: (id: string, gstin: string, snapshotId: string) =>

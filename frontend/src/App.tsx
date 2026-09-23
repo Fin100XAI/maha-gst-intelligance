@@ -3,6 +3,9 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { ScrutinyShell } from './components/ScrutinyShell'
 import ReportScreen from './pages/scrutiny/Report'
+import TaxpayerScreen from './pages/scrutiny/Taxpayer'
+import SetupData from './pages/setup/Data'
+import SetupReference from './pages/setup/Reference'
 import Drill from './pages/Drill'
 import Overview from './pages/dashboard/Overview'
 import ParameterExplorer from './pages/dashboard/ParameterExplorer'
@@ -91,7 +94,14 @@ export default function App(): JSX.Element {
             teaches nothing. */}
         <Route index element={<FirstReport />} />
         <Route path="report" element={<FirstReport />} />
+        <Route path="taxpayer" element={<TaxpayerScreen />} />
         <Route path="report/:reportId" element={<ReportScreen />} />
+      </Route>
+
+      <Route path="/setup" element={<ScrutinyShell />}>
+        <Route index element={<Navigate to="data" replace />} />
+        <Route path="data" element={<SetupData />} />
+        <Route path="reference" element={<SetupReference />} />
       </Route>
 
       <Route path="/" element={<AppShell />}>

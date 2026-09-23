@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
-import clsx from 'clsx'
-import { Lock } from 'lucide-react'
-import type { JSX } from 'react'
-import { NavLink, Outlet, useSearchParams } from 'react-router-dom'
-import { api } from '../lib/api'
-import type { ReportListing } from '../lib/reports'
-import { Masthead } from './layout/Masthead'
+import { useQuery } from "@tanstack/react-query";
+import clsx from "clsx";
+import { Lock } from "lucide-react";
+import type { JSX } from "react";
+import { NavLink, Outlet, useSearchParams } from "react-router-dom";
+import { api } from "../lib/api";
+import type { ReportListing } from "../lib/reports";
+import { Masthead } from "./layout/Masthead";
 
 /**
  * One rail, and the categories live in it.
@@ -27,11 +27,21 @@ import { Masthead } from './layout/Masthead'
  */
 
 const SETUP = [
-  { to: '/setup/data', label: 'Data', hint: 'What was read, and what was held' },
-  { to: '/setup/reference', label: 'Reference', hint: 'Thresholds and checks' },
-] as const
+  {
+    to: "/setup/data",
+    label: "Data",
+    hint: "What was read, and what was held",
+  },
+  { to: "/setup/reference", label: "Reference", hint: "Thresholds and checks" },
+] as const;
 
-function Rail({ children, title }: { title: string; children: JSX.Element }): JSX.Element {
+function Rail({
+  children,
+  title,
+}: {
+  title: string;
+  children: JSX.Element;
+}): JSX.Element {
   return (
     <div className="mb-6">
       <h2 className="mb-2 px-3 text-[0.6875rem] font-semibold uppercase tracking-[0.08em] text-ink-muted">
@@ -39,7 +49,7 @@ function Rail({ children, title }: { title: string; children: JSX.Element }): JS
       </h2>
       {children}
     </div>
-  )
+  );
 }
 
 function Item({
@@ -47,9 +57,9 @@ function Item({
   label,
   hint,
 }: {
-  to: string
-  label: string
-  hint?: string
+  to: string;
+  label: string;
+  hint?: string;
 }): JSX.Element {
   return (
     <li>
@@ -57,35 +67,40 @@ function Item({
         to={to}
         className={({ isActive }) =>
           clsx(
-            'block rounded-md px-3 py-2 text-sm leading-tight transition',
+            "block rounded-md px-3 py-2 text-sm leading-tight transition",
             isActive
-              ? 'bg-raised font-semibold text-ink shadow-[inset_2px_0_0_0_var(--navy)]'
-              : 'text-ink-secondary hover:bg-raised/60 hover:text-ink',
+              ? "bg-raised font-semibold text-ink shadow-[inset_2px_0_0_0_var(--navy)]"
+              : "text-ink-secondary hover:bg-raised/60 hover:text-ink",
           )
         }
       >
         {label}
-        {hint !== undefined && <span className="mt-0.5 block text-xs text-ink-muted">{hint}</span>}
+        {hint !== undefined && (
+          <span className="mt-0.5 block text-xs text-ink-muted">{hint}</span>
+        )}
       </NavLink>
     </li>
-  )
+  );
 }
 
 export function ScrutinyShell(): JSX.Element {
-  const [params] = useSearchParams()
-  const query = params.toString()
-  const suffix = query === '' ? '' : `?${query}`
-  const { data } = useQuery({ queryKey: ['reports'], queryFn: () => api.reports() })
+  const [params] = useSearchParams();
+  const query = params.toString();
+  const suffix = query === "" ? "" : `?${query}`;
+  const { data } = useQuery({
+    queryKey: ["reports"],
+    queryFn: () => api.reports(),
+  });
 
-  const groups = new Map<string, ReportListing[]>()
-  const locked: ReportListing[] = []
+  const groups = new Map<string, ReportListing[]>();
+  const locked: ReportListing[] = [];
   for (const report of data?.reports ?? []) {
     if (report.available) {
-      const bucket = groups.get(report.group) ?? []
-      bucket.push(report)
-      groups.set(report.group, bucket)
+      const bucket = groups.get(report.group) ?? [];
+      bucket.push(report);
+      groups.set(report.group, bucket);
     } else {
-      locked.push(report)
+      locked.push(report);
     }
   }
 
@@ -97,8 +112,23 @@ export function ScrutinyShell(): JSX.Element {
           <Rail title="Setup & reference">
             <ul className="space-y-0.5">
               {SETUP.map((item) => (
-                <Item key={item.to} to={item.to} label={item.label} hint={item.hint} />
+                <Item
+                  key={item.to}
+                  to={item.to}
+                  label={item.label}
+                  hint={item.hint}
+                />
               ))}
+            </ul>
+          </Rail>
+
+          <Rail title="Scrutiny">
+            <ul className="space-y-0.5">
+              <Item
+                to={`/scrutiny/taxpayer${suffix}`}
+                label="Taxpayer"
+                hint="The year, check by check"
+              />
             </ul>
           </Rail>
 
@@ -123,7 +153,7 @@ export function ScrutinyShell(): JSX.Element {
                   <li
                     key={report.id}
                     className="flex items-start gap-2 px-3 py-2 text-sm leading-tight text-ink-muted"
-                    title={`Waiting on: ${report.needs ?? 'an external dataset'}`}
+                    title={`Waiting on: ${report.needs ?? "an external dataset"}`}
                   >
                     <Lock aria-hidden className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     <span>{report.title}</span>
@@ -139,5 +169,5 @@ export function ScrutinyShell(): JSX.Element {
         </main>
       </div>
     </div>
-  )
+  );
 }
