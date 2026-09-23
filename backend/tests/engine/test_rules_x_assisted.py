@@ -292,3 +292,45 @@ class TestTheRunnerEnforcesTheTier:
         assert RULES["X-03"].tier is Tier.ASSISTED
         assert RULES["X-04"].tier is Tier.ASSISTED
         assert RULES["X-05"].tier is Tier.AUTO
+
+
+class TestLawTwoAppliesToACallToo:
+    """`unquantified_exposure` is a number an officer may quote in a letter.
+
+    "Unquantified" means the platform will not turn it into a demand. It does
+    not mean nobody may ask where it came from - and a figure without a
+    `calc_id` is a bug by Law 2, whichever tier produced it.
+    """
+
+    @staticmethod
+    def _call() -> DocumentCall:
+        ctx = _ctx(
+            (
+                _line("10000000", "18", day=4, hsn="73089010", doc="A/1"),
+                _line("10000000", "5", day=20, hsn="73089010", doc="A/2"),
+            )
+        )
+        (call,) = RULES["X-03"].function(ctx)
+        assert isinstance(call, DocumentCall)
+        return call
+
+    @pytest.mark.golden
+    def test_the_figure_resolves_to_a_calc_id(self) -> None:
+        call = self._call()
+        assert call.calc_id is not None
+        assert call.as_dict()["calc_id"] == call.calc_id
+
+    def test_the_formula_is_recorded_as_executed(self) -> None:
+        call = self._call()
+        assert call.trace is not None
+        assert "high rate - low rate" in (call.trace.formula_template or "")
+        assert "1300000.00" in (call.trace.formula_rendered or "")
+
+    def test_the_source_rows_travel_with_it(self) -> None:
+        call = self._call()
+        assert call.evidence_ids
+        assert list(call.as_dict()["evidence_ids"]) == list(call.evidence_ids)
+
+    def test_the_calc_id_is_a_hash_of_the_inputs_not_the_clock(self) -> None:
+        """Replay depends on it: the same snapshot must produce the same id."""
+        assert self._call().calc_id == self._call().calc_id

@@ -1,4 +1,4 @@
-"""G1 -- no binary float may exist under ``app/engine/`` or ``app/ingestion/``.
+"""G1 -- no binary float may exist under the trees that compute a statutory figure.
 
 Law 1 says every rupee, ratio, day-count, flag and score is computed in
 ``Decimal``.  The cheapest way to keep that true is to make the alternative
@@ -12,7 +12,7 @@ argument for this platform is that its numbers are guaranteed.
 
 Usage::
 
-    python tools/lint_no_float.py [path ...]      # defaults to the two guarded trees
+    python tools/lint_no_float.py [path ...]      # defaults to every guarded tree
 
 Exits 0 when clean, 1 on any violation.
 """
@@ -34,6 +34,12 @@ from typing import Final
 GUARDED: Final[tuple[str, ...]] = (
     "app/engine",
     "app/ingestion",
+    # The match ladder decides which two rows are the same document, and a
+    # rounded value or an edit-distance ratio computed in binary float would
+    # make that decision non-reproducible - the same snapshot pairing
+    # differently on a different machine. CLAUDE.md names this tree
+    # explicitly; the lint was written before the tree existed.
+    "app/matching",
     "app/aggregation",
     "app/cases",
     "app/notices",

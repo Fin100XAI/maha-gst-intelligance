@@ -31,6 +31,7 @@ from enum import StrEnum
 from typing import Final
 
 from app.canonical import Period, Severity
+from app.engine.trace import CalcTrace
 from app.money import TaxVector
 
 __all__ = [
@@ -92,10 +93,21 @@ class DocumentCall:
     unquantified_exposure: Decimal = _ZERO
     severity: Severity = Severity.MEDIUM
     evidence_ids: tuple[str, ...] = ()
+    #: Law 2 applies here too. `unquantified_exposure` is a number an officer
+    #: reads off a call-book entry and may quote in a letter, so it carries
+    #: the same trace a Finding would - the formula as executed, the rows it
+    #: came from, and a `calc_id` that resolves to both. "Unquantified" means
+    #: the platform will not turn it into a demand, not that nobody may ask
+    #: where it came from.
+    trace: CalcTrace | None = None
 
     @property
     def tier(self) -> Tier:
         return Tier.ASSISTED
+
+    @property
+    def calc_id(self) -> str | None:
+        return None if self.trace is None else self.trace.calc_id
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -109,6 +121,8 @@ class DocumentCall:
             "partial": self.partial.dict(),
             "unquantified_exposure": format(self.unquantified_exposure, "f"),
             "severity": self.severity.value,
+            "calc_id": self.calc_id,
+            "evidence_ids": list(self.evidence_ids),
         }
 
 

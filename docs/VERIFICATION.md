@@ -278,3 +278,158 @@ Earlier in the same build: a P-Score of exactly zero was rendered as "no score
 recorded" because the API tested the Decimal for truthiness. The control
 taxpayer scores zero, so the one taxpayer the platform most needs to be able to
 show was the one it showed nothing for. Fixed, with a golden regression test.
+
+---
+
+# Verification record - 23 September 2026
+
+*The v3 build pack's phases 1 to 3, measured against the live SSR Marine
+workbook rather than against a fixture written to pass.*
+
+The record above stands; nothing in it is withdrawn. This section covers what
+has been built since, and keeps the same discipline: every figure below was
+produced by running the code, and where something was reasoned about but never
+executed, it says so.
+
+**The acceptance fixture is real data.** `docs/06` and `docs/07` dissect
+`27AAPCS8928R1Z1`, which is one of the nine filed workbooks in the database.
+So "reproduces the worked case" means the engine agrees with a document
+somebody wrote by hand from the same spreadsheet - not that a fixture agrees
+with itself.
+
+## The gate
+
+| Check | Ran? | Result | Notes |
+|---|---|---|---|
+| `ruff check .` | yes | **All checks passed** | 176 files |
+| `ruff format --check .` | yes | **176 files formatted** | |
+| `mypy app` (G4) | yes | **no issues in 97 source files** | |
+| `pytest` (backend) | yes | **1,078 passed, 0 failed**, exit 0 | offline, no credentials |
+| G1 `lint_no_float.py` | yes | **clean across 9 trees** | widened this phase from 8 to 9: `app/matching` |
+| `alembic upgrade head` | yes | 0001 → **0007** on a fresh SQLite file | still **not** applied to PostgreSQL |
+| Full workbook re-ingested | yes | `12,449 in = 11,777 parsed + 593 held + 79 duplicates`, reconciles | |
+| Engine over the real snapshot | yes | `rule_errors == []`, 12 scorecards | |
+
+The frontend gate was **not** re-run this phase: no frontend file was touched.
+
+## The reference run
+
+Held rows, by reason:
+
+| Reason | Rows |
+|---|---|
+| `SHEET_NOT_INGESTED` | 512 |
+| `TOTALS_ROW` | 60 |
+| `GSTIN_INVALID` | 9 |
+| `CROSS_FIELD_MISMATCH` | 8 |
+| `REQUIRED_FIELD_MISSING` | 4 |
+
+The 512 are GSTR-1 Table 12 and Table 13, the challan register and the three
+GSTR-7 sheets: recognised, with no canonical table yet. "We have not built this
+yet" and "we could not read your file" are different statements and only one of
+them is true here.
+
+## Reproduced from `docs/07`, to the paisa
+
+| Finding | `docs/07` says | The engine produces | Status |
+|---|---|---|---|
+| **Finding 1** - X-01 rate differential | Rs 1,90,71,333 | **Rs 1,90,71,332.80** on a base of Rs 14,67,02,560 | exact |
+| Finding 1, credit-note limb - X-02 | - | **Rs 66,01,615.20** | runs |
+| **Finding 2** - B-04 Rule 37A, B2B only | Rs 95,79,967 | **Rs 95,79,967.02** | exact |
+| Finding 2, defaulting suppliers | 29 | **29** | exact |
+| Finding 2, SSR Shipyard `27ABQCS3690E1ZW` | Rs 77,99,267 | **Rs 77,99,266.80** | exact |
+| **C1** - acknowledgements before their own invoice | 314 → 0 | **314 → 0** | exact |
+| **C1** - own documents outside the Rule 48(4) window | 250 → 0 | **250 → 0** | exact |
+
+B-04's headline is **Rs 98,47,287.78**. It differs from the document's table
+because the engine also reads the B2BA amendment (+Rs 2,68,664.76) and the
+credit note (−Rs 1,344.00, correctly signed). The B2B-only component is the
+document's figure exactly, and the fuller number is the more complete answer.
+
+**Three of `docs/07`'s six findings do not yet reproduce.** Part D's April/May
+carry-forward is the nearest miss: ITC-01 reports Rs 22,01,253.66 for May 2025,
+which is the document's over-claim limb, but the April under-claim is not
+emitted as a finding, so `net_findings` has nothing to net it against and the
+Rs 66,222 net figure cannot be produced.
+
+## Exercised by execution
+
+| Path | How |
+|---|---|
+| Ingestion, all 29 sheets | Full workbook through `ingest_sheets`; ledger reconciled |
+| Invariants `I-01`–`I-10` | In the pipeline on the real file. `I-01` held 9 rows before the transposition fix and 0 after - they were a symptom of it, not nine bad documents |
+| Transposition detector | **1,832 cells corrected** across six sheets, every column `CERTAIN` |
+| `irn_date` + migration 0007 | Fresh DB at head, re-ingested; 5,954 lines carry an IRN date |
+| 2A/2B separation | 4,678 2B rows and 4,772 2A rows, labelled separately |
+| `counts_toward_2b_available` | Measured both ways: **Rs 12,92,86,091.72 either way** (D-0082) |
+| Coverage and scorecards | 12 cards; **8 months `NIL_BY_IDENTITY`, 4 `ABSENT`** |
+| Tier enforcement | X-03/X-04 emit `DocumentCall`s; a triggered `Finding` from a non-AUTO check is refused with a rule error |
+| X-01, X-02, X-05, X-06, X-11, B-04 | Run on real data. X-05 verified against X-01 by evidence-set comparison |
+
+## Read but not exercised
+
+| Path | Why |
+|---|---|
+| **`app/matching/joins.py` J01–J21** | All 21 declared with their `feeds`; `run_join` is unit-tested; **no per-join data adapter exists**, so no join has run against the workbook. B-04 answers `J04`'s question directly rather than through the join |
+| **Joins cached on the context** | `CLAUDE.md` requires joins to run once before rules and be consumed as a `MatchResult`. Not yet true - there is no join phase in the runner |
+| **`X-03`, `X-04`** | Correct on fixtures; on every real workbook they abstain, because the B2B export carries no HSN and Table 12 is not ingested. Their firing path has never run on real data |
+| **`OUT-07`** | Declares `rate_master`; nothing populates it, so it has only ever returned `NOT_EVALUATED` |
+| **`G-03`, `G-04`** | Not written. `irn_date` now exists for them |
+| **Exemption engine** | Unit-tested. No check declares an exemption yet, so `apply_exemptions` has not run in a pipeline |
+| **Netting** | Unit-tested against `docs/07` Part D. Has never netted anything on real data - see the April limb above |
+| **Annual roll-up** | Built and returned by the runner; no screen reads it |
+| **The 141-check A–L matrix** | One check exists (`B-04`). The migration from the 57 v2 IDs is an open question in `docs/GAP_V3.md` |
+| **Applicability grid** | `NOT_APPLICABLE` is modelled in the scorecard; no grid is loaded, so no check has returned it |
+| **Phase 5 screens** | Not started. Document calls are produced and have nowhere to render |
+
+## The four questions
+
+**1. What was exercised, and what only read?** The two tables above. The short
+version: the ingestion path, the invariants, the transposition correction, the
+2A/2B split and seven checks were run against real data and their output read.
+The join layer, the exemption engine and the netting layer have only ever run
+against fixtures.
+
+**2. Which laws are enforced by code?**
+
+| Law | Enforced by |
+|---|---|
+| 4, invariants before rules | **Code.** `check_invariants` is the last gate in `ingest_sheet`; a failing row never becomes a `CanonicalRecord`, so no rule can see it |
+| 5, tier honesty | **Code**, as of this phase. The runner refuses a triggered `Finding` from a non-AUTO check. Abstentions stay permitted from any tier, deliberately |
+| 7, nothing silently assumed | **Code** in ingestion (`RowLedger.assert_reconciled`) and in the checks (`not_evaluated` cannot be built without naming the missing dataset) |
+| 6, provisos | **Convention.** The exemption engine exists and no check declares one, so nothing tests the path |
+| 2, provenance | **Code** on the engine path. The `DocumentCall` output added this phase carries evidence ids but **no `calc_id`** - a gap, because an officer reading a call book entry cannot yet drill it |
+
+**3. Which numbers would change if a source column were wrong?**
+
+* **`supplier_3b_filed`** - B-04 entirely. Read from one sheet by one synonym. Absent means `NOT_EVALUATED`; mis-parsed means a wrong demand.
+* **`irn_date`** - every Rule 48(4) figure and `I-01`. Demonstrated: read naively it manufactures 250 notices that should not exist.
+* **`itc_available`** - the whole 2B bucket, so ITC-01 and ITC-03. A 2A export that emitted this column would have doubled it until D-0082.
+* **`source_form`** - which statement a row came from. Defaulted once, and it took two decisions to state the consequence correctly (D-0075, then D-0082 correcting it).
+
+**4. What is the largest untested surface?**
+
+**The join layer.** Twenty-one joins are named, typed, and declared with what
+they feed, and not one has run against the workbook. Every check that will
+consume a `MatchResult` is currently written against raw records or not written
+at all - so the L1–L5 ladder's behaviour on real document numbers, which is the
+thing the matching design exists for, rests on unit tests and nothing else.
+
+## Defects found and fixed this phase
+
+All five were introduced by this work, not inherited.
+
+| # | What went wrong | Decision |
+|---|---|---|
+| 1 | The loader never read `is_amendment`, and X-01 tested only that flag - an amendment would have been compared against the line it amends | D-0081 |
+| 2 | X-05 double-counted X-01: same counterparty, same rates, evidence a strict subset. Rs 2.86 crore on screen where there is Rs 1.91 crore | D-0085 |
+| 3 | The tier guard rejected the engine's own "ran and found nothing" row, so X-03 and X-04 had no scorecard rows at all | D-0084 |
+| 4 | The transposition detector was silent on a column whose dates all fall in the first twelve days - five credit notes stored with a date the taxpayer never wrote | D-0080 |
+| 5 | B-04's first version summed credit notes **into** the demand rather than out of it | D-0077 |
+
+And one correction to the record rather than to the code: **D-0075 overstated
+its own consequence.** It claimed conflating 2A and 2B meant ITC-in-excess-of-2B
+could not fire on any taxpayer. Measured, the bucket is identical either way and
+ITC-01 fires on 8 of 12 periods. The fix still stands - the 2A rows were being
+excluded by an accident of one vendor's column layout, and accident is not a
+control - but the claim was wrong and D-0082 says so.

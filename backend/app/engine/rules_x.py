@@ -541,6 +541,23 @@ def x03_one_hsn_two_rates(ctx: RuleContext) -> list[DocumentCall] | list[Finding
             if differential < floor.decimal:
                 continue
 
+            tracer = ctx.tracer(
+                CalcKind.RULE,
+                "X-03",
+                period=period,
+                legal_basis="Rate notifications under s.9(1) CGST Act, 2017",
+            )
+            tracer.used_parameter(floor.use())
+            tracer.note("hsn", hsn)
+            tracer.step("lines at the lower rate", "count", {"rate": _rate(low)}, len(at_low))
+            tracer.step("taxable at the lower rate", "sum(taxable_value)", {}, base)
+            tracer.step(
+                "rate differential",
+                "taxable x (high - low) / 100",
+                {"high": _rate(high), "low": _rate(low)},
+                differential,
+            )
+
             calls.append(
                 DocumentCall(
                     check_id="X-03",
@@ -562,6 +579,15 @@ def x03_one_hsn_two_rates(ctx: RuleContext) -> list[DocumentCall] | list[Finding
                     unquantified_exposure=differential,
                     severity=Severity.HIGH,
                     evidence_ids=tuple(r.row_id for r in at_low[:50] if r.row_id),
+                    trace=tracer.finish(
+                        result=differential,
+                        formula_template=(
+                            "differential = taxable at low rate x (high rate - low rate) / 100"
+                        ),
+                        formula_rendered=(
+                            f"{base} x ({_rate(high)} - {_rate(low)}) / 100 = {differential}"
+                        ),
+                    ),
                 )
             )
     return calls

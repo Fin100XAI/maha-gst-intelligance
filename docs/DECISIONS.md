@@ -1965,3 +1965,38 @@ turns Rs 1.91 crore into Rs 47.7 lakh.
 `5.0000000000%` in the narrative that goes onto a notice. `_rate()` normalises
 them. A trailing-zero decimal there reads as a machine's output rather than a
 department's statement.
+
+---
+
+## D-0086 — A document call is a number too
+
+**Evaluation.** `DocumentCall.unquantified_exposure` is a figure an officer
+reads off a call-book entry and may quote in a letter asking for the document.
+It had no `calc_id`, no formula and no way back to the rows it came from.
+
+Law 2 does not have a tier exemption. "Unquantified" is a statement about what
+the platform will do with the figure - it will not turn it into a demand - not
+about whether anyone may ask where it came from.
+
+**Decision.** `DocumentCall` carries a `CalcTrace` exactly as a `Finding`
+does, and `X-03` builds one: the parameter it used, the count of lines at the
+lower rate, the taxable base, the differential, and the formula as executed.
+
+Found while writing `docs/VERIFICATION.md` - which is the argument for keeping
+that file honest rather than flattering.
+
+---
+
+## D-0087 — G1 widened to `app/matching`
+
+`CLAUDE.md` names three trees where a float literal fails the build:
+`app/engine`, `app/ingestion` and `app/matching`. The lint guarded eight trees
+and `app/matching` was not among them, because the lint predates the directory.
+
+It matters more there than the omission suggests. The match ladder decides
+which two rows are the same document, and a rounded value or an edit-distance
+ratio computed in binary float would make that decision non-reproducible: the
+same snapshot pairing differently on a different machine, and the paired
+comparison every finding rests on quietly ceasing to be paired.
+
+Clean on the first run across all nine trees.
