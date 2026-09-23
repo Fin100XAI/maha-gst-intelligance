@@ -4,6 +4,8 @@ import { AppShell } from './components/AppShell'
 import { ScrutinyShell } from './components/ScrutinyShell'
 import ReportScreen from './pages/scrutiny/Report'
 import TaxpayerScreen from './pages/scrutiny/Taxpayer'
+import PortfolioScreen from './pages/scrutiny/Portfolio'
+import MatrixScreen from './pages/scrutiny/Matrix'
 import SetupData from './pages/setup/Data'
 import SetupReference from './pages/setup/Reference'
 import Drill from './pages/Drill'
@@ -54,7 +56,7 @@ function RoleLanding(): JSX.Element {
  */
 function FirstReport(): JSX.Element {
   const { search } = useLocation()
-  return <Navigate to={`/scrutiny/report/gstr3b_vs_gstr1${search}`} replace />
+  return <Navigate to={`/scrutiny/portfolio${search}`} replace />
 }
 
 function NotFound(): JSX.Element {
@@ -94,6 +96,8 @@ export default function App(): JSX.Element {
             teaches nothing. */}
         <Route index element={<FirstReport />} />
         <Route path="report" element={<FirstReport />} />
+        <Route path="portfolio" element={<PortfolioScreen />} />
+        <Route path="matrix" element={<MatrixScreen />} />
         <Route path="taxpayer" element={<TaxpayerScreen />} />
         <Route path="report/:reportId" element={<ReportScreen />} />
       </Route>
@@ -147,18 +151,7 @@ export default function App(): JSX.Element {
               capability="External feeds that light up the ten dark audit risk parameters."
               dependency="ICEGATE, ITD/AIS, DGARM and the refund module."
               roadmapRef="RM-02 to RM-05"
-              unlocks={[
-                'P02',
-                'P15',
-                'P20',
-                'P23',
-                'P25',
-                'P26',
-                'P27',
-                'P28',
-                'P33',
-                'P34',
-              ]}
+              unlocks={['P02', 'P15', 'P20', 'P23', 'P25', 'P26', 'P27', 'P28', 'P33', 'P34']}
             />
           }
         />

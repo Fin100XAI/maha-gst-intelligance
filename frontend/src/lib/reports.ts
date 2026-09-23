@@ -137,5 +137,61 @@ export interface Scorecard {
   readonly f_score: { readonly f_score: string; readonly f_band: string }
   readonly months: readonly ScorecardMonth[]
   readonly findings: readonly ScorecardFinding[]
-  readonly document_calls: readonly { readonly check_id: string; readonly document: string }[]
+  readonly document_calls: readonly {
+    readonly check_id: string
+    readonly document: string
+  }[]
+}
+
+/* ------------------------------------------------------------------ *
+ * The departmental 141-check matrix.
+ * ------------------------------------------------------------------ */
+
+export interface MatrixRow {
+  readonly id: string
+  readonly module: string
+  readonly check: string
+  readonly legal_reference: string
+  readonly severity: string
+  readonly data_sources: string
+  readonly action: string
+  /** FAIL · PASS · NOT_EVALUATED · NOT_BUILT · NOT_APPLICABLE */
+  readonly status: string
+  readonly exposure: Readonly<Record<string, string>>
+  readonly exposure_total: string
+  /** The built checks that answered this row. */
+  readonly answered_by: readonly string[]
+  readonly reason: string
+  readonly calc_ids: readonly string[]
+}
+
+export interface MatrixForTaxpayer {
+  readonly gstin: string
+  readonly fy: string
+  readonly legal_name: string | null
+  readonly industry: string | null
+  readonly counts: Readonly<Record<string, number>>
+  readonly exposure_total: string
+  readonly rows: readonly MatrixRow[]
+  readonly coverage_note: string
+}
+
+export interface MatrixPortfolioRow {
+  readonly gstin: string
+  readonly legal_name: string | null
+  readonly counts: Readonly<Record<string, number>>
+  readonly exposure_total: string
+  readonly failed: readonly {
+    readonly id: string
+    readonly check: string
+    readonly module: string
+    readonly exposure_total: string
+  }[]
+}
+
+export interface MatrixPortfolio {
+  readonly fy: string
+  readonly matrix_size: number
+  readonly coverage_note: string
+  readonly taxpayers: readonly MatrixPortfolioRow[]
 }

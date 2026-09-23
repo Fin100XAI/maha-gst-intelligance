@@ -25,6 +25,7 @@ from app.canonical import ActionForm, Confidence, RiskDimension, Severity
 from app.engine.context import RuleContext
 from app.engine.records import InwardRecord
 from app.engine.registry import Finding, clear, not_evaluated, rule, triggered
+from app.engine.trace import CalcKind
 from app.matching.keys import normalise_doc_no
 from app.money import TaxVector
 
@@ -92,6 +93,12 @@ def b04_rule_37a_supplier_default(ctx: RuleContext) -> list[Finding]:
     if not defaulting:
         return [clear(ctx, "B-04")]
 
+    tracer = ctx.tracer(
+        CalcKind.RULE,
+        "B-04",
+        legal_basis="Rule 37A CGST Rules, 2017 r/w s.16(2)(c) CGST Act, 2017",
+    )
+
     by_supplier: dict[str, list[InwardRecord]] = defaultdict(list)
     for row in defaulting:
         by_supplier[row.supplier_gstin or "unidentified"].append(row)
@@ -126,6 +133,16 @@ def b04_rule_37a_supplier_default(ctx: RuleContext) -> list[Finding]:
         for gstin, lines in ranked[:_NAMED_SUPPLIERS]
     )
 
+    tracer.note("suppliers", len(by_supplier))
+    tracer.step("invoices from a defaulting supplier", "count", {}, len(defaulting))
+    tracer.step("taxable value at risk", "sum(taxable_value), credit notes signed", {}, taxable)
+    tracer.step(
+        "credit at risk",
+        "sum(tax), credit notes signed negative",
+        {"largest_supplier": worst[0]},
+        exposure.abs_total,
+    )
+
     return [
         triggered(
             ctx,
@@ -134,6 +151,16 @@ def b04_rule_37a_supplier_default(ctx: RuleContext) -> list[Finding]:
             taxable_value_effect=taxable,
             confidence=Confidence.CERTAIN,
             form=ActionForm.DRC_01A,
+            trace=tracer.finish(
+                result=exposure.abs_total,
+                formula_template=(
+                    "credit at risk = sum of tax on lines whose supplier's GSTR-3B is unfiled"
+                ),
+                formula_rendered=(
+                    f"{len(defaulting)} invoices from {len(by_supplier)} suppliers "
+                    f"= {exposure.abs_total}"
+                ),
+            ),
             evidence_ids=tuple(r.row_id for r in defaulting[:50] if r.row_id),
             narrative=(
                 f"{len(defaulting)} invoices from {len(by_supplier)} suppliers "
@@ -262,6 +289,13 @@ def b08_duplicate_itc(ctx: RuleContext) -> list[Finding]:
 
     worst = max(repeated, key=lambda lines: sum((r.tax.abs_total for r in lines[1:]), _ZERO))
 
+    tracer = ctx.tracer(CalcKind.RULE, "B-08", legal_basis="s.16 CGST Act, 2017 r/w Rule 36(1)")
+    tracer.step("documents claimed in more than one period", "count", {}, len(repeated))
+    tracer.step("duplicate claims", "count, excluding the earliest", {}, len(later))
+    tracer.step(
+        "credit claimed twice", "sum(tax) over every claim after the first", {}, excess.total
+    )
+
     return [
         triggered(
             ctx,
@@ -270,6 +304,11 @@ def b08_duplicate_itc(ctx: RuleContext) -> list[Finding]:
             taxable_value_effect=taxable,
             confidence=Confidence.STRONG,
             form=ActionForm.DRC_01A,
+            trace=tracer.finish(
+                result=excess.total,
+                formula_template="excess = sum of tax on every claim after the earliest",
+                formula_rendered=f"{len(later)} duplicate claims = {excess.total}",
+            ),
             evidence_ids=tuple(r.row_id for r in later[:50] if r.row_id),
             narrative=(
                 f"{len(repeated)} supplier invoices appear in more than one tax "

@@ -1,0 +1,1810 @@
+{
+  "industries": [
+    "Real Estate Developer",
+    "Works Contractor",
+    "Manufacturer",
+    "Trader / Retailer",
+    "Service Provider",
+    "Exporter",
+    "Bank / NBFC / Co-op Bank",
+    "Hotel / Restaurant",
+    "GTA / Logistics",
+    "E-commerce Seller",
+    "Education / Charitable / Healthcare"
+  ],
+  "grid": {
+    "A-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "A-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "A-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-07": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-08": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-09": {
+      "required_flag": "Imports",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-10": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "B-11": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "C-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "C-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "C-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "C-04": {
+      "required_flag": "Imports",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "C-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer",
+        "Trader / Retailer"
+      ]
+    },
+    "D-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "D-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "D-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "D-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "D-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "D-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "D-07": {
+      "required_flag": "Exports",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "D-08": {
+      "required_flag": "SEZ Supplies",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-07": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-08": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-09": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-10": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-11": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-12": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-13": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-14": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "E-15": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "F-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "F-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "F-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Bank / NBFC / Co-op Bank"
+      ]
+    },
+    "F-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "F-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "F-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "F-07": {
+      "required_flag": "Multi-GSTIN",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-03": {
+      "required_flag": "E-invoice",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-04": {
+      "required_flag": "E-invoice",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-07": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-08": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-09": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-10": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-11": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-12": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-13": {
+      "required_flag": "Exports",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-14": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "G-15": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-07": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "H-08": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-07": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "I-08": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "J-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "J-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "J-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "J-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-07": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-08": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-09": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-10": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "K-11": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor",
+        "Manufacturer",
+        "Trader / Retailer",
+        "Service Provider",
+        "Exporter",
+        "Bank / NBFC / Co-op Bank",
+        "Hotel / Restaurant",
+        "GTA / Logistics",
+        "E-commerce Seller",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "L-01": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-02": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-03": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-04": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-05": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-06": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-07": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-08": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer"
+      ]
+    },
+    "L-09": {
+      "required_flag": "",
+      "applies_to": [
+        "Real Estate Developer",
+        "Works Contractor"
+      ]
+    },
+    "L-10": {
+      "required_flag": "",
+      "applies_to": [
+        "Works Contractor"
+      ]
+    },
+    "L-11": {
+      "required_flag": "",
+      "applies_to": [
+        "Works Contractor",
+        "Service Provider",
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "L-12": {
+      "required_flag": "",
+      "applies_to": [
+        "Works Contractor"
+      ]
+    },
+    "L-13": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer"
+      ]
+    },
+    "L-14": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer",
+        "Trader / Retailer"
+      ]
+    },
+    "L-15": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer",
+        "Trader / Retailer"
+      ]
+    },
+    "L-16": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer",
+        "Trader / Retailer"
+      ]
+    },
+    "L-17": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer"
+      ]
+    },
+    "L-18": {
+      "required_flag": "",
+      "applies_to": [
+        "Trader / Retailer",
+        "Hotel / Restaurant"
+      ]
+    },
+    "L-19": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer",
+        "Trader / Retailer"
+      ]
+    },
+    "L-20": {
+      "required_flag": "",
+      "applies_to": [
+        "Trader / Retailer",
+        "E-commerce Seller"
+      ]
+    },
+    "L-21": {
+      "required_flag": "",
+      "applies_to": [
+        "Trader / Retailer",
+        "E-commerce Seller"
+      ]
+    },
+    "L-22": {
+      "required_flag": "",
+      "applies_to": [
+        "Trader / Retailer",
+        "Hotel / Restaurant"
+      ]
+    },
+    "L-23": {
+      "required_flag": "",
+      "applies_to": [
+        "Works Contractor",
+        "Service Provider"
+      ]
+    },
+    "L-24": {
+      "required_flag": "",
+      "applies_to": [
+        "Service Provider",
+        "Exporter"
+      ]
+    },
+    "L-25": {
+      "required_flag": "",
+      "applies_to": [
+        "Manufacturer",
+        "Service Provider",
+        "Bank / NBFC / Co-op Bank"
+      ]
+    },
+    "L-26": {
+      "required_flag": "Imports",
+      "applies_to": [
+        "Manufacturer",
+        "Service Provider"
+      ]
+    },
+    "L-27": {
+      "required_flag": "",
+      "applies_to": [
+        "Exporter"
+      ]
+    },
+    "L-28": {
+      "required_flag": "",
+      "applies_to": [
+        "Exporter"
+      ]
+    },
+    "L-29": {
+      "required_flag": "",
+      "applies_to": [
+        "Exporter"
+      ]
+    },
+    "L-30": {
+      "required_flag": "",
+      "applies_to": [
+        "Exporter"
+      ]
+    },
+    "L-31": {
+      "required_flag": "",
+      "applies_to": [
+        "Bank / NBFC / Co-op Bank"
+      ]
+    },
+    "L-32": {
+      "required_flag": "",
+      "applies_to": [
+        "Bank / NBFC / Co-op Bank"
+      ]
+    },
+    "L-33": {
+      "required_flag": "",
+      "applies_to": [
+        "Bank / NBFC / Co-op Bank"
+      ]
+    },
+    "L-34": {
+      "required_flag": "",
+      "applies_to": [
+        "Hotel / Restaurant"
+      ]
+    },
+    "L-35": {
+      "required_flag": "",
+      "applies_to": [
+        "Hotel / Restaurant"
+      ]
+    },
+    "L-36": {
+      "required_flag": "",
+      "applies_to": [
+        "Hotel / Restaurant"
+      ]
+    },
+    "L-37": {
+      "required_flag": "",
+      "applies_to": [
+        "Hotel / Restaurant"
+      ]
+    },
+    "L-38": {
+      "required_flag": "",
+      "applies_to": [
+        "GTA / Logistics"
+      ]
+    },
+    "L-39": {
+      "required_flag": "",
+      "applies_to": [
+        "GTA / Logistics"
+      ]
+    },
+    "L-40": {
+      "required_flag": "",
+      "applies_to": [
+        "E-commerce Seller"
+      ]
+    },
+    "L-41": {
+      "required_flag": "",
+      "applies_to": [
+        "E-commerce Seller"
+      ]
+    },
+    "L-42": {
+      "required_flag": "",
+      "applies_to": [
+        "E-commerce Seller"
+      ]
+    },
+    "L-43": {
+      "required_flag": "",
+      "applies_to": [
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "L-44": {
+      "required_flag": "",
+      "applies_to": [
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "L-45": {
+      "required_flag": "",
+      "applies_to": [
+        "Education / Charitable / Healthcare"
+      ]
+    },
+    "L-46": {
+      "required_flag": "",
+      "applies_to": [
+        "Education / Charitable / Healthcare"
+      ]
+    }
+  }
+}

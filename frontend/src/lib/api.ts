@@ -53,13 +53,19 @@ type Init = Omit<RequestInit, 'headers'> & { headers?: Record<string, string> }
 async function request<T>(path: string, init?: Init): Promise<T> {
   const response = await fetch(`${BASE}${path}`, {
     ...init,
-    headers: { Accept: 'application/json', ...identityHeaders(), ...(init?.headers ?? {}) },
+    headers: {
+      Accept: 'application/json',
+      ...identityHeaders(),
+      ...(init?.headers ?? {}),
+    },
   })
   if (!response.ok) {
     let code = `HTTP_${String(response.status)}`
     let message = response.statusText
     try {
-      const body = (await response.json()) as { detail?: { code?: string; message?: string } }
+      const body = (await response.json()) as {
+        detail?: { code?: string; message?: string }
+      }
       code = body.detail?.code ?? code
       message = body.detail?.message ?? message
     } catch {
@@ -245,7 +251,12 @@ export interface FlagRow {
   external_feed: string | null
   roadmap_ref: string | null
   excluded_from_score: boolean
-  cohort: { p50: string | null; p75: string | null; p90: string | null; n: number | null }
+  cohort: {
+    p50: string | null
+    p75: string | null
+    p90: string | null
+    n: number | null
+  }
   related_rules: string[]
   calc_id: string | null
 }
@@ -531,7 +542,12 @@ export interface ThresholdRow {
 export interface GapsView {
   unconfigured_statutory: {
     count: number
-    items: { parameter_id: string; missing: string; todo_ref: string; status: string }[]
+    items: {
+      parameter_id: string
+      missing: string
+      todo_ref: string
+      status: string
+    }[]
     note: string
   }
   provisional_thresholds: {
@@ -572,7 +588,12 @@ export interface CaseRow {
   scn_deadline: string | null
   order_deadline: string | null
   days_to_limitation: number | null
-  notices: { notice_id: string; form: string; status: string; din: string | null }[]
+  notices: {
+    notice_id: string
+    form: string
+    status: string
+    din: string | null
+  }[]
   href: string
 }
 
@@ -1009,7 +1030,13 @@ export interface FilingAnalysis {
   as_of: string | null
   declared: {
     period: string
-    t31a: { taxable: string; igst: string; cgst: string; sgst: string; cess: string }
+    t31a: {
+      taxable: string
+      igst: string
+      cgst: string
+      sgst: string
+      cess: string
+    }
     filing_date: string | null
     arn: string | null
   } | null
@@ -1109,10 +1136,26 @@ export interface InsightRows {
   items: InsightRow[]
 }
 
-import type { Report as ReportPayload, ReportListing, Scorecard } from './reports'
+import type {
+  MatrixForTaxpayer,
+  MatrixPortfolio,
+  Report as ReportPayload,
+  ReportListing,
+  Scorecard,
+} from './reports'
 
 export const api = {
   health: () => request<{ status: string; params_version: string }>('/health'),
+  /** Every taxpayer in a scan, against the department's 141 checks. */
+  matrixPortfolio: (snapshotId: string) =>
+    request<MatrixPortfolio>(
+      `/matrix?${new URLSearchParams({ snapshot_id: snapshotId }).toString()}`,
+    ),
+  /** All 141 departmental checks for one taxpayer. */
+  matrix: (gstin: string, snapshotId: string) =>
+    request<MatrixForTaxpayer>(
+      `/matrix/${gstin}?${new URLSearchParams({ snapshot_id: snapshotId }).toString()}`,
+    ),
   /** A taxpayer's whole year: twelve cards, the findings, and the dark checks. */
   scorecard: (gstin: string, snapshotId: string) =>
     request<Scorecard>(
@@ -1138,14 +1181,19 @@ export const api = {
   registryFacets: () => request<RegistryFacets>('/registry/facets'),
   worklist: (query: string) => request<WorklistView>(`/worklist${query}`),
   dispose: (findingId: string, body: { disposition: string; note: string }) =>
-    request<{ finding_id: string; disposition: string }>(
-      `/worklist/${findingId}/disposition`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
-    ),
+    request<{ finding_id: string; disposition: string }>(`/worklist/${findingId}/disposition`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
   promote: (findingId: string, body: { disposition: string; note: string }) =>
     request<{ finding_id: string; confidence: string; note: string }>(
       `/worklist/${findingId}/promote`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) },
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      },
     ),
   candidates: (query: string) => request<CandidatesView>(`/planner/candidates${query}`),
   selections: () =>
@@ -1160,35 +1208,42 @@ export const api = {
   upload: (file: File, options: { commit: boolean; gstin?: string }) => {
     const form = new FormData()
     form.append('file', file)
-    const gstin = options.gstin === undefined || options.gstin === '' ? '' : `&gstin=${options.gstin}`
+    const gstin =
+      options.gstin === undefined || options.gstin === '' ? '' : `&gstin=${options.gstin}`
     return request<UploadResult>(
       `/ingestion/upload?commit=${options.commit ? 'true' : 'false'}${gstin}`,
       { method: 'POST', body: form },
     )
   },
-  agents: () =>
-    request<{ count: number; items: AgentSpecRow[]; guarantees: string[] }>('/agents'),
+  agents: () => request<{ count: number; items: AgentSpecRow[]; guarantees: string[] }>('/agents'),
   askAgent: (key: string, body: { question: string; gstins: string[] }) =>
     request<AgentAnswer>(`/agents/${key}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     }),
-  libraryRules: () => request<{ count: number; families: string[]; items: RuleRow[] }>(
-    '/library/rules',
-  ),
+  libraryRules: () =>
+    request<{ count: number; families: string[]; items: RuleRow[] }>('/library/rules'),
   libraryParameters: () =>
     request<{ count: number; items: ParameterSpecRow[]; note: string }>('/library/parameters'),
   libraryThresholds: () =>
-    request<{ count: number; provisional_count: number; items: ThresholdRow[]; note: string }>(
-      '/library/thresholds',
-    ),
+    request<{
+      count: number
+      provisional_count: number
+      items: ThresholdRow[]
+      note: string
+    }>('/library/thresholds'),
   gaps: () => request<GapsView>('/admin/gaps'),
   register: (query = '') => request<RegisterView>(`/admin/parameters${query}`),
   setParameter: (
     owner: string,
     key: string,
-    body: { value: string; effective_from: string; notification_ref?: string; source_note?: string },
+    body: {
+      value: string
+      effective_from: string
+      notification_ref?: string
+      source_note?: string
+    },
   ) =>
     request<RegisterRow>(`/admin/parameters/${owner}/${key}`, {
       method: 'PUT',
@@ -1205,15 +1260,12 @@ export const api = {
       },
     ),
   uploadSheets: (uploadId: string) =>
-    request<{ upload_id: string; items: SheetListRow[] }>(
-      `/ingestion/uploads/${uploadId}/sheets`,
-    ),
+    request<{ upload_id: string; items: SheetListRow[] }>(`/ingestion/uploads/${uploadId}/sheets`),
   sheetCells: (uploadId: string, sheetIndex: number, start = 0, limit = 200) =>
     request<SheetView>(
       `/ingestion/uploads/${uploadId}/sheets/${String(sheetIndex)}/cells?start=${String(start)}&limit=${String(limit)}`,
     ),
-  cases: () =>
-    request<{ count: number; items: CaseRow[]; scope: string; note: string }>('/cases'),
+  cases: () => request<{ count: number; items: CaseRow[]; scope: string; note: string }>('/cases'),
   notices: () => request<{ items: NoticeRow[]; scope: string }>('/notices'),
   noticeTemplates: () =>
     request<{ items: NoticeTemplateRow[]; note: string }>('/notices/templates'),
@@ -1248,11 +1300,7 @@ export const api = {
       `/filings/${encodeURIComponent(gstin)}/${encodeURIComponent(period)}` +
         (runId === undefined ? '' : `?run_id=${encodeURIComponent(runId)}`),
     ),
-  reviewFiling: (
-    gstin: string,
-    period: string,
-    body: { comment: string; disposition: string },
-  ) =>
+  reviewFiling: (gstin: string, period: string, body: { comment: string; disposition: string }) =>
     request<FilingReview>(
       `/filings/${encodeURIComponent(gstin)}/${encodeURIComponent(period)}/review`,
       {
@@ -1279,7 +1327,8 @@ export const api = {
     return request<InsightRows>(`/insights/rows?${query.toString()}`)
   },
   unconfigured: () =>
-    request<{ count: number; items: { parameter_id: string; missing: string; todo_ref: string }[] }>(
-      '/admin/unconfigured',
-    ),
+    request<{
+      count: number
+      items: { parameter_id: string; missing: string; todo_ref: string }[]
+    }>('/admin/unconfigured'),
 }

@@ -181,3 +181,35 @@ class TestWhatTheCardMustSay:
         (finding,) = RULES["B-04"].function(ctx)
         assert finding.suggested_form is not None
         assert finding.suggested_form.value == "DRC-01A"
+
+
+class TestTheFigureCanAnswerForItself:
+    """Law 2: every number carries a `calc_id` resolving to the rule.
+
+    B-04 produced none. It is the flagship finding - Rs 98.47 lakh on the
+    reference workbook - and on screen its figure wore the warning triangle
+    `<Money>` puts on anything untraceable, which is exactly right and exactly
+    what should never have shipped.
+    """
+
+    @pytest.mark.golden
+    def test_the_finding_carries_a_trace(self) -> None:
+        ctx = _ctx((_inward(SHIPYARD, "4332926.00", "779926.70", filed_3b=False),))
+        (finding,) = RULES["B-04"].function(ctx)
+        assert finding.trace is not None
+        assert finding.trace.calc_id
+
+    def test_the_calc_id_is_a_hash_of_the_inputs_not_the_clock(self) -> None:
+        """Replay depends on it: the same snapshot, the same id, every time."""
+        rows = (_inward(SHIPYARD, "4332926.00", "779926.70", filed_3b=False),)
+        first = RULES["B-04"].function(_ctx(rows))[0]
+        second = RULES["B-04"].function(_ctx(rows))[0]
+        assert first.trace is not None
+        assert second.trace is not None
+        assert first.trace.calc_id == second.trace.calc_id
+
+    def test_the_formula_says_what_was_summed(self) -> None:
+        ctx = _ctx((_inward(SHIPYARD, "4332926.00", "779926.70", filed_3b=False),))
+        (finding,) = RULES["B-04"].function(ctx)
+        assert finding.trace is not None
+        assert "GSTR-3B is unfiled" in (finding.trace.formula_template or "")
