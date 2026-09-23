@@ -66,6 +66,10 @@ class TestRegistry:
             "X-04",
             "X-05",
             "X-06",
+            "X-07",
+            "X-08",
+            "X-09",
+            "X-10",
             "X-11",
             "X-12",
             "B-04",
@@ -82,7 +86,7 @@ class TestRegistry:
         for spec in RULES.values():
             counts[spec.family] = counts.get(spec.family, 0) + 1
         assert counts == {
-            "X": 8,
+            "X": 12,
             "B": 1,
             "OUT": 10,
             "ITC": 13,

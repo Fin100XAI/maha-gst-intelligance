@@ -62,6 +62,10 @@ _HALF: Final[Decimal] = Decimal("2")
 #: Chapter 99 is services; 01 to 98 are goods.
 _SERVICE_CHAPTER: Final[str] = "99"
 
+#: A unit of measure that describes nothing. Against a goods heading it is
+#: a Rule 46 particulars problem rather than a quantity.
+_UNSPECIFIED_UQC: Final[str] = "OTH"
+
 #: X-05: three identical billings to one counterparty are a contract, not a
 #: coincidence. Two are what X-01 already looks at, with a window.
 MIN_SERIES_LENGTH: Final[int] = 3
@@ -958,5 +962,247 @@ def x12_amendment_reduces_discharged_tax(ctx: RuleContext) -> list[Finding]:
                 f"reversed before the reduction can be allowed. Call for the "
                 f"credit notes and the recipients' reversal confirmations."
             ),
+        )
+    ]
+
+
+# ---------------------------------------------------------------------------
+# X-07 — the place-of-supply rule contradicts the HSN class
+# ---------------------------------------------------------------------------
+
+
+@rule(
+    id="X-07",
+    title="Place of supply determined on a rule the HSN class contradicts",
+    legal_basis="ss.10 and 12 IGST Act, 2017 r/w Schedule II CGST Act, 2017",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.HIGH,
+    confidence=Confidence.ADVISORY,
+    requires=("gstr1",),
+    relates_to=("X-04",),
+    form=ActionForm.ASMT_10,
+    threshold="POS on the recipient's location for a goods heading, or on movement for a SAC",
+    tier=Tier.ASSISTED,
+)
+def x07_pos_contradicts_hsn_class(ctx: RuleContext) -> list[DocumentCall] | list[Finding]:
+    """Goods and services take their place of supply from different sections.
+
+    s.10 fixes it by where the goods move; s.12 fixes it by where the
+    recipient is. A line whose HSN is a goods heading but whose POS follows
+    the recipient's registration, or a service SAC whose POS follows a
+    movement, has had one of the two decided on the wrong rule - and the
+    wrong rule changes which government is paid.
+
+    `ASSISTED`, because the return does not record *which* rule was applied.
+    The engine sees a POS and an HSN and can say they sit oddly together; it
+    cannot say the taxpayer reasoned wrongly, and the difference between those
+    two statements is a whole reply.
+
+    Dark on every workbook so far: the portal's B2B export carries no HSN.
+    """
+    if not _has_hsn(ctx):
+        return [not_evaluated(ctx, "X-07", ("HSN on the outward lines (GSTR-1 Table 12)",))]
+
+    calls: list[DocumentCall] = []
+    for period in ctx.periods:
+        odd: list[OutwardRecord] = []
+        for row in ctx.outward(period):
+            if not row.hsn or not row.pos or not row.counterparty_gstin:
+                continue
+            recipient_state = row.counterparty_gstin[:2]
+            follows_recipient = row.pos == recipient_state
+            is_service = _hsn_chapter(row.hsn) == _SERVICE_CHAPTER
+            # A service whose POS is not the recipient's state, or goods whose
+            # POS is exactly the recipient's state on an inter-State movement,
+            # is the shape worth asking about.
+            service_pos_not_on_recipient = is_service and not follows_recipient
+            goods_pos_on_recipient = (
+                not is_service and follows_recipient and recipient_state != ctx.profile.state_code
+            )
+            if service_pos_not_on_recipient or goods_pos_on_recipient:
+                odd.append(row)
+        if not odd:
+            continue
+        calls.append(
+            DocumentCall(
+                check_id="X-07",
+                gstin=ctx.gstin,
+                period=period,
+                document=(
+                    "the place-of-supply working for these lines - the section "
+                    "relied on and the facts it was applied to"
+                ),
+                legal_basis="ss.10 and 12 IGST Act, 2017",
+                question=(
+                    f"{len(odd)} lines in {period.mmyyyy} carry a place of supply that "
+                    f"does not follow the section their HSN class implies. Goods take "
+                    f"their place of supply from where they move (s.10) and services "
+                    f"from where the recipient is (s.12). State which section was "
+                    f"applied to each and on what facts."
+                ),
+                severity=Severity.HIGH,
+                evidence_ids=tuple(r.row_id for r in odd[:50] if r.row_id),
+            )
+        )
+    return calls
+
+
+# ---------------------------------------------------------------------------
+# X-08 — a quantity that cannot describe the value
+# ---------------------------------------------------------------------------
+
+
+@rule(
+    id="X-08",
+    title="Quantity implausible for the value billed under a goods heading",
+    legal_basis="Rule 46 CGST Rules, 2017 - particulars of a tax invoice",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.MEDIUM,
+    confidence=Confidence.ADVISORY,
+    requires=("gstr1",),
+    params=("X-08.max_quantity", "X-08.min_value"),
+    relates_to=("X-04",),
+    form=ActionForm.ASMT_10,
+    threshold="goods HSN with quantity at or below 5 against value above Rs 1 crore",
+    tier=Tier.ASSISTED,
+)
+def x08_implausible_quantity(ctx: RuleContext) -> list[DocumentCall] | list[Finding]:
+    """A crore of goods in five units, or a unit of measure that says nothing.
+
+    Not evasion on its own - a single turbine is one unit and costs more than
+    a crore. It is a *description* problem, and description is what Rule 46
+    requires: `OTH` against a goods heading tells a reader nothing, and a
+    quantity that cannot carry the value usually means the line is a lump sum
+    that was never itemised.
+
+    `ASSISTED` and MEDIUM, because the honest output is a question about the
+    invoice rather than a figure. This is the cheapest kind of check to get
+    wrong in the aggressive direction.
+    """
+    missing: list[str] = []
+    if not _has_hsn(ctx):
+        missing.append("HSN on the outward lines (GSTR-1 Table 12)")
+    if not any(row.quantity is not None for row in ctx.data.outward):
+        missing.append("quantity and UQC on the outward lines (GSTR-1 Table 12)")
+    if missing:
+        return [not_evaluated(ctx, "X-08", tuple(missing))]
+
+    max_qty = ctx.params.get("X-08", "max_quantity", on=ctx.fy.end)
+    min_value = ctx.params.get("X-08", "min_value", on=ctx.fy.end)
+
+    calls: list[DocumentCall] = []
+    for period in ctx.periods:
+        odd = [
+            row
+            for row in ctx.outward(period)
+            if row.hsn
+            and _hsn_chapter(row.hsn) != _SERVICE_CHAPTER
+            and row.taxable_value > min_value.decimal
+            and (
+                (row.quantity is not None and row.quantity <= max_qty.decimal)
+                or (row.uqc or "").upper() == _UNSPECIFIED_UQC
+            )
+        ]
+        if not odd:
+            continue
+        total = sum((row.taxable_value for row in odd), _ZERO)
+        calls.append(
+            DocumentCall(
+                check_id="X-08",
+                gstin=ctx.gstin,
+                period=period,
+                document="the invoices for these lines, with the description of goods supplied",
+                legal_basis="Rule 46 CGST Rules, 2017",
+                question=(
+                    f"{len(odd)} lines in {period.mmyyyy} totalling Rs {total} carry a "
+                    f"goods heading with a quantity that cannot describe the value, or "
+                    f"a unit of measure of 'OTH'. Produce the invoices and the "
+                    f"description of what was supplied."
+                ),
+                unquantified_exposure=total,
+                severity=Severity.MEDIUM,
+                evidence_ids=tuple(r.row_id for r in odd[:50] if r.row_id),
+            )
+        )
+    return calls
+
+
+# ---------------------------------------------------------------------------
+# X-09 — cancelled, then re-raised cheaper
+# ---------------------------------------------------------------------------
+
+
+@rule(
+    id="X-09",
+    title="A cancelled document replaced by one to the same party at a lower rate",
+    legal_basis="Rule 46 r/w s.31 CGST Act, 2017; rate notifications under s.9(1)",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.HIGH,
+    confidence=Confidence.STRONG,
+    requires=("gstr1", "doc_issued"),
+    relates_to=("X-01", "X-06"),
+    form=ActionForm.ASMT_10,
+    threshold="a cancelled serial replaced to the same counterparty at a lower effective rate",
+)
+def x09_cancelled_and_reraised_cheaper(ctx: RuleContext) -> list[Finding]:
+    """Cancellation is ordinary; cancellation followed by a cheaper re-issue
+    to the same party is the shape X-01 looks for, told a different way.
+
+    It needs GSTR-1 Table 13, the document-series register, which is the only
+    place a cancelled serial is recorded. The platform recognises that sheet
+    and has no canonical table for it, so this abstains by name rather than
+    reporting that nothing was cancelled.
+    """
+    return [
+        not_evaluated(
+            ctx,
+            "X-09",
+            ("GSTR-1 Table 13, the document-series register (recognised, not yet ingested)",),
+        )
+    ]
+
+
+# ---------------------------------------------------------------------------
+# X-10 — a third party says the supply was larger
+# ---------------------------------------------------------------------------
+
+
+@rule(
+    id="X-10",
+    title="Third-party deducted value exceeds the supply declared to that party",
+    legal_basis="ss.51 and 52 CGST Act, 2017 r/w s.37",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.HIGH,
+    confidence=Confidence.STRONG,
+    requires=("gstr1", "gstr7"),
+    params=("X-10.min_delta",),
+    relates_to=("X-01",),
+    form=ActionForm.DRC_01A,
+    threshold="deducted value above the declared supply by more than Rs 1 lakh",
+)
+def x10_third_party_value_exceeds_declared(ctx: RuleContext) -> list[Finding]:
+    """The strongest evidence in the catalogue, and the one nobody can argue.
+
+    A s.51 deductor files GSTR-7 stating what it paid this supplier. That is a
+    third party's own return, filed in its own interest, and it cannot be
+    explained away as the taxpayer's error. Where it exceeds what the taxpayer
+    declared as supplies to that party, the difference is undeclared turnover.
+
+    `docs/07` Finding 1 uses exactly this as its corroboration limb, which is
+    why the GSTIN fix accepting `[ZDC]` at position 14 mattered - IWAI's
+    deductor registration `09AAATI7021F1D5` is the party on the other side.
+
+    GSTR-7 is not ingested. This abstains naming it rather than reporting
+    agreement between two figures when only one of them exists.
+    """
+    return [
+        not_evaluated(
+            ctx,
+            "X-10",
+            ("GSTR-7 / GSTR-8 as filed by the deductor (recognised, not yet ingested)",),
         )
     ]

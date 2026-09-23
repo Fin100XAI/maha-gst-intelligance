@@ -2226,3 +2226,83 @@ what each one *means* belongs to the join, and a screen that rendered
 `VALUE_DIFFERS` with one colour everywhere would mislead on one of them.
 
 Four joins now have adapters: J03, J04, J07 and J17.
+
+---
+
+## D-0094 — The X family is complete, and four of the twelve are dark
+
+**Evaluation.** `docs/01` section 7 gives twelve self-contradiction checks and
+the pack says build them first. Eight existed. The remaining four - X-07,
+X-08, X-09, X-10 - all read sheets this platform recognises and does not
+ingest: the HSN summary (Table 12), the document-series register (Table 13),
+and GSTR-7.
+
+The tempting call is to defer them until the data arrives.
+
+**Decision: build them anyway.** A registered check that abstains by name puts
+a row on the scorecard saying *which sheet would answer this*, and an officer
+can act on that - it is a procurement question, or an upload instruction, or a
+reason the coverage figure is what it is. A check that does not exist puts
+nothing anywhere, and the gap is invisible to everyone including the people
+deciding what to ingest next.
+
+**What each one is, and what it is allowed to say.**
+
+* **X-07** (`ASSISTED`) - the place-of-supply section contradicts the HSN
+  class. s.10 fixes a goods supply's POS by where the goods move; s.12 fixes a
+  service's by where the recipient is. A line whose two facts sit oddly
+  together has had one of them decided on the wrong section, and the wrong
+  section changes *which government is paid*. `ASSISTED` because the return
+  records a POS and an HSN and not which rule was applied - the engine can say
+  the pair is odd, not that the taxpayer reasoned wrongly, and the distance
+  between those two statements is a whole reply.
+
+* **X-08** (`ASSISTED`) - a quantity that cannot describe the value, or a UQC
+  of `OTH` against a goods heading. Not evasion on its own: a single turbine
+  is one unit and costs more than a crore. It is a Rule 46 *particulars*
+  problem, and the honest output is a question about the invoice. This is the
+  cheapest check in the catalogue to get wrong in the aggressive direction, so
+  it carries `MEDIUM` and asks.
+
+* **X-09** (`AUTO`, dark) - a cancelled serial replaced by a cheaper document
+  to the same party. A cancelled serial is recorded in Table 13 and nowhere
+  else, so reporting that nothing was cancelled would be a statement about a
+  register never read.
+
+* **X-10** (`AUTO`, dark) - a s.51 deductor's GSTR-7 stating it paid this
+  supplier more than the supplier declared. Evidentially the strongest thing
+  in the catalogue: a third party's own return, filed in its own interest, and
+  not explicable as the taxpayer's error. `docs/07` Finding 1 uses exactly
+  this as its corroboration limb, which is why accepting `[ZDC]` at GSTIN
+  position 14 mattered - IWAI's deductor registration `09AAATI7021F1D5` is the
+  party on the other side.
+
+**Thresholds registered from `docs/01` section 7**, not invented:
+`X-08.max_quantity` 5, `X-08.min_value` Rs 1 crore, `X-10.min_delta`
+Rs 1 lakh.
+
+**The family, measured on the reference workbook:**
+
+    X-01  TRIGGERED       1,90,71,332.80
+    X-02  TRIGGERED         66,01,615.20
+    X-03  NOT_EVALUATED   HSN (Table 12)
+    X-04  NOT_EVALUATED   HSN (Table 12)
+    X-05  CLEAR           - X-01 owns this break
+    X-06  TRIGGERED                 0.00
+    X-07  NOT_EVALUATED   HSN (Table 12)
+    X-08  NOT_EVALUATED   HSN and quantity (Table 12)
+    X-09  NOT_EVALUATED   Table 13, the document-series register
+    X-10  NOT_EVALUATED   GSTR-7 / GSTR-8 as filed by the deductor
+    X-11  CLEAR
+    X-12  CLEAR           - no outward B2BA on this file
+
+Five of twelve are dark and every one of them names its sheet. **Four of the
+five want the same thing**: GSTR-1 Table 12. That is now a measured argument
+for what to ingest next rather than an impression, and it is the kind of
+statement the abstentions exist to make.
+
+**A test now holds the family to it.** Every one of the twelve must answer on
+an empty file - none may return nothing, because a check producing no row is
+indistinguishable on screen from one that ran and found nothing. None may
+report `CLEAR` on an empty file either: "no data" is not "no issue". And every
+abstention must name what it wanted.
