@@ -73,6 +73,7 @@ class TestRegistry:
             "X-11",
             "X-12",
             "B-04",
+            "B-08",
         }
 
     @pytest.mark.golden
@@ -87,7 +88,7 @@ class TestRegistry:
             counts[spec.family] = counts.get(spec.family, 0) + 1
         assert counts == {
             "X": 12,
-            "B": 1,
+            "B": 2,
             "OUT": 10,
             "ITC": 13,
             "PAY": 7,

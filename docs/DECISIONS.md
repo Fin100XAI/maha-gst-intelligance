@@ -2334,3 +2334,47 @@ section*, so it is incremented after `ledger.accept()`.
 **On the reference workbook it is now zero.** Every stored row's section is
 read from its sheet name, which is the measured confirmation that D-0089's fix
 covers this file completely.
+
+---
+
+## D-0096 — B-08, where the false positives are the whole check
+
+**Evaluation.** `docs/01` B-08: *same GSTIN + Inv No claimed twice, across
+GSTINs or periods*. AUTO, HIGH, threshold `Any`. No check in the 57 covers
+duplicate credit at all, and the data to answer it is already ingested.
+
+**The true positives are trivial and the false positives are catastrophic.**
+Measured on the reference workbook before writing a line of the rule: grouping
+every inward row by supplier and document number gives **4,636 groups with
+more than one row, out of 9,450 rows**. Practically the entire file. A naive
+B-08 would have raised four and a half thousand demands for duplicate credit
+on a taxpayer who has none.
+
+**Three exclusions, each removing a different legitimate repeat.**
+
+1. **GSTR-2B only.** A document is in both 2A and 2B because they are two
+   statements of one invoice, not two claims - J03 pairs 4,404 of them. 2B is
+   also the right side on the law: s.16(2)(aa) makes it the gate. This one
+   exclusion takes 4,636 groups to 5.
+2. **Not an amendment.** A B2BA row names the document it corrects, and on the
+   portal's own 2B export it carries that number as its own (D-0091). Four of
+   the five survivors were this.
+3. **Not a credit or debit note.** A note adjusts the invoice it names. The
+   fifth survivor was this.
+
+**Across periods, never within one.** An invoice can carry an 18% line and a
+5% line, and both sit in the same period; an identical row re-uploaded is
+already collapsed by the ingestion duplicate key, which removed 79 on this
+file. Neither explains a claim repeated in a *different* period, which is what
+the check looks for.
+
+**B-08 is `CLEAR` on the reference workbook.** That is the correct answer, and
+the distance between it and 4,636 is the reason the check is worth having
+rather than worth skipping.
+
+**The exposure is every claim after the first.** The earliest period keeps the
+credit; the rest is the excess.
+
+This is the second A–L check to exist, after B-04, and it does not prejudge
+the 57-vs-141 migration any more than B-04 did - it fills a gap neither
+catalogue covers.

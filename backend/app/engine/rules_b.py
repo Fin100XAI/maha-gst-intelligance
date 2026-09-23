@@ -17,6 +17,7 @@ Pure: no I/O, no clock, `as_of` injected. docs/01 section 8, module B.
 from __future__ import annotations
 
 from collections import defaultdict
+from datetime import date
 from decimal import Decimal
 from typing import Final
 
@@ -24,6 +25,7 @@ from app.canonical import ActionForm, Confidence, RiskDimension, Severity
 from app.engine.context import RuleContext
 from app.engine.records import InwardRecord
 from app.engine.registry import Finding, clear, not_evaluated, rule, triggered
+from app.matching.keys import normalise_doc_no
 from app.money import TaxVector
 
 _ZERO: Final[Decimal] = Decimal("0.00")
@@ -149,6 +151,141 @@ def b04_rule_37a_supplier_default(ctx: RuleContext) -> list[Finding]:
                 "largest_supplier": worst[0],
                 "largest_supplier_tax": format(worst_tax, "f"),
                 "gross": format(exposure.abs_total, "f"),
+            },
+        )
+    ]
+
+
+# ---------------------------------------------------------------------------
+# B-08 — the same invoice claimed twice
+# ---------------------------------------------------------------------------
+
+#: A note and an amendment both carry the document number of the record they
+#: refer to. Neither is a second claim, and both look exactly like one.
+_REPEATS_ANOTHERS_NUMBER: Final[frozenset[str]] = frozenset({"CDNR", "CDNUR", "AMENDMENT"})
+
+_NOTE_TYPES: Final[frozenset[str]] = frozenset({"CREDIT_NOTE", "DEBIT_NOTE"})
+
+
+def _claimable_2b(ctx: RuleContext) -> list[InwardRecord]:
+    """The rows that represent a claim in their own right.
+
+    Three exclusions, and each one is the difference between this check and a
+    catastrophe - see `b08_duplicate_itc`.
+    """
+    return [
+        row
+        for period in ctx.periods
+        for row in ctx.inward(period)
+        if row.source_form == "GSTR2B"
+        and row.section not in _REPEATS_ANOTHERS_NUMBER
+        and row.doc_type not in _NOTE_TYPES
+    ]
+
+
+@rule(
+    id="B-08",
+    title="The same supplier invoice claimed in more than one period",
+    family="B",
+    dimension=RiskDimension.CREDIT,
+    legal_basis="s.16 CGST Act, 2017 r/w Rule 36(1)",
+    severity=Severity.HIGH,
+    confidence=Confidence.STRONG,
+    requires=("gstr2b",),
+    relates_to=("B-01", "P14"),
+    form=ActionForm.DRC_01A,
+    threshold="any invoice appearing under one supplier in two or more periods",
+)
+def b08_duplicate_itc(ctx: RuleContext) -> list[Finding]:
+    """One invoice, one credit. A second claim on it is the whole finding.
+
+    **What makes this check dangerous is the false positives, not the true
+    ones.** Measured on the reference workbook, grouping every inward row by
+    supplier and document number finds **4,636** groups with more than one row
+    out of 9,450 rows - practically the entire file. Three exclusions take
+    that to zero, and each removes a different kind of legitimate repeat:
+
+    * **GSTR-2B only.** A document appears in both 2A and 2B because they are
+      two statements of one invoice, not two claims. J03 pairs 4,404 of them.
+      2B is also the right side on the law: s.16(2)(aa) makes it the gate.
+    * **Not an amendment.** A B2BA row names the document it corrects, and on
+      the portal's own 2B export it literally carries that number as its own.
+    * **Not a credit or debit note.** A note carries the number of the invoice
+      it adjusts, by design.
+
+    After all three, four of the five surviving groups on the reference file
+    were amendments and the fifth was a credit note. The honest answer there is
+    **no duplicate credit**, and a naive implementation would have raised
+    4,636 demands.
+
+    **Two rows in one period are not this check either.** An invoice can carry
+    several rate lines, and an identical row re-uploaded is already collapsed
+    by the ingestion duplicate key. What this looks for is a claim repeated
+    *across* periods, which neither of those explains.
+
+    The exposure is every claim after the first: the earliest period keeps the
+    credit, and the rest is the excess.
+    """
+    rows = _claimable_2b(ctx)
+    if not rows:
+        return [
+            not_evaluated(
+                ctx,
+                "B-08",
+                ("GSTR-2B (the statutory gate under s.16(2)(aa))",),
+            )
+        ]
+
+    by_document: dict[tuple[str, str], list[InwardRecord]] = defaultdict(list)
+    for row in rows:
+        if row.supplier_gstin and row.doc_no:
+            by_document[(row.supplier_gstin, normalise_doc_no(row.doc_no))].append(row)
+
+    repeated: list[list[InwardRecord]] = []
+    for lines in by_document.values():
+        periods = {row.period for row in lines if row.period is not None}
+        if len(periods) > 1:
+            repeated.append(sorted(lines, key=lambda r: (str(r.period), r.doc_date or date.min)))
+
+    if not repeated:
+        return [clear(ctx, "B-08")]
+
+    excess = TaxVector()
+    taxable = _ZERO
+    later: list[InwardRecord] = []
+    for lines in repeated:
+        # The earliest claim stands; everything after it is the duplicate.
+        for row in lines[1:]:
+            excess = excess + row.tax
+            taxable += row.taxable_value
+            later.append(row)
+
+    worst = max(repeated, key=lambda lines: sum((r.tax.abs_total for r in lines[1:]), _ZERO))
+
+    return [
+        triggered(
+            ctx,
+            "B-08",
+            delta=excess,
+            taxable_value_effect=taxable,
+            confidence=Confidence.STRONG,
+            form=ActionForm.DRC_01A,
+            evidence_ids=tuple(r.row_id for r in later[:50] if r.row_id),
+            narrative=(
+                f"{len(repeated)} supplier invoices appear in more than one tax "
+                f"period in GSTR-2B, and the credit was claimed each time. The "
+                f"largest is {worst[0].doc_no} from {worst[0].supplier_gstin}, in "
+                f"{', '.join(sorted({str(r.period) for r in worst}))}. "
+                f"Credit notes and amendments are excluded - both carry the "
+                f"document number of the record they refer to and neither is a "
+                f"second claim. The earliest claim stands; the figure is "
+                f"everything after it."
+            ),
+            extra={
+                "documents": len(repeated),
+                "duplicate_claims": len(later),
+                "largest_document": worst[0].doc_no or "",
+                "largest_supplier": worst[0].supplier_gstin or "",
             },
         )
     ]
