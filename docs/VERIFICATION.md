@@ -301,12 +301,12 @@ with itself.
 
 | Check | Ran? | Result | Notes |
 |---|---|---|---|
-| `ruff check .` | yes | **All checks passed** | 176 files |
-| `ruff format --check .` | yes | **176 files formatted** | |
+| `ruff check .` | yes | **All checks passed** | 182 files |
+| `ruff format --check .` | yes | **182 files formatted** | |
 | `mypy app` (G4) | yes | **no issues in 97 source files** | |
-| `pytest` (backend) | yes | **1,078 passed, 0 failed**, exit 0 | offline, no credentials |
+| `pytest` (backend) | yes | **1,147 passed, 0 failed**, exit 0 | offline, no credentials |
 | G1 `lint_no_float.py` | yes | **clean across 9 trees** | widened this phase from 8 to 9: `app/matching` |
-| `alembic upgrade head` | yes | 0001 → **0007** on a fresh SQLite file | still **not** applied to PostgreSQL |
+| `alembic upgrade head` | yes | 0001 → **0008** on a fresh SQLite file | still **not** applied to PostgreSQL |
 | Full workbook re-ingested | yes | `12,449 in = 11,777 parsed + 593 held + 79 duplicates`, reconciles | |
 | Engine over the real snapshot | yes | `rule_errors == []`, 12 scorecards | |
 
@@ -352,6 +352,31 @@ which is the document's over-claim limb, but the April under-claim is not
 emitted as a finding, so `net_findings` has nothing to net it against and the
 Rs 66,222 net figure cannot be produced.
 
+## The joins, measured
+
+First run of the join phase against the workbook. Four of the twenty-one have
+adapters; every one of the four reconciles - each input row in exactly one
+bucket.
+
+| Join | Left | Right | Matched | Value differs | Only left | Only right |
+|---|---|---|---|---|---|---|
+| **J03** 2B against 2A | 4,538 | 4,625 | 4,404 | 96 | 38 | **125** |
+| **J04** defaulting supplier against claim | 101 | 4,678 | 87 | 6 | **8** | 4,585 |
+| **J07** credit note against invoice | 211 | 2,039 | 52 | 0 | 159 | 1,987 |
+| **J17** amendment against original | 11 | 9,163 | 1 | **7** | 3 | 9,155 |
+
+J03's ladder distribution is the one that matters, because both sides are the
+same invoices written by the same suppliers into two statements: **L1 4,402 ·
+L2 97 · L3 1 · L4 0**. The design holds on real document numbers.
+
+Three numbers in that table are findings rather than diagnostics. The **125**
+documents in 2A and not in 2B are the population gap `docs/02` says is the
+point - suppliers who filed after the cut-off. The **8** are defaulting
+suppliers' invoices with no 2B counterpart at all. The **7** are amendments
+that changed a value, which for J17 is the amendment doing its job and for J03
+would be a discrepancy: the bucket's meaning belongs to the join, not to the
+matcher.
+
 ## Exercised by execution
 
 | Path | How |
@@ -364,21 +389,27 @@ Rs 66,222 net figure cannot be produced.
 | `counts_toward_2b_available` | Measured both ways: **Rs 12,92,86,091.72 either way** (D-0082) |
 | Coverage and scorecards | 12 cards; **8 months `NIL_BY_IDENTITY`, 4 `ABSENT`** |
 | Tier enforcement | X-03/X-04 emit `DocumentCall`s; a triggered `Finding` from a non-AUTO check is refused with a rule error |
-| X-01, X-02, X-05, X-06, X-11, B-04 | Run on real data. X-05 verified against X-01 by evidence-set comparison |
+| X-01, X-02, X-05, X-06, X-11, X-12, B-04 | Run on real data. X-05 verified against X-01 by evidence-set comparison |
+| **The join phase** | All 21 joins run once per context. **J03, J04, J07 and J17 have adapters and ran against the workbook**; all four reconcile. See the table below |
+| Section from sheet name | Re-ingested: 478 credit notes, 18 amendments and 2 import lines now carry their own section, and **0 rows are stored under an assumed one** |
+| The amended-document reference | All 11 `GSTR2A_B2BA` rows carry it - `9936A` amends `9936` |
 
 ## Read but not exercised
 
 | Path | Why |
 |---|---|
-| **`app/matching/joins.py` J01–J21** | All 21 declared with their `feeds`; `run_join` is unit-tested; **no per-join data adapter exists**, so no join has run against the workbook. B-04 answers `J04`'s question directly rather than through the join |
-| **Joins cached on the context** | `CLAUDE.md` requires joins to run once before rules and be consumed as a `MatchResult`. Not yet true - there is no join phase in the runner |
-| **`X-03`, `X-04`** | Correct on fixtures; on every real workbook they abstain, because the B2B export carries no HSN and Table 12 is not ingested. Their firing path has never run on real data |
+| **17 of the 21 joins** | Declared with their `feeds` and reporting their missing sheet by name. Four have adapters; the other seventeen wait on sheets the platform recognises and does not ingest |
+| **No check consumes a `MatchResult` yet** | The join phase exists and every check still pairs its own rows. B-04 answers J04's question directly; X-02 keeps its own digit matching because J07 implements a different test (D-0090). The joins are computed, correct and unread |
+| **`X-03`, `X-04`, `X-07`, `X-08`** | Correct on fixtures; on every real workbook they abstain, because the B2B export carries no HSN and Table 12 is not ingested. Their firing paths have never run on real data |
+| **`X-09`, `X-10`** | Registered and permanently dark until Table 13 and GSTR-7 are ingested. Neither has a firing path at all yet |
+| **`X-12`** | Runs, and is `CLEAR` on the reference workbook because it has no outward B2BA sheet. Its triggering path is fixture-tested only |
 | **`OUT-07`** | Declares `rate_master`; nothing populates it, so it has only ever returned `NOT_EVALUATED` |
 | **`G-03`, `G-04`** | Not written. `irn_date` now exists for them |
 | **Exemption engine** | Unit-tested. No check declares an exemption yet, so `apply_exemptions` has not run in a pipeline |
 | **Netting** | Unit-tested against `docs/07` Part D. Has never netted anything on real data - see the April limb above |
 | **Annual roll-up** | Built and returned by the runner; no screen reads it |
 | **The 141-check A–L matrix** | One check exists (`B-04`). The migration from the 57 v2 IDs is an open question in `docs/GAP_V3.md` |
+| **The applicability grid** | Blocked on reference data rather than unstarted: `docs/01` §12 needs a rule × industry grid and per-client flags, neither in the repo, and says industry comes from Table 12 **and is confirmed by an officer, never inferred silently** |
 | **Applicability grid** | `NOT_APPLICABLE` is modelled in the scorecard; no grid is loaded, so no check has returned it |
 | **Phase 5 screens** | Not started. Document calls are produced and have nowhere to render |
 
@@ -386,9 +417,10 @@ Rs 66,222 net figure cannot be produced.
 
 **1. What was exercised, and what only read?** The two tables above. The short
 version: the ingestion path, the invariants, the transposition correction, the
-2A/2B split and seven checks were run against real data and their output read.
-The join layer, the exemption engine and the netting layer have only ever run
-against fixtures.
+2A/2B split, the section matcher, four joins and eight checks were run against
+real data and their output read. The exemption engine and the netting layer
+have only ever run against fixtures, and **no check yet reads a join's result**
+- the join phase computes four correct pairings that nothing consumes.
 
 **2. Which laws are enforced by code?**
 
@@ -409,11 +441,19 @@ against fixtures.
 
 **4. What is the largest untested surface?**
 
-**The join layer.** Twenty-one joins are named, typed, and declared with what
-they feed, and not one has run against the workbook. Every check that will
-consume a `MatchResult` is currently written against raw records or not written
-at all - so the L1–L5 ladder's behaviour on real document numbers, which is the
-thing the matching design exists for, rests on unit tests and nothing else.
+Not the join layer any more. It ran, on real document numbers, and behaved as
+designed: on J03 - the same invoices written into two statements - L1 carries
+4,402 of 4,500 pairs and exactly one falls past L2.
+
+**It is now the gap between the joins and the checks.** Four joins produce
+correct, reconciling pairings and *nothing reads them*. Every check still pairs
+its own rows, which is the condition `CLAUDE.md` forbids for the reason it
+gives: two checks that each ran their own pairing can disagree about which two
+rows are one document while both look right. The pairings being correct today
+is not a control, because nothing compares them.
+
+Second is the A–L matrix, at one check of 141. Third is scale: everything here
+is one taxpayer and twelve thousand rows.
 
 ## Defects found and fixed this phase
 
@@ -426,6 +466,10 @@ All five were introduced by this work, not inherited.
 | 3 | The tier guard rejected the engine's own "ran and found nothing" row, so X-03 and X-04 had no scorecard rows at all | D-0084 |
 | 4 | The transposition detector was silent on a column whose dates all fall in the first twelve days - five credit notes stored with a date the taxpayer never wrote | D-0080 |
 | 5 | B-04's first version summed credit notes **into** the demand rather than out of it | D-0077 |
+| 6 | `section_from_name` had never matched a real sheet: `\b` anchors against `_`-separated portal names, so all 11,777 rows were section `B2B` | D-0089 |
+| 7 | `amends_doc_no` was a column since 0001 that nothing wrote or read, so no amendment could say what it amended | D-0091 |
+| 8 | X-12's first version returned `CLEAR` for a taxpayer with no GSTR-1 at all - caught by an existing golden test | D-0092 |
+| 9 | `DocumentCall.unquantified_exposure` was a figure with no `calc_id` | D-0086 |
 
 And one correction to the record rather than to the code: **D-0075 overstated
 its own consequence.** It claimed conflating 2A and 2B meant ITC-in-excess-of-2B
