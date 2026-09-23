@@ -1,6 +1,9 @@
 import type { JSX } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
+import { ScrutinyShell } from './components/ScrutinyShell'
+import ReportsIndex from './pages/scrutiny/Reports'
+import ReportScreen from './pages/scrutiny/Report'
 import Drill from './pages/Drill'
 import Overview from './pages/dashboard/Overview'
 import ParameterExplorer from './pages/dashboard/ParameterExplorer'
@@ -64,6 +67,17 @@ export default function App(): JSX.Element {
           navigation bar for a workspace you have not entered. */}
       <Route path="/welcome" element={<Landing />} />
       <Route path="/sign-in" element={<SignIn />} />
+
+      {/* ---------------- THE TWO SECTIONS (docs/08) ----------------
+          The twenty-eight screens below collapse into five. They are not
+          deleted - every one is still routed and still works - they are
+          simply no longer in the rail, because a rail is for navigating and
+          this one navigates to two places. */}
+      <Route path="/scrutiny" element={<ScrutinyShell />}>
+        <Route index element={<ReportsIndex />} />
+        <Route path="report" element={<ReportsIndex />} />
+        <Route path="report/:reportId" element={<ReportScreen />} />
+      </Route>
 
       <Route path="/" element={<AppShell />}>
         <Route index element={<RoleLanding />} />

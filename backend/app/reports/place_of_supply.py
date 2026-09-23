@@ -32,7 +32,7 @@ from typing import Final
 
 from app.engine.records import OutwardRecord, TaxpayerData
 from app.money import TaxVector
-from app.reports.base import Point, Report, ReportRow, Series, money, pct
+from app.reports.base import Point, Report, ReportRow, Series, money, pct, rupees
 from app.reports.base import not_evaluated as _dark
 
 __all__ = ["REPORT_ID", "build"]
@@ -205,7 +205,7 @@ def _headline(
     if recipient:
         parts.append(
             f"{len(recipient)} name a place of supply that is not the recipient's "
-            f"registered State, covering {money(exposure.total)} of tax"
+            f"registered State, covering {rupees(exposure.total)} of tax"
         )
     else:
         parts.append("and every one agrees with the recipient's registered State")

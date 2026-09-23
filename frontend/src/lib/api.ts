@@ -1109,8 +1109,16 @@ export interface InsightRows {
   items: InsightRow[]
 }
 
+import type { Report as ReportPayload, ReportListing } from './reports'
+
 export const api = {
   health: () => request<{ status: string; params_version: string }>('/health'),
+  /** Every report, buildable or not - the absent ones say what they need. */
+  reports: () => request<{ reports: ReportListing[] }>('/reports'),
+  report: (id: string, gstin: string, snapshotId: string) =>
+    request<ReportPayload>(
+      `/reports/${id}?${new URLSearchParams({ gstin, snapshot_id: snapshotId }).toString()}`,
+    ),
   overview: (runId?: string) =>
     request<Overview>(`/dashboard/overview${runId ? `?run_id=${runId}` : ''}`),
   parameters: (runId?: string) =>

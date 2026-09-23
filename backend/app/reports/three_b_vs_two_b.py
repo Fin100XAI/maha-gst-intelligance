@@ -23,7 +23,7 @@ from typing import Final
 from app.canonical import Period
 from app.engine.records import TaxpayerData
 from app.money import TaxVector
-from app.reports.base import Point, Report, ReportRow, Series, money
+from app.reports.base import Point, Report, ReportRow, Series, money, rupees
 from app.reports.base import not_evaluated as _dark
 
 __all__ = ["REPORT_ID", "build"]
@@ -164,6 +164,6 @@ def _headline(excess: TaxVector, flagged: int, periods: int) -> str:
         )
     return (
         f"In {flagged} of {periods} periods more credit was claimed than GSTR-2B "
-        f"made available, {money(excess.total)} in total across the year. Under "
+        f"made available, {rupees(excess.total)} in total across the year. Under "
         f"Rule 88D the taxpayer must explain the difference or reverse it."
     )

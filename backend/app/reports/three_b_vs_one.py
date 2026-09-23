@@ -29,7 +29,7 @@ from typing import Final
 from app.canonical import Period
 from app.engine.records import TaxpayerData
 from app.money import TaxVector
-from app.reports.base import Point, Report, ReportRow, Series, money
+from app.reports.base import Point, Report, ReportRow, Series, money, rupees
 from app.reports.base import not_evaluated as _dark
 
 __all__ = ["REPORT_ID", "build"]
@@ -164,6 +164,6 @@ def _headline(total: TaxVector, flagged: int, periods: int) -> str:
     direction = "more than" if total.total > _ZERO else "less than"
     return (
         f"In {flagged} of {periods} periods the two returns disagree. Across the "
-        f"year GSTR-1 declares {money(abs(total.total))} {direction} GSTR-3B paid "
+        f"year GSTR-1 declares {rupees(abs(total.total))} {direction} GSTR-3B paid "
         f"tax on."
     )

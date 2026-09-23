@@ -32,7 +32,7 @@ from typing import Final
 
 from app.engine.records import TaxpayerData
 from app.money import TaxVector
-from app.reports.base import Point, Report, ReportRow, Series, money, pct
+from app.reports.base import Point, Report, ReportRow, Series, money, pct, rupees
 from app.reports.base import not_evaluated as _dark
 
 __all__ = [
@@ -159,10 +159,10 @@ def build_suppliers(data: TaxpayerData, fy: str, _periods: object = None) -> Rep
         gstin=data.profile.gstin,
         fy=fy,
         headline=(
-            f"{len(parties)} suppliers account for {money(total.total)} of credit. "
+            f"{len(parties)} suppliers account for {rupees(total.total)} of credit. "
             + (
                 f"{len(unfiled)} of them had not filed their own GSTR-3B, covering "
-                f"{money(at_risk.total)} - that is the Rule 37A exposure."
+                f"{rupees(at_risk.total)} - that is the Rule 37A exposure."
                 if unfiled
                 else "Every supplier whose status the statement records had filed their GSTR-3B."
             )
@@ -276,7 +276,7 @@ def build_customers(data: TaxpayerData, fy: str, _periods: object = None) -> Rep
         gstin=data.profile.gstin,
         fy=fy,
         headline=(
-            f"{len(parties)} customers account for {money(total_taxable)} of taxable "
+            f"{len(parties)} customers account for {rupees(total_taxable)} of taxable "
             f"supply. The largest single customer is {top_share}% of it."
         ),
         columns=("Customer", "Documents", "Taxable value", "Tax", "Share"),
@@ -341,7 +341,7 @@ def build_overlap(data: TaxpayerData, fy: str, _periods: object = None) -> Repor
         fy=fy,
         headline=(
             f"{len(both)} counterparties appear on both sides of the file: "
-            f"{money(purchases)} bought from them and {money(sales)} sold to them."
+            f"{rupees(purchases)} bought from them and {rupees(sales)} sold to them."
             if both
             else "No counterparty appears as both a customer and a supplier."
         ),

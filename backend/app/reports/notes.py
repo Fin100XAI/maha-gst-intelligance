@@ -34,7 +34,7 @@ from typing import Final
 
 from app.engine.records import InwardRecord, OutwardRecord, TaxpayerData
 from app.money import TaxVector
-from app.reports.base import Point, Report, ReportRow, Series, money
+from app.reports.base import Point, Report, ReportRow, Series, money, rupees
 from app.reports.base import not_evaluated as _dark
 
 __all__ = ["REPORT_ID", "build"]
@@ -229,8 +229,8 @@ def _headline(
     if not issued and not received:
         return "This taxpayer issued and received no credit or debit notes in the year."
     parts = [
-        f"{len(issued)} notes issued to customers carrying {money(issued_tax.total)} of tax, "
-        f"and {len(received)} received from suppliers carrying {money(received_tax.total)}"
+        f"{len(issued)} notes issued to customers carrying {rupees(issued_tax.total)} of tax, "
+        f"and {len(received)} received from suppliers carrying {rupees(received_tax.total)}"
     ]
     if unstated:
         parts.append(

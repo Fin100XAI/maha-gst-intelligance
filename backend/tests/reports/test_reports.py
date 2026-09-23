@@ -298,3 +298,51 @@ class TestTheRateSideRefusesToInvent:
         report = _run("rate_wise", data)
         assert "no rate is stated on the purchases side" in report.headline
         assert "at not stated%" not in report.headline
+
+
+class TestProseAndWireAreNotInterchangeable:
+    """`rupees()` is for a sentence; `money()` is for the wire.
+
+    They were mixed once, by a blunt search-and-replace that was meant to
+    reach only the headline functions and reached three chart values as well.
+    A point whose `value` is `Rs 1,47,93,540.47` cannot be parsed into a bar
+    length, so the chart silently drew zero - the figure was still on screen,
+    in the label, which is exactly how this kind of mistake survives review.
+    """
+
+    @pytest.mark.golden
+    def test_no_chart_value_is_formatted_prose(self) -> None:
+        data = _data(
+            outward=(_out(),),
+            inward=(_in(filed_3b=False),),
+            returns_3b=(_three_b(),),
+        )
+        for report_id in REPORTS:
+            for series in _run(report_id, data).series:
+                for point in series.points:
+                    assert "Rs " not in point.value, f"{report_id}/{series.id}/{point.label}"
+                    assert "," not in point.value, f"{report_id}/{series.id}/{point.label}"
+                    if point.compare is not None:
+                        assert "Rs " not in point.compare
+                        assert "," not in point.compare
+
+    def test_every_chart_value_parses_as_a_number(self) -> None:
+        """The one thing the client does with it is measure a bar."""
+        data = _data(
+            outward=(_out(),),
+            inward=(_in(filed_3b=False),),
+            returns_3b=(_three_b(),),
+        )
+        for report_id in REPORTS:
+            for series in _run(report_id, data).series:
+                for point in series.points:
+                    Decimal(point.value)
+
+    def test_the_headline_is_readable_by_a_person(self) -> None:
+        """Indian grouping, because the reader is. A headline with
+        `129325891.68` in it is a headline nobody finishes."""
+        data = _data(
+            inward=(_in(month=7, filed_3b=False, form="GSTR2A"), _in(month=7, form="GSTR2B")),
+        )
+        headline = _run("supplier_wise", data).headline
+        assert "Rs " in headline

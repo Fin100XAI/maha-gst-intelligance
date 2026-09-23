@@ -33,10 +33,15 @@ __all__ = [
     "Series",
     "money",
     "pct",
+    "rupees",
 ]
 
 _ZERO: Final[Decimal] = Decimal("0.00")
 _HUNDRED: Final[Decimal] = Decimal("100")
+
+#: Indian grouping: the last three digits, then pairs.
+_LAST_THREE: Final[int] = 3
+_PAIR: Final[int] = 2
 
 
 def money(value: Decimal | None) -> str:
@@ -47,6 +52,36 @@ def money(value: Decimal | None) -> str:
     eighteenth place. The client re-reads this into its own `Money` object.
     """
     return format(value if value is not None else _ZERO, "f")
+
+
+def rupees(value: Decimal | None) -> str:
+    """A figure for a **sentence**, in Indian grouping: `Rs 12,93,25,891.68`.
+
+    Distinct from `money()` and never interchangeable with it. `money()`
+    produces the wire value that the client's `<Money>` component formats and
+    attaches provenance to; this produces prose, for the one-line headline an
+    officer reads before anything else.
+
+    Still exact, still `Decimal`, still two places. The grouping is Indian
+    because the reader is - `1,90,71,332.80`, not `19,071,332.80` - and a
+    reader who has to count digits to find the crore is a reader who has
+    stopped reading.
+    """
+    if value is None:
+        return "Rs 0.00"
+    quantised = value.quantize(Decimal("0.01"))
+    sign = "-" if quantised < 0 else ""
+    whole, _, paise = format(abs(quantised), "f").partition(".")
+    if len(whole) > _LAST_THREE:
+        head, tail = whole[:-_LAST_THREE], whole[-_LAST_THREE:]
+        groups: list[str] = []
+        while len(head) > _PAIR:
+            groups.insert(0, head[-_PAIR:])
+            head = head[:-_PAIR]
+        if head:
+            groups.insert(0, head)
+        whole = ",".join([*groups, tail])
+    return f"Rs {sign}{whole}.{paise}"
 
 
 def pct(part: Decimal, whole: Decimal) -> str:
