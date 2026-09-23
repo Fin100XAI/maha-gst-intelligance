@@ -2306,3 +2306,31 @@ an empty file - none may return nothing, because a check producing no row is
 indistinguishable on screen from one that ran and found nothing. None may
 report `CLEAR` on an empty file either: "no data" is not "no issue". And every
 abstention must name what it wanted.
+
+---
+
+## D-0095 — An assumed section is counted, and on the reference file there are none
+
+D-0089 fixed the section matcher and left one thing open: `_default_section`
+still turns an unrecognised sheet name into `B2B` without saying so.
+
+**Removing the default would be a worse defect than keeping it.** A
+consultant's export called `Purchases` carries B2B data, and reading it as B2B
+is right; dropping it to `None` would take the row out of the 4(A)(5) bucket,
+out of the coverage grid and out of every `is_amendment` test, silently. A row
+absent from a comparison is worse than a row read as the commonest table.
+
+**So the assumption is reported instead.** `SheetOutcome.sections_assumed`
+counts the rows stored under a section nobody stated, and it appears in the
+ingestion report beside the row ledger. Law 7 is not "never assume" - it is
+"never assume *silently*".
+
+**Counted where the row lands, not where the assumption is made.** The first
+version incremented next to `_default_section` and read 4 on the reference
+workbook; all four were `GSTR2A_TDS` rows quarantined a few lines later for a
+missing field. The number has to mean *rows in the store read as the default
+section*, so it is incremented after `ledger.accept()`.
+
+**On the reference workbook it is now zero.** Every stored row's section is
+read from its sheet name, which is the measured confirmation that D-0089's fix
+covers this file completely.

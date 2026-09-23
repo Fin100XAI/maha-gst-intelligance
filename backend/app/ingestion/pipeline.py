@@ -178,6 +178,11 @@ class SheetOutcome:
     records: list[CanonicalRecord] = field(default_factory=list)
     ledger: RowLedger = field(default_factory=RowLedger)
     status: str = "PARSED"
+    #: How many rows were read as the default section because the sheet name
+    #: did not name a table. Not an error - B2B is the commonest table and
+    #: reading the row is better than dropping it - but an assumption, and
+    #: Law 7 says an assumption is reported rather than made quietly.
+    sections_assumed: int = 0
     #: canonical date field -> what the transposition detector said about its
     #: column, and how many cells that verdict moved. Reported rather than
     #: applied silently: a date this platform changed is a date an officer is
@@ -200,6 +205,7 @@ class SheetOutcome:
             "status": self.status,
             "unmapped_headers": self.unmapped_headers,
             "date_corrections": self.date_corrections,
+            "sections_assumed": self.sections_assumed,
             "counts": self.ledger.as_dict(),
         }
 
@@ -689,7 +695,16 @@ def ingest_sheet(  # noqa: PLR0911, PLR0912, PLR0915
             )
 
         if family in {"GSTR1", "GSTR2B"}:
-            fields["section"] = classification.section or _default_section(family)
+            if classification.section is not None:
+                fields["section"] = classification.section
+            else:
+                # The sheet name did not say which table this is. B2B is by far
+                # the commonest, and reading the row as B2B is better than
+                # dropping it from every section-aware check - but it is an
+                # assumption, and Law 7 is that an assumption is reported.
+                # `section_from_name` went eight months returning None for
+                # every portal sheet (D-0089) and nothing on screen said so.
+                fields["section"] = _default_section(family)
             if family == "GSTR2B":
                 # WHICH inward statement this row came from, recorded rather
                 # than defaulted. 2A and 2B share a family because they share
@@ -775,6 +790,13 @@ def ingest_sheet(  # noqa: PLR0911, PLR0912, PLR0915
         seen.add(key)
         outcome.records.append(record)
         outcome.ledger.accept()
+        if family in {"GSTR1", "GSTR2B"} and classification.section is None:
+            # Counted here rather than where the assumption is made, so the
+            # number means "rows in the store read as the default section"
+            # rather than "rows we were about to assume something about" -
+            # four of these were quarantined a few lines later on the
+            # reference workbook, and counting them would have overstated it.
+            outcome.sections_assumed += 1
 
     outcome.ledger.assert_reconciled(f"sheet {sheet.name}")
     return outcome
@@ -1050,6 +1072,14 @@ def _inward_source_form(sheet_name: str) -> str:
 
 
 def _default_section(family: str) -> str:
+    """The table to assume when the sheet name did not name one.
+
+    Counted by the caller into `SheetOutcome.sections_assumed`, because the
+    alternative to assuming is dropping the row out of every section-aware
+    check - `counts_toward_2b_available`, the coverage grid, `is_amendment` -
+    and a row silently absent from a comparison is worse than a row read as
+    the commonest table with a number on screen saying how many.
+    """
     return SupplySection.B2B.value if family in {"GSTR1", "GSTR2B"} else ""
 
 

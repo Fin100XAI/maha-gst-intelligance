@@ -55,7 +55,7 @@ Updated 2026-09-22 after the second build session.
 | 10 | Per-filing scorecard + annual roll-up | 4 | **Built and wired** — `app/engine/scorecard.py`; the runner now returns `scorecards` and `annual` on every `TaxpayerOutcome` |
 | 11 | Module K case engine | 4 | **Already present** — `app/cases/limitation.py` implements s.73/74 to FY 2023-24 and s.74A from FY 2024-25 with the 42-month rule. Verified |
 | 12 | The 141-check A–L matrix | 3–4 | **Not started.** 57 rules exist in the v2 ID space. This is the open migration below |
-| 13 | Applicability grid → `NOT_APPLICABLE` | 4 | Modelled in the scorecard; the grid itself is not loaded |
+| 13 | Applicability grid → `NOT_APPLICABLE` | 4 | **Not started, and blocked on reference data.** `docs/01` §12 needs a rule × industry grid and per-client flags, neither of which is in the repo, and says industry is derived from GSTR-1 Table 12 — not ingested — **and confirmed by the officer; never inferred silently**. Building the seam without either input would repeat the "declared but never run" trap |
 | 14 | Screen count 5 + 5, W1 grid, W2 match workbench, W4 call book | 5 | **Not started** |
 | 15 | Numeric-fidelity middleware | 6 | **Already present** — `app/agents/fidelity.py` |
 

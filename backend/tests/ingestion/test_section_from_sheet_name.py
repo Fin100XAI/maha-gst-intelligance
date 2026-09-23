@@ -30,6 +30,9 @@ from __future__ import annotations
 
 import pytest
 
+from app.canonical import FinancialYear
+from app.ingestion.pipeline import SheetOutcome, ingest_sheet
+from app.ingestion.reader import RawSheet
 from app.ingestion.sniffer import section_from_name
 
 
@@ -90,3 +93,85 @@ class TestWhatItStillDoesNotKnow:
     def test_an_unrecognised_name_says_so(self) -> None:
         assert section_from_name("Sheet1") is None
         assert section_from_name("") is None
+
+
+class TestAnAssumedSectionIsCounted:
+    """B2B is assumed when the sheet name does not name a table, and Law 7
+    says an assumption is reported rather than made quietly.
+
+    The alternative to assuming is dropping the row out of every
+    section-aware check - the 4(A)(5) bucket, the coverage grid,
+    `is_amendment` - and a row silently absent from a comparison is worse
+    than a row read as the commonest table with a number on screen saying
+    how many.
+    """
+
+    @staticmethod
+    def _sheet(name: str) -> RawSheet:
+        header = [
+            "Month",
+            "GSTIN of supplier",
+            "Invoice number",
+            "Invoice Date",
+            "Place of supply",
+            "Rate",
+            "Taxable Value",
+            "Integrated Tax",
+            "ITC Availability",
+        ]
+        return RawSheet(
+            name=name,
+            index=0,
+            rows=[
+                ["", "Company GSTN : ", "27AAPCS8928R1Z1"],
+                [],
+                list(header),
+                [
+                    "October",
+                    "24ABVFA2224Q1Z0",
+                    "AZ/25-26/05",
+                    "2025-10-04",
+                    "27",
+                    "18",
+                    "2760000",
+                    "496800",
+                    "Yes",
+                ],
+            ],
+        )
+
+    @staticmethod
+    def _run(sheet: RawSheet) -> SheetOutcome:
+        """A sheet in isolation is handed the filer and the year that the
+        banner and the workbook supply in a real ingest."""
+        return ingest_sheet(
+            sheet,
+            owner_gstin="27AAPCS8928R1Z1",
+            period_hint="102025",
+            fy=FinancialYear(2025),
+        )
+
+    @pytest.mark.golden
+    def test_a_named_sheet_assumes_nothing(self) -> None:
+        outcome = self._run(self._sheet("GSTR2B_B2B"))
+        assert outcome.ledger.parsed == 1
+        assert outcome.sections_assumed == 0
+
+    def test_an_unnamed_sheet_says_how_many_rows_it_assumed(self) -> None:
+        """A consultant's export called `Sheet1` still carries B2B data, and
+        reading it is right. Saying so is the other half."""
+        outcome = self._run(self._sheet("Purchases"))
+        assert outcome.ledger.parsed == 1
+        assert outcome.sections_assumed == 1
+        assert outcome.as_dict()["sections_assumed"] == 1
+
+    def test_only_rows_that_actually_landed_are_counted(self) -> None:
+        """The count means "rows in the store read as the default section",
+        not "rows we were about to assume something about". Four rows on the
+        reference workbook are assumed and then quarantined a few lines
+        later; counting those would overstate it."""
+        sheet = self._sheet("Purchases")
+        sheet.rows.append(["October", "NOT-A-GSTIN", "", "", "", "", "", "", ""])
+        outcome = self._run(sheet)
+        assert outcome.ledger.quarantined == 1
+        assert outcome.sections_assumed == 1
