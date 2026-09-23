@@ -2,7 +2,6 @@ import type { JSX } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { ScrutinyShell } from './components/ScrutinyShell'
-import ReportsIndex from './pages/scrutiny/Reports'
 import ReportScreen from './pages/scrutiny/Report'
 import Drill from './pages/Drill'
 import Overview from './pages/dashboard/Overview'
@@ -43,6 +42,18 @@ function RoleLanding(): JSX.Element {
   return <Navigate to={landingPath(role)} replace />
 }
 
+/**
+ * `/scrutiny` opens on a report, carrying whatever taxpayer you arrived with.
+ *
+ * A plain `<Navigate>` would drop the query string, and the GSTIN and
+ * snapshot live there - the screen would load and immediately ask which
+ * taxpayer it was meant to be about.
+ */
+function FirstReport(): JSX.Element {
+  const { search } = useLocation()
+  return <Navigate to={`/scrutiny/report/gstr3b_vs_gstr1${search}`} replace />
+}
+
 function NotFound(): JSX.Element {
   const { t } = useI18n()
   const role = useSession((state) => state.role)
@@ -74,8 +85,12 @@ export default function App(): JSX.Element {
           simply no longer in the rail, because a rail is for navigating and
           this one navigates to two places. */}
       <Route path="/scrutiny" element={<ScrutinyShell />}>
-        <Route index element={<ReportsIndex />} />
-        <Route path="report" element={<ReportsIndex />} />
+        {/* No index screen. The rail holds the categories, so landing on
+            /scrutiny goes straight to the first report rather than to a
+            menu - a screen whose only content is a menu is a click that
+            teaches nothing. */}
+        <Route index element={<FirstReport />} />
+        <Route path="report" element={<FirstReport />} />
         <Route path="report/:reportId" element={<ReportScreen />} />
       </Route>
 

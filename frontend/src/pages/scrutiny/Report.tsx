@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle, CheckCircle2, CircleHelp, Download, MinusCircle } from 'lucide-react'
 import type { JSX } from 'react'
+import { Fragment, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { ReportChart } from '../../components/charts/ReportChart'
 import { Money } from '../../components/Money'
@@ -45,11 +46,31 @@ function looksLikeMoney(column: string): boolean {
   return /value|credit|tax|difference|excess|declared|paid|risk|position/i.test(column)
 }
 
-function Cell({ column, row }: { column: string; row: ReportRow }): JSX.Element {
+function Cell({
+  column,
+  row,
+  onShowSource,
+}: {
+  column: string
+  row: ReportRow
+  onShowSource: () => void
+}): JSX.Element {
   const raw = row.cells[column] ?? ''
   if (raw === '') return <span className="text-ink-muted">-</span>
   if (looksLikeMoney(column) && /^-?\d+(\.\d+)?$/.test(raw)) {
-    return <Money value={raw} symbol={false} />
+    /*
+      A report figure's provenance is the rows it was summed from - that is
+      what `<Money drill>` is for. Without it every cell wore a warning
+      triangle, which `<Money>` is right to do and which teaches officers to
+      ignore the triangle on the screens where it means a real bug.
+    */
+    return (
+      <Money
+        value={raw}
+        symbol={false}
+        {...(row.evidence_ids.length === 0 ? {} : { drill: onShowSource })}
+      />
+    )
   }
   return <span>{raw}</span>
 }
@@ -81,6 +102,7 @@ function Dark({ report }: { report: ReportPayload }): JSX.Element {
 }
 
 export default function Report(): JSX.Element {
+  const [sourceFor, setSourceFor] = useState<number | null>(null)
   const { reportId = '' } = useParams()
   const [params] = useSearchParams()
   const gstin = params.get('gstin') ?? ''
@@ -114,7 +136,7 @@ export default function Report(): JSX.Element {
   }
 
   return (
-    <article className="max-w-6xl">
+    <article className="max-w-[68rem]">
       <header className="mb-4">
         <p className="text-sm text-ink-muted tabular">
           {data.gstin} · {data.fy}
@@ -127,10 +149,10 @@ export default function Report(): JSX.Element {
       ) : (
         <>
           {/* Band one: the answer, in a sentence. */}
-          <p className="mb-6 max-w-3xl text-lg leading-relaxed text-ink">{data.headline}</p>
+          <p className="mb-8 max-w-[46rem] text-[1.0625rem] leading-[1.7] text-ink">{data.headline}</p>
 
           {/* Band two: the picture. */}
-          <div className="mb-6 grid gap-4">
+          <div className="mb-8 grid gap-6">
             {data.series.map((series: ReportSeries) => (
               <ReportChart key={series.id} series={series} />
             ))}
@@ -151,15 +173,22 @@ export default function Report(): JSX.Element {
                 Export to Excel
               </button>
             </div>
-            <div className="overflow-x-auto rounded-lg border border-line">
+            {/*
+              The working scrolls inside a fixed frame rather than running down
+              the page. The supplier report has 462 rows: rendered flat it made
+              the page 18,575 pixels tall, which is not a screen an officer
+              reads - it is a screen they scroll past to find the export button.
+              Everything is still here, and all of it is still in the export.
+            */}
+            <div className="max-h-[32rem] overflow-auto rounded-xl border border-line">
               <table className="w-full text-sm">
-                <thead className="bg-sunken text-left">
+                <thead className="sticky top-0 z-10 bg-sunken text-left shadow-[0_1px_0_0_var(--border)]">
                   <tr>
-                    <th scope="col" className="px-3 py-2 font-medium">
+                    <th scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
                       Status
                     </th>
                     {data.columns.map((column: string) => (
-                      <th key={column} scope="col" className="px-3 py-2 font-medium">
+                      <th key={column} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
                         {column}
                       </th>
                     ))}
@@ -169,7 +198,8 @@ export default function Report(): JSX.Element {
                   {data.rows.map((row: ReportRow, index: number) => {
                     const flag = row.flag === null ? null : FLAG[row.flag]
                     return (
-                      <tr key={index} className="border-t border-line">
+                      <Fragment key={index}>
+                        <tr className="border-t border-line odd:bg-raised/40">
                         <td className="px-3 py-2">
                           {flag === null || flag === undefined ? (
                             <span className="text-ink-muted">-</span>
@@ -181,11 +211,42 @@ export default function Report(): JSX.Element {
                           )}
                         </td>
                         {data.columns.map((column: string) => (
-                          <td key={column} className="px-3 py-2 tabular">
-                            <Cell column={column} row={row} />
+                          <td key={column} className="whitespace-nowrap px-3 py-2 tabular">
+                            <Cell
+                              column={column}
+                              row={row}
+                              onShowSource={() => {
+                                setSourceFor(sourceFor === index ? null : index)
+                              }}
+                            />
                           </td>
                         ))}
-                      </tr>
+                        </tr>
+                        {sourceFor === index && (
+                          <tr className="border-t border-line bg-sunken">
+                            <td colSpan={data.columns.length + 1} className="px-3 py-3">
+                              <p className="text-xs font-medium text-ink">
+                                This figure was computed from {row.evidence_ids.length} source
+                                {row.evidence_ids.length === 1 ? ' row' : ' rows'} in the uploaded
+                                workbook.
+                              </p>
+                              <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                                {row.evidence_ids.slice(0, 12).map((id) => (
+                                  <li key={id} className="text-xs text-ink-muted tabular">
+                                    {id}
+                                  </li>
+                                ))}
+                                {row.evidence_ids.length > 12 && (
+                                  <li className="text-xs text-ink-muted">
+                                    and {row.evidence_ids.length - 12} more - all of them are in the
+                                    export
+                                  </li>
+                                )}
+                              </ul>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     )
                   })}
                 </tbody>

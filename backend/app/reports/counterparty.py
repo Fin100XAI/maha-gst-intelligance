@@ -50,6 +50,9 @@ OVERLAP_ID: Final[str] = "counterparty_overlap"
 _ZERO: Final[Decimal] = Decimal("0.00")
 _TOP: Final[int] = 20
 
+#: Enough rows to prove the figure without shipping the whole ledger.
+_EVIDENCE_CAP: Final[int] = 50
+
 
 @dataclass
 class _Party:
@@ -66,6 +69,11 @@ class _Party:
     #: the finding says Rs 98.5 lakh, and an officer reading both would not
     #: know which to believe. One question, one definition.
     at_risk: TaxVector = field(default_factory=TaxVector)
+    #: The canonical rows this party's figures were summed from, so every
+    #: cell on the row reaches the spreadsheet it came from. Law 2 applies
+    #: to a report exactly as it applies to a finding, and `<Money>` puts a
+    #: warning triangle on any figure that cannot answer for itself.
+    evidence: list[str] = field(default_factory=list)
 
 
 def _accumulate_inward(data: TaxpayerData) -> dict[str, _Party]:
@@ -88,6 +96,8 @@ def _accumulate_inward(data: TaxpayerData) -> dict[str, _Party]:
             party.tax = party.tax + row.signed_tax
             party.taxable += row.taxable_value
             party.documents += 1
+            if row.row_id and len(party.evidence) < _EVIDENCE_CAP:
+                party.evidence.append(row.row_id)
         if row.supplier_3b_filed is not None and party.supplier_3b_filed is not False:
             # False is sticky: one unfiled period is what Rule 37A turns on,
             # and a later filed period does not undo it.
@@ -108,6 +118,8 @@ def _accumulate_outward(data: TaxpayerData) -> dict[str, _Party]:
         party.tax = party.tax + row.signed_tax
         party.taxable += row.taxable_value
         party.documents += 1
+        if row.row_id and len(party.evidence) < _EVIDENCE_CAP:
+            party.evidence.append(row.row_id)
     return out
 
 
@@ -148,6 +160,7 @@ def build_suppliers(data: TaxpayerData, fy: str, _periods: object = None) -> Rep
                 "Supplier's GSTR-3B": _filing_label(p.supplier_3b_filed),
                 "Credit at risk (Rule 37A)": money(p.at_risk.total),
             },
+            evidence_ids=tuple(p.evidence),
             flag="FAIL" if p.supplier_3b_filed is False else None,
         )
         for p in parties
@@ -265,7 +278,8 @@ def build_customers(data: TaxpayerData, fy: str, _periods: object = None) -> Rep
                 "Taxable value": money(p.taxable),
                 "Tax": money(p.tax.total),
                 "Share": pct(p.taxable, total_taxable),
-            }
+            },
+            evidence_ids=tuple(p.evidence),
         )
         for p in parties
     )
@@ -323,6 +337,9 @@ def build_overlap(data: TaxpayerData, fy: str, _periods: object = None) -> Repor
                 "Documents": str(suppliers[gstin].documents + customers[gstin].documents),
                 "Supplier's GSTR-3B": _filing_label(suppliers[gstin].supplier_3b_filed),
             },
+            evidence_ids=tuple(suppliers[gstin].evidence + customers[gstin].evidence)[
+                :_EVIDENCE_CAP
+            ],
             flag="ASK",
         )
         for gstin in sorted(

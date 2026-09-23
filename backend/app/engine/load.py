@@ -208,6 +208,11 @@ def _inward(session: Session, gstin: str, snapshot_id: str) -> tuple[InwardRecor
                 supplier_return_period=_period(row.supplier_return_period),
                 hsn=row.hsn,
                 prov_id=row.prov_id,
+                # Without this every inward figure is unprovenanced: B-04
+                # reported Rs 98.47 lakh with an empty evidence list, and
+                # every report row over 2A or 2B wore a warning triangle.
+                # The outward loader has carried it since the first pass.
+                row_id=row.id,
             )
         )
     return tuple(out)

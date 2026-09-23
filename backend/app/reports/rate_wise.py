@@ -26,7 +26,7 @@ import collections
 from decimal import Decimal
 from typing import Final
 
-from app.engine.records import TaxpayerData
+from app.engine.records import InwardRecord, OutwardRecord, TaxpayerData
 from app.money import TaxVector
 from app.reports.base import Point, Report, ReportRow, Series, money, pct
 from app.reports.base import not_evaluated as _dark
@@ -36,6 +36,9 @@ __all__ = ["REPORT_ID", "build"]
 REPORT_ID: Final[str] = "rate_wise"
 _TITLE: Final[str] = "Purchases and sales by tax rate"
 _ZERO: Final[Decimal] = Decimal("0.00")
+
+#: Enough rows to prove the figure without shipping the whole ledger.
+_EVIDENCE_CAP: Final[int] = 50
 
 
 #: What the label says when the source column is blank. It is not a rate and
@@ -74,6 +77,17 @@ def build(data: TaxpayerData, fy: str, _periods: object = None) -> Report:
         purchases[key] += bought.taxable_value
         purchase_tax[key] = purchase_tax[key] + bought.signed_tax
 
+    # The rows each figure was summed from, so every cell can answer for
+    # itself. A report figure with no way back to a spreadsheet cell wears a
+    # warning triangle, and a screen full of them teaches officers to ignore
+    # the one that means something.
+    evidence: dict[str, tuple[str, ...]] = {}
+    everything: list[OutwardRecord | InwardRecord] = [*data.outward, *data.inward]
+    for record in everything:
+        key = _rate_label(record.rate)
+        if record.row_id and len(evidence.get(key, ())) < _EVIDENCE_CAP:
+            evidence[key] = (*evidence.get(key, ()), record.row_id)
+
     rates = sorted(
         set(sales) | set(purchases),
         key=lambda r: (r == UNSTATED, Decimal(r) if r != "not stated" else _ZERO),
@@ -91,7 +105,8 @@ def build(data: TaxpayerData, fy: str, _periods: object = None) -> Report:
                 "Purchases (taxable value)": money(purchases.get(rate)),
                 "Purchase share": pct(purchases.get(rate, _ZERO), total_purchases),
                 "Input tax": money(purchase_tax[rate].total),
-            }
+            },
+            evidence_ids=evidence.get(rate, ()),
         )
         for rate in rates
     )

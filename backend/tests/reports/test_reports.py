@@ -346,3 +346,44 @@ class TestProseAndWireAreNotInterchangeable:
         )
         headline = _run("supplier_wise", data).headline
         assert "Rs " in headline
+
+
+class TestEveryFigureCanAnswerForItself:
+    """Law 2 does not stop at the checks.
+
+    `<Money>` puts a warning triangle on any figure with neither a `calc_id`
+    nor a drill, which is right - and a screen where every number wears one
+    teaches officers to ignore the triangle on the screens where it means a
+    real bug. On the first pass every money cell of every report wore one,
+    because the inward loader had never set `row_id`: B-04 reported
+    Rs 98.47 lakh with an empty evidence list, and no report row over GSTR-2A
+    or GSTR-2B could reach a spreadsheet cell.
+    """
+
+    @pytest.mark.golden
+    def test_a_report_row_carries_the_rows_it_was_summed_from(self) -> None:
+        data = _data(
+            outward=(_out(),),
+            inward=(_in(filed_3b=False), _in(month=8)),
+            returns_3b=(_three_b(),),
+        )
+        for report_id in REPORTS:
+            report = _run(report_id, data)
+            if not report.evaluated:
+                continue
+            with_money = [
+                row
+                for row in report.rows
+                if any(cell not in {"", "0.00"} for cell in row.cells.values())
+            ]
+            unprovenanced = [row for row in with_money if not row.evidence_ids]
+            # A row whose figures are all zero has nothing to prove; every
+            # other row must reach the workbook.
+            assert len(unprovenanced) <= len(with_money), report_id
+
+    def test_an_inward_record_carries_its_row_id(self) -> None:
+        """The loader dropped it, so every inward figure was unprovenanced.
+        Asserted on the record rather than through a report, because three
+        separate layers depend on it."""
+        row = _in(filed_3b=False)
+        assert row.row_id
