@@ -2141,3 +2141,88 @@ satisfy an architectural rule.
 Closing the gap properly means either a sixth rung in `MatchLevel` - a
 `docs/02` contract change - or a second J07 variant keyed on containment.
 Recorded as open rather than quietly resolved either way.
+
+---
+
+## D-0091 — The amended-document reference, mapped at last
+
+**Evaluation.** `amends_doc_no` and `amends_doc_date` have been columns on
+`outward_line` since migration 0001, and nothing has ever written or read
+them: no synonym, no coercer, no field on the record, no line in the loader.
+The GSTR-2A B2BA table states them plainly as `Original Invoice Number` and
+`Original Invoice Date`, and they were dropped at the mapping stage.
+
+Found immediately after D-0089, and for the same reason: once sections
+resolved, amendments became visible as amendments - and were then visibly
+unable to say what they amended.
+
+**Decision.** Threaded through the six places a field has to exist: the
+lexicon, the coercer table, the model (migration 0008 adds the pair to
+`inward_line`, which never had them), `persist`, the two records, and the
+loader.
+
+**Measured.** All 11 `GSTR2A_B2BA` rows now carry their reference:
+`9936A` amends `9936`, `9945A` amends `9945`. The pattern is obvious and the
+engine does not use it - see D-0092.
+
+**One sheet still loses it.** `GSTR2B_B2BA` names two different columns
+`Invoice number` and two `Invoice Date`: the first pair is the original and
+the second is the revised. The mapper takes the first occurrence of a field,
+so those 7 rows carry the *original* number as their `doc_no` and the revised
+number is dropped. Recorded rather than fixed: resolving duplicate header
+names by position is a mapping-layer decision with its own blast radius, and
+guessing which occurrence means what is exactly what the header layer exists
+to avoid.
+
+---
+
+## D-0092 — X-12, and the resemblance the engine refuses to use
+
+**The check.** `docs/01` section 7: an amendment reducing tax on a document
+already discharged in an earlier period, above Rs 25,000.
+
+**Timing is the whole check.** An amendment filed in its own period is
+bookkeeping - the liability is declared once, net, through one return, and
+nothing has been paid that the correction claws back. An amendment filed
+later reduces a liability already discharged through a GSTR-3B, so the
+reduction is a claim against tax in the exchequer, and s.34 requires the
+recipient's credit to have been reversed before it can be allowed. Treating
+the first as the second would raise a demand against every ordinary revision
+in every file.
+
+**What it will not do.** `SSR/1A` plainly amends `SSR/1`. `9936A` plainly
+amends `9936`. The engine pairs only on `amends_doc_no` as the table states
+it, and abstains - `NOT_EVALUATED`, naming the missing reference - when the
+amendment does not say. Guessing which document was amended is how a demand is
+raised against the wrong invoice, and the resemblance being obvious to a
+reader is not evidence.
+
+**`CLEAR` and `NOT_EVALUATED` are not interchangeable here**, and the first
+version got it wrong. It returned `CLEAR` when there were no amendments -
+including for a taxpayer with no GSTR-1 at all. An existing golden test caught
+it: *"the silence of an engine must be readable; 'no data' is not 'no issue'"*.
+Now: no outward rows at all is `NOT_EVALUATED` naming the return; outward rows
+with no amendments among them is `CLEAR`, because the engine did look.
+
+On the reference workbook X-12 is `CLEAR`: the file has no outward B2BA sheet.
+
+---
+
+## D-0093 — J17, and a bucket that means different things in different joins
+
+The J17 adapter builds its left-hand candidate with `amends_doc_no` as the
+document number, so the ladder's exact rung finds the original. The pairing is
+reached from a reference the taxpayer stated, and the matcher never sees the
+resemblance between `9936A` and `9936`.
+
+On the reference workbook: 11 amendments against 9,163 inward records, 1
+exact match, 7 value-differs, 3 unmatched, and it reconciles.
+
+**The seven value-differs are the point, not a defect.** For J03 that bucket
+is a discrepancy between two statements of the same document and wants
+explaining. For J17 it is the amendment doing its job - a correction that
+changed no value would be the odd one. The four buckets are the matcher's;
+what each one *means* belongs to the join, and a screen that rendered
+`VALUE_DIFFERS` with one colour everywhere would mislead on one of them.
+
+Four joins now have adapters: J03, J04, J07 and J17.

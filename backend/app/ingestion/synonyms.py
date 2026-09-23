@@ -199,6 +199,21 @@ _OUTWARD: Final[dict[str, tuple[str, ...]]] = {
     "uqc": ("uqc", "unit", "unit of measure", "uom"),
     "quantity": ("quantity", "qty", "total quantity", "प्रमाण"),
     "irn": ("irn", "invoice reference number", "irn number"),
+    # Which document this row amends. The B2BA and CDNRA tables carry it
+    # and nothing read it, so an amendment arrived indistinguishable from
+    # a fresh invoice - and a check excluding amendments excluded nothing.
+    "amends_doc_no": (
+        "original invoice number",
+        "original invoice no",
+        "original document number",
+        "original doc no",
+        "original note number",
+    ),
+    "amends_doc_date": (
+        "original invoice date",
+        "original document date",
+        "original note date",
+    ),
     # The IRP's acknowledgement date, not the invoice date. Mapping it is
     # what makes Rule 48(4) computable, and it is also the column that
     # arrives with its day and month swapped on half its rows -- so it is

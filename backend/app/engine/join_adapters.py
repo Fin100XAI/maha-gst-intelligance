@@ -220,6 +220,54 @@ def j04_supplier_status_against_claim(data: TaxpayerData) -> JoinInputs | Unavai
     )
 
 
+# ---------------------------------------------------------------------------
+# J17 — an amendment against the document it amends
+# ---------------------------------------------------------------------------
+
+_AMENDMENT: Final[frozenset[str]] = frozenset({"AMENDMENT"})
+
+
+def j17_amendments_against_originals(data: TaxpayerData) -> JoinInputs | Unavailable:
+    """Inward B2BA and CDNRA rows against the records they correct.
+
+    The trick is on the left side. An amendment's own `doc_no` is the *new*
+    number; the document it corrects is named in `amends_doc_no`, read from
+    the table's own column. So the left candidate is built with
+    `amends_doc_no` as its document number, and the ladder's L1 rung then
+    finds the original by exact match - which is the correct pairing, arrived
+    at from a stated reference rather than from two numbers that resemble each
+    other.
+
+    On the reference workbook `9936A` amends `9936` and `9945A` amends `9945`.
+    The resemblance is obvious and the engine still does not use it: guessing
+    which document was amended is how a demand is raised against the wrong
+    invoice.
+    """
+    amendments = [row for row in data.inward if row.section in _AMENDMENT and row.amends_doc_no]
+    originals = [row for row in data.inward if row.section in _B2B]
+    missing: list[str] = []
+    if not amendments:
+        missing.append("amendment rows stating the document they amend (B2BA/CDNRA)")
+    if not originals:
+        missing.append("the original inward records")
+    if missing:
+        return Unavailable(tuple(missing), JOINS["J17"].feeds)
+    return JoinInputs(
+        left=[
+            Candidate(
+                gstin=row.supplier_gstin,
+                doc_no=row.amends_doc_no,
+                doc_date=row.amends_doc_date,
+                taxable_value=row.taxable_value,
+                row=row,
+            )
+            for row in amendments
+        ],
+        right=[_inward_candidate(row) for row in originals],
+        heads=_INWARD_HEADS,
+    )
+
+
 #: join id -> adapter. Only the joins whose data this platform ingests have
 #: one; the rest are declared in `JOINS` and report their missing dataset
 #: through `inputs_for`, which is the honest state for a join over a sheet
@@ -228,6 +276,7 @@ ADAPTERS: Final[dict[JoinId, JoinAdapter]] = {
     "J03": j03_two_b_against_two_a,
     "J04": j04_supplier_status_against_claim,
     "J07": j07_credit_note_against_invoice,
+    "J17": j17_amendments_against_originals,
 }
 
 

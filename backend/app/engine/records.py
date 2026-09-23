@@ -66,6 +66,11 @@ class OutwardRecord:
     quantity: Decimal | None = None
     ecom_gstin: str | None = None
     is_amendment: bool = False
+    #: The document this row amends, when it amends one. Read from the
+    #: B2BA and CDNRA tables' own columns, never inferred from a number
+    #: that happens to look similar.
+    amends_doc_no: str | None = None
+    amends_doc_date: date | None = None
     irn: str | None = None
     #: When the IRP acknowledged this document. `None` on every line that
     #: carries no IRN, which is most of them; a check reading it must
@@ -117,6 +122,9 @@ class InwardRecord:
     source_form: str = "GSTR2B"
     #: The supplier's own GSTR-3B status, from GSTR-2A. None = not stated.
     supplier_3b_filed: bool | None = None
+    #: The document this row amends. See `OutwardRecord.amends_doc_no`.
+    amends_doc_no: str | None = None
+    amends_doc_date: date | None = None
     prov_id: str | None = None
     row_id: str | None = None
 

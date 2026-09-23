@@ -81,6 +81,7 @@ _COERCERS: Final[dict[str, Any]] = {
     "ewb_date": coerce_date,
     "ack_date": coerce_date,
     "irn_date": coerce_date,
+    "amends_doc_date": coerce_date,
     "valid_upto": coerce_date,
     "cancelled_on": coerce_date,
     "supplier_filing_date": coerce_date,

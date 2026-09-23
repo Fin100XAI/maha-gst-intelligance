@@ -154,6 +154,8 @@ def _outward(session: Session, gstin: str, snapshot_id: str) -> tuple[OutwardRec
                 reverse_charge=bool(row.reverse_charge),
                 hsn=row.hsn,
                 is_amendment=row.is_amendment,
+                amends_doc_no=row.amends_doc_no,
+                amends_doc_date=row.amends_doc_date,
                 irn=row.irn,
                 irn_date=row.irn_date,
                 prov_id=row.prov_id,
@@ -196,6 +198,8 @@ def _inward(session: Session, gstin: str, snapshot_id: str) -> tuple[InwardRecor
                 # screen while doing it.
                 itc_available=row.itc_available,
                 supplier_3b_filed=row.supplier_3b_filed,
+                amends_doc_no=row.amends_doc_no,
+                amends_doc_date=row.amends_doc_date,
                 source_form=row.source_form,
                 itc_unavailable_reason=row.itc_unavailable_reason,
                 ims_action=row.ims_action,

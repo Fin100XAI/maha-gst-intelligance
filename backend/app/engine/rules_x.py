@@ -821,3 +821,142 @@ def x05_rate_break_in_a_series(ctx: RuleContext) -> list[Finding]:
             ),
         )
     ]
+
+
+# ---------------------------------------------------------------------------
+# X-12 — an amendment that reduces tax after the tax was paid
+# ---------------------------------------------------------------------------
+
+
+def _amendments(ctx: RuleContext) -> list[OutwardRecord]:
+    rows: list[OutwardRecord] = []
+    for period in ctx.periods:
+        rows.extend(row for row in ctx.outward(period) if _amends_something(row))
+    return rows
+
+
+@rule(
+    id="X-12",
+    title="An amendment reduces tax on a document discharged in an earlier period",
+    legal_basis="s.34 r/w s.37(3) CGST Act, 2017; proviso to s.39(9)",
+    family="X",
+    dimension=RiskDimension.LIABILITY,
+    severity=Severity.HIGH,
+    confidence=Confidence.STRONG,
+    requires=("gstr1",),
+    params=("X-12.min_delta",),
+    relates_to=("X-01", "G-02"),
+    form=ActionForm.ASMT_10,
+    threshold="amendment reducing tax by more than Rs 25,000 on an earlier period's document",
+)
+def x12_amendment_reduces_discharged_tax(ctx: RuleContext) -> list[Finding]:
+    """A correction is ordinary. A correction that arrives after the money did
+    is a different thing, and the timing is the whole check.
+
+    An amendment filed in the same period as its original is bookkeeping: the
+    liability is declared once, net. An amendment filed later reduces a
+    liability that has already been discharged through a GSTR-3B, so the
+    reduction becomes a claim against tax already in the exchequer - and s.34
+    requires the recipient's credit to have been reversed before it can be
+    allowed.
+
+    **Only where the reference is stated.** The pairing is `amends_doc_no`
+    read from the B2BA table's own column, never a document number that
+    happens to look similar. `9936A` plainly amends `9936` on the reference
+    workbook and the engine still will not act on the resemblance - guessing
+    which document was amended is how a demand gets raised against the wrong
+    invoice.
+    """
+    if not ctx.data.outward:
+        # No return at all. "We looked and there were no amendments" and
+        # "there is no GSTR-1 here" are different statements, and only one of
+        # them is a clean pass.
+        return [not_evaluated(ctx, "X-12", ("outward supplies (GSTR-1 Table 4)",))]
+
+    amendments = _amendments(ctx)
+    if not amendments:
+        return [clear(ctx, "X-12")]
+
+    stated = [row for row in amendments if row.amends_doc_no]
+    if not stated:
+        return [
+            not_evaluated(
+                ctx,
+                "X-12",
+                ("the original document reference on the amendment rows (B2BA/CDNRA)",),
+            )
+        ]
+
+    floor = ctx.params.get("X-12", "min_delta", on=ctx.fy.end)
+    tracer = ctx.tracer(CalcKind.RULE, "X-12", legal_basis="s.34 CGST Act, 2017")
+    tracer.used_parameter(floor.use())
+
+    originals: dict[tuple[str, str], OutwardRecord] = {}
+    for period in ctx.periods:
+        for row in ctx.outward(period):
+            if _amends_something(row) or not row.doc_no:
+                continue
+            originals.setdefault((row.counterparty_gstin or "", row.doc_no), row)
+
+    reductions: list[tuple[OutwardRecord, OutwardRecord, Decimal]] = []
+    for row in stated:
+        key = (row.counterparty_gstin or "", row.amends_doc_no or "")
+        original = originals.get(key)
+        if original is None or original.period is None or row.period is None:
+            continue
+        if original.period >= row.period:
+            # Amended inside its own period: declared once, net, and not a
+            # reduction of anything already paid.
+            continue
+        drop = original.tax.total - row.tax.total
+        if drop > floor.decimal:
+            reductions.append((row, original, drop))
+
+    if not reductions:
+        return [clear(ctx, "X-12", trace=tracer.finish(result=_ZERO))]
+
+    total = sum((drop for _, _, drop in reductions), _ZERO)
+    worst = max(reductions, key=lambda item: item[2])
+    tracer.step("amendments reducing an earlier period's tax", "count", {}, len(reductions))
+    tracer.step(
+        "tax reduced",
+        "sum(original.tax - amended.tax)",
+        {"floor": format(floor.decimal, "f")},
+        total,
+    )
+
+    delta = sum(
+        ((original.tax - row.tax) for row, original, _ in reductions),
+        TaxVector(),
+    )
+
+    return [
+        triggered(
+            ctx,
+            "X-12",
+            delta=delta,
+            taxable_value_effect=sum(
+                ((original.taxable_value - row.taxable_value) for row, original, _ in reductions),
+                _ZERO,
+            ),
+            confidence=Confidence.STRONG,
+            trace=tracer.finish(
+                result=total,
+                formula_template="reduction = sum(original tax - amended tax)",
+                formula_rendered=f"{len(reductions)} amendments, {total} reduced",
+            ),
+            evidence_ids=tuple(r.row_id for r, _, _ in reductions[:50] if r.row_id),
+            form=ActionForm.ASMT_10,
+            narrative=(
+                f"{len(reductions)} amendments reduce tax on documents declared in an "
+                f"earlier period, by {total} in total. The largest is "
+                f"{worst[0].doc_no} amending {worst[1].doc_no} "
+                f"({worst[1].period} to {worst[0].period}) by {worst[2]}. "
+                f"An amendment inside its own period is bookkeeping; one that "
+                f"arrives after the liability was discharged reduces tax already "
+                f"paid, and s.34 requires the recipient's credit to have been "
+                f"reversed before the reduction can be allowed. Call for the "
+                f"credit notes and the recipients' reversal confirmations."
+            ),
+        )
+    ]

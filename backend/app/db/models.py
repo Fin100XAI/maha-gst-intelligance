@@ -314,6 +314,11 @@ class InwardLine(Base):
     #: compliance. Defaulting an absent status to True would silently clear
     #: the highest-yield check in the rulebook.
     supplier_3b_filed: Mapped[bool | None] = mapped_column(Boolean, index=True)
+    #: Which document this row amends. Only the B2BA and CDNRA tables
+    #: carry it, so it is null on an ordinary line and null is not a
+    #: statement that the row amends nothing - `section` says that.
+    amends_doc_no: Mapped[str | None] = mapped_column(String(64))
+    amends_doc_date: Mapped[date | None] = mapped_column(Date)
     prov_id: Mapped[str | None] = mapped_column(ForeignKey("provenance.id"))
 
 
