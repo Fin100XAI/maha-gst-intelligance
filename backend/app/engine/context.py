@@ -14,6 +14,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Final
 
 from app.canonical import FinancialYear, Period, Regime
+from app.engine.join_adapters import Unavailable, inputs_for
 from app.engine.params import ParameterSet
 from app.engine.records import (
     FilingRecord,
@@ -25,6 +26,7 @@ from app.engine.records import (
     TaxpayerProfile,
 )
 from app.engine.trace import CalcKind, Tracer
+from app.matching.joins import JOINS, MatchResult, join
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from app.engine.graph import InvoiceGraph
@@ -161,6 +163,68 @@ class RuleContext:
 
     def inward(self, period: Period) -> tuple[InwardRecord, ...]:
         return self.inward_by_period.get(period, ())
+
+    # -- joins -------------------------------------------------------------
+
+    @cached_property
+    def joins(self) -> dict[str, MatchResult | Unavailable]:
+        """Every declared join, run once.
+
+        `CLAUDE.md`: *joins run once, before rules, and are cached on the
+        context; a rule consumes a `MatchResult` and never re-runs a join.*
+        `cached_property` is what makes that true rather than aspirational -
+        the first rule to ask pays for all twenty-one, every rule after it
+        reads the same object, and two rules can no longer disagree about the
+        same pairing.
+
+        A join whose sheets are not ingested is `Unavailable` naming them,
+        never an empty `MatchResult`: an empty join reconciles perfectly and
+        reads as agreement.
+        """
+        out: dict[str, MatchResult | Unavailable] = {}
+        for join_id in JOINS:
+            found = inputs_for(join_id, self.data)
+            if isinstance(found, Unavailable):
+                out[join_id] = found
+                continue
+            out[join_id] = join(join_id, found.left, found.right, heads=found.heads)
+        return out
+
+    def join(self, join_id: str) -> MatchResult | None:
+        """The pairing for one join, or `None` if it could not run.
+
+        Named `join` for the rules to read; the module-level `join()` it
+        shadows is reached through `self.joins`, which has already run.
+        """
+        found = self.joins.get(join_id)
+        return found if isinstance(found, MatchResult) else None
+
+    def join_missing(self, join_id: str) -> tuple[str, ...]:
+        """What a join wanted and did not get. Empty when it ran."""
+        found = self.joins.get(join_id)
+        return found.missing if isinstance(found, Unavailable) else ()
+
+    @property
+    def checks_with_unavailable_joins(self) -> dict[str, tuple[str, ...]]:
+        """check id -> the datasets whose absence stopped a join it reads.
+
+        This is what `JoinSpec.feeds` is for: when a check does go dark, the
+        scorecard can say which sheet it was waiting on instead of leaving a
+        blank row.
+
+        **It is an input, not a conclusion.** A check can appear here and run
+        perfectly well - X-01 reads J21, J21 has no adapter, and X-01 still
+        produces Rs 1.91 crore by pairing the rows itself. Only the check's
+        own `NOT_EVALUATED` says it is dark; this says what it would have
+        liked to have.
+        """
+        out: dict[str, tuple[str, ...]] = {}
+        for found in self.joins.values():
+            if not isinstance(found, Unavailable):
+                continue
+            for check in found.starves:
+                out[check] = found.missing
+        return out
 
     # -- turnover ----------------------------------------------------------
 

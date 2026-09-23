@@ -163,13 +163,19 @@ def out_of_scope(sheet_name: str) -> str | None:
     return None
 
 
+#: What a portal sheet name puts between its words. Normalised to spaces
+#: before matching, because `_` is a word character and every pattern below
+#: is anchored on a word boundary.
+_SEPARATORS: Final[re.Pattern[str]] = re.compile(r"[_.-]+")
+
 #: GSTR-1 sections, recognised from the sheet name.  The portal names them
 #: exactly like this, and a consultant's file usually keeps the convention.
 _SECTION_HINTS: Final[tuple[tuple[re.Pattern[str], str], ...]] = (
     (re.compile(r"\bb2b\b.*\b(a|amend)", re.IGNORECASE), "AMENDMENT"),
     (
         re.compile(
-            r"\bb2ba\b|\bb2cla\b|\bb2csa\b|\bcdnra\b|\bcdnura\b|\b9a\b|\b9c\b", re.IGNORECASE
+            r"\bb2ba\b|\bb2cla\b|\bb2csa\b|\bcdnra\b|\bcdnura\b|\bisda\b|\b9a\b|\b9c\b",
+            re.IGNORECASE,
         ),
         "AMENDMENT",
     ),
@@ -181,10 +187,19 @@ _SECTION_HINTS: Final[tuple[tuple[re.Pattern[str], str], ...]] = (
     (re.compile(r"\bsez.*wp\b|\bsezwp\b", re.IGNORECASE), "SEZWP"),
     (re.compile(r"\bsez", re.IGNORECASE), "SEZWOP"),
     (re.compile(r"\bcdnur\b", re.IGNORECASE), "CDNUR"),
-    (re.compile(r"\bcdnr\b|credit.*note|debit.*note", re.IGNORECASE), "CDNR"),
+    # `CDN` is what the portal calls the 2A credit/debit note sheet, and
+    # what a consultant calls the GSTR-1 one. Matched after `cdnur` and
+    # `cdnra` so the longer names keep their own meaning.
+    (re.compile(r"\bcdnr\b|\bcdn\b|credit.*note|debit.*note", re.IGNORECASE), "CDNR"),
     (re.compile(r"\bdeemed\b|\bdexp\b", re.IGNORECASE), "DEEMED"),
     (re.compile(r"9\s*\(?5\)?|\becom\b|e-?commerce", re.IGNORECASE), "ECOM_9_5"),
     (re.compile(r"\bnil\b|\bexempt", re.IGNORECASE), "NIL_EXEMPT"),
+    # IMPGSEZ (goods from an SEZ) and IMPGOS (goods from overseas) are
+    # separate GSTR-2B tables with no separate canonical section. Both are
+    # imports of goods and both sit in 3B table 4(A)(1) - which is the
+    # distinction that matters downstream, because neither belongs in the
+    # "all other ITC" bucket that 4(A)(5) is compared against.
+    (re.compile(r"\bimpgsez\b|\bimpgos\b", re.IGNORECASE), "IMPG"),
     (re.compile(r"\bimpg\b|import.*goods", re.IGNORECASE), "IMPG"),
     (re.compile(r"\bimps\b|import.*serv", re.IGNORECASE), "IMPS"),
     (re.compile(r"\bisd\b", re.IGNORECASE), "ISD"),
@@ -216,8 +231,19 @@ class Classification:
 
 
 def section_from_name(sheet_name: str) -> str | None:
+    """The GSTR-1 or GSTR-2B table this sheet holds, read from its name.
+
+    Separators are normalised to spaces first, and that one line is the whole
+    function. Every pattern here is anchored on a word boundary, and `_` is a
+    word character - so ``\bb2b\b`` has never once matched ``GSTR1_B2B``,
+    which is exactly how the portal names its sheets. This returned ``None``
+    for every sheet of every real workbook, ``_default_section`` turned that
+    into ``B2B``, and credit notes, amendments and import lines have been
+    labelled B2B since it was written.
+    """
+    probe = _SEPARATORS.sub(" ", sheet_name)
     for pattern, section in _SECTION_HINTS:
-        if pattern.search(sheet_name):
+        if pattern.search(probe):
             return section
     return None
 
@@ -267,7 +293,13 @@ def classify_sheet(
         candidate = Classification(
             family=fingerprint.family,
             confidence=min(score, 100),
-            section=section_from_name(sheet_name) if fingerprint.family == "GSTR1" else None,
+            # Both statement families carry sections, and GSTR-2B's are the
+            # ones that decide whether a line belongs in the 4(A)(5)
+            # bucket at all. Reading them for GSTR-1 alone left every ISD
+            # and import line indistinguishable from a B2B invoice.
+            section=section_from_name(sheet_name)
+            if fingerprint.family in {"GSTR1", "GSTR2B"}
+            else None,
             evidence=evidence,
         )
         if best is None or strength > best_strength:

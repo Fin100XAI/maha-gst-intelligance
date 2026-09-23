@@ -149,7 +149,13 @@ class InwardRecord:
         return (
             self.source_form == "GSTR2B"
             and self.itc_available is True
-            and self.section in {"B2B", "CDNR"}
+            # B2B, credit notes, and amendments to either: the four tables
+            # the portal populates 4(A)(5) from. `AMENDMENT` is here
+            # because a B2BA line is a correction to a B2B line and lands
+            # in the same bucket - it was inside this set by accident
+            # until the section was read from the sheet name at all, and
+            # leaving it out now would quietly drop every amendment.
+            and self.section in {"B2B", "CDNR", "CDNUR", "AMENDMENT"}
             and (self.ims_action is None or self.ims_action in {"ACCEPTED", "NO_ACTION"})
         )
 

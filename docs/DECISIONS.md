@@ -2000,3 +2000,144 @@ same snapshot pairing differently on a different machine, and the paired
 comparison every finding rests on quietly ceasing to be paired.
 
 Clean on the first run across all nine trees.
+
+---
+
+## D-0088 — The join phase: once, before rules, cached on the context
+
+**Evaluation.** Twenty-one joins were declared, typed and carried their
+`feeds`, and not one had run against the workbook. `CLAUDE.md` requires them
+to run once before rules and be consumed as a `MatchResult`; there was no join
+phase at all, and every check that needed a pairing did its own.
+
+**Decision.** `app/engine/join_adapters.py` holds one adapter per join -
+`TaxpayerData` in, two `Candidate` sequences out - and `RuleContext.joins` is
+a `cached_property` that runs all twenty-one.
+
+**The direction of the dependency is the design.** `app/matching` pairs two
+`Candidate` sequences and buckets the result, and deliberately does not know
+what a GSTR-2A row is. The adapters live in `app/engine` because engine
+already imports matching; the reverse would be a cycle and would put return
+semantics inside a matcher with no business holding them.
+
+**`cached_property` is what makes the rule true rather than aspirational.**
+The first check to ask pays for all twenty-one; every check after it reads the
+same object. A test asserts identity, not equality - equality would still
+permit two checks to compute two pairings and agree by luck.
+
+**Absence is a different object from emptiness.** A join whose sheets are not
+ingested returns `Unavailable` naming them, never an empty `MatchResult`: an
+empty join reconciles perfectly and reads as two sides agreeing, which is the
+wrong answer for a sheet nobody uploaded.
+
+**Measured on the reference workbook, first run:**
+
+    J03  2B 4,538 vs 2A 4,625   matched 4,404  differs 96
+                                only-2B 38     only-2A 125   reconciles
+         L1 4,402 · L2 97 · L3 1 · L4 0
+
+    J04  defaulting 101 vs claimable 4,678
+         matched 87  differs 6  only-left 8                  reconciles
+
+    J07  notes 211 vs invoices 2,039
+         matched 52, every one at L3                         reconciles
+
+The ladder behaves as designed: on J03, where both sides are the same
+invoices written into two statements, L1 carries 4,402 of 4,500 pairs and only
+one falls past L2. The 125 documents in 2A and not in 2B are the population
+gap `docs/02` says is the point - suppliers who filed after the cut-off.
+
+**Three adapters, not twenty-one.** The other eighteen wait on sheets the
+platform recognises and does not ingest, and report that by name.
+`checks_with_unavailable_joins` maps those to the checks that read them, which
+is what `feeds` was for.
+
+**That map is an input, not a verdict**, and the first version over-claimed.
+X-01 reads J21, J21 has no adapter, and X-01 still produces Rs 1.91 crore by
+pairing the rows itself - so a "starved checks" list naming X-01 would have
+told an officer a check was dark while it was on screen with a figure. Only a
+check's own `NOT_EVALUATED` says it is dark.
+
+---
+
+## D-0089 — `section_from_name` has never matched a real sheet
+
+**What it is.** Every pattern in `_SECTION_HINTS` is anchored on `\b`. `_` is
+a word character. So `\bb2b\b` cannot match `GSTR1_B2B` - which is exactly how
+the portal names its sheets. The function returned `None` for all twenty-nine
+sheets of the reference workbook, and `_default_section` turned each `None`
+into `B2B`.
+
+All 11,777 parsed rows were section `B2B`, including 478 credit notes, 18
+amendments and 2 import lines.
+
+Found while writing the J07 adapter, which asked for credit-note rows by
+section and got none from a file with 211 of them.
+
+**What it cost, in rising order of quietness.**
+
+1. `gstr1_section_coverage` - which this same session added - reported `CDNR`
+   absent on a taxpayer who filed 478 credit notes.
+2. `is_amendment` is written by `persist` as `section == "AMENDMENT"`, so **no
+   row in any database has ever carried it**. D-0081 fixed the loader for
+   dropping that column; the column was empty the whole time. A check
+   excluding amendments has been excluding nothing.
+3. `counts_toward_2b_available` tests the section precisely so that IMPG,
+   IMPS and ISD credit - 3B table 4(A)(1) to (4), not part of the "all other
+   ITC" bucket - stays out of the Rule 88D comparison. With every row labelled
+   `B2B` that filter did nothing at all.
+
+**The fix is one line and five patterns.** Separators normalise to spaces
+before matching; `cdn`, `isda`, `impgsez` and `impgos` gain patterns; and the
+GSTR-2B family reads sections too, where it previously passed `None`
+unconditionally because only GSTR-1 was thought to have them.
+
+**Before and after, on the reference workbook: every figure identical.**
+
+    2B available bucket   Rs 12,92,86,091.72   ->   Rs 12,92,86,091.72
+    ITC-01, all 8 periods                      ->   unchanged
+    ITC-03, all 6 periods                      ->   unchanged
+    B-04  Rs 98,47,287.78                      ->   unchanged
+    X-01  Rs 1,90,71,332.80                    ->   unchanged
+    X-02  Rs 66,01,615.20                      ->   unchanged
+
+Unchanged because the two import rows that reached the bucket carry no
+availability flag and were failing an earlier condition anyway. **That is
+luck, not a control** - the same shape as D-0082, and the same conclusion. On
+an importer's file the 4(A)(1) credit would have walked into the 4(A)(5)
+comparison and understated the excess.
+
+**`AMENDMENT` joins the 4(A)(5) bucket, deliberately.** The portal populates
+4(A)(5) from B2B, B2BA, CDNR and CDNRA. Amendments were inside the set by
+accident while everything was `B2B`; leaving them out now that sections are
+read would silently drop every amendment from the comparison, which would be a
+new defect introduced by fixing an old one.
+
+**One sheet still has no section.** `GSTR2A_TDS` returns `None`: GSTR-7 credit
+is not a supply and there is no `SupplySection` member for it. Inventing one
+to fill the gap is how a canonical enum stops meaning anything. Its 13 rows do
+not survive ingestion on this file, so nothing currently turns on it - but the
+`_default_section` fallback to `B2B` is still an assumption, and it is the
+next thing to remove here.
+
+---
+
+## D-0090 — J07 does not yet implement its own key, and X-02 stays direct
+
+`JOINS["J07"]` declares its key as *value + party, digit containment*. The
+ladder does value and party. It has no rung for digit containment, which
+lives beside it as `keys.shares_digit_run` and is what X-02 uses to tie a
+credit note numbered `CN/SSR/1439` to invoice `SSR/M/1439/25-26`.
+
+So the J07 adapter pairs 52 of 211 notes on the reference file, all at
+`L3_VALUE`, and that is a different test from the one X-02 runs.
+
+**X-02 therefore continues to do its own matching**, against `CLAUDE.md`'s
+rule that a check consumes a `MatchResult` and never re-runs a join. Rewiring
+it to a join implementing a different test would change Rs 66,01,615.20, which
+is verified against `docs/07` Finding 1. A verified figure does not move to
+satisfy an architectural rule.
+
+Closing the gap properly means either a sixth rung in `MatchLevel` - a
+`docs/02` contract change - or a second J07 variant keyed on containment.
+Recorded as open rather than quietly resolved either way.
