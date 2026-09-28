@@ -57,14 +57,17 @@ export function TopNav() {
               const isOpen = openId === group.id
               const badgeSum = items.reduce((s, m) => s + (badges[m.id]?.count || 0), 0)
               const urgent = items.some(m => badges[m.id]?.urgent && badges[m.id]?.count > 0)
+              // A group holding one screen opens it directly — a menu of one is a wasted click.
+              const single = items.length === 1
 
               return (
-                <div key={group.id} className="relative shrink-0" onMouseEnter={e => scheduleOpen(group.id, e.currentTarget)} onMouseLeave={scheduleClose}>
+                <div key={group.id} className="relative shrink-0" onMouseEnter={single ? undefined : e => scheduleOpen(group.id, e.currentTarget)} onMouseLeave={single ? undefined : scheduleClose}>
                   <button
                     type="button"
-                    aria-haspopup="true"
-                    aria-expanded={isOpen}
-                    onClick={e => { if (isOpen) { closeNow() } else { const r = e.currentTarget.closest('div').getBoundingClientRect(); setAnchor({ left: r.left, top: r.bottom }); setOpenId(group.id) } }}
+                    aria-haspopup={single ? undefined : 'true'}
+                    aria-expanded={single ? undefined : isOpen}
+                    aria-current={single && isActive ? 'page' : undefined}
+                    onClick={e => { if (single) { select(items[0].id) } else if (isOpen) { closeNow() } else { const r = e.currentTarget.closest('div').getBoundingClientRect(); setAnchor({ left: r.left, top: r.bottom }); setOpenId(group.id) } }}
                     className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] whitespace-nowrap transition-colors duration-150 ${
                       isActive || isOpen ? 'bg-white/15 font-semibold text-white' : 'font-medium text-govt-200 hover:bg-white/10 hover:text-white'
                     }`}
@@ -75,7 +78,7 @@ export function TopNav() {
                         {badgeSum > 99 ? '99+' : badgeSum}
                       </span>
                     )}
-                    <ChevronDown className={`w-3 h-3 text-govt-300 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+                    {!single && <ChevronDown className={`w-3 h-3 text-govt-300 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />}
                     <span
                       aria-hidden
                       className={`absolute inset-x-1.5 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-gold-400 to-gold-600 origin-center transition-transform duration-200 ${isActive ? 'scale-x-100' : 'scale-x-0'}`}

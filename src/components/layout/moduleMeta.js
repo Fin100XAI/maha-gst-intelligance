@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import {
   LayoutDashboard, TrendingUp, UserSearch, ShieldAlert, Network, Truck, Timer, Gavel as GavelIcon,
   Receipt, ClipboardCheck, Factory, Map, Bot, Gavel, BellRing, ShieldCheck,
-  FileBarChart2, BadgeCheck, Layers, ListOrdered, Scale, Users, Scissors, Radar, ShieldCheck as ShieldCheckIcon, History, GitCompare, Library, SlidersHorizontal
+  FileBarChart2, BadgeCheck, Layers, ListOrdered, Scale, Users, Scissors, Radar, ShieldCheck as ShieldCheckIcon, History, GitCompare, Library, SlidersHorizontal, ScanSearch
 } from 'lucide-react'
 import {
   KPI_SUMMARY, NETWORK_CLUSTERS, EWAY_RECORDS, AUDIT_CASES,
@@ -13,6 +13,7 @@ export const MODULE_ICONS = {
   'statutory-time': GavelIcon,
   'recovery-window': Timer,
   'command-center': LayoutDashboard,
+  'gst-scrutiny': ScanSearch,
   'case-twin': Layers,
   'revenue-intelligence': TrendingUp,
   'itc-risk': ShieldAlert,
@@ -63,6 +64,7 @@ export function useSidebarBadges() {
 
 export const NAV_GROUPS = [
   { id: 'Command Centre', label: 'Command Centre' },
+  { id: 'GST Scrutiny', label: 'GST Scrutiny' },
   { id: 'Revenue Position', label: 'Revenue Position' },
   { id: 'Statutory Time & Decay', label: 'Statutory Time & Decay' },
   { id: 'Risk Discovery', label: 'Risk Discovery' },

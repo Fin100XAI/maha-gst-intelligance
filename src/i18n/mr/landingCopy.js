@@ -98,6 +98,8 @@ registerMessages('mr', {
     'निकाली व कारवाई न झालेली प्रकरणे, त्या वेळी कार्यरत असलेल्या संकेतांच्या आधारे पुन्हा तपासलेली, स्पष्टीकरण देता येणारे पुनर्विलोकन उमेदवार म्हणून.',
   'What the same action taken earlier would have been worth on a case, with comparable concluded proceedings as the evidence.':
     'तीच कृती आधी केली असती तर प्रकरणात तिचे मूल्य किती झाले असते, पुरावा म्हणून तुलनात्मक निकाली कार्यवाहींसह.',
+  'Filed returns reconciled against each other, with every mismatch traced to the taxpayer and period behind it.':
+    'दाखल विवरणपत्रांचा परस्पर ताळमेळ, प्रत्येक तफावत तिच्यामागील करदाता व कालावधीपर्यंत शोधलेली.',
   'What the department is about to lose, what can still be protected, and which actions this week protect the most.':
     'विभाग काय गमावणार आहे, काय अद्याप वाचवता येते, आणि या आठवड्यात कोणत्या कृती सर्वाधिक संरक्षण देतात.',
   'Screens only the taxpayers no encoded rule touches, looking for patterns the rulebook does not yet contain.':
