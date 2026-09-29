@@ -1,0 +1,97 @@
+// Static documentation content for the Features / Guide / How-to / Rules pages.
+// Kept in one place so the wording matches what the engine (src/engine/analyze.js) actually does.
+
+// How the engine tests each automated rule, and what counts toward exposure.
+export const AUTOMATION = {
+  'A-01': { test: 'Every counterparty GSTIN (customers in GSTR-1, suppliers in GSTR-2B, credit-note recipients) is run through the GSTN mod-36 check-digit algorithm.', fail: 'Any GSTIN failing the check digit', exposure: 'ITC on 2B lines from invalid GSTINs', gap: 'Active / cancelled / composition status needs the GSTIN master API.' },
+  'A-02': { test: 'Months covered by filed GSTR-3B periods are compared against months with GSTR-1 or 2B activity; the filing date is taken from the first liability-ledger debit per period.', fail: 'Any month with activity but no 3B', exposure: '-', gap: 'GSTR-9 / 9C filing status is not in the extract.' },
+  'B-01': { test: '3B claim = 4A(4) + 4A(5) − 4B(2) per period vs GSTR-2B eligible ITC (B2B lines with ITC available and no RCM, ± supplier notes, + ISD).', fail: 'Annual excess > ₹1,000 and > 1%; periods breaching alone = Review', exposure: 'Annual net excess ITC', gap: 'Line-level (invoice) match needs the purchase register.' },
+  'B-04': { test: 'GSTR-2A lines whose supplier shows GSTR-3B filing status “No”.', fail: 'Any such ITC → Review (Rule 37A reversal becomes due only after 30-Sep of next FY)', exposure: 'Tax on those lines (potential)', gap: 'Bona fide-recipient defence (Suncraft line) is a legal judgement.' },
+  'B-07': { test: 'Prior-FY invoices appearing in a 2B period of December or later (i.e. claimed after 30-Nov).', fail: 'Any such invoice', exposure: 'Their tax, less 4D(2) disclosed', gap: '-' },
+  'B-08': { test: 'Exact duplicates on supplier GSTIN + normalised invoice number in GSTR-2B; near-duplicates on supplier + date + value (≥ ₹10,000) under different numbers.', fail: 'Exact duplicate = Fail; near-duplicate = Review', exposure: 'Tax on the extra copies', gap: 'Cross-GSTIN duplicates need all GSTINs of the PAN.' },
+  'B-09': { test: 'IGST on Bills of Entry (2B IMPG/IMPGSEZ + 2A ICEGATE feed, de-duplicated) vs 3B 4A(1).', fail: '3B exceeds BoE IGST by > ₹1,000', exposure: 'Excess import ITC', gap: 'Books leg of the three-way match needs the purchase register.' },
+  'C-01': { test: 'Tax on RCM-flagged inward supplies in 2B vs RCM liability declared in 3B 3.1(d).', fail: '2B RCM tax exceeds 3.1(d) by > ₹1,000', exposure: 'Shortfall', gap: 'RCM on GL heads (legal, GTA, URP rent, import of services) needs the ledger.' },
+  'C-02': { test: 'ITC in 4A(2) + 4A(3) vs RCM tax paid in 3.1(d), cumulatively by period.', fail: 'RCM ITC exceeds RCM paid by > ₹1,000', exposure: 'Excess RCM ITC', gap: '-' },
+  'D-01': { test: 'For every outward line (B2B, B2CL, B2CS) and inward 2B line, supplier state vs place-of-supply state against the tax head charged.', fail: 'Outward mismatch = Fail; inward only = Review', exposure: 'Tax charged under the wrong head (outward)', gap: 'Bill-to-ship-to needs e-way bills.' },
+  'D-02': { test: '2B lines marked ITC not available (reason P: POS in supplier’s state) vs 3B 4D(2) disclosure.', fail: 'Undisclosed amount > ₹1,000 → Review', exposure: 'Undisclosed ineligible ITC (potential)', gap: '-' },
+  'F-06': { test: 'Periods where taxable value averages > ₹50 lakh / month and cash paid is < 1% of output tax (Rule 86B).', fail: 'Any breach → Review (exemptions depend on facts)', exposure: '1% of output tax less cash paid', gap: 'Rule 86B exemptions (income-tax paid, refunds) need facts.' },
+  'G-01': { test: 'Annual GSTR-1 taxable (B2B + B2C ± notes) vs GSTR-3B 3.1(a)+(b); HSN summary shown alongside.', fail: 'Difference > ₹10,000 and > 0.1%', exposure: 'Not added (tax effect sits in G-02)', gap: 'Books and GSTR-9 legs need the TB / annual return.' },
+  'G-02': { test: 'Tax declared in GSTR-1 vs tax paid in GSTR-3B, per period and for the year.', fail: 'Annual shortfall > ₹1,000 and > 0.5%; period-only shortfall = Review', exposure: 'Annual net short payment', gap: '-' },
+  'G-03': { test: 'Current-year turnover as an AATO proxy; B2B invoices without an IRN.', fail: 'Some invoices missing IRN = Fail; all missing = Review (extract may not carry IRNs)', exposure: 'Not added (penalty, not tax)', gap: 'Needs prior-year AATO and IRP data.' },
+  'G-10': { test: 'Tax ≠ taxable × rate on invoices; non-notified rates; HSN summary vs GSTR-1 taxable.', fail: 'Short-charged > ₹1,000, invalid rate, or HSN gap > 1%', exposure: 'Short-charged tax', gap: 'HSN-to-rate master check needs a rate table.' },
+  'G-12': { test: 'Document-issued summary (net invoices) vs invoices reported; cancellation rate; numeric gaps within B2B series.', fail: 'Reported > issued, cancellations > 5% or series gaps → Review', exposure: '-', gap: 'Full series needs the sales register.' },
+  'G-14': { test: 'TDS base (GSTR-7) + TCS net (GSTR-8) vs declared turnover.', fail: 'Credits imply more turnover than declared', exposure: '18% of the excess', gap: '-' },
+  'H-01': { test: 'Credit notes against prior-FY invoices issued after 30-Nov (s.34(2)).', fail: 'Any such note', exposure: 'Tax reduced by those notes', gap: 'Needs the original invoice date on the note.' },
+  'H-02': { test: 'Credit notes without an original-invoice reference, or referencing an invoice not in this year’s GSTR-1.', fail: 'Any → Review', exposure: '-', gap: 'GSTR-1 no longer requires the link; needs the CN register.' },
+  'H-06': { test: 'Supplier credit notes in 2B are netted into B-01’s eligible ITC.', fail: 'Fails only if B-01 fails after netting', exposure: 'Counted in B-01', gap: 'IMS accept/reject status is not in the extract.' },
+  'H-08': { test: 'Customers whose credit notes exceed 10% of invoiced value; share of CN value issued in March.', fail: 'Any such customer → Review', exposure: 'Tax on those notes (potential)', gap: '-' },
+  'J-01': { test: 'Delay days × tax paid in cash × 18% ÷ 365 per period vs interest paid.', fail: 'Shortfall > ₹100', exposure: 'Interest shortfall', gap: 'Interest on wrongly utilised ITC (J-02) needs ledger balances by day.' },
+  'J-03': { test: '₹50 / day (₹20 nil) per late GSTR-3B, capped, vs late fee paid.', fail: 'Shortfall > ₹50', exposure: 'Late-fee shortfall', gap: 'GSTR-1 filing dates are not in the extract.' },
+  'K-01': { test: 'FY 2024-25 onwards ⇒ s.74A; SCN within 42 months of the annual-return due date, order within 12 months.', fail: 'Informational', exposure: '-', gap: '-' },
+  'K-02': { test: 'Counts risk indicators raised by the forensic tests (leads for enquiry, not proof).', fail: '≥ 3 strong signals = Fail; 1–2 = Review', exposure: '-', gap: 'Intent must be pleaded and proved: signals are grounds for enquiry.' },
+  'K-04': { test: 'Quantified exposure vs the ₹1,000 de-minimis of s.74A.', fail: 'Informational', exposure: '-', gap: '-' },
+  'K-07': { test: 'Indicative penalty: 10% or ₹10,000 (non-fraud) or 100% (fraud limb) of quantified exposure.', fail: 'Informational', exposure: '-', gap: '-' },
+};
+
+export const FRAUD_DOCS = [
+  { key: 'circular', label: 'Circular trading', threshold: 'Parties both buying and selling; mirrored value > 5% of sales', why: 'Round-tripping of invoices to manufacture ITC.' },
+  { key: 'distinct', label: 'Distinct-person transactions', threshold: 'Any counterparty with the same PAN', why: 'Needs Rule 28 valuation and cross-charge review.' },
+  { key: 'valueadd', label: 'Low cash payment', threshold: 'Cash < 3% of liability, liability > ₹10 L', why: 'Liability almost fully funded by ITC: typical of credit-passing entities.' },
+  { key: 'nonfiler', label: 'Non-filing suppliers', threshold: 'ITC from suppliers without 3B > 5% of ITC', why: 'Core pattern of fake-invoice rings.' },
+  { key: 'benford', label: "Unnatural invoice amounts (Benford's law)", threshold: 'First-digit MAD > 0.015 with n ≥ 300 (Nigrini 2012)', why: 'In genuine data about 30 in 100 amounts start with 1 and fewer than 5 with 9; made-up amounts rarely follow that curve. Price lists can also bend it, so sample before concluding.' },
+  { key: 'round', label: 'Round figures', threshold: '> 20% of invoices ≥ ₹10,000 are multiples of ₹1,000', why: 'Accommodation bills tend to be round.' },
+  { key: 'ewb', label: 'E-way bill splitting', threshold: '≥ 10 invoices in ₹45–50K and > 2× those in ₹50–55K', why: 'Splitting to stay under the ₹50,000 e-way bill limit.' },
+  { key: 'spike', label: 'Turnover spike', threshold: 'Peak month > 3× median and > ₹10 L', why: 'Bill-trading bursts or window dressing.' },
+  { key: 'accum', label: 'ITC accumulation', threshold: 'ITC > 110% of output tax with no exports', why: 'Credit build-up without an inverted-duty reason.' },
+  { key: 'cn', label: 'Year-end credit notes', threshold: 'CNs > 5% of sales and > 50% of them in March', why: 'Reverses sales booked earlier.' },
+  { key: 'dup', label: 'Duplicate invoices', threshold: 'Any exact duplicate in 2B', why: 'Same invoice claimed twice.' },
+  { key: 'arith', label: 'Tax arithmetic errors', threshold: '> 5% of B2B invoices', why: 'Values edited after the fact.' },
+  { key: 'sunday', label: 'Sunday invoicing', threshold: '> 15% of ≥ 50 B2B invoices', why: 'Possible back-dated paper invoices.' },
+];
+
+export const SHEETS = [
+  ['GSTR3B_Supplies · _ITC · _PaymentofTax · _InterestLateFees', 'Declared liability (3.1), ITC availed / reversed (Table 4), discharge via cash vs credit, interest and late fee'],
+  ['GSTR1_B2B · B2CL · B2CS · CDN · HSNSummary · DocIssued · NilRated · B2B Amendment', 'Outward supplies, notes, HSN and document series'],
+  ['GSTR2B_B2B · CDNR · ISD · IMPG · IMPGSEZ', 'Eligible ITC statement (static), import bills of entry'],
+  ['GSTR2A_B2B · CDN · TDS · IMPGOS', 'Dynamic supplier data incl. supplier GSTR-3B filing status, TDS credits, ICEGATE feed'],
+  ['LiabilityLedger · CashLedger · CreditLedger · Challan', 'Filing dates, cash / credit utilisation, payment attempts'],
+  ['GSTR-7 TDS / TCS · GSTR6A', 'TDS / TCS credits, ISD distributions'],
+];
+
+export const GLOSSARY = [
+  ['AATO', 'Aggregate annual turnover: decides e-invoicing and QRMP eligibility.'],
+  ['ASMT-10', 'Notice under s.61 / Rule 99 intimating discrepancies found in scrutiny; reply in ASMT-11, closure in ASMT-12.'],
+  ['DRC-01B / 01C', 'System intimations for GSTR-1 vs 3B liability gaps (Rule 88C) and 3B vs 2B ITC gaps (Rule 88D).'],
+  ['GSTR-1', 'Statement of outward supplies, invoice-wise for B2B.'],
+  ['GSTR-2A', 'Dynamic view of supplier-reported inward supplies; changes as suppliers file.'],
+  ['GSTR-2B', 'Static monthly ITC statement; the ceiling for ITC under s.16(2)(aa) and Rule 36(4).'],
+  ['GSTR-3B', 'Summary return where tax is actually paid.'],
+  ['HSN', 'Harmonised classification code reported in GSTR-1 Table 12.'],
+  ['IMS', 'Invoice Management System: recipient accepts / rejects supplier documents before 2B.'],
+  ['IRN', 'Invoice reference number issued by the e-invoice portal.'],
+  ['ITC', 'Input tax credit.'],
+  ['MAD', "Mean absolute deviation: the average gap between actual and expected first-digit shares (Benford's law). Below 0.012 looks natural; above 0.015 is unusual."],
+  ['POS', 'Place of supply: decides IGST vs CGST + SGST.'],
+  ['QRMP', 'Quarterly return, monthly payment scheme (GSTR-3B quarterly, IFF monthly).'],
+  ['RCM', 'Reverse charge: the recipient pays the tax.'],
+  ['s.74A', 'Unified demand provision for FY 2024-25 onwards (fraud and non-fraud limbs).'],
+];
+
+export const HOWTOS = [
+  { id: 'signin', title: 'Sign in', area: 'Getting started', steps: ['Open the console and choose Sign in.', 'Choose your administration: State GST (you sign in as GST Officer) or Central GST (Superintendent). Your title is used on notices and reports.', 'Enter your jurisdiction workspace (e.g. ward-27), official email and password.', 'You land on the Dashboard. Your name, title and workspace show at the bottom of the sidebar; the arrow icon signs you out.'], go: 'dashboard' },
+  { id: 'load', title: 'Load a new taxpayer return', area: 'Getting started', steps: ['Download the taxpayer’s “All Report” workbook (.xlsx) from your returns platform.', 'Go to Upload data and drop the file on the upload zone (or Choose files).', 'The file is saved to the data/ folder on the server and analysed with the other returns, then opens in Taxpayer 360°. It stays after a reload or restart.', 'Uploading the same GSTIN again replaces its workbook; the earlier file moves to data/superseded/.'], go: 'data' },
+  { id: 'report', title: 'Upload a return and generate a report', area: 'Getting started', steps: ['Go to Upload data and drop the taxpayer’s “All Report” .xlsx (or Choose files).', 'The file is analysed in about a second and opens in Taxpayer 360°.', 'Click Generate report (also under Reports in the sidebar, or the Report button under Upload data → Show loaded taxpayers).', 'Review the eight sections: summary, findings, reconciliation, risk indicators, counterparties, compliance, case record, coverage.', 'Print / Save PDF for the file, or download a self-contained .html copy.'], go: 'report' },
+  { id: 'triage', title: 'Triage the portfolio', area: 'Daily work', steps: ['Open the Dashboard. Start with the Risk ranking bar chart and the High · critical KPI.', 'Use the Rule heat-map to see which checks fail across many taxpayers: a column of red is a systemic issue worth a circular.', 'Switch the heat-map to Risk indicators to spot entities with several leads worth corroborating.', 'Click any bar or name to open the taxpayer.'], go: 'dashboard' },
+  { id: 'queue', title: 'Work the case queue', area: 'Daily work', steps: ['Open Cases. Filter pills split the queue by status; the dropdown filters by risk band.', 'Click Start review to pick up a case: you become the assignee.', 'Use Draft ASMT-10 once findings are confirmed, or Close if no action is needed.'], go: 'cases' },
+  { id: 'investigate', title: 'Investigate a taxpayer', area: 'Daily work', steps: ['Open Taxpayer 360° (from Cases, the Dashboard, the Watchlist, or search by name / GSTIN).', 'Read the header: turnover, cash share, late returns, risk gauge and risk-profile radar.', 'Reconciliation tab: red bars in the lower panels are short payment (GSTR-1 > 3B) or excess ITC (3B > 2B).', 'Rule findings tab: click a row for line-level evidence, the legal reference and the recommended action.'], go: 'taxpayer' },
+  { id: 'gaps', title: 'Read a reconciliation gap', area: 'Daily work', steps: ['A single-period gap that reverses the next period is usually timing: interest may still apply (J-01).', 'An annual gap that does not reverse is a quantified exposure (B-01 or G-02 Fail).', 'Open the Table toggle on any chart for the exact rupee figures per period.', 'Check the Period reconciliation sheet at the bottom of the tab for all legs side by side.'], go: 'taxpayer' },
+  { id: 'fraud', title: 'Check risk indicators', area: 'Investigation', steps: ['Open the Risk indicators tab. Red cards are raised indicators with the measured value: grounds for enquiry, not proof.', "Benford chart: bars far from the orange expected line with MAD > 0.015 deserve sampling of invoices.", 'Circular trading chart: similar sold / bought values with the same party suggest round-tripping.', 'In GSTR-2A but not 2B: supplier filed late: ITC must wait for the next 2B.'], go: 'taxpayer' },
+  { id: 'notes', title: 'Record notes and move a case', area: 'Investigation', steps: ['In Taxpayer 360°, open the Case file tab.', 'Type a note (reply received, documents called for) and press Add note or Ctrl + Enter.', 'Change the case status from the Case status box; every change is time-stamped in History.'], go: 'taxpayer' },
+  { id: 'outcome', title: 'Record an outcome for each alert', area: 'Investigation', steps: ['Open Taxpayer 360° → Rule findings. The Officer outcome column shows Pending for every alert without a decision.', 'Click a row, verify using the evidence listed, then choose one of five outcomes: Confirmed discrepancy, Explained by taxpayer, Timing / reconciliation difference, Source-data issue, or Dropped / false positive.', 'Write what you verified and on what evidence (required), then Record. Every change is logged in the case history.', 'Only a confirmed discrepancy can go into a notice. Rule 37A (B-04) cannot be confirmed before the 30 September supplier deadline.'], go: 'taxpayer' },
+  { id: 'evidence', title: 'Download an evidence pack', area: 'Investigation', steps: ['In Rule findings, click a row and choose Evidence pack.', 'The file holds the rule, legal provision, source file and extract date, every exception row, your outcome, taxpayer responses and the case history.', 'It carries a SHA-256 fingerprint: open the file and press Verify to confirm nothing has been edited. Each download is logged.'], go: 'taxpayer' },
+  { id: 'close', title: 'Close a case with reasons', area: 'Action', steps: ['Record an outcome for every alert first: the Close dialog lists any still pending.', 'Record taxpayer responses in the Case file as they arrive.', 'Choose Close case, pick a closure code and write the reasons. The Cases page tracks confirmed and false-positive rates, value sustained and closures without demand.'], go: 'cases' },
+  { id: 'notice', title: 'Verify, then draft an ASMT-10 notice', area: 'Action', steps: ['From Cases or Taxpayer 360° choose Scrutiny note.', 'Work through the scrutiny note: each exception lists what to verify and the evidence needed. Record written reasons and the approving officer.', 'Tick the notice readiness checklist as each step is done. ASMT-10 drafting unlocks after items 1 to 9.', 'Check reference number, issue date and reply window (30 days by default under Rule 99(2)); toggle discrepancies (Rule 37A items still Amber are excluded).', 'Tick item 10 once the draft is reviewed and fact-checked; only then can you Save, Print, Copy or download it.'], go: 'notices' },
+  { id: 'scoring', title: 'Tune risk scoring', area: 'Configure', steps: ['Open Risk scoring.', 'Adjust fail weights (High ≥ Med ≥ Low), review factor, risk-indicator weight and the exposure cap.', 'Set band thresholds (must ascend) and exclude any check your office handles elsewhere.', 'Watch the Live ranking preview, then Save scoring. Reset defaults restores the shipped weights.'], go: 'scoring' },
+  { id: 'rule', title: 'Look up a rule', area: 'Configure', steps: ['Open the Rules catalogue for the full 141-rule matrix, grouped by module.', 'Filter by severity, automation, industry or client flag, or search by section / keyword.', 'Expand a rule to see its test, threshold, data sources, action and: for automated rules: exactly how the engine tests it.', 'Use Rule register (in the app) to see how a rule came out for each taxpayer.'], go: 'catalog' },
+  { id: 'reset', title: 'Reset local data', area: 'Configure', steps: ['Case status, notes, notices and scoring live in this browser only.', 'To start fresh, clear this site’s data in browser settings (or use a private window).', 'Uploaded workbooks are saved in data/ on the server; remove a file there and restart to drop that taxpayer.'], go: null },
+];

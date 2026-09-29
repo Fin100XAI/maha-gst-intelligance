@@ -59,6 +59,8 @@ export const MODULES = [
   // ---- Command Centre — what needs a decision today ----
   { id: 'command-center', label: 'Executive Command Center', group: 'Command Centre' },
   { id: 'revenue-protection', label: 'Revenue Protection Command Centre', group: 'Command Centre' },
+  // ---- GST Scrutiny — the returns scrutiny app, embedded; its pages sit in the screen's own menu ----
+  { id: 'gst-scrutiny', label: 'GST Scrutiny', group: 'GST Scrutiny', contextBar: false },
   // ---- Revenue Position — collection against target, and where the gap sits ----
   { id: 'revenue-intelligence', label: 'Revenue Intelligence', group: 'Revenue Position' },
   { id: 'district-performance', label: 'District & Division Performance', group: 'Revenue Position' },

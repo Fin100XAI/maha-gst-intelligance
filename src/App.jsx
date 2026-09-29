@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AppProvider, useApp } from './context/AppContext.jsx'
+import { AppProvider, useApp, MODULES } from './context/AppContext.jsx'
 import { Sidebar } from './components/layout/Sidebar.jsx'
 import { Masthead } from './components/layout/Masthead.jsx'
 import { Header } from './components/layout/Header.jsx'
@@ -22,6 +22,7 @@ import ExtractSpecification from './modules/ExtractSpecification.jsx'
 import ProjectResources from './modules/ProjectResources.jsx'
 import RevenueRecoveryWindow from './modules/RevenueRecoveryWindow.jsx'
 import ExecutiveCommandCenter from './modules/ExecutiveCommandCenter.jsx'
+import GstScrutiny from './modules/GstScrutiny.jsx'
 import CaseDigitalTwin from './modules/CaseDigitalTwin.jsx'
 import RevenueIntelligence from './modules/RevenueIntelligence.jsx'
 import ITCRiskIntelligence from './modules/ITCRiskIntelligence.jsx'
@@ -53,6 +54,7 @@ const MODULE_COMPONENTS = {
   'project-resources': ProjectResources,
   'recovery-window': RevenueRecoveryWindow,
   'command-center': ExecutiveCommandCenter,
+  'gst-scrutiny': GstScrutiny,
   'case-twin': CaseDigitalTwin,
   'revenue-intelligence': RevenueIntelligence,
   'itc-risk': ITCRiskIntelligence,
@@ -79,6 +81,8 @@ function Shell() {
   if (!role) return <RoleSelector />
 
   const ActiveComponent = MODULE_COMPONENTS[activeModule] || ExecutiveCommandCenter
+  // A screen that brings its own filters (GST Scrutiny) opts out of the shell's context bar.
+  const showContextBar = MODULES.find(m => m.id === activeModule)?.contextBar !== false
 
   return (
     <div className="min-h-screen flex flex-col bg-steel-50">
@@ -87,7 +91,7 @@ function Shell() {
       <Masthead />
       <Header onOpenMobile={() => setMobileOpen(true)} />
       <TopNav />
-      <ContextBar />
+      {showContextBar && <ContextBar />}
       <main className="flex-1 min-w-0 p-4 lg:p-6">
         <div className="mx-auto w-full max-w-[1600px]">
           <RoleGate moduleId={activeModule}>

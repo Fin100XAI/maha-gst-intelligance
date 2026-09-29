@@ -94,6 +94,7 @@ const TRUST_PRINCIPLES = [
    assured, steel for the platform itself. */
 const GROUP_TONE = {
   'Command Centre': 'navy',
+  'GST Scrutiny': 'saffron',
   'Revenue Position': 'navy',
   'Statutory Time & Decay': 'red',
   'Risk Discovery': 'saffron',
@@ -124,6 +125,7 @@ const MODULE_DESCRIPTIONS = {
   'official-statistics': 'Published figures from CBIC, PIB and mahagst.gov.in, kept separate from the simulated operational records.',
   'missed-revenue': 'Closed and no-action cases re-examined against the signals that were live at the time, as explainable review candidates.',
   counterfactual: 'What the same action taken earlier would have been worth on a case, with comparable concluded proceedings as the evidence.',
+  'gst-scrutiny': 'Filed returns reconciled against each other, with every mismatch traced to the taxpayer and period behind it.',
   'revenue-protection': 'What the department is about to lose, what can still be protected, and which actions this week protect the most.',
   'unknown-risk': 'Screens only the taxpayers no encoded rule touches, looking for patterns the rulebook does not yet contain.',
   'network-enforcement': 'Circular invoice chains from detection through to action — the graph, which entity actually stops it, and whether officers exist in every division it crosses.',

@@ -1,0 +1,8 @@
+signal_id,gstin,risk_parameter,rule_id,fy,amount,signal_date,priority,source,remarks
+EIU-2025-0107,27ZZTCT7707R1Z1,ITC availed from high-risk suppliers (pass-through network),,2025-26,16588341,14-11-2025,High,EIU network risk run,Suppliers E08 and E16 buy from a supplier that stopped filing GSTR-3B
+EIU-2025-0112,27ZZDFD1313X1ZX,GSTR-1 tax exceeds GSTR-3B tax,G-02,2024-25,756000,05-09-2024,Medium,EIU monthly risk run,Signal raised on the July 2024 return
+EIU-2026-0115,27ZZSPS9909T1Z0,Supplier not filing GSTR-3B while GSTR-1 continues,A-02,2025-26,13409796,12-01-2026,High,EIU non-filer run,Oct-Dec 2025 unfiled at signal date
+EIU-2025-0121,27ZZKCK5505P1ZV,Sharp decline in tax paid compared with last year,,2025-26,8581832,20-10-2025,Medium,EIU revenue monitor,H1 decline versus H1 of FY 2024-25
+EIU-2025-0126,27ZZSFS8808S1ZR,Low value addition: liability discharged almost entirely through ITC,,2024-25,18360000,18-06-2025,High,EIU value-addition run,
+EIU-2024-0098,27ZZGPG1515Z1ZY,ITC claimed in excess of GSTR-2B,B-01,2023-24,64000,10-02-2024,Low,EIU monthly risk run,Q3 FY 2023-24 return
+EIU-2025-0131,27ZZPCA1101K1ZQ,E-invoice (IRN) not generated on B2B invoices,G-03,2025-26,0,02-12-2025,Low,EIU e-invoice run,IRN coverage check

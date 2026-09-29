@@ -1,0 +1,26 @@
+{
+  "name": "gst-intelligence",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build:data": "node scripts/build-data.mjs",
+    "dev": "npm run build:data && vite",
+    "build": "npm run build:data && vite build",
+    "build:platform": "npm run build:data && vite build --base=/scrutiny/",
+    "preview": "vite preview",
+    "start": "node server.mjs",
+    "serve": "npm run build && node server.mjs",
+    "test": "node --test \"tests/**/*.test.mjs\""
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.15.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.0"
+  }
+}

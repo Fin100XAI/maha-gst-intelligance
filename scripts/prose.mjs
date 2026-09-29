@@ -62,6 +62,7 @@ const IGNORE = [
   /^char\(\d+\)/,                          // column type tokens in the extract spec
   /^(?:React|Vite|Recharts|Tailwind CSS|PostCSS \+ Autoprefixer)$/, // package names
   /^Asia\/Kolkata$/,                       // IANA timezone id, passed to Intl
+  /^clipboard-write$/,                     // iframe Permissions-Policy token, read by the browser
   /^noopener noreferrer$/,                 // the rel attribute on external links
   /^(?:Enter|Escape)$/,                    // KeyboardEvent.key values
   /^Maha@2027$/,                           // the demonstration access code itself

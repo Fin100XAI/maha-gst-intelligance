@@ -1,0 +1,337 @@
+{
+ "meta": {
+  "type": "targets",
+  "title": "Revenue targets",
+  "file": "targets.csv",
+  "original": "2026-09-27T06-53-23-919Z_targets.csv",
+  "sha256": "55200e21468623dc5c9840cec144d6945fdefbfcc44a8991340a3da7b1c4a98b",
+  "uploadedAt": "2026-09-27T06:53:23.919Z",
+  "rows": 36
+ },
+ "records": [
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Apr",
+   "target": 49746000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "May",
+   "target": 51857000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Jun",
+   "target": 52692000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Jul",
+   "target": 52814000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Aug",
+   "target": 53785000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Sep",
+   "target": 54468000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Oct",
+   "target": 56460000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Nov",
+   "target": 57096000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Dec",
+   "target": 53521000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Jan",
+   "target": 51459000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Feb",
+   "target": 53484000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2023-24",
+   "month": "Mar",
+   "target": 55563000,
+   "version": "v1",
+   "approvedOn": "2023-04-01",
+   "basis": "Opening year: 3% over the year"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Apr",
+   "target": 54092000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "May",
+   "target": 56388000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Jun",
+   "target": 57296000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Jul",
+   "target": 57428000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Aug",
+   "target": 58484000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Sep",
+   "target": 59227000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Oct",
+   "target": 61393000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Nov",
+   "target": 62085000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Dec",
+   "target": 58198000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Jan",
+   "target": 55955000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Feb",
+   "target": 58158000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2024-25",
+   "month": "Mar",
+   "target": 60418000,
+   "version": "v1",
+   "approvedOn": "2024-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Apr",
+   "target": 58322000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "May",
+   "target": 59801000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Jun",
+   "target": 59665000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Jul",
+   "target": 60072000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Aug",
+   "target": 61946000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Sep",
+   "target": 63930000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Oct",
+   "target": 66716000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Nov",
+   "target": 64563000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Dec",
+   "target": 61157000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Jan",
+   "target": 59236000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Feb",
+   "target": 62166000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  },
+  {
+   "jurisdiction": "SYN-PUNE-01",
+   "fy": "2025-26",
+   "month": "Mar",
+   "target": 65199000,
+   "version": "v1",
+   "approvedOn": "2025-04-01",
+   "basis": "Prior-year output tax for the month + 12%"
+  }
+ ]
+}

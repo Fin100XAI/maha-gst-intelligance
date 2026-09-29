@@ -1,0 +1,25 @@
+# docker compose up -d --build   →   http://localhost:8080
+services:
+  gst-intelligence:
+    build: .
+    image: gst-intelligence:latest
+    container_name: gst-intelligence
+    restart: unless-stopped
+    ports:
+      # Bound to this machine only. To expose on the LAN use "8080:8080" AND set BASIC_AUTH_* below.
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - .env.local            # AI_API_KEY=...  (optional: without it the app runs deterministic-only)
+    environment:
+      GST_ALLOW_REMOTE: "1"   # container traffic arrives from the Docker bridge, not 127.0.0.1
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER:-}
+      BASIC_AUTH_PASS: ${BASIC_AUTH_PASS:-}
+    volumes:
+      - reports:/app/public/reports   # saved HTML/PDF scrutiny reports survive restarts and rebuilds
+      - workbooks:/app/data           # taxpayer workbooks, including uploads from Data sources
+      - cases:/app/store              # case record: append-only event log of every officer action
+
+volumes:
+  reports:
+  workbooks:
+  cases:

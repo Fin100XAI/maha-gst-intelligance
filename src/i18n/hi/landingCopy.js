@@ -91,6 +91,8 @@ registerMessages('hi', {
     'निपटाए गए और बिना कार्रवाई वाले प्रकरण, उस समय सक्रिय रहे संकेतों के सापेक्ष पुनः जाँचे गए, स्पष्टीकरण-योग्य समीक्षा उम्मीदवारों के रूप में।',
   'What the same action taken earlier would have been worth on a case, with comparable concluded proceedings as the evidence.':
     'वही कार्रवाई पहले की गई होती तो प्रकरण में उसका मूल्य कितना होता, साक्ष्य के रूप में तुलनीय निपटाई गई कार्यवाहियों सहित।',
+  'Filed returns reconciled against each other, with every mismatch traced to the taxpayer and period behind it.':
+    'दाखिल विवरणियों का आपस में मिलान, हर अंतर उसके पीछे के करदाता और अवधि तक खोजा गया।',
   'What the department is about to lose, what can still be protected, and which actions this week protect the most.':
     'विभाग क्या खोने वाला है, क्या अब भी बचाया जा सकता है, और इस सप्ताह कौन-सी कार्रवाइयाँ सर्वाधिक बचाती हैं।',
   'Screens only the taxpayers no encoded rule touches, looking for patterns the rulebook does not yet contain.':

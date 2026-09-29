@@ -131,6 +131,31 @@ All figures, taxpayer names, GSTINs and case data in this build are **synthetica
 
 ---
 
+## 8. GST Scrutiny
+
+The **GST Scrutiny** tab (beside Command Centre) is the returns scrutiny application, kept in [`scrutiny/`](scrutiny/). It reads GSTR-1, GSTR-3B and 2A/2B workbooks, runs 141 checks per taxpayer and carries cases through to notices. It is its own app with its own server; inside the platform it opens on its dashboard, takes the officer already signed in here, and follows this platform's menu and theme.
+
+**Develop** (two terminals):
+
+```bash
+npm run dev             # the platform, http://localhost:5174 (or 5173)
+npm run dev:scrutiny    # GST Scrutiny, http://localhost:5182, shown inside the tab
+```
+
+Install GST Scrutiny's packages once with `npm --prefix scrutiny ci`; run its tests with `npm run test:scrutiny`.
+
+**Deploy** (one image, one port): the platform is served at `/` and GST Scrutiny at `/scrutiny/` by `scrutiny/server.mjs`.
+
+```bash
+docker compose -f docker-compose.platform.yml up -d --build   # http://localhost:8080
+```
+
+Without Docker: `npm run build:all`, then run `node scrutiny/server.mjs` with `PLATFORM_DIST=../dist`.
+
+**Taxpayer data.** This repository is public, and filed GST returns are confidential (s.158 CGST Act), so it carries only **synthetic** workbooks (`_SYN ` / `_TEST ` in the file name). Real returns are added on the machine that serves the app: copy them into `scrutiny/data/` (or the `workbooks` volume under Docker) or upload them through *Upload data*. `scrutiny/.gitignore` keeps them, and everything built from them (`public/data.json`, saved reports, the case log), out of git.
+
+---
+
 ## GST Intelligence - the scrutiny and demand engine
 
 This repository also carries **GST Intelligence**, under `backend/` and
