@@ -208,7 +208,8 @@ export function parseWorkbook(wb, fileName = '') {
   const creditLedger = readSheet(wb, 'CreditLedger').map((r) => ({ m: r._m, date: toISO(r['Date of Deposit/Debit']), desc: r.Description, type: r['Transaction Type (Debit/Credit)'], amount: amt(r) }));
   const challans = readSheet(wb, 'Challan').map((r) => ({ m: r._m, cpin: String(r.CPIN ?? ''), created: toISO(r['Created On']), amount: num(r.Amount), mode: r.Mode, status: String(r['Deposit Status'] ?? '').toUpperCase(), deposited: toISO(r['Deposit Date']) }));
 
-  const nameFromFile = fileName.replace(/\.xlsx?$/i, '').replace(/get download|all report/gi, '').replace(m.gstin, '').replace(/\d{4}\s*-\s*\d{4}/, '').replace(/[_]+/g, ' ').trim();
+  const nameFromFile = fileName.replace(/\.xlsx?$/i, '').replace(/get download|all report/gi, '').replace(m.gstin, '').replace(/\d{4}\s*-\s*\d{4}/, '').replace(/[_]+/g, ' ').trim()
+    .replace(/^(?:SYN|TEST)\s+/i, ''); // file-name marker for generated workbooks, not part of the name
   const name = cleanName(m.name || nameFromFile || m.gstin);
   return {
     id: m.gstin || fileName, fileName, name, nameFromBanner: !!m.name, gstin: m.gstin, fy: m.fy, fyStart, stateCode: m.gstin.slice(0, 2), pan: m.gstin.slice(2, 12),
