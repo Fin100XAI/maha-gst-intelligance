@@ -9,7 +9,7 @@ import { asOfLabel, intlLocaleFor } from '../ui/DataProvenance.jsx'
 // bar beneath it is what stays pinned, since that's what an officer reaches
 // for mid-task, not the letterhead.
 export function Masthead() {
-  const { locale } = useApp()
+  const { locale, activeModule } = useApp()
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000)
@@ -56,7 +56,8 @@ export function Masthead() {
           <p className="mt-0.5 hidden text-[10px] text-white/60 tabular-nums sm:block">
             {t('Session')}: {dateFmt.format(now)}, {timeFmt.format(now)} IST
           </p>
-          <p className="mt-0.5 text-[10px] font-semibold text-gold-300">{t('Demonstration Environment · Simulated data')}</p>
+          {/* GST Scrutiny reads its own returns data and is presented without the notice. */}
+          {activeModule !== 'gst-scrutiny' && <p className="mt-0.5 text-[10px] font-semibold text-gold-300">{t('Demonstration Environment · Simulated data')}</p>}
         </div>
       </div>
       {/* The single piece of ornament in the shell — marks where the department's identity ends and the working surfaces begin. */}

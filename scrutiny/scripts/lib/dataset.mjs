@@ -13,6 +13,7 @@ import { parseWorkbook, parseRuleMatrix, parseMatrixExtras } from '../../src/eng
 import { analyze, portfolio } from '../../src/engine/analyze.js';
 import { baselineOf } from '../../src/engine/baseline.js';
 import { tradeOf, graphOf } from '../../src/engine/network.js';
+import { ewbFor } from '../synth/ewb.mjs';
 
 // Lookarounds rather than \b: file names join parts with "_", which counts as a word character.
 export const GSTIN_RE = /(?<![0-9A-Z])\d{2}[A-Z]{5}\d{4}[A-Z][0-9A-Z]Z[0-9A-Z](?![0-9A-Z])/;
@@ -64,6 +65,8 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
     try {
       const tp = parseWorkbook(XLSX.read(fs.readFileSync(file), { type: 'buffer' }), f);
       if (!tp.gstin) { warn(`skip ${f}: no GSTIN banner`); continue; }
+      // E-way bills: the stored copy (fetched or uploaded), else a simulated fetch (scripts/synth/ewb.mjs)
+      tp.ewb = ewbFor({ dataDir, root: path.resolve(dataDir, '..'), tp });
       const a = analyze(tp, { severity });
       const entry = { file: f, mtime: fs.statSync(file).mtimeMs, fyStart: tp.fyStart, a, trade: tradeOf(tp) };
       const years = byGstin.get(tp.gstin) || new Map();

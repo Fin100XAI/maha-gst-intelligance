@@ -403,7 +403,16 @@ export function testClaims(text, rv, ctx) {
         if (!inv) break;
         return irn === inv ? res('supported', { record: `IRN on all ${inv} B2B invoices in GSTR-1.` }) : res(irn ? 'partial' : 'contradicted', { contradiction: `${inv - irn} of ${inv} B2B invoices have no IRN.` });
       }
-      case 'goods-moved': return res('unverifiable', { missing: 'E-way bills, lorry receipts and stock entries: not in the returns' });
+      case 'goods-moved': {
+        // With e-way bill data loaded, the claim can be tested against the bills behind the taxpayer's goods purchases.
+        const tpa = (ctx.taxpayers || []).find((t) => t.gstin === sig.gstin);
+        const e = tpa?.ewb;
+        if (!e) return res('unverifiable', { missing: 'E-way bills, lorry receipts and stock entries: not in the returns' });
+        const need = e.inward.needing, u = e.inward.unsupported;
+        if (!need) return res('unverifiable', { missing: `No goods purchases above the e-way bill limit in FY ${tpa.fy}; lorry receipts and stock entries would be needed.` });
+        if (!u.count) return res('supported', { record: `Every goods purchase above the e-way bill limit (${need} invoices) has an e-way bill behind it in FY ${tpa.fy}.` });
+        return res(u.count / need > 0.2 ? 'contradicted' : 'partial', { contradiction: `${u.count} of ${need} goods purchases above the e-way bill limit have no e-way bill: ${L(u.itc)} of ITC with no record that the goods moved (FY ${tpa.fy}).` });
+      }
       case 'paid-by-bank': return res('unverifiable', { missing: 'Bank statements showing the payments and where the money went next' });
       default: break;
     }

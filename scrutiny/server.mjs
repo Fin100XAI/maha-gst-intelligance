@@ -5,6 +5,7 @@
 //   /__data/upload and /data.json   uploaded workbooks kept in data/ (scripts/data-store.js)
 //   /__cases                        shared case record, append-only event log in store/ (scripts/case-store.js)
 //   /__registers                    EIU signals, targets, demands in data/registers/ (scripts/register-store.js)
+//   /__ewb                          e-way bill connection: status, fetch, export upload (scripts/ewb-store.js)
 //
 // Environment:
 //   PORT (8080) · HOST (127.0.0.1) · AI_API_KEY · BASIC_AUTH_USER / BASIC_AUTH_PASS (optional HTTP basic auth)
@@ -26,6 +27,7 @@ import caseStore from './scripts/case-store.js';
 import registerStore from './scripts/register-store.js';
 import docStore from './scripts/doc-store.js';
 import governance from './scripts/governance.js';
+import ewbStore from './scripts/ewb-store.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(root, 'dist');
@@ -67,6 +69,7 @@ caseStore().configureServer(fakeServer);
 registerStore().configureServer(fakeServer);
 docStore().configureServer(fakeServer);
 governance().configureServer(fakeServer);
+ewbStore().configureServer(fakeServer);
 reportLibrary().configureServer(fakeServer);
 aiProxy(process.env).configureServer(fakeServer);
 

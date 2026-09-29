@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "build:data": "node scripts/build-data.mjs",
+    "build:data": "node scripts/synth/corporates.mjs --if-missing && node scripts/build-data.mjs",
+    "gen:corporates": "node scripts/synth/corporates.mjs",
     "dev": "npm run build:data && vite",
     "build": "npm run build:data && vite build",
     "build:platform": "npm run build:data && vite build --base=/scrutiny/",

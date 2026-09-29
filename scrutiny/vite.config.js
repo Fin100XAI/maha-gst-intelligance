@@ -9,12 +9,13 @@ import caseStore from './scripts/case-store.js';
 import registerStore from './scripts/register-store.js';
 import docStore from './scripts/doc-store.js';
 import governance from './scripts/governance.js';
+import ewbStore from './scripts/ewb-store.js';
 
 export default defineConfig(({ mode }) => {
   // TOGETHER_API_KEY may live in .env.local (not bundled into the client: no VITE_ prefix).
   const env = loadEnv(mode, path.dirname(fileURLToPath(import.meta.url)), ''); // this folder's .env.local, wherever vite is started
   return {
-    plugins: [react(), dataStore(), caseStore(), registerStore(), docStore(), governance(), reportLibrary(), aiProxy(env)],
+    plugins: [react(), dataStore(), caseStore(), registerStore(), docStore(), governance(), ewbStore(), reportLibrary(), aiProxy(env)],
     // 5182 inside the Maha GST Intelligence repo, so the stand-alone GST v4 (5180/5181) can run alongside.
     server: { port: 5182, open: false },
   };

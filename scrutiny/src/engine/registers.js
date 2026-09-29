@@ -72,7 +72,7 @@ export const REGISTERS = {
     columns: [
       col('gstin', 'gstin', TYPES.gstin, { example: '27ZZKPK7730D1ZM' }),
       col('legalName', 'legal_name', TYPES.name, { example: 'KONKAN STEEL TRADERS' }),
-      col('jurisdiction', 'jurisdiction', TYPES.text, { example: 'SYN-PUNE-01' }),
+      col('jurisdiction', 'jurisdiction', TYPES.text, { example: 'PUNE-WARD-01' }),
       col('range', 'range', TYPES.text, { required: false, example: 'Range 2' }),
       col('officer', 'officer', TYPES.text, { required: false, example: 'Priya M.' }),
       col('sector', 'sector', TYPES.text, { required: false, example: 'Steel trading' }),

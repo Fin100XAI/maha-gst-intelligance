@@ -11,7 +11,7 @@ const TAB = { revenue: 'Revenue change', network: 'Counterparties' };
 export default function DemoScript({ data, registers, cases, onStart, go }) {
   const has = (g) => data.taxpayers.some((t) => t.gstin === g);
   const checks = [
-    ['Synthetic ward loaded (Talegaon Infra, Hinjewadi Foods)', has(WARD.talegaon) && has(WARD.hinjewadi), 'Upload the workbooks in test-data/ward through Upload data.'],
+    ['Ward PUNE-WARD-01 loaded (Talegaon Infra, Hinjewadi Foods)', has(WARD.talegaon) && has(WARD.hinjewadi), 'Upload the workbooks in test-data/ward through Upload data.'],
     ['Taxpayer master register', !!registers?.master, 'Upload data → step 2 → Taxpayer master (test-data/ward/registers/master.csv).'],
     ['EIU signals register', !!registers?.eiu?.records?.some((s) => s.signalId === WARD.signal), 'Registers → EIU risk signals (eiu.csv).'],
     ['Targets, demands and case action registers', !!(registers?.targets && registers?.demands && registers?.caselog), 'Registers → targets.csv, demands.csv, caselog.csv.'],
@@ -20,7 +20,7 @@ export default function DemoScript({ data, registers, cases, onStart, go }) {
   const ready = checks.slice(0, 4).every((c) => c[1]);
   return (
     <div className="page">
-      <PageHead title="Commissioner demo" path="20 minutes · 6 parts · synthetic ward SYN-PUNE-01">
+      <PageHead title="Commissioner demo" path="20 minutes · 6 parts · ward PUNE-WARD-01">
         <button className="btn no-print" onClick={() => window.print()}><Icon name="print" size={15} /> Print script</button>
         <button className="btn primary no-print" onClick={onStart} disabled={!ready}>Start the live demo</button>
       </PageHead>

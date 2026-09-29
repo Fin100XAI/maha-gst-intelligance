@@ -1,10 +1,10 @@
-// Synthetic ward "SYN-PUNE-01": 16 interlinked taxpayers over three financial years, with planted revenue-change
+// Synthetic ward "PUNE-WARD-01": 16 interlinked taxpayers over three financial years, with planted revenue-change
 // drivers, network patterns and registers, plus an answer key measured from the generated data.
 //
 //   node scripts/synth/ward.mjs            -> test-data/ward/  (workbooks, registers/*.csv, answer-key.json)
 //
 // Everything is synthetic and labelled so: names end in [SYN], every PAN starts with "ZZ", the jurisdiction is
-// SYN-PUNE-01. Transactions are generated ledger-first: an invoice between two ward taxpayers exists once and is
+// PUNE-WARD-01. Transactions are generated ledger-first: an invoice between two ward taxpayers exists once and is
 // projected into the seller's GSTR-1 and the buyer's GSTR-2A/2B, so the network is internally consistent.
 // Deterministic: a fixed seed always writes the same files.
 import fs from 'node:fs';
@@ -18,7 +18,7 @@ import { pdf as pdfDoc, docx as docxDoc } from './docs.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const OUT = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(ROOT, 'test-data', 'ward');
-export const JURISDICTION = 'SYN-PUNE-01';
+export const JURISDICTION = 'PUNE-WARD-01';
 export const FYS = [2023, 2024, 2025];
 const EXTRACT = { 2023: '2024-11-20', 2024: '2025-11-20', 2025: '2026-09-26' }; // when each year's download was taken
 const RATE_CUT_FROM = '2025-09-22'; // modelled on the September 2025 rate rationalisation (12% -> 5% for listed goods)

@@ -172,7 +172,7 @@ function Method({ data, cfg }) {
           <li>Score = Σ failed checks (High {cfg.fail.High} · Med {cfg.fail.Med} · Low {cfg.fail.Low}) + {Math.round(cfg.reviewFactor * 100)}% of that for review items + {cfg.fraudWeight} per risk indicator (weighted) + up to {cfg.exposureCap} for exposure ÷ turnover. Capped at 100. Adjust on the Risk scoring page.</li>
           <li>Bands: <Band band="Low" /> &lt;{cfg.bands.Moderate} · <Band band="Moderate" /> {cfg.bands.Moderate}–{cfg.bands.High - 1} · <Band band="High" /> {cfg.bands.High}–{cfg.bands.Critical - 1} · <Band band="Critical" /> ≥{cfg.bands.Critical}.</li>
           <li>AATO for e-invoicing uses current-year turnover as a proxy.</li>
-          <li>GSTIN active/cancelled status, e-way bills, books, GSTR-9/9C are not in the extract: those matrix rules show “Needs books”.</li>
+          <li>GSTIN active/cancelled status, books and GSTR-9/9C are not in the extract: those matrix rules show “Needs books”. E-way bills come from the <b>E-way bills</b> page (sync or uploaded export) and feed rules G-05, B-03 and D-05.</li>
           <li>Total exposure across portfolio: {inr(data.taxpayers.reduce((s, a) => s + a.exposure.confirmed, 0))} computed (unverified).</li>
         </ul>
       </div>

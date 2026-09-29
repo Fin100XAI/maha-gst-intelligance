@@ -32,7 +32,7 @@ version only after someone updates it (section 4).
 
 **Decide which data the installation should carry.** Besides the real taxpayer workbooks, `data/` in the repository
 holds synthetic data, all with `ZZ` PANs:
-- the **synthetic ward SYN-PUNE-01**: 46 workbooks with `[SYN]` names
+- the **synthetic ward PUNE-WARD-01**: 46 workbooks with `[SYN]` names
 - four `[TEST]` workbooks
 - the ward's made-up registers in `data/registers/`
 
