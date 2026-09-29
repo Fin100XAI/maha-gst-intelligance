@@ -1,6 +1,7 @@
 // Parses a "Get Download All Report" GST workbook (SheetJS workbook object) into a
 // normalised taxpayer object. Pure: works in Node (build script) and in the browser (upload).
 import * as XLSX from 'xlsx';
+import { cleanName } from './names.js';
 
 export const MONTHS = ['April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'January', 'February', 'March'];
 const MONTH_IDX = Object.fromEntries(MONTHS.map((m, i) => [m, i]));
@@ -150,7 +151,7 @@ export function parseWorkbook(wb, fileName = '') {
   const inv = (r, kind) => {
     const t = tax(r);
     return {
-      m: r._m, kind, gstin: String(pick(r, 'GSTIN/UIN', 'GSTIN/UIN of Recipient') || '').trim().toUpperCase(), party: pick(r, 'Party Name') || '',
+      m: r._m, kind, gstin: String(pick(r, 'GSTIN/UIN', 'GSTIN/UIN of Recipient') || '').trim().toUpperCase(), party: cleanName(pick(r, 'Party Name')),
       no: String(pick(r, 'Invoice No', 'Debit Note/ credit note/ Refund voucher No.') ?? '').trim(), date: toISO(pick(r, 'Invoice Date', 'Debit Note/ credit note/ Refund voucher Date')),
       value: num(pick(r, 'Invoice Value', 'Note/Refund Voucher Value')), rate: num(pick(r, 'Rate', 'Rate of Tax')),
       taxable: num(pick(r, 'Total Taxable Value', 'Taxable Value')), ...t, tax: tt(t), pos: pick(r, 'Place Of Supply', 'Place of Supply', 'Place of supply') || '',
@@ -170,7 +171,7 @@ export function parseWorkbook(wb, fileName = '') {
   const inward = (r, src) => {
     const t = tax(r);
     return {
-      m: r._m, src, gstin: String(pick(r, 'GSTIN of supplier') || '').trim().toUpperCase(), party: pick(r, 'Trade/Legal name', 'Name of Party') || '',
+      m: r._m, src, gstin: String(pick(r, 'GSTIN of supplier') || '').trim().toUpperCase(), party: cleanName(pick(r, 'Trade/Legal name', 'Name of Party')),
       no: String(pick(r, 'Invoice number', 'Invoice No.', 'Note number') ?? '').trim(), date: toISO(pick(r, 'Invoice Date', 'Note date')),
       value: num(pick(r, 'Invoice Value', 'Note Value')), rate: num(r.Rate), taxable: num(r['Taxable Value']), ...t, tax: tt(t),
       pos: pick(r, 'Place of supply', 'Place of supply (Name of State)') || '', rc: yes(pick(r, 'Supply Attract Reverse Charge', 'Reverse Charge')),
@@ -208,8 +209,7 @@ export function parseWorkbook(wb, fileName = '') {
   const challans = readSheet(wb, 'Challan').map((r) => ({ m: r._m, cpin: String(r.CPIN ?? ''), created: toISO(r['Created On']), amount: num(r.Amount), mode: r.Mode, status: String(r['Deposit Status'] ?? '').toUpperCase(), deposited: toISO(r['Deposit Date']) }));
 
   const nameFromFile = fileName.replace(/\.xlsx?$/i, '').replace(/get download|all report/gi, '').replace(m.gstin, '').replace(/\d{4}\s*-\s*\d{4}/, '').replace(/[_]+/g, ' ').trim();
-  // The generated test workbooks label their companies "[TEST]"; officers see the name without it.
-  const name = String(m.name || nameFromFile || m.gstin).replace(/\s*\[TEST\]/gi, '').trim();
+  const name = cleanName(m.name || nameFromFile || m.gstin);
   return {
     id: m.gstin || fileName, fileName, name, nameFromBanner: !!m.name, gstin: m.gstin, fy: m.fy, fyStart, stateCode: m.gstin.slice(0, 2), pan: m.gstin.slice(2, 12),
     periods, g3b, b2b, b2cl, b2cs, cdn, b2ba, hsn, docs, nilRated, g2b, g2bCdn, g2bAmend, g2bIsd, g2bImpg, g2a, g2aCdn, tdsCredits, tcsCredits, isd6a,

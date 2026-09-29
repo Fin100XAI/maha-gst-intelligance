@@ -2,6 +2,7 @@
 // Each register is declared once (columns, types, rules); parseRegister() validates a whole upload and reports every
 // problem at once, so an officer can fix a file in one pass. Pure and dependency-free (runs in browser and server).
 import { gstinValid } from './gstin.js';
+import { cleanName } from './names.js';
 
 const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 
@@ -9,6 +10,7 @@ const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', '
 const blank = (v) => v === null || v === undefined || String(v).trim() === '';
 const TYPES = {
   text: (v) => String(v).trim(),
+  name: (v) => cleanName(v),
   gstin: (v) => {
     const g = String(v).trim().toUpperCase();
     if (gstinValid(g) !== true) throw new Error('is not a valid GSTIN (format or check digit)');
@@ -69,7 +71,7 @@ export const REGISTERS = {
     key: 'gstin',
     columns: [
       col('gstin', 'gstin', TYPES.gstin, { example: '27ZZKPK7730D1ZM' }),
-      col('legalName', 'legal_name', TYPES.text, { example: 'KONKAN STEEL TRADERS' }),
+      col('legalName', 'legal_name', TYPES.name, { example: 'KONKAN STEEL TRADERS' }),
       col('jurisdiction', 'jurisdiction', TYPES.text, { example: 'SYN-PUNE-01' }),
       col('range', 'range', TYPES.text, { required: false, example: 'Range 2' }),
       col('officer', 'officer', TYPES.text, { required: false, example: 'Priya M.' }),
