@@ -208,8 +208,10 @@ export function parseWorkbook(wb, fileName = '') {
   const challans = readSheet(wb, 'Challan').map((r) => ({ m: r._m, cpin: String(r.CPIN ?? ''), created: toISO(r['Created On']), amount: num(r.Amount), mode: r.Mode, status: String(r['Deposit Status'] ?? '').toUpperCase(), deposited: toISO(r['Deposit Date']) }));
 
   const nameFromFile = fileName.replace(/\.xlsx?$/i, '').replace(/get download|all report/gi, '').replace(m.gstin, '').replace(/\d{4}\s*-\s*\d{4}/, '').replace(/[_]+/g, ' ').trim();
+  // The generated test workbooks label their companies "[TEST]"; officers see the name without it.
+  const name = String(m.name || nameFromFile || m.gstin).replace(/\s*\[TEST\]/gi, '').trim();
   return {
-    id: m.gstin || fileName, fileName, name: m.name || nameFromFile || m.gstin, nameFromBanner: !!m.name, gstin: m.gstin, fy: m.fy, fyStart, stateCode: m.gstin.slice(0, 2), pan: m.gstin.slice(2, 12),
+    id: m.gstin || fileName, fileName, name, nameFromBanner: !!m.name, gstin: m.gstin, fy: m.fy, fyStart, stateCode: m.gstin.slice(0, 2), pan: m.gstin.slice(2, 12),
     periods, g3b, b2b, b2cl, b2cs, cdn, b2ba, hsn, docs, nilRated, g2b, g2bCdn, g2bAmend, g2bIsd, g2bImpg, g2a, g2aCdn, tdsCredits, tcsCredits, isd6a,
     liability, cashLedger, creditLedger, challans, sheets: wb.SheetNames,
     created: toISO(wb.Props?.CreatedDate ?? null), // workbook creation date: when the extract was downloaded
