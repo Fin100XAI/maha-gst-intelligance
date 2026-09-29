@@ -1,6 +1,7 @@
+import { api } from './api.js';
 // The sample input files served from public/samples/ingestion/ (written by scripts/make-ingestion-samples.mjs).
 // tests/samples.ingestion.test.mjs checks every path here exists, so the Upload data page never links to a missing file.
-const BASE = '/samples/ingestion/';
+const BASE = api('/samples/ingestion/');
 export const sampleUrl = (rel) => BASE + rel.split('/').map(encodeURIComponent).join('/');
 
 export const SAMPLE_GUIDE = '00 READ ME - Format guide.xlsx';

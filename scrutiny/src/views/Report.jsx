@@ -1,3 +1,4 @@
+import { api } from '../lib/api.js';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ADMINS } from '../lib/officer.js';
 import { PRELIMINARY, verifyStep, raisedIndicators, isIssue, DISPOSITION_LABEL, CLOSURE_LABEL, enforcementReadiness } from '../engine/verify.js';
@@ -27,7 +28,7 @@ export function buildReportHtml(node, a) {
 export async function saveReport(node, a, user) {
   const meta = { name: a.name, state: a.state, fy: a.fy, band: a.band, score: a.score, confirmed: a.exposure.confirmed, potential: a.exposure.potential, by: user.name };
   try {
-    const r = await fetch('/__reports/save', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ gstin: a.gstin, html: buildReportHtml(node, a), meta }) });
+    const r = await fetch(api('/__reports/save'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ gstin: a.gstin, html: buildReportHtml(node, a), meta }) });
     return await r.json();
   } catch (e) {
     return { ok: false, error: e.message };
@@ -92,7 +93,7 @@ export default function Report({ data, a, caseInfo, notice, user, setSelected, t
   const ref = useRef(null);
   const [library, setLibrary] = useState(null); // null = library endpoint unavailable (static build)
   const [saving, setSaving] = useState(false);
-  const loadLibrary = () => fetch('/__reports/list').then((r) => (r.ok && r.headers.get('content-type')?.includes('json') ? r.json() : null)).then(setLibrary).catch(() => setLibrary(null));
+  const loadLibrary = () => fetch(api('/__reports/list')).then((r) => (r.ok && r.headers.get('content-type')?.includes('json') ? r.json() : null)).then(setLibrary).catch(() => setLibrary(null));
   useEffect(() => { loadLibrary(); }, [a.id, savingAll]); // eslint-disable-line react-hooks/exhaustive-deps
   const saveOne = async () => {
     setSaving(true);
@@ -169,11 +170,11 @@ export default function Report({ data, a, caseInfo, notice, user, setSelected, t
           <div style={{ minWidth: 0 }}>
             <b>Report library</b> <span className="muted">· {Object.keys(library).length} of {data.taxpayers.length} taxpayers saved on this computer</span>
             <div className="mono muted" style={{ fontSize: 11.5, marginTop: 2 }}>
-              {savedHere ? <>this report saved {new Date(savedHere.savedAt).toLocaleString('en-IN')} · <a href={`/reports/${savedHere.html}`} target="_blank" rel="noreferrer">view</a>{savedHere.pdf && <> · <a href={`/reports/${savedHere.pdf}`} target="_blank" rel="noreferrer">pdf</a></>}</> : 'this report is not saved yet'}
+              {savedHere ? <>this report saved {new Date(savedHere.savedAt).toLocaleString('en-IN')} · <a href={api(`/reports/${savedHere.html}`)} target="_blank" rel="noreferrer">view</a>{savedHere.pdf && <> · <a href={api(`/reports/${savedHere.pdf}`)} target="_blank" rel="noreferrer">pdf</a></>}</> : 'this report is not saved yet'}
             </div>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <a className="btn small" href="/reports/index.html" target="_blank" rel="noreferrer">Open library</a>
+            <a className="btn small" href={api('/reports/index.html')} target="_blank" rel="noreferrer">Open library</a>
             <button className="btn small soft" onClick={saveAll} disabled={savingAll || saving}>{savingAll ? `Saving ${savingAll}…` : `Save all ${data.taxpayers.length} reports`}</button>
           </div>
         </div>

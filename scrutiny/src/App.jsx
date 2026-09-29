@@ -1,3 +1,4 @@
+import { api } from './lib/api.js';
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Portfolio from './views/Portfolio.jsx';
 import Taxpayer from './views/Taxpayer.jsx';
@@ -87,11 +88,11 @@ export default function App() {
   const [raw, setRaw] = useState(null);
   // Registers (EIU signals, targets, demands): null when no server store is available.
   const [registers, setRegisters] = useState(null);
-  const loadRegisters = useCallback(() => fetch('/__registers', { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((v) => setRegisters(v && typeof v === 'object' ? v : null)).catch(() => setRegisters(null)), []);
+  const loadRegisters = useCallback(() => fetch(api('/__registers'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((v) => setRegisters(v && typeof v === 'object' ? v : null)).catch(() => setRegisters(null)), []);
   useEffect(() => { loadRegisters(); }, [loadRegisters]);
   const uploadRegister = useCallback(async (type, file) => {
     try {
-      const r = await fetch(`/__registers/upload?type=${encodeURIComponent(type)}&name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
+      const r = await fetch(api(`/__registers/upload?type=${encodeURIComponent(type)}&name=${encodeURIComponent(file.name)}`), { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
       const body = await r.json();
       if (body.ok) { await loadRegisters(); setToast(`${body.meta.title}: ${body.meta.rows} rows loaded`); }
       return body;
@@ -128,7 +129,7 @@ export default function App() {
   const hideProps = (scope) => ({ hidden: !!insightsHidden[scope], setHidden: (v) => setInsightsHidden((h) => ({ ...h, [scope]: v })) });
 
   useEffect(() => {
-    fetch('/data.json', { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(`data.json: HTTP ${r.status}`); return r.json(); })
+    fetch(api('/data.json'), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(`data.json: HTTP ${r.status}`); return r.json(); })
       .then(setRaw).catch((e) => setError(e.message));
   }, []);
   useEffect(() => { const h = () => setRoute(readHash()); window.addEventListener('hashchange', h); return () => window.removeEventListener('hashchange', h); }, []);
@@ -209,7 +210,7 @@ export default function App() {
       const uploadOne = async (f) => {
         if (!/\.xlsx$/i.test(f.name) || f.size > 40 * 1024 * 1024) { problems.push(`${f.name}: .xlsx under 40 MB only`); return; }
         let r = null;
-        try { r = await fetch(`/__data/upload?name=${encodeURIComponent(f.name)}`, { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
+        try { r = await fetch(api(`/__data/upload?name=${encodeURIComponent(f.name)}`), { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
         const body = r ? await r.json().catch(() => null) : null;
         if (r?.ok && body?.ok) saved.push(body);
         else if (r && (r.status === 400 || r.status === 413)) problems.push(`${f.name}: ${body?.error || 'not a returns export'}`);
@@ -221,7 +222,7 @@ export default function App() {
 
       let next = raw;
       if (saved.length) {
-        const fresh = await fetch('/data.json', { cache: 'no-store' });
+        const fresh = await fetch(api('/data.json'), { cache: 'no-store' });
         if (fresh.ok) next = await fresh.json();
       }
       const added = [];
