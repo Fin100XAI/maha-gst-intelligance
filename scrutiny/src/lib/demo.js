@@ -22,7 +22,7 @@ export const CHAPTERS = [
 export const DEMO_STEPS = [
   { chapter: 'problem', view: 'revenue', title: 'Detect and report is not enough',
     say: ['Existing GST systems detect and report. This console explains why revenue moved, tests what reconciles, traces the counterparties behind it and measures what departmental action yields.',
-      'Everything on screen is the synthetic ward SYN-PUNE-01: 16 taxpayers, three years of returns, stories planted on purpose and labelled [SYN]. None of it is a real departmental outcome.'] },
+      'Everything on screen is ward SYN-PUNE-01: 16 taxpayers, three years of returns, with the stories planted on purpose. None of it is a real departmental outcome.'] },
   { chapter: 'problem', view: 'revenue', target: '[data-tour="rev-contributors"]', title: 'Who moved the collection',
     say: ['Each bar is one taxpayer’s change in tax paid in cash, and together they add up to the jurisdiction’s change.', 'The largest fall is Talegaon Infra, about ₹2.1 Cr. Let us ask why.'] },
 

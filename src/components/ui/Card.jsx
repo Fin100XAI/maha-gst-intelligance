@@ -65,7 +65,8 @@ export function Card({ title, subtitle, actions, className = '', children, padde
 // module below the fold.
 //
 // Provenance is NOT lost. The masthead carries "Demonstration Environment ·
-// Simulated data" alongside the as-of date on every screen, permanently; AI
+// Simulated data" alongside the as-of date on every screen except GST
+// Scrutiny (presented without it at the owner's request); AI
 // outputs still carry their own limitation notes; and exported briefings still
 // append their provenance line. This removed the repetition, not the disclosure.
 export function SectionHeader({ eyebrow, title, description, actions }) {
