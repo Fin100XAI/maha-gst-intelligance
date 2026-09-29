@@ -1,0 +1,1039 @@
+{
+ "generatedBy": "scripts/synth/ward.mjs (seed 2718)",
+ "jurisdiction": "SYN-PUNE-01",
+ "synthetic": true,
+ "note": "All figures are synthetic and must never be presented as actual departmental outcomes.",
+ "extractDates": {
+  "2023": "2024-11-20",
+  "2024": "2025-11-20",
+  "2025": "2026-09-26"
+ },
+ "taxpayers": [
+  {
+   "key": "E01",
+   "gstin": "27ZZPCA1101K1ZQ",
+   "name": "PUNE AUTO COMPONENTS PRIVATE LIMITED [SYN]",
+   "sector": "Auto components manufacturing",
+   "filing": "monthly",
+   "officer": "Priya M.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E02",
+   "gstin": "27ZZBFB2202L1ZR",
+   "name": "BHOSARI STEEL TRADERS [SYN]",
+   "sector": "Steel trading",
+   "filing": "monthly",
+   "officer": "Priya M.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E03",
+   "gstin": "27ZZCFC3303M1ZJ",
+   "name": "CHAKAN PACKAGING INDUSTRIES [SYN]",
+   "sector": "Packaging",
+   "filing": "monthly",
+   "officer": "Rahul K.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E04",
+   "gstin": "27ZZHCH4404N1Z9",
+   "name": "HINJEWADI FOODS PRIVATE LIMITED [SYN]",
+   "sector": "Packaged food",
+   "filing": "monthly",
+   "officer": "Rahul K.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E05",
+   "gstin": "27ZZKCK5505P1ZV",
+   "name": "KHARADI ELECTRONICS DISTRIBUTION [SYN]",
+   "sector": "Electronics distribution",
+   "filing": "monthly",
+   "officer": "Rahul K.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E06",
+   "gstin": "27ZZWFW6606Q1ZV",
+   "name": "WAKAD TEXTILES [SYN]",
+   "sector": "Textiles",
+   "filing": "monthly",
+   "officer": "Anita S.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E07",
+   "gstin": "27ZZTCT7707R1Z1",
+   "name": "TALEGAON INFRA PROJECTS PRIVATE LIMITED [SYN]",
+   "sector": "Construction (works contract)",
+   "filing": "monthly",
+   "officer": "Anita S.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E08",
+   "gstin": "27ZZSFS8808S1ZR",
+   "name": "SWIFT TRADE LINKS [SYN]",
+   "sector": "Scrap trading",
+   "filing": "monthly",
+   "officer": "Anita S.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E09",
+   "gstin": "27ZZSPS9909T1Z0",
+   "name": "SHREE BALAJI ENTERPRISES [SYN]",
+   "sector": "Scrap trading",
+   "filing": "monthly",
+   "officer": "Anita S.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E10",
+   "gstin": "27ZZOFO1010U1ZN",
+   "name": "OMKAR METALS [SYN]",
+   "sector": "Metal trading",
+   "filing": "monthly",
+   "officer": "Anita S.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E11",
+   "gstin": "27ZZNFN1111V1ZL",
+   "name": "NASHIK AGRO TRADERS [SYN]",
+   "sector": "Agro trading",
+   "filing": "monthly",
+   "officer": "Rahul K.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E12",
+   "gstin": "27ZZSPS1212W1ZM",
+   "name": "SAI LOGISTICS [SYN]",
+   "sector": "Goods transport (GTA)",
+   "filing": "qrmp",
+   "officer": "Rahul K.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E13",
+   "gstin": "27ZZDFD1313X1ZX",
+   "name": "DECCAN CHEMICALS DISTRIBUTORS [SYN]",
+   "sector": "Chemicals distribution",
+   "filing": "monthly",
+   "officer": "Priya M.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E14",
+   "gstin": "27ZZMFM1414Y1ZB",
+   "name": "MAHALAXMI JEWELLERS [SYN]",
+   "sector": "Jewellery retail",
+   "filing": "monthly",
+   "officer": "Priya M.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E15",
+   "gstin": "27ZZGPG1515Z1ZY",
+   "name": "GANESH HARDWARE MART [SYN]",
+   "sector": "Hardware retail",
+   "filing": "qrmp",
+   "officer": "Priya M.",
+   "years": [
+    "2023-24",
+    "2024-25",
+    "2025-26"
+   ]
+  },
+  {
+   "key": "E16",
+   "gstin": "27ZZVFV1616A1Z2",
+   "name": "VISTA TRADING CO [SYN]",
+   "sector": "Scrap trading",
+   "filing": "monthly",
+   "officer": "Anita S.",
+   "years": [
+    "2025-26"
+   ]
+  }
+ ],
+ "workbooks": [
+  {
+   "key": "E01",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZPCA1101K1ZQ_2023 - 2024_SYN Pune Auto.xlsx",
+   "sales": 148,
+   "purchases": 271,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E01",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZPCA1101K1ZQ_2024 - 2025_SYN Pune Auto.xlsx",
+   "sales": 185,
+   "purchases": 272,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E01",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZPCA1101K1ZQ_2025 - 2026_SYN Pune Auto.xlsx",
+   "sales": 142,
+   "purchases": 293,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E02",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZBFB2202L1ZR_2023 - 2024_SYN Bhosari Steel.xlsx",
+   "sales": 221,
+   "purchases": 211,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E02",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZBFB2202L1ZR_2024 - 2025_SYN Bhosari Steel.xlsx",
+   "sales": 204,
+   "purchases": 211,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E02",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZBFB2202L1ZR_2025 - 2026_SYN Bhosari Steel.xlsx",
+   "sales": 216,
+   "purchases": 199,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E03",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZCFC3303M1ZJ_2023 - 2024_SYN Chakan Packaging.xlsx",
+   "sales": 266,
+   "purchases": 85,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E03",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZCFC3303M1ZJ_2024 - 2025_SYN Chakan Packaging.xlsx",
+   "sales": 278,
+   "purchases": 92,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E03",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZCFC3303M1ZJ_2025 - 2026_SYN Chakan Packaging.xlsx",
+   "sales": 285,
+   "purchases": 92,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E04",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZHCH4404N1Z9_2023 - 2024_SYN Hinjewadi Foods.xlsx",
+   "sales": 156,
+   "purchases": 261,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E04",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZHCH4404N1Z9_2024 - 2025_SYN Hinjewadi Foods.xlsx",
+   "sales": 145,
+   "purchases": 229,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E04",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZHCH4404N1Z9_2025 - 2026_SYN Hinjewadi Foods.xlsx",
+   "sales": 168,
+   "purchases": 258,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E05",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZKCK5505P1ZV_2023 - 2024_SYN Kharadi Electronics.xlsx",
+   "sales": 166,
+   "purchases": 135,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E05",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZKCK5505P1ZV_2024 - 2025_SYN Kharadi Electronics.xlsx",
+   "sales": 167,
+   "purchases": 126,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E05",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZKCK5505P1ZV_2025 - 2026_SYN Kharadi Electronics.xlsx",
+   "sales": 123,
+   "purchases": 98,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E06",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZWFW6606Q1ZV_2023 - 2024_SYN Wakad Textiles.xlsx",
+   "sales": 126,
+   "purchases": 92,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E06",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZWFW6606Q1ZV_2024 - 2025_SYN Wakad Textiles.xlsx",
+   "sales": 150,
+   "purchases": 99,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E06",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZWFW6606Q1ZV_2025 - 2026_SYN Wakad Textiles.xlsx",
+   "sales": 125,
+   "purchases": 88,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E07",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZTCT7707R1Z1_2023 - 2024_SYN Talegaon Infra.xlsx",
+   "sales": 151,
+   "purchases": 195,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E07",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZTCT7707R1Z1_2024 - 2025_SYN Talegaon Infra.xlsx",
+   "sales": 145,
+   "purchases": 196,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E07",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZTCT7707R1Z1_2025 - 2026_SYN Talegaon Infra.xlsx",
+   "sales": 123,
+   "purchases": 212,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E08",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZSFS8808S1ZR_2023 - 2024_SYN Swift Trade Links.xlsx",
+   "sales": 90,
+   "purchases": 102,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E08",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSFS8808S1ZR_2024 - 2025_SYN Swift Trade Links.xlsx",
+   "sales": 144,
+   "purchases": 137,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E08",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSFS8808S1ZR_2025 - 2026_SYN Swift Trade Links.xlsx",
+   "sales": 92,
+   "purchases": 92,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E09",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZSPS9909T1Z0_2023 - 2024_SYN Shree Balaji.xlsx",
+   "sales": 208,
+   "purchases": 188,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E09",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSPS9909T1Z0_2024 - 2025_SYN Shree Balaji.xlsx",
+   "sales": 211,
+   "purchases": 190,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E09",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSPS9909T1Z0_2025 - 2026_SYN Shree Balaji.xlsx",
+   "sales": 243,
+   "purchases": 200,
+   "cdns": 0,
+   "periods": 6
+  },
+  {
+   "key": "E10",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZOFO1010U1ZN_2023 - 2024_SYN Omkar Metals.xlsx",
+   "sales": 287,
+   "purchases": 165,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E10",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZOFO1010U1ZN_2024 - 2025_SYN Omkar Metals.xlsx",
+   "sales": 333,
+   "purchases": 181,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E10",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZOFO1010U1ZN_2025 - 2026_SYN Omkar Metals.xlsx",
+   "sales": 311,
+   "purchases": 175,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E11",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZNFN1111V1ZL_2023 - 2024_SYN Nashik Agro.xlsx",
+   "sales": 194,
+   "purchases": 153,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E11",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZNFN1111V1ZL_2024 - 2025_SYN Nashik Agro.xlsx",
+   "sales": 188,
+   "purchases": 112,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E11",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZNFN1111V1ZL_2025 - 2026_SYN Nashik Agro.xlsx",
+   "sales": 221,
+   "purchases": 138,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E12",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZSPS1212W1ZM_2023 - 2024_SYN Sai Logistics.xlsx",
+   "sales": 311,
+   "purchases": 51,
+   "cdns": 0,
+   "periods": 4
+  },
+  {
+   "key": "E12",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSPS1212W1ZM_2024 - 2025_SYN Sai Logistics.xlsx",
+   "sales": 309,
+   "purchases": 55,
+   "cdns": 0,
+   "periods": 4
+  },
+  {
+   "key": "E12",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSPS1212W1ZM_2025 - 2026_SYN Sai Logistics.xlsx",
+   "sales": 248,
+   "purchases": 41,
+   "cdns": 0,
+   "periods": 4
+  },
+  {
+   "key": "E13",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZDFD1313X1ZX_2023 - 2024_SYN Deccan Chemicals.xlsx",
+   "sales": 143,
+   "purchases": 117,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E13",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZDFD1313X1ZX_2024 - 2025_SYN Deccan Chemicals.xlsx",
+   "sales": 141,
+   "purchases": 126,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E13",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZDFD1313X1ZX_2025 - 2026_SYN Deccan Chemicals.xlsx",
+   "sales": 163,
+   "purchases": 154,
+   "cdns": 27,
+   "periods": 12
+  },
+  {
+   "key": "E14",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZMFM1414Y1ZB_2023 - 2024_SYN Mahalaxmi Jewellers.xlsx",
+   "sales": 143,
+   "purchases": 126,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E14",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZMFM1414Y1ZB_2024 - 2025_SYN Mahalaxmi Jewellers.xlsx",
+   "sales": 148,
+   "purchases": 143,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E14",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZMFM1414Y1ZB_2025 - 2026_SYN Mahalaxmi Jewellers.xlsx",
+   "sales": 158,
+   "purchases": 126,
+   "cdns": 0,
+   "periods": 12
+  },
+  {
+   "key": "E15",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZGPG1515Z1ZY_2023 - 2024_SYN Ganesh Hardware.xlsx",
+   "sales": 207,
+   "purchases": 119,
+   "cdns": 0,
+   "periods": 4
+  },
+  {
+   "key": "E15",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZGPG1515Z1ZY_2024 - 2025_SYN Ganesh Hardware.xlsx",
+   "sales": 227,
+   "purchases": 118,
+   "cdns": 0,
+   "periods": 4
+  },
+  {
+   "key": "E15",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZGPG1515Z1ZY_2025 - 2026_SYN Ganesh Hardware.xlsx",
+   "sales": 225,
+   "purchases": 111,
+   "cdns": 0,
+   "periods": 4
+  },
+  {
+   "key": "E16",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZVFV1616A1Z2_2025 - 2026_SYN Vista Trading.xlsx",
+   "sales": 35,
+   "purchases": 35,
+   "cdns": 0,
+   "periods": 9
+  }
+ ],
+ "revenueDrivers": {
+  "E01": {
+   "driver": "genuine growth",
+   "turnover": [
+    966151986,
+    1119994964
+   ],
+   "outputTax": [
+    173907357,
+    201599093
+   ],
+   "expected": "top positive contributor; no concern"
+  },
+  "E04": {
+   "driver": "rate reduction 12% -> 5% on cereals and namkeen from 22-09-2025 (modelled on the Sept 2025 rate rationalisation)",
+   "turnover": [
+    472081322,
+    475994841
+   ],
+   "outputTax": [
+    44193528,
+    36649647
+   ],
+   "rateEffectOnOutputTax": -11561340,
+   "expected": "tax falls while turnover grows; explained by the rate change, not suppression"
+  },
+  "E05": {
+   "driver": "branch redistribution: 40% of sales moved to the Karnataka registration of the same PAN from July 2025",
+   "turnover": [
+    317710684,
+    241307673
+   ],
+   "outputTax": [
+    57187923,
+    43435381
+   ],
+   "shiftedSales": 95353692,
+   "stockTransfersToBranch": 23838423,
+   "branchGstin": "29ZZKCK5505P1ZR",
+   "expected": "turnover decline explained by branch shift; transfers to the same-PAN GSTIN visible in GSTR-1"
+  },
+  "E06": {
+   "driver": "loss of its largest customer from August 2025",
+   "turnover": [
+    185268025,
+    147502385
+   ],
+   "outputTax": [
+    9263401,
+    7375119
+   ],
+   "lostCustomer": "27ZZIPU8112F1ZG",
+   "priorYearSalesToLostCustomerAugMar": 37460434,
+   "expected": "genuine decline explained by customer loss"
+  },
+  "E07": {
+   "driver": "cash paid falls as ITC rises; the extra ITC comes from a pass-through intermediary (E08) and a new registrant (E16)",
+   "turnover": [
+    419183806,
+    423193614
+   ],
+   "outputTax": [
+    75453085,
+    76174851
+   ],
+   "itcFromE08E16": [
+    8999100,
+    30160620
+   ],
+   "expected": "cash-vs-ITC driver explains the cash drop; the ITC source remains unresolved and needs verification"
+  },
+  "E13": {
+   "driver": "credit notes in Q4 FY 2025-26 (sales returns and discounts to two customers)",
+   "turnover": [
+    367925253,
+    335830479
+   ],
+   "outputTax": [
+    66226546,
+    60449486
+   ],
+   "creditNotes": {
+    "count": 27,
+    "taxable": 35482086,
+    "tax": 6386776
+   },
+   "expected": "decline explained by credit notes; check their linkage to original invoices"
+  },
+  "E14": {
+   "driver": "festival timing: the Diwali peak moved from November (2023) to October/November (2024) to October (2025)",
+   "turnover": [
+    302060994,
+    303251449
+   ],
+   "outputTax": [
+    9061830,
+    9097543
+   ],
+   "expected": "monthly deviations are seasonal; the year is broadly flat"
+  },
+  "E12": {
+   "driver": "filing delay: Q4 FY 2024-25 return filed on 30-05-2025, 38 days late",
+   "expected": "timing, with interest; not a revenue loss"
+  }
+ },
+ "network": {
+  "cycle": {
+   "members": [
+    "E09",
+    "E08",
+    "E10"
+   ],
+   "valueByYear": {
+    "2023-24": [
+     [
+      "E09>E08",
+      60000000
+     ],
+     [
+      "E08>E10",
+      27270000
+     ],
+     [
+      "E10>E09",
+      27406350
+     ]
+    ],
+    "2024-25": [
+     [
+      "E09>E08",
+      90000000
+     ],
+     [
+      "E08>E10",
+      40905000
+     ],
+     [
+      "E10>E09",
+      41109525
+     ]
+    ],
+    "2025-26": [
+     [
+      "E09>E08",
+      138000000
+     ],
+     [
+      "E08>E10",
+      62721000
+     ],
+     [
+      "E10>E09",
+      63034605
+     ]
+    ]
+   },
+   "expected": "3-party cycle E09 -> E08 -> E10 -> E09 with near-equal values and short lags"
+  },
+  "passThrough": {
+   "intermediary": "E08",
+   "buysFrom": [
+    "E09"
+   ],
+   "sellsTo": [
+    "E07",
+    "E10"
+   ],
+   "lagDays": "1-3",
+   "markUp": "1%",
+   "expected": "rapid pass-through with minimal value addition"
+  },
+  "reciprocal": {
+   "pair": [
+    "E08",
+    "E10"
+   ],
+   "expected": "E10 is both a customer and a supplier of E08"
+  },
+  "nonFiler": {
+   "key": "E09",
+   "unfiledGstr3b": [
+    "Oct-25",
+    "Nov-25",
+    "Dec-25",
+    "Jan-26",
+    "Feb-26",
+    "Mar-26"
+   ],
+   "gstr1Continues": true,
+   "status": "Suspended from 10-04-2026 (taxpayer master)",
+   "affectedBuyers": [
+    "E08",
+    "E16"
+   ],
+   "expected": "buyers show Rule 37A Amber (extract 26-09-2026, before the 30-09-2026 deadline)"
+  },
+  "newNetwork": {
+   "key": "E16",
+   "registered": "01-07-2025",
+   "buysFrom": "E09",
+   "sellsTo": "E07",
+   "monthlyValue": 10000000,
+   "expected": "abrupt network formation: large values from the first month"
+  },
+  "samePan": {
+   "gstins": [
+    "27ZZKCK5505P1ZV",
+    "29ZZKCK5505P1ZR"
+   ],
+   "expected": "distinct-person transfers; explains E05 decline"
+  },
+  "cancelledSupplier": {
+   "supplier": "27ZZNPN4040B1ZV",
+   "cancelledOn": "31-01-2025",
+   "buyer": "E02",
+   "invoicesAfterCancellation": 5,
+   "itcClaimed": 1440000,
+   "expected": "E02 FY 2024-25: ITC claimed beyond 2B (B-01) on invoices from a cancelled GSTIN"
+  }
+ },
+ "eiuExpectations": {
+  "EIU-2025-0107": "unchanged or increased: the ITC source network is still active (network capability)",
+  "EIU-2025-0112": "resolved: the July 2024 shortfall was declared in September 2024; no annual gap (G-02 Review, not Fail)",
+  "EIU-2026-0115": "increased: GSTR-3B still unfiled for Oct 2025 - Mar 2026, beyond the signal window",
+  "EIU-2025-0121": "explained: branch redistribution to the same-PAN Karnataka GSTIN",
+  "EIU-2025-0126": "unchanged: pass-through with minimal cash payment persists",
+  "EIU-2024-0098": "resolved: the Q3 excess was reversed in Q4 (B-01 Review, not Fail)",
+  "EIU-2025-0131": "resolved: every B2B invoice carries an IRN"
+ },
+ "caseLog": {
+  "asOf": "2026-09-26",
+  "cases": 47,
+  "events": 305,
+  "closed": 34,
+  "open": 13,
+  "reopened": 1,
+  "byRisk": {
+   "ITC mismatch (B-01)": {
+    "cases": 11,
+    "closed": 10,
+    "confirmed": 5,
+    "selected": 4326000,
+    "realised": 1665100,
+    "interactions": 31
+   },
+   "Risky ITC network": {
+    "cases": 7,
+    "closed": 1,
+    "confirmed": 0,
+    "selected": 85283341,
+    "realised": 0,
+    "interactions": 32
+   },
+   "Liability mismatch (G-02)": {
+    "cases": 8,
+    "closed": 6,
+    "confirmed": 2,
+    "selected": 4439000,
+    "realised": 1117900,
+    "interactions": 18
+   },
+   "Non-filing (A-02)": {
+    "cases": 7,
+    "closed": 5,
+    "confirmed": 5,
+    "selected": 19284796,
+    "realised": 4993600,
+    "interactions": 12
+   },
+   "Credit notes / revenue decline": {
+    "cases": 5,
+    "closed": 4,
+    "confirmed": 0,
+    "selected": 14899832,
+    "realised": 0,
+    "interactions": 23
+   },
+   "E-invoice (G-03)": {
+    "cases": 4,
+    "closed": 4,
+    "confirmed": 0,
+    "selected": 0,
+    "realised": 0,
+    "interactions": 4
+   },
+   "Late filing interest": {
+    "cases": 1,
+    "closed": 1,
+    "confirmed": 1,
+    "selected": 90000,
+    "realised": 90000,
+    "interactions": 2
+   },
+   "Reverse charge (C-01)": {
+    "cases": 4,
+    "closed": 3,
+    "confirmed": 1,
+    "selected": 148000,
+    "realised": 47700,
+    "interactions": 6
+   }
+  },
+  "stories": {
+   "stalledInstalments": {
+    "demand": "DRC07-2025-0019",
+    "lastPayment": "2025-08-15"
+   },
+   "blockedRecovery": {
+    "demand": "DRC07-2025-0033",
+    "blocker": "proprietor not traceable"
+   },
+   "appealWindowOver": {
+    "demand": "DRC07-2026-0008",
+    "orderDate": "2026-06-25",
+    "note": "three months to appeal ended 2026-09-25, a day before the extract"
+   },
+   "stuckAtShowCause": {
+    "caseId": "EIU-C-0126",
+    "since": "2025-11-28"
+   },
+   "highEffortLowYield": [
+    "Credit notes / revenue decline"
+   ],
+   "establishedNotRealised": [
+    "Risky ITC network"
+   ],
+   "fastestConversion": "Non-filing (A-02)"
+  }
+ },
+ "replyExpectations": {
+  "EIU-2025-0112": [
+   [
+    "declared-later",
+    "supported"
+   ],
+   [
+    "interest-paid",
+    "contradicted"
+   ]
+  ],
+  "EIU-2024-0098": [
+   [
+    "reversed",
+    "supported"
+   ]
+  ],
+  "EIU-2026-0115": [
+   [
+    "filed",
+    "contradicted"
+   ],
+   [
+    "general",
+    "unverifiable"
+   ]
+  ],
+  "EIU-2025-0121": [
+   [
+    "branch",
+    "supported"
+   ],
+   [
+    "general",
+    "unverifiable"
+   ]
+  ],
+  "EIU-2025-0126": [
+   [
+    "margin",
+    "contradicted"
+   ],
+   [
+    "suppliers-compliant",
+    "supported"
+   ],
+   [
+    "goods-moved",
+    "unverifiable"
+   ]
+  ],
+  "EIU-2025-0107": [
+   [
+    "suppliers-compliant",
+    "partial"
+   ],
+   [
+    "goods-moved",
+    "unverifiable"
+   ],
+   [
+    "paid-by-bank",
+    "unverifiable"
+   ]
+  ],
+  "EIU-2025-0131": [
+   [
+    "irn",
+    "supported"
+   ]
+  ]
+ },
+ "knownEngineLimitations": {
+  "E16": "Registered on 01-07-2025. The engine assumes returns start in April, so it treats the first return as covering Apr-Jul and labels the filing pattern \"Mixed (Monthly → QRMP)\". The taxpayer master register holds the registration date needed to correct this."
+ }
+}

@@ -1,0 +1,50 @@
+/* ============================================================ embedded in the shell
+   Inside the Maha GST Intelligence shell this app takes on the shell's look:
+   its civic blue, Inter, flatter 12px cards and its status colours. Every rule is
+   keyed off html[data-embed='shell'] (set by src/lib/embed.js), so the stand-alone
+   app is untouched. Values are the shell's own tokens, named beside each one. */
+html[data-embed='shell'] {
+  --page: #f5f6f8;            /* steel-50 */
+  --surface: #ffffff;
+  --lav: #eef4ff;             /* govt-50 */
+  --lav-2: #dae7ff;           /* govt-100 */
+  --lav-3: #bcd3ff;           /* govt-200 */
+  --brand: #1a3faf;           /* govt-700: the shell's primary buttons and active tabs */
+  --brand-2: #1b378a;         /* govt-800 */
+  --brand-ink: #1a3faf;
+  --brand-deep: #101d45;      /* govt-950 */
+  --gold: #cda629;            /* gold-500 */
+  --gold-2: #9a7d16;          /* gold-700 */
+  --gold-ink: #0a1830;        /* navy-900 */
+  --ochre: #1a3faf;           /* section eyebrows: the shell labels sections in blue */
+  --ink: #0a1830;             /* navy-900 */
+  --ink-2: #545c71;           /* steel-600 */
+  --ink-3: #8791a3;           /* steel-400 */
+  --line: #d3d7de;            /* steel-200 */
+  --line-2: #e8eaee;          /* steel-100 */
+  --good: #1f8a4c;            /* maharisk-low */
+  --good-bg: #e6f4ea;
+  --warning: #d99a15;         /* maharisk-medium */
+  --warn-bg: #fef7e0;
+  --warn-ink: #b06000;
+  --serious: #d9631c;         /* maharisk-high */
+  --critical: #c41e3a;        /* maharisk-critical */
+  --live: #c41e3a;
+  --live-bg: #fce8e6;
+  --r-card: 12px;             /* rounded-xl */
+  --r-inner: 8px;
+  --tint-neutral: #f5f6f8; --tint-neutral-line: #e1e3e6;
+  --tint-good: #e6f4ea;    --tint-good-line: #ccead6;
+  --tint-warn: #fef7e0;    --tint-warn-line: #fde293;
+  --tint-bad: #fce8e6;     --tint-bad-line: #f6c6c4;
+  --tint-info: #e8f0fe;    --tint-info-line: #d2e3fc;
+  --tint-sand: #feefe3;    --tint-sand-line: #fcd9b6;
+  --shadow: 0 1px 2px 0 rgba(15, 35, 64, 0.06), 0 1px 3px 0 rgba(15, 35, 64, 0.08); /* shadow-card */
+  --sans: 'Inter', 'Noto Sans Devanagari', 'Segoe UI', system-ui, sans-serif;
+  --serif: var(--sans);       /* the shell sets headings in its sans */
+}
+
+/* The shell's primary action is solid blue with white text; gold is its accent, not its button. */
+html[data-embed='shell'] .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; box-shadow: none; }
+html[data-embed='shell'] .btn.primary:hover { background: var(--brand-2); border-color: var(--brand-2); }
+html[data-embed='shell'] .btn:hover { background: var(--lav); }

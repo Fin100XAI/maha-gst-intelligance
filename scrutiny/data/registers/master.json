@@ -1,0 +1,191 @@
+{
+ "meta": {
+  "type": "master",
+  "title": "Taxpayer master",
+  "file": "master.csv",
+  "original": "2026-09-27T06-53-23-549Z_master.csv",
+  "sha256": "c4981b0a02f216f617890518a132c47d92a01c828bceadc65017563037d2cf1f",
+  "uploadedAt": "2026-09-27T06:53:23.549Z",
+  "rows": 18
+ },
+ "records": [
+  {
+   "gstin": "27ZZPCA1101K1ZQ",
+   "legalName": "PUNE AUTO COMPONENTS PRIVATE LIMITED [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 1",
+   "officer": "Priya M.",
+   "sector": "Auto components manufacturing",
+   "registrationDate": "2018-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZBFB2202L1ZR",
+   "legalName": "BHOSARI STEEL TRADERS [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 1",
+   "officer": "Priya M.",
+   "sector": "Steel trading",
+   "registrationDate": "2019-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZCFC3303M1ZJ",
+   "legalName": "CHAKAN PACKAGING INDUSTRIES [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 1",
+   "officer": "Rahul K.",
+   "sector": "Packaging",
+   "registrationDate": "2020-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZHCH4404N1Z9",
+   "legalName": "HINJEWADI FOODS PRIVATE LIMITED [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 2",
+   "officer": "Rahul K.",
+   "sector": "Packaged food",
+   "registrationDate": "2021-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZKCK5505P1ZV",
+   "legalName": "KHARADI ELECTRONICS DISTRIBUTION [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 2",
+   "officer": "Rahul K.",
+   "sector": "Electronics distribution",
+   "registrationDate": "2017-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZWFW6606Q1ZV",
+   "legalName": "WAKAD TEXTILES [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 2",
+   "officer": "Anita S.",
+   "sector": "Textiles",
+   "registrationDate": "2018-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZTCT7707R1Z1",
+   "legalName": "TALEGAON INFRA PROJECTS PRIVATE LIMITED [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 3",
+   "officer": "Anita S.",
+   "sector": "Construction (works contract)",
+   "registrationDate": "2019-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZSFS8808S1ZR",
+   "legalName": "SWIFT TRADE LINKS [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 3",
+   "officer": "Anita S.",
+   "sector": "Scrap trading",
+   "registrationDate": "2020-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZSPS9909T1Z0",
+   "legalName": "SHREE BALAJI ENTERPRISES [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 3",
+   "officer": "Anita S.",
+   "sector": "Scrap trading",
+   "registrationDate": "2021-07-01",
+   "status": "Suspended",
+   "statusDate": "2026-04-10"
+  },
+  {
+   "gstin": "27ZZOFO1010U1ZN",
+   "legalName": "OMKAR METALS [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 3",
+   "officer": "Anita S.",
+   "sector": "Metal trading",
+   "registrationDate": "2017-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZNFN1111V1ZL",
+   "legalName": "NASHIK AGRO TRADERS [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 2",
+   "officer": "Rahul K.",
+   "sector": "Agro trading",
+   "registrationDate": "2018-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZSPS1212W1ZM",
+   "legalName": "SAI LOGISTICS [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 1",
+   "officer": "Rahul K.",
+   "sector": "Goods transport (GTA)",
+   "registrationDate": "2019-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZDFD1313X1ZX",
+   "legalName": "DECCAN CHEMICALS DISTRIBUTORS [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 2",
+   "officer": "Priya M.",
+   "sector": "Chemicals distribution",
+   "registrationDate": "2020-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZMFM1414Y1ZB",
+   "legalName": "MAHALAXMI JEWELLERS [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 1",
+   "officer": "Priya M.",
+   "sector": "Jewellery retail",
+   "registrationDate": "2021-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZGPG1515Z1ZY",
+   "legalName": "GANESH HARDWARE MART [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 1",
+   "officer": "Priya M.",
+   "sector": "Hardware retail",
+   "registrationDate": "2017-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZVFV1616A1Z2",
+   "legalName": "VISTA TRADING CO [SYN]",
+   "jurisdiction": "SYN-PUNE-01",
+   "range": "Range 3",
+   "officer": "Anita S.",
+   "sector": "Scrap trading",
+   "registrationDate": "2025-07-01",
+   "status": "Active"
+  },
+  {
+   "gstin": "29ZZKCK5505P1ZR",
+   "legalName": "KHARADI ELECTRONICS DISTRIBUTION - KARNATAKA [SYN]",
+   "jurisdiction": "External (Karnataka)",
+   "sector": "Electronics distribution",
+   "registrationDate": "2025-06-15",
+   "status": "Active"
+  },
+  {
+   "gstin": "27ZZNPN4040B1ZV",
+   "legalName": "NAGPUR IRON MART [SYN]",
+   "jurisdiction": "External",
+   "sector": "Steel trading",
+   "registrationDate": "2019-07-01",
+   "status": "Cancelled",
+   "statusDate": "2025-01-31"
+  }
+ ]
+}

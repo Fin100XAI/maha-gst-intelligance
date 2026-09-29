@@ -1,0 +1,58 @@
+[
+ {
+  "signalId": "EIU-2025-0112",
+  "gstin": "27ZZDFD1313X1ZX",
+  "received": "2025-12-10",
+  "from": "CA",
+  "ref": "SKA/GST/2025/118",
+  "text": "The shortfall of ₹7,56,000 in the July 2024 GSTR-3B arose from invoices booked late in the accounts. The entire amount was declared and paid in the September 2024 return. Interest on the delayed payment has also been paid."
+ },
+ {
+  "signalId": "EIU-2024-0098",
+  "gstin": "27ZZGPG1515Z1ZY",
+  "received": "2024-03-05",
+  "from": "Taxpayer",
+  "ref": "",
+  "text": "Excess ITC of Rs. 64,000 taken in Q3 was reversed in the Q4 return."
+ },
+ {
+  "signalId": "EIU-2026-0115",
+  "gstin": "27ZZSPS9909T1Z0",
+  "received": "2026-03-02",
+  "from": "Taxpayer",
+  "ref": "SBE/2026/02",
+  "text": "GSTR-3B for October to December 2025 was filed in February 2026 along with the tax. The business has since been wound down."
+ },
+ {
+  "signalId": "EIU-2025-0121",
+  "gstin": "27ZZKCK5505P1ZV",
+  "received": "2025-11-18",
+  "from": "CA",
+  "ref": "MPC/KED/2025/41",
+  "text": "From July 2025 our Karnataka branch (same PAN) started billing the southern customers directly, so sales from Maharashtra fell. Overall business has not declined."
+ },
+ {
+  "signalId": "EIU-2025-0126",
+  "gstin": "27ZZSFS8808S1ZR",
+  "received": "2025-07-15",
+  "from": "Taxpayer",
+  "ref": "",
+  "text": "We trade scrap on a margin of about 5%. All purchases are from registered dealers who have filed their returns. Goods move under e-way bills."
+ },
+ {
+  "signalId": "EIU-2025-0107",
+  "gstin": "27ZZTCT7707R1Z1",
+  "received": "2025-12-20",
+  "from": "CA",
+  "ref": "RJA/TIP/2025/77",
+  "text": "All suppliers are registered and have filed their GSTR-3B. Goods were received at our project sites against e-way bills. Payments were made through banking channels."
+ },
+ {
+  "signalId": "EIU-2025-0131",
+  "gstin": "27ZZPCA1101K1ZQ",
+  "received": "2025-12-15",
+  "from": "Taxpayer",
+  "ref": "",
+  "text": "E-invoices have been generated for all B2B supplies since April 2025."
+ }
+]

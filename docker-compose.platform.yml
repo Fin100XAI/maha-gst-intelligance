@@ -1,0 +1,26 @@
+# The Maha GST Intelligence platform with GST Scrutiny, one container:
+#   docker compose -f docker-compose.platform.yml up -d --build   ->  http://localhost:8080
+# Platform at "/", GST Scrutiny at "/scrutiny/".
+services:
+  platform:
+    build: .
+    image: maha-gst-platform:latest
+    container_name: maha-gst-platform
+    restart: unless-stopped
+    ports:
+      # Bound to this machine only. To expose on the LAN use "8080:8080" behind the department's gateway.
+      - "127.0.0.1:8080:8080"
+    environment:
+      GST_ALLOW_REMOTE: "1"   # container traffic arrives from the Docker bridge, not 127.0.0.1
+      AI_API_KEY: ${AI_API_KEY:-}   # optional: without it GST Scrutiny runs deterministic-only
+    volumes:
+      # Taxpayer workbooks, including real returns copied in on the server and uploads from Upload data.
+      # The repo carries only synthetic ones; this volume is where real data lives.
+      - workbooks:/app/data
+      - reports:/app/public/reports   # saved HTML/PDF scrutiny reports
+      - cases:/app/store              # case record: append-only event log of every officer action
+
+volumes:
+  workbooks:
+  reports:
+  cases:

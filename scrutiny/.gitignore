@@ -1,0 +1,29 @@
+node_modules/
+dist/
+*.log
+~$*
+
+# secrets: pass at runtime, never commit
+.env
+.env.*
+!.env.local.example
+
+# local tooling
+.claude/
+
+# runtime case record (append-only event log): back it up, but it is working state, not source
+store/
+
+# ---------------------------------------------------------------- taxpayer data
+# This repository is PUBLIC. Filed GST returns are confidential (s.158 CGST Act),
+# so only synthetic workbooks -- "_SYN " or "_TEST " in the file name -- are
+# tracked. Real returns go into data/ on the machine that serves the app (or are
+# uploaded through Upload data) and are never committed.
+data/*.xlsx
+!data/*_SYN *.xlsx
+!data/*_TEST *.xlsx
+!data/GST_Scrutiny_Rule_Matrix.xlsx
+data/superseded/
+# Built from data/ at start-up and on every upload, so they can carry real returns too.
+public/data.json
+public/reports/

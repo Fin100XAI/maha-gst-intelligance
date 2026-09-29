@@ -4,14 +4,15 @@ import { useApp } from '../context/AppContext.jsx'
 import { FilterNotApplicable } from '../components/ui/FilterScope.jsx'
 import { t } from '../i18n/index.js'
 
-// GST Scrutiny is a separate application (GST v4), embedded rather than
-// re-implemented so the two cannot drift apart. Embedded, it drops its own
-// landing page, sign-in and sidebar: this screen supplies the menu, and the
-// officer signed in here is handed over. Its address is set at build time.
-const SCRUTINY_URL = import.meta.env.VITE_SCRUTINY_URL || 'http://localhost:5181'
-const SCRUTINY_ORIGIN = new URL(SCRUTINY_URL).origin
+// GST Scrutiny is its own application (scrutiny/ in this repo), framed rather
+// than re-implemented. Embedded, it drops its own landing page, sign-in and
+// sidebar: this screen supplies the menu, and the officer signed in here is
+// handed over. Deployed, one server serves both, with GST Scrutiny at /scrutiny/;
+// in development it runs on its own port. VITE_SCRUTINY_URL overrides either.
+const SCRUTINY_URL = import.meta.env.VITE_SCRUTINY_URL || (import.meta.env.DEV ? 'http://localhost:5182/' : '/scrutiny/')
+const SCRUTINY_ORIGIN = new URL(SCRUTINY_URL, window.location.href).origin
 const FRAME_SRC = (() => {
-  const u = new URL(SCRUTINY_URL)
+  const u = new URL(SCRUTINY_URL, window.location.href)
   u.searchParams.set('embed', '1')
   u.hash = '/dashboard'
   return u.href

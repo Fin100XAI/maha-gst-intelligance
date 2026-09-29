@@ -1,0 +1,94 @@
+{
+ "meta": {
+  "type": "demands",
+  "title": "Demands and recoveries",
+  "file": "demands.csv",
+  "original": "2026-09-27T06-53-24-092Z_demands.csv",
+  "sha256": "405bb2977ca924c781db802778d14d8477b5784279e1c9299f9a313a3ba149c2",
+  "uploadedAt": "2026-09-27T06:53:24.092Z",
+  "rows": 6
+ },
+ "records": [
+  {
+   "demandId": "DRC07-2024-0011",
+   "gstin": "27ZZWFW6606Q1ZV",
+   "fy": "2022-23",
+   "section": "73",
+   "orderDate": "2024-03-14",
+   "tax": 850000,
+   "interest": 120000,
+   "penalty": 85000,
+   "paid": 1055000,
+   "lastPaymentDate": "2024-06-28",
+   "stage": "Paid"
+  },
+  {
+   "demandId": "DRC07-2025-0019",
+   "gstin": "27ZZDFD1313X1ZX",
+   "caseRef": "ASMT-10/SYN-PUNE-01/ZZDFD/20241120",
+   "fy": "2023-24",
+   "section": "73",
+   "orderDate": "2025-04-22",
+   "tax": 2100000,
+   "interest": 310000,
+   "penalty": 210000,
+   "paid": 1000000,
+   "lastPaymentDate": "2025-08-15",
+   "stage": "Instalments",
+   "blocker": "Monthly instalments of â¹2 L approved"
+  },
+  {
+   "demandId": "DRC07-2025-0027",
+   "gstin": "27ZZSFS8808S1ZR",
+   "caseRef": "ASMT-10/SYN-PUNE-01/ZZSFS/20250110",
+   "fy": "2023-24",
+   "section": "74",
+   "orderDate": "2025-05-30",
+   "tax": 9600000,
+   "interest": 1450000,
+   "penalty": 9600000,
+   "paid": 0,
+   "stage": "Under appeal",
+   "blocker": "Appeal filed before the Appellate Authority; 10% pre-deposit made"
+  },
+  {
+   "demandId": "DRC07-2025-0033",
+   "gstin": "27ZZSPS9909T1Z0",
+   "fy": "2023-24",
+   "section": "74",
+   "orderDate": "2025-06-12",
+   "tax": 6400000,
+   "interest": 980000,
+   "penalty": 6400000,
+   "paid": 0,
+   "stage": "Recovery",
+   "blocker": "Bank account attachment pending; proprietor not traceable at principal place of business"
+  },
+  {
+   "demandId": "DRC07-2026-0004",
+   "gstin": "27ZZSPS1212W1ZM",
+   "fy": "2024-25",
+   "section": "73",
+   "orderDate": "2026-02-18",
+   "tax": 0,
+   "interest": 90000,
+   "penalty": 0,
+   "paid": 90000,
+   "lastPaymentDate": "2026-03-10",
+   "stage": "Paid",
+   "blocker": "Interest on the late Q4 FY 2024-25 return"
+  },
+  {
+   "demandId": "DRC07-2026-0008",
+   "gstin": "27ZZMFM1414Y1ZB",
+   "fy": "2024-25",
+   "section": "73",
+   "orderDate": "2026-06-25",
+   "tax": 500000,
+   "interest": 45000,
+   "penalty": 50000,
+   "paid": 0,
+   "stage": "Appeal period"
+  }
+ ]
+}

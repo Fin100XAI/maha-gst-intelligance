@@ -1,0 +1,9 @@
+# never bake secrets into the image — pass AI_API_KEY at runtime (env_file / environment)
+.env
+.env.*
+!.env.local.example
+node_modules
+dist
+.claude
+*.log
+~$*
