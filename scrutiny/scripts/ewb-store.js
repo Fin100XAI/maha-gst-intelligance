@@ -1,6 +1,7 @@
 // E-way bill connection (dev-server plugin, also mounted by server.mjs):
 //   GET  /__ewb/status                       which source is in use, whether NIC credentials are set, what is stored
-//   POST /__ewb/fetch[?gstin=]               fetch e-way bills again (simulated: regenerate) and rebuild data.json
+//   POST /__ewb/fetch[?gstin=]               start a sync: fetch e-way bills again (simulated: regenerate), rebuild data.json
+//   GET  /__ewb/progress                     the running (or last) sync: stage, returns processed of total
 //   POST /__ewb/upload?gstin=&name=<.xlsx>   store the portal's e-way bill export for a GSTIN and rebuild
 //
 // The NIC e-way bill API is reached through a GST Suvidha Provider (GSP) with API client credentials, the taxpayer's
@@ -9,7 +10,7 @@
 // "NIC configured", and the fetch then says plainly that the live client is not built yet rather than pretending.
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import * as XLSX from 'xlsx';
 import { parseEwbRows } from '../src/engine/ewb.js';
 import { writeEwb, ewbFile } from './synth/ewb.mjs';
@@ -58,20 +59,47 @@ export default function ewbStore() {
           lastFetch: files.map((f) => f.fetchedAt).filter(Boolean).sort().pop() || null });
       });
 
-      server.middlewares.use('/__ewb/fetch', async (req, res) => {
+      // A sync runs in the background; /__ewb/progress reports how far it has got (one step per return processed,
+      // read from the rebuild's own log), so the screen shows real progress rather than a spinner.
+      let job = null; // { id, gstin, stage: request|fetch|finalise|done|error, done, total, refreshed, startedAt, finishedAt, error }
+      const countReturns = () => fs.readdirSync(dataDir).filter((f) => /\.xlsx$/i.test(f) && !f.startsWith('~$') && !/rule_matrix/i.test(f)).length;
+      server.middlewares.use('/__ewb/progress', (req, res) => json(res, 200, job || { stage: 'idle' }));
+
+      server.middlewares.use('/__ewb/fetch', (req, res) => {
         if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
-        if (!local(req)) return json(res, 403, { ok: false, error: 'Fetching is allowed from this computer only' });
+        if (!local(req)) return json(res, 403, { ok: false, error: 'Syncing is allowed from this computer only' });
         if (nic().configured) return json(res, 501, { ok: false, error: 'NIC credentials are set, but the live NIC e-way bill client is not part of this build yet. Unset the EWB_* variables to use the simulated system.' });
         const gstin = new URL(req.url || '/', 'http://x').searchParams.get('gstin');
         if (gstin && !GSTIN_RE.test(gstin)) return json(res, 400, { ok: false, error: 'Not a GSTIN' });
-        const t0 = Date.now();
+        if (job && !job.finishedAt) return json(res, 409, { ok: false, error: 'A sync is already running', job });
+        job = { id: Date.now(), gstin: gstin || null, stage: 'request', done: 0, total: countReturns(), refreshed: 0, startedAt: new Date().toISOString(), finishedAt: null, error: null };
+        const current = job;
         try {
-          // A simulated fetch: drop the simulated copies (uploaded exports are kept) and let the rebuild fetch them again.
+          // Simulated source: drop the stored simulated copies (uploaded exports are kept); the rebuild fetches them again.
           const drop = stored().filter((f) => f.source === 'simulated' && (!gstin || f.file.startsWith(`${gstin}_`)));
           for (const f of drop) fs.rmSync(path.join(dir, f.file));
-          await rebuild();
-          json(res, 200, { ok: true, mode: 'simulated', refreshed: drop.length, seconds: Math.round((Date.now() - t0) / 1000) });
-        } catch (e) { json(res, 500, { ok: false, error: e.message }); }
+          current.refreshed = drop.length;
+        } catch (e) { Object.assign(current, { stage: 'error', error: e.message, finishedAt: new Date().toISOString() }); return json(res, 500, { ok: false, error: e.message }); }
+        current.stage = 'fetch';
+        const child = spawn(process.execPath, [path.join(root, 'scripts', 'build-data.mjs')], { env: { ...process.env, DATA_DIR: dataDir, OUT_FILE: outFile } });
+        const kill = setTimeout(() => child.kill(), 15 * 60000);
+        let buf = '', err = '';
+        child.stdout.on('data', (d) => {
+          buf += d;
+          for (let i = buf.indexOf('\n'); i >= 0; i = buf.indexOf('\n')) {
+            const line = buf.slice(0, i); buf = buf.slice(i + 1);
+            if (/ FY \d{4}-\d{4}\s+score/.test(line)) current.done = Math.min(current.total, current.done + 1);
+          }
+          if (current.done >= current.total) current.stage = 'finalise';
+        });
+        child.stderr.on('data', (d) => { err += d; });
+        child.on('close', (code) => {
+          clearTimeout(kill);
+          current.finishedAt = new Date().toISOString();
+          if (code === 0) current.stage = 'done';
+          else Object.assign(current, { stage: 'error', error: err.trim().split('\n').pop() || `stopped (code ${code})` });
+        });
+        json(res, 202, { ok: true, job: current });
       });
 
       server.middlewares.use('/__ewb/upload', (req, res) => {

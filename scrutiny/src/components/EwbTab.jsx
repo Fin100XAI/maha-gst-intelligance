@@ -1,21 +1,29 @@
 // Taxpayer 360°: the taxpayer's e-way bills against its returns (see src/engine/ewb.js).
 import React from 'react';
 import { Card, Kpi, DataTable } from './ui.jsx';
+import Icon from './Icon.jsx';
+import { useEwbSync, SyncProgress } from './EwbSync.jsx';
 import { inr, int, pct } from '../lib/format.js';
 
 const when = (at) => String(at || '').replace('T', ' ');
 
-export default function EwbTab({ a }) {
+export default function EwbTab({ a, reload, toast }) {
+  const sync = useEwbSync({ reload, toast });
   const e = a.ewb;
-  if (!e) return <Card><div className="empty">No e-way bill data for this taxpayer-year. Fetch it from the <b>E-way bills</b> page.</div></Card>;
+  const syncBar = (
+    <div className="card" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', padding: '10px 14px', marginBottom: 12 }}>
+      <button className="btn small" onClick={() => sync.start(a.gstin)} disabled={sync.running} title="Fetch this GSTIN's e-way bills again and re-run the checks">
+        <Icon name="truck" size={15} />{sync.running ? 'Syncing…' : 'Sync e-way bills'}
+      </button>
+      <SyncProgress job={sync.job} lastSynced={e?.fetchedAt} />
+      {e && !sync.running && <span className="muted" style={{ fontSize: 13 }}>{e.source === 'upload' ? '· from an uploaded export ' : ''}· matched to GSTR-1 and GSTR-2B by supplier GSTIN and document number</span>}
+    </div>
+  );
+  if (!e) return <>{syncBar}<Card><div className="empty">No e-way bill data for this taxpayer-year yet. Use <b>Sync e-way bills</b> above.</div></Card></>;
   const o = e.outward, i = e.inward, s = e.shipTo;
-  const src = e.source === 'simulated' ? 'Simulated e-way bill system' : e.source === 'upload' ? 'Uploaded e-way bill export' : e.source;
   return (
     <>
-      <div className="callout info mb" style={{ fontSize: 13 }}>
-        <b>{src}</b>{e.fetchedAt ? `, fetched ${new Date(e.fetchedAt).toLocaleString('en-IN')}` : ''}. Bills are matched to the returns by supplier GSTIN and document number.
-        {e.source === 'simulated' ? ' Every figure here is simulated.' : ''}
-      </div>
+      {syncBar}
       <div className="grid g-4">
         <Kpi label="Bills generated" value={int(o.bills)} sub={`${inr(o.value)} moved · ${int(o.cancelled)} cancelled`} />
         <Kpi label="Sales invoices covered" value={pct(o.needing ? o.covered / o.needing : null)} sub={`${int(o.covered)} of ${int(o.needing)} above the limit`} fill={o.needing ? o.covered / o.needing : 0} />

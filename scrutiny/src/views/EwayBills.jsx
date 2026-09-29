@@ -1,21 +1,21 @@
-// E-way bills: the connection to the e-way bill system (simulated until NIC/GSP credentials are available), and what
-// the bills show against the returns across every loaded taxpayer: goods moved with no invoice (G-05), credit taken on
-// goods with no movement behind them (B-03), bill-to-ship-to movements under the wrong tax head (D-05), and vehicles
-// recorded in two places at once.
+// E-way bills: syncing the e-way bill data (scripts/ewb-store.js; the source is the simulated e-way bill system until
+// NIC/GSP credentials are available, see the README), and what the bills show against the returns across every
+// loaded taxpayer: goods moved with no invoice (G-05), credit taken on goods with no movement behind it (B-03),
+// bill-to-ship-to movements under the wrong tax head (D-05), and vehicles recorded in two places at once.
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, Kpi, PageHead, Band } from '../components/ui.jsx';
 import Icon from '../components/Icon.jsx';
+import { useEwbSync, SyncProgress } from '../components/EwbSync.jsx';
 import { api } from '../lib/api.js';
 import { inr, int, pct } from '../lib/format.js';
 
-const NIC_LABEL = { EWB_GSP_BASE_URL: 'GSP API address', EWB_GSP_CLIENT_ID: 'GSP client ID', EWB_GSP_CLIENT_SECRET: 'GSP client secret', EWB_USERNAME: 'e-way bill username', EWB_PASSWORD: 'e-way bill password' };
-
 export default function EwayBills({ data, openTaxpayer, toast, reload }) {
   const [status, setStatus] = useState(null);
-  const [busy, setBusy] = useState(null); // 'fetch' | 'upload'
+  const [uploading, setUploading] = useState(false);
   const [upGstin, setUpGstin] = useState('');
   const loadStatus = () => fetch(api('/__ewb/status'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then(setStatus).catch(() => setStatus(null));
-  useEffect(() => { loadStatus(); }, []);
+  useEffect(() => { loadStatus(); }, [data]);
+  const sync = useEwbSync({ reload, toast });
 
   const withEwb = data.taxpayers.filter((t) => t.ewb);
   const t = useMemo(() => {
@@ -25,73 +25,61 @@ export default function EwayBills({ data, openTaxpayer, toast, reload }) {
       bills: s((e) => e.outward.bills), value: s((e) => e.outward.value), inBills: s((e) => e.inward.bills), needing, covered,
       unmatched: s((e) => e.outward.unmatched.count), unmatchedValue: s((e) => e.outward.unmatched.value), unmatchedTax: s((e) => e.outward.unmatched.tax), g05: withEwb.filter((x) => x.ewb.outward.unmatched.count).length,
       unsupported: s((e) => e.inward.unsupported.count), unsupportedItc: s((e) => e.inward.unsupported.itc), b03: withEwb.filter((x) => x.ewb.inward.unsupported.count).length,
-      wrongHead: s((e) => e.shipTo.wrongHead.count), moves: s((e) => e.shipTo.moves), clashes: s((e) => e.vehicles.clashes),
     };
   }, [data]);
   const rows = withEwb.map((x) => ({ x, e: x.ewb, exposure: x.ewb.outward.unmatched.tax + x.ewb.inward.unsupported.itc + x.ewb.shipTo.wrongHead.tax }))
     .filter((r) => r.exposure > 0 || r.e.vehicles.clashes > 0).sort((a, b) => b.exposure - a.exposure || b.e.vehicles.clashes - a.e.vehicles.clashes);
-  const simulated = withEwb.some((x) => x.ewb.source === 'simulated');
+  const lastSynced = status?.lastFetch || withEwb.map((x) => x.ewb.fetchedAt).filter(Boolean).sort().pop();
 
-  const fetchAll = async () => {
-    setBusy('fetch');
-    try {
-      const r = await fetch(api('/__ewb/fetch'), { method: 'POST' });
-      const body = await r.json().catch(() => ({}));
-      if (!r.ok || !body.ok) toast(body.error || `Fetch failed (HTTP ${r.status})`);
-      else { toast(`E-way bills fetched again from the simulated system for ${body.refreshed} taxpayer-years in ${body.seconds} s`); await reload(); }
-    } catch (e) { toast(`Fetch failed: ${e.message}`); }
-    setBusy(null); loadStatus();
-  };
   const upload = async (file) => {
     if (!file || !upGstin) return;
-    setBusy('upload');
+    setUploading(true);
     try {
       const r = await fetch(api(`/__ewb/upload?gstin=${encodeURIComponent(upGstin)}&name=${encodeURIComponent(file.name)}`), { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
       const body = await r.json().catch(() => ({}));
       if (!r.ok || !body.ok) toast(body.error || `Upload failed (HTTP ${r.status})`);
       else { toast(`${int(body.bills)} e-way bills stored for ${upGstin} (FY ${body.years.join(', ')})`); await reload(); }
     } catch (e) { toast(`Upload failed: ${e.message}`); }
-    setBusy(null); loadStatus();
+    setUploading(false);
   };
+  const busy = sync.running || uploading;
 
   return (
     <div className="page">
-      <PageHead title="E-way bills" path={`${withEwb.length} of ${data.taxpayers.length} taxpayers · ${int(t.bills)} bills generated · ${int(t.inBills)} received${simulated ? ' · simulated e-way bill system' : ''}`} />
+      <PageHead title="E-way bills" path={`${withEwb.length} of ${data.taxpayers.length} taxpayers · ${int(t.bills)} bills generated · ${int(t.inBills)} received`} />
 
-      <Card title="Connection to the e-way bill system" sub="Where the bills come from. The returns do not carry them.">
+      <Card title="E-way bill data" sub="Bills generated by each taxpayer and by its suppliers, matched to GSTR-1 and GSTR-2B.">
         <div className="grid g-3" style={{ alignItems: 'start' }}>
           <div>
-            <div className="eyebrow">Source in use</div>
-            <p style={{ margin: '6px 0' }}><b>{status?.mode === 'nic' ? 'NIC e-way bill API' : 'Simulated e-way bill system'}</b></p>
-            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
-              {status?.mode === 'nic' ? 'NIC credentials are set. The live client is not part of this build yet.'
-                : 'Bills are derived from each taxpayer\'s invoices under rule 138 (value limits, exempt goods, services) with realistic places, vehicles and distances, plus the planted problems of the high-risk taxpayers. Every figure is simulated.'}
-            </p>
+            <div className="eyebrow">On record</div>
+            <p style={{ margin: '6px 0' }}><b>{status ? `${int(status.files)} GSTIN-years` : '-'}</b>{status?.uploaded ? ` · ${status.uploaded} from uploaded exports` : ''}</p>
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>{int(t.bills + t.inBills)} bills across {withEwb.length} taxpayers</p>
           </div>
           <div>
-            <div className="eyebrow">NIC e-way bill API</div>
-            <p style={{ margin: '6px 0' }}><b>{status?.nic?.configured ? 'Configured' : 'Not connected'}</b></p>
-            <p className="muted" style={{ margin: 0, fontSize: 13 }}>
-              {status?.nic?.configured ? 'All credentials are present.' : <>Needs registration with a GST Suvidha Provider and, on the server: {(status?.nic?.missing || Object.keys(NIC_LABEL)).map((k) => NIC_LABEL[k] || k).join(', ')}. The server's IP must be whitelisted by the GSP.</>}
-            </p>
+            <div className="eyebrow">Last synced</div>
+            <p style={{ margin: '6px 0' }}><b>{lastSynced ? new Date(lastSynced).toLocaleString('en-IN') : '-'}</b></p>
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>A sync fetches every GSTIN's bills again and re-runs the checks.</p>
           </div>
           <div>
-            <div className="eyebrow">Stored</div>
-            <p style={{ margin: '6px 0' }}><b>{status ? `${int(status.files)} taxpayer-years` : '-'}</b>{status?.uploaded ? ` (${status.uploaded} uploaded)` : ''}</p>
-            <p className="muted" style={{ margin: 0, fontSize: 13 }}>Last fetched {status?.lastFetch ? new Date(status.lastFetch).toLocaleString('en-IN') : '-'}</p>
+            <div className="eyebrow">Matched</div>
+            <p style={{ margin: '6px 0' }}><b>{pct(t.needing ? t.covered / t.needing : null)}</b> of sales invoices above the limit</p>
+            <p className="muted" style={{ margin: 0, fontSize: 13 }}>{int(t.covered)} of {int(t.needing)} carry an e-way bill</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 14 }}>
-          <button className="btn primary" onClick={fetchAll} disabled={!!busy} title="Fetch every taxpayer's e-way bills again and re-run the checks">
-            <Icon name="truck" size={16} />{busy === 'fetch' ? 'Fetching… (about a minute)' : 'Fetch e-way bills'}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginTop: 14 }}>
+          <button className="btn primary" onClick={() => sync.start()} disabled={busy} title="Fetch every GSTIN's e-way bills again and re-run the checks">
+            <Icon name="truck" size={16} />{sync.running ? 'Syncing…' : 'Sync e-way bills'}
           </button>
-          <span className="muted" style={{ fontSize: 13 }}>or upload the portal's e-way bill export for</span>
+          <SyncProgress job={sync.job} lastSynced={lastSynced} />
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--line-2)' }}>
+          <span className="muted" style={{ fontSize: 13 }}>Upload the portal's e-way bill export for</span>
           <select value={upGstin} onChange={(e) => setUpGstin(e.target.value)} aria-label="GSTIN for the upload">
             <option value="">choose a GSTIN…</option>
             {data.taxpayers.slice().sort((a, b) => a.name.localeCompare(b.name)).map((x) => <option key={x.gstin} value={x.gstin}>{x.name} · {x.gstin}</option>)}
           </select>
-          <label className={`btn ${!upGstin || busy ? 'disabled' : ''}`} style={{ pointerEvents: !upGstin || busy ? 'none' : 'auto', opacity: !upGstin || busy ? 0.5 : 1 }}>
-            <Icon name="upload" size={16} />{busy === 'upload' ? 'Uploading…' : 'Upload .xlsx'}
+          <label className="btn" style={{ pointerEvents: !upGstin || busy ? 'none' : 'auto', opacity: !upGstin || busy ? 0.5 : 1 }}>
+            <Icon name="upload" size={16} />{uploading ? 'Uploading…' : 'Upload .xlsx'}
             <input type="file" accept=".xlsx" hidden onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ''; }} />
           </label>
         </div>
@@ -138,7 +126,7 @@ export default function EwayBills({ data, openTaxpayer, toast, reload }) {
         </ul>
       </Card>
 
-      {!withEwb.length && <Card style={{ marginTop: 12 }}><div className="empty">No e-way bill data is loaded. Use <b>Fetch e-way bills</b> above.</div></Card>}
+      {!withEwb.length && <Card style={{ marginTop: 12 }}><div className="empty">No e-way bill data is loaded. Use <b>Sync e-way bills</b> above.</div></Card>}
     </div>
   );
 }

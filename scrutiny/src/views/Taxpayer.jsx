@@ -22,7 +22,7 @@ import EwbTab from '../components/EwbTab.jsx';
 const [C1, C2, C3, C4] = SERIES;
 const cut = (s, k = 24) => (s && s.length > k ? `${s.slice(0, k - 1)}…` : s || '-');
 
-export default function Taxpayer({ a, initialTab, baselines, network, master, openTaxpayerTab, catalog, taxpayers, onSelect, caseInfo, setCaseStatus, addNote, openNotice, openReport, aiProps, setDisposition, addResponse, logEvent, user, dataGeneratedAt, cfg, severity }) {
+export default function Taxpayer({ a, initialTab, baselines, network, master, openTaxpayerTab, catalog, taxpayers, onSelect, caseInfo, setCaseStatus, addNote, openNotice, openReport, aiProps, setDisposition, addResponse, logEvent, user, dataGeneratedAt, cfg, severity, ewbSync }) {
   const [tab, setTab] = useState(initialTab || 'recon');
   useEffect(() => { if (initialTab) setTab(initialTab); }, [initialTab]);
   // Other screens (e.g. the close-case dialog) can ask for a tab.
@@ -109,7 +109,7 @@ export default function Taxpayer({ a, initialTab, baselines, network, master, op
       {tab === 'trade' && <Trade a={a} />}
       {tab === 'revenue' && <RevenueChange baselines={baselines} />}
       {tab === 'network' && <CounterpartyTab g={network} master={master} gstin={a.gstin} fy={a.fy} open={(x) => openTaxpayerTab(x, 'network')} />}
-      {tab === 'ewb' && <EwbTab a={a} />}
+      {tab === 'ewb' && <EwbTab a={a} reload={ewbSync?.reload} toast={ewbSync?.toast} />}
       {tab === 'fraud' && <Fraud a={a} />}
       {tab === 'rules' && <Findings a={a} cat={cat} caseInfo={caseInfo} setDisposition={setDisposition} logEvent={logEvent} user={user} dataGeneratedAt={dataGeneratedAt} />}
       {tab === 'case' && <CaseFile a={a} caseInfo={caseInfo} setCaseStatus={setCaseStatus} addNote={addNote} addResponse={addResponse} openNotice={openNotice} />}

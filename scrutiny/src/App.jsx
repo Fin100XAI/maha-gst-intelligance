@@ -396,7 +396,7 @@ export default function App() {
         {route.view === 'revenue' && <Revenue data={data} registers={registers} openRevenue={openRevenue} />}
         {route.view === 'cases' && <Cases data={data} cases={cases} setCaseStatus={changeStatus} openTaxpayer={openTaxpayer} openNotice={(id) => go('notices', id)} go={go} />}
         {route.view === 'taxpayer' && current && (
-          <Taxpayer key={current.id} a={current} initialTab={route.tab} baselines={data.baselines?.[current.gstin]} network={data.network} master={registers?.master?.records} openTaxpayerTab={openTaxpayerTab} catalog={data.catalog} taxpayers={data.taxpayers} onSelect={openTaxpayer}
+          <Taxpayer key={current.id} a={current} ewbSync={{ reload: reloadData, toast: setToast }} initialTab={route.tab} baselines={data.baselines?.[current.gstin]} network={data.network} master={registers?.master?.records} openTaxpayerTab={openTaxpayerTab} catalog={data.catalog} taxpayers={data.taxpayers} onSelect={openTaxpayer}
             caseInfo={cases[current.id] || { status: 'New' }} setCaseStatus={changeStatus} addNote={addNote} setDisposition={setDisposition} addResponse={addResponse} logEvent={logEvent} user={user} dataGeneratedAt={data.generatedAt} cfg={cfg} severity={severity} openNotice={() => go('notices', current.id)} openReport={() => go('report', current.id)} aiProps={{ ai, setAi, cache: aiCache, setCache: setAiCache, go, ...hideProps('taxpayer') }} />
         )}
         {route.view === 'report' && current && (
