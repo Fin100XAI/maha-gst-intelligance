@@ -11,7 +11,9 @@ requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
-    "sqlalchemy>=2.0.36",
+    # <2.1: SQLAlchemy 2.1 changed Select's generic parameters, which breaks the strict
+    # typing of the RBAC scoping helper (gate G4). Lift once that code is typed for 2.1.
+    "sqlalchemy>=2.0.36,<2.1",
     "alembic>=1.14",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
