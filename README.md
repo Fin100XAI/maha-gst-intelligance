@@ -152,6 +152,19 @@ docker compose -f docker-compose.platform.yml up -d --build   # http://localhost
 
 Without Docker: `npm run build:all`, then run `node scrutiny/server.mjs` with `PLATFORM_DIST=../dist`.
 
+Behind nginx (the platform as static files, GST Scrutiny as its own server): build with `npm run build:all`, start `node scrutiny/server.mjs` **without** `PLATFORM_DIST` (port 8080 by default), and forward `/scrutiny/` to it with the prefix removed. GST Scrutiny makes every request under `/scrutiny/`, so nothing else needs routing:
+
+```nginx
+location / {
+    root /srv/maha-gst-intelligance/dist;
+    try_files $uri /index.html;
+}
+location /scrutiny/ {
+    proxy_pass http://127.0.0.1:8080/;   # trailing slash: /scrutiny/x arrives as /x
+    client_max_body_size 50m;            # workbook uploads
+}
+```
+
 **Taxpayer data.** This repository is public, and filed GST returns are confidential (s.158 CGST Act), so it carries only **synthetic** workbooks (`_SYN ` / `_TEST ` in the file name). Real returns are added on the machine that serves the app: copy them into `scrutiny/data/` (or the `workbooks` volume under Docker) or upload them through *Upload data*. `scrutiny/.gitignore` keeps them, and everything built from them (`public/data.json`, saved reports, the case log), out of git.
 
 ---

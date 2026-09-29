@@ -1,3 +1,4 @@
+import { api } from './api.js';
 // AI summariser (Together AI via the local dev-server proxy).
 // Sends a compact, optionally masked fact sheet — never raw invoices — and validates the reply
 // into the same shape as the deterministic engine: { headline, items[], actions[] }.
@@ -181,7 +182,7 @@ export function parseInsights(content, refsAllowed, masker, allowedAmounts = nul
 export async function aiSummarise({ scope, facts, refs, masker, settings }) {
   const headers = { 'content-type': 'application/json' };
   if (settings.key) headers['x-together-key'] = settings.key;
-  const r = await fetch('/__ai/chat', {
+  const r = await fetch(api('/__ai/chat'), {
     method: 'POST', headers,
     body: JSON.stringify({ model: settings.model, messages: buildMessages(scope, facts), temperature: settings.temperature, max_tokens: settings.maxTokens, json: true }),
   });
@@ -192,7 +193,7 @@ export async function aiSummarise({ scope, facts, refs, masker, settings }) {
 }
 
 export async function aiStatus() {
-  try { const r = await fetch('/__ai/status'); if (!r.ok || !r.headers.get('content-type')?.includes('json')) return null; return await r.json(); } catch { return null; }
+  try { const r = await fetch(api('/__ai/status')); if (!r.ok || !r.headers.get('content-type')?.includes('json')) return null; return await r.json(); } catch { return null; }
 }
 
 export function insightCacheKey(scope, id, facts, settings) {

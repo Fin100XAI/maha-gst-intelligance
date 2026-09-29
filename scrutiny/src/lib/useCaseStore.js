@@ -1,3 +1,4 @@
+import { api } from './api.js';
 // Case record for the app. With the server store (dev server or server.mjs), every change is an event appended to
 // the server log and shared by every browser; the change shows immediately and is rolled back to the server's state
 // if the server rejects it. Without a server (static hosting) the same events are applied to this browser's storage.
@@ -10,14 +11,14 @@ const readLocal = (k, d) => { try { const v = localStorage.getItem(k); return v 
 const writeLocal = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* storage full or blocked */ } };
 
 async function fetchServer() {
-  const r = await fetch('/__cases', { cache: 'no-store' });
+  const r = await fetch(api('/__cases'), { cache: 'no-store' });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const body = await r.json();
   if (!body || typeof body.cases !== 'object') throw new Error('not a case store');
   return body;
 }
 async function postEvents(events) {
-  const r = await fetch('/__cases/events', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ events }) });
+  const r = await fetch(api('/__cases/events'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ events }) });
   const body = await r.json().catch(() => ({}));
   if (!r.ok || !body.ok) throw new Error(body.error || `HTTP ${r.status}`);
   return body;

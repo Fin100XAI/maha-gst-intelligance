@@ -1,3 +1,4 @@
+import { api } from '../lib/api.js';
 // Evidence, governance and human authority (capability 31), for the POC: where every finding stands with the
 // officer, the audit trail and its integrity, how fresh each input is, exactly which code produced the numbers,
 // the gates that keep decisions with officers, and the capability register.
@@ -37,7 +38,7 @@ export default function Governance({ data, registers, cases, go }) {
   const [err, setErr] = useState('');
   const [type, setType] = useState('all');
   const load = useCallback(() => {
-    Promise.all([fetch('/__governance', { cache: 'no-store' }).then((r) => r.json()), fetch('/__cases/log?limit=1000', { cache: 'no-store' }).then((r) => r.json())])
+    Promise.all([fetch(api('/__governance'), { cache: 'no-store' }).then((r) => r.json()), fetch(api('/__cases/log?limit=1000'), { cache: 'no-store' }).then((r) => r.json())])
       .then(([g, l]) => { setGov(g.ok ? g : null); setLog(l.ok ? l : null); setErr(g.ok && l.ok ? '' : 'The local server did not answer; governance details need it.'); })
       .catch(() => setErr('The local server is not running: audit log and fingerprints need it.'));
   }, []);

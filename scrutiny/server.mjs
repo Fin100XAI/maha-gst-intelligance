@@ -12,7 +12,8 @@
 //   CHROME_PATH         Chromium/Edge binary for PDF export · CHROME_NO_SANDBOX=1 inside containers
 //   PLATFORM_DIST       platform mode: also serve the Maha GST Intelligence platform (its built dist/) at "/",
 //                       with this app under SCRUTINY_BASE (default /scrutiny/, build with `npm run build:platform`).
-//                       The services above stay at the root, so the app reaches them unchanged.
+//                       The app calls the services above under SCRUTINY_BASE too (/scrutiny/__cases ...),
+//                       exactly as it does behind a proxy that forwards /scrutiny/ here with the prefix removed.
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -85,14 +86,10 @@ function serveStatic(dir, urlPath, res) {
   fs.createReadStream(file).pipe(res);
 }
 
-// Stand-alone: everything is this app. Platform mode: this app under BASE, the platform everywhere else.
-function route(req, res) {
+// Files: this app's own (stand-alone, or under BASE in platform mode), else the platform's.
+function route(req, res, mine) {
   const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
-  if (!PLATFORM) return serveStatic(dist, urlPath, res);
-  if (urlPath === BASE.slice(0, -1)) { res.statusCode = 308; res.setHeader('location', BASE); return res.end(); }
-  if (urlPath.startsWith(BASE)) return serveStatic(dist, `/${urlPath.slice(BASE.length)}`, res);
-  if (urlPath.startsWith('/samples/')) return serveStatic(dist, urlPath, res); // ingestion samples, linked from the root
-  return serveStatic(PLATFORM, urlPath, res);
+  return serveStatic(mine ? dist : PLATFORM, urlPath, res);
 }
 
 const server = http.createServer((req, res) => {
@@ -110,12 +107,20 @@ const server = http.createServer((req, res) => {
     }
   }
 
-  const url = req.url || '/';
+  // Platform mode: everything under BASE is this app, services included (the app calls
+  // /scrutiny/__cases, /scrutiny/data.json ...). Strip the prefix, as a proxy in front would.
+  let url = req.url || '/';
+  let mine = !PLATFORM;
+  if (PLATFORM) {
+    const p = url.split('?')[0];
+    if (p === BASE.slice(0, -1)) { res.statusCode = 308; res.setHeader('location', BASE + url.slice(p.length)); return res.end(); }
+    if (url.startsWith(BASE)) { url = url.slice(BASE.length - 1); mine = true; }
+  }
   const layers = stack.filter(([prefix]) => url === prefix || url.startsWith(`${prefix}/`) || url.startsWith(`${prefix}?`));
   let i = 0;
   const next = () => {
     const layer = layers[i++];
-    if (!layer) { req.url = url; return route(req, res); }
+    if (!layer) { req.url = url; return route(req, res, mine); }
     const [prefix, fn] = layer;
     req.url = url.slice(prefix.length) || '/'; // strip mount path like connect does
     try { fn(req, res, next); } catch (e) { res.statusCode = 500; res.end('Server error'); console.error(e); }

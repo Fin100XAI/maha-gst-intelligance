@@ -1,3 +1,4 @@
+import { api } from '../lib/api.js';
 // EIU risk-to-revenue workbench: signals as received, revalidated on the latest returns, the taxpayer's reply as
 // tested claims, the officer's challenge (exclusions and assumptions, recalculated live) and the exposure ledger.
 import React, { useEffect, useMemo, useState } from 'react';
@@ -203,7 +204,7 @@ function Replies({ sig, r, ctx, saved, dispatch, toast }) {
   return (
     <Card className="mt" tour="eiu-claims" title="Taxpayer / CA reply, claim by claim" sub={reply ? `Reply from ${reply.from} received ${reply.received}${reply.ref ? ` (${reply.ref})` : ''} · supported ${counts.supported} · partly supported ${counts.partial} · contradicted ${counts.contradicted} · not testable from returns ${counts.unverifiable}` : 'Paste the reply: each statement becomes a claim tested against the returns'}
       actions={replies.length > 1 && <select value={pick} onChange={(e) => setPick(Number(e.target.value))}>{replies.map((x, i) => <option key={x.at + i} value={i}>{x.received} · {x.from}</option>)}</select>}>
-      {reply?.doc && <div className="doc-ref"><Icon name="notice" size={15} /><span>Read from <a href={`/__docs/${reply.doc.sha256}`} download={reply.doc.name}>{reply.doc.name}</a> · {Math.round(reply.doc.size / 1024)} KB · SHA-256 <span className="mono">{reply.doc.sha256.slice(0, 12)}…</span> (the original is kept as received)</span></div>}
+      {reply?.doc && <div className="doc-ref"><Icon name="notice" size={15} /><span>Read from <a href={api(`/__docs/${reply.doc.sha256}`)} download={reply.doc.name}>{reply.doc.name}</a> · {Math.round(reply.doc.size / 1024)} KB · SHA-256 <span className="mono">{reply.doc.sha256.slice(0, 12)}…</span> (the original is kept as received)</span></div>}
       {reply && <blockquote className="reply-text">{reply.text}</blockquote>}
       {claims.length > 0 && (
         <div className="tbl-wrap" style={{ maxHeight: 460 }}>
@@ -245,7 +246,7 @@ export function ReplyForm({ sig, dispatch, toast, onRecorded }) {
     if (!file) return;
     setReading(true);
     try {
-      const res = await fetch(`/__docs/upload?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
+      const res = await fetch(api(`/__docs/upload?name=${encodeURIComponent(file.name)}`), { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
       const out = await res.json().catch(() => ({ ok: false, error: `Upload failed (${res.status})` }));
       if (!out.ok) {
         toast(out.error || 'The document could not be stored');

@@ -1,3 +1,4 @@
+import { api } from '../lib/api.js';
 import React, { useEffect, useMemo, useState } from 'react';
 import { PageHead, Seg } from '../components/ui.jsx';
 import Icon from '../components/Icon.jsx';
@@ -19,7 +20,7 @@ export default function AISettings({ data, ai, setAi, toast }) {
   const loadModels = async () => {
     setLoadingModels(true);
     try {
-      const r = await fetch('/__ai/models', { headers: headers() });
+      const r = await fetch(api('/__ai/models'), { headers: headers() });
       const b = await r.json();
       if (!r.ok) throw new Error(b.error);
       const known = new Set(AI_MODELS.map((m) => m.id));
@@ -36,7 +37,7 @@ export default function AISettings({ data, ai, setAi, toast }) {
     setTest({ state: 'running' });
     const t0 = performance.now();
     try {
-      const r = await fetch('/__ai/chat', { method: 'POST', headers: headers(), body: JSON.stringify({ model: ai.model, temperature: 0, max_tokens: 64, json: true, messages: [{ role: 'system', content: 'Reply with JSON only.' }, { role: 'user', content: 'Return {"ok": true, "model": "<your model name>"}' }] }) });
+      const r = await fetch(api('/__ai/chat'), { method: 'POST', headers: headers(), body: JSON.stringify({ model: ai.model, temperature: 0, max_tokens: 64, json: true, messages: [{ role: 'system', content: 'Reply with JSON only.' }, { role: 'user', content: 'Return {"ok": true, "model": "<your model name>"}' }] }) });
       const b = await r.json();
       if (!r.ok) throw new Error(b.error);
       setTest({ state: 'ok', text: `Connected · ${b.model} · ${Math.round(performance.now() - t0)} ms` });
