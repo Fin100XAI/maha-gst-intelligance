@@ -40,7 +40,7 @@ const transporterOf = (from) => makeGstin(from.slice(0, 2), `ZZ${L[Math.floor(u(
 // noMovement: [supplier, buyer, share]: invoices between them with no e-way bill at all (goods never moved). Applied
 // on both sides. suppressed: share of extra bills a consignor generates with no invoice in its GSTR-1 (sales kept off
 // the returns). vehicleClash: planted impossible journeys. cancel: share of bills cancelled and generated again.
-const W = (pan) => makeGstin(27, pan); // the SYN-PUNE-01 ward (scripts/synth/ward.mjs)
+const W = (pan) => makeGstin(27, pan); // the PUNE-WARD-01 ward (scripts/synth/ward.mjs)
 const BASE_PLAN = {
   noMovement: [[W('ZZSPS9909T'), W('ZZSFS8808S'), 0.6], [W('ZZSFS8808S'), W('ZZTCT7707R'), 0.85], [W('ZZVFV1616A'), W('ZZTCT7707R'), 0.85], [W('ZZSFS8808S'), W('ZZOFO1010U'), 0.5], [W('ZZOFO1010U'), W('ZZSPS9909T'), 0.5]],
   suppressed: { [W('ZZSFS8808S')]: 0.03, '27ZZUCD3562J1ZZ': 0.015 },

@@ -81,7 +81,7 @@ export default function DemoGuide({ steps, go, route, loaded, onClose }) {
       </div>
       <div className="demo-chapters" aria-hidden="true">{CHAPTERS.map((c, k) => <i key={c.key} className={k < chapterIndex ? 'done' : k === chapterIndex ? 'on' : ''} style={{ flex: c.to - c.from }} />)}</div>
       <h3>{step.title}</h3>
-      {needsData && <div className="demo-warn">This step uses ward SYN-PUNE-01. Load it in Upload data to show it.</div>}
+      {needsData && <div className="demo-warn">This step uses ward PUNE-WARD-01. Load it in Upload data to show it.</div>}
       {missing && !needsData && <div className="demo-warn">The item to point at is not on screen yet; scroll to it, or check the data is loaded.</div>}
       <ul className="demo-say">{step.say.map((t) => <li key={t}>{t}</li>)}</ul>
       <div className="demo-actions">

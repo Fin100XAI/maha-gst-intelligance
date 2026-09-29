@@ -1,9 +1,9 @@
 // The 20-minute Commissioner demonstration (InQAI master execution document, section 6), as a scripted path through
 // the console. Each step opens a screen, points at one thing, and gives the presenter what to say. The figures quoted
-// are those of the synthetic ward SYN-PUNE-01 as generated (seed 2718); they are not real departmental outcomes.
+// are those of the synthetic ward PUNE-WARD-01 as generated (seed 2718); they are not real departmental outcomes.
 
 export const WARD = {
-  jurisdiction: 'SYN-PUNE-01',
+  jurisdiction: 'PUNE-WARD-01',
   talegaon: '27ZZTCT7707R1Z1', // E07: cash down, credit from a pass-through network
   hinjewadi: '27ZZHCH4404N1Z9', // E04: decline explained by a rate cut
   signal: 'EIU-2025-0107', // the EIU signal on Talegaon
@@ -22,7 +22,7 @@ export const CHAPTERS = [
 export const DEMO_STEPS = [
   { chapter: 'problem', view: 'revenue', title: 'Detect and report is not enough',
     say: ['Existing GST systems detect and report. This console explains why revenue moved, tests what reconciles, traces the counterparties behind it and measures what departmental action yields.',
-      'Everything on screen is ward SYN-PUNE-01: 16 taxpayers, three years of returns, with the stories planted on purpose. None of it is a real departmental outcome.'] },
+      'Everything on screen is ward PUNE-WARD-01: 16 taxpayers, three years of returns, with the stories planted on purpose. None of it is a real departmental outcome.'] },
   { chapter: 'problem', view: 'revenue', target: '[data-tour="rev-contributors"]', title: 'Who moved the collection',
     say: ['Each bar is one taxpayer’s change in tax paid in cash, and together they add up to the jurisdiction’s change.', 'The largest fall is Talegaon Infra, about ₹2.1 Cr. Let us ask why.'] },
 

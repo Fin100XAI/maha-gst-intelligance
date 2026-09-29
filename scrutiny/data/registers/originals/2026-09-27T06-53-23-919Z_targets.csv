@@ -1,37 +1,37 @@
 jurisdiction,fy,month,target_amount,version,approved_on,basis
-SYN-PUNE-01,2023-24,Apr,49746000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,May,51857000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Jun,52692000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Jul,52814000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Aug,53785000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Sep,54468000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Oct,56460000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Nov,57096000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Dec,53521000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Jan,51459000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Feb,53484000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2023-24,Mar,55563000,v1,01-04-2023,Opening year: 3% over the year
-SYN-PUNE-01,2024-25,Apr,54092000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,May,56388000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Jun,57296000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Jul,57428000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Aug,58484000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Sep,59227000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Oct,61393000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Nov,62085000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Dec,58198000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Jan,55955000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Feb,58158000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2024-25,Mar,60418000,v1,01-04-2024,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Apr,58322000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,May,59801000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Jun,59665000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Jul,60072000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Aug,61946000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Sep,63930000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Oct,66716000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Nov,64563000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Dec,61157000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Jan,59236000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Feb,62166000,v1,01-04-2025,Prior-year output tax for the month + 12%
-SYN-PUNE-01,2025-26,Mar,65199000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2023-24,Apr,49746000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,May,51857000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Jun,52692000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Jul,52814000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Aug,53785000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Sep,54468000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Oct,56460000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Nov,57096000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Dec,53521000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Jan,51459000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Feb,53484000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2023-24,Mar,55563000,v1,01-04-2023,Opening year: 3% over the year
+PUNE-WARD-01,2024-25,Apr,54092000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,May,56388000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Jun,57296000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Jul,57428000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Aug,58484000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Sep,59227000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Oct,61393000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Nov,62085000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Dec,58198000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Jan,55955000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Feb,58158000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2024-25,Mar,60418000,v1,01-04-2024,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Apr,58322000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,May,59801000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Jun,59665000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Jul,60072000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Aug,61946000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Sep,63930000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Oct,66716000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Nov,64563000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Dec,61157000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Jan,59236000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Feb,62166000,v1,01-04-2025,Prior-year output tax for the month + 12%
+PUNE-WARD-01,2025-26,Mar,65199000,v1,01-04-2025,Prior-year output tax for the month + 12%

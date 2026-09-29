@@ -1,6 +1,6 @@
 {
  "generatedBy": "scripts/synth/ward.mjs (seed 2718)",
- "jurisdiction": "SYN-PUNE-01",
+ "jurisdiction": "PUNE-WARD-01",
  "synthetic": true,
  "note": "All figures are synthetic and must never be presented as actual departmental outcomes.",
  "extractDates": {

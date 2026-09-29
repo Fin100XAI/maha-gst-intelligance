@@ -26,7 +26,7 @@ printable reports and key-insight briefings (deterministic or AI).
 > **This repository contains confidential taxpayer data** (return workbooks in `data/`, generated
 > `public/data.json` and saved reports in `public/reports/`). Keep it private and limit access.
 >
-> `data/` also holds **synthetic data** for demonstration: the ward SYN-PUNE-01 (`[SYN]`), four `[TEST]` workbooks and
+> `data/` also holds **synthetic data** for demonstration: the ward PUNE-WARD-01 (`[SYN]`), four `[TEST]` workbooks and
 > made-up registers, all with `ZZ` PANs. Remove it from any installation officers rely on (DEPLOYMENT.md, section 1)
 > and never present it as departmental results.
 
@@ -249,7 +249,7 @@ place-of-supply errors, and an inverted-duty textile maker with invalid supplier
 `test-data/README.md` lists the findings each one should produce. Regenerate with `node scripts/make-test-data.mjs`;
 upload from *Upload data*. They are loaded on this platform and their scrutiny reports are in the library.
 
-`test-data/ward/` is a larger **synthetic ward, SYN-PUNE-01**: 16 interlinked taxpayers over three financial years
+`test-data/ward/` is a larger **synthetic ward, PUNE-WARD-01**: 16 interlinked taxpayers over three financial years
 (46 workbooks) with planted revenue-change drivers, network patterns (cycle, pass-through, non-filer, new registrant,
 cancelled supplier), five registers in `test-data/ward/registers/` (taxpayer master, EIU signals, targets, demands,
 case action register) and synthetic reply letters in `test-data/ward/replies/`. `test-data/ward/answer-key.json`
