@@ -22,7 +22,7 @@ import { writeReturns } from './workbook.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DATA = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(ROOT, 'data');
 const KEY_DIR = path.join(ROOT, 'test-data', 'corporates');
-export const VERSION = 'corporates-v3';
+export const VERSION = 'corporates-v5';
 export const JURISDICTION = 'LTU-MUMBAI';
 export const FYS = [2024, 2025];
 const EXTRACT = { 2024: '2025-11-20', 2025: '2026-09-26' };
@@ -252,7 +252,8 @@ const G09cancelled = makeExternal(27, P.scrap, { cancelledOn: '2025-06-30', note
 
 // ------------------------------------------------------------------ the ledger
 const ledger = []; // { fy, m, seller, buyer, date, prod, rate, taxable, tags[], shipTo? }
-const add = (fy, m, seller, buyer, date, prod, taxable, tags = [], extra = {}) => ledger.push({ fy, m, seller, buyer, date, prod, rate: rateOf(prod, date), taxable: r2(taxable), tags, ...extra });
+// tags are copied: a flow's tag list is shared by all its invoices, and later tagging marks one invoice only
+const add = (fy, m, seller, buyer, date, prod, taxable, tags = [], extra = {}) => ledger.push({ fy, m, seller, buyer, date, prod, rate: rateOf(prod, date), taxable: r2(taxable), tags: [...tags], ...extra });
 // Split an amount into about n invoices with a log-normal spread (first digits then follow Benford's law).
 const split = (amount, n) => {
   if (amount <= 0) return [];
@@ -311,6 +312,8 @@ for (const fy of FYS) {
 
 // ---- planted: bill-to-ship-to (G11): billed to the Mumbai parent, goods shipped straight to a customer's plant in Gujarat
 for (const x of ledger.filter((t) => t.seller === byKey.G11B && t.buyer === byKey.G11A)) if (g.rnd() < 0.3) { x.shipTo = '24'; x.tags.push('bill-to-ship-to'); }
+// ...and five of them, delivered inside Gujarat, were wrongly charged CGST + SGST instead of IGST (a genuine D-05 error)
+for (const x of ledger.filter((t) => t.tags.includes('bill-to-ship-to') && t.fy === 2025).slice(0, 5)) { x.wrongHead = true; x.tags.push('wrong-head'); }
 
 // ---- planted: bullion round-trip (G06): A -> D -> C -> B -> A at a fraction of a percent, within days
 for (const fy of FYS) {
@@ -408,11 +411,12 @@ export async function generate({ registers = false } = {}) {
   const written = [];
   for (const e of ALL) {
     for (const fy of FYS) {
-      const sales = ledger.filter((x) => x.seller === e && x.fy === fy).sort(byDate).map((x) => ({ m: x.m, c: party(x.buyer), no: x.no, seq: x.seq, date: x.date, rate: x.rate, taxable: x.taxable, ...heads(x.taxable, x.rate, x.buyer.state === e.state), hsn: x.prod.hsn }));
+      const intraOf = (x, other) => (other.state === e.state) !== Boolean(x.wrongHead);
+      const sales = ledger.filter((x) => x.seller === e && x.fy === fy).sort(byDate).map((x) => ({ m: x.m, c: party(x.buyer), no: x.no, seq: x.seq, date: x.date, rate: x.rate, taxable: x.taxable, ...heads(x.taxable, x.rate, intraOf(x, x.buyer)), hsn: x.prod.hsn }));
       const purchases = ledger.filter((x) => x.buyer === e && x.fy === fy).sort(byDate).map((x) => {
         const cancelledNow = x.seller.cancelledOn && x.date > x.seller.cancelledOn;
         const rc = !!x.prod.rc;
-        return { m: x.m, s: party(x.seller), no: x.no, date: x.date, rate: x.rate, taxable: x.taxable, ...heads(x.taxable, x.rate, x.seller.state === e.state), rc, filed3B: filed3B(x.seller), ...(cancelledNow ? { in2A: false, in2B: false } : {}) };
+        return { m: x.m, s: party(x.seller), no: x.no, date: x.date, rate: x.rate, taxable: x.taxable, ...heads(x.taxable, x.rate, intraOf(x, x.seller)), rc, filed3B: filed3B(x.seller), ...(cancelledNow ? { in2A: false, in2B: false } : {}) };
       });
       const cdns = []; // conglomerates: volume discounts to their largest customers in Q4
       if (e.group.kind === 'tricky' && fy === 2025) {
@@ -493,6 +497,19 @@ const writeKey = (written) => {
     },
     workbooks: written.map((w) => ({ key: w.key, fy: fyLabel(w.fy), file: w.file, sales: w.sales, purchases: w.purchases, cdns: w.cdns })),
   };
+  fs.writeFileSync(path.join(KEY_DIR, 'answer-key.json'), JSON.stringify(key, null, 1));
+  // What the simulated e-way bill system (scripts/synth/ewb.mjs) needs to know about these groups: both the seller's
+  // and the buyer's copy are simulated separately, so every planted movement problem is stated here once.
+  const ewbPlan = {
+    version: VERSION,
+    noMovement: [...G07shells.map((s) => [s.gstin, byKey.G07A.gstin, 0.8]), [G23shells[0].gstin, byKey.G23A.gstin, 0.9], [G09cancelled.gstin, byKey.G09A.gstin, 1]],
+    suppressed: { [byKey.G07A.gstin]: 0.04, [byKey.G09A.gstin]: 0.05, [byKey.G08A.gstin]: 0.02, [byKey.G24A.gstin]: 0.02 },
+    vehicleClash: { [byKey.G07A.gstin]: 6, [byKey.G23A.gstin]: 3 },
+    cancel: Object.fromEntries(ALL.filter((e) => e.group.kind === 'risky').map((e) => [e.gstin, 0.06])),
+    shipTo: Object.fromEntries(ledger.filter((x) => x.shipTo).map((x) => [`${x.seller.gstin}|${x.no}`, x.shipTo])),
+  };
+  fs.writeFileSync(path.join(KEY_DIR, 'ewb-plan.json'), JSON.stringify(ewbPlan));
+  key.ewb = { noMovement: 'G07 purchases from its four shell suppliers (80%) and G23 from its shell (90%) have no e-way bill: the goods never moved (B-03).', suppressed: 'G07 4%, G09 5%, G08 2%, G24 2% of bills move goods to unregistered buyers with no invoice in GSTR-1 (G-05).', vehicleClash: 'G07: 6, G23: 3 impossible journeys.', shipTo: `${Object.keys(ewbPlan.shipTo).length} G11B -> G11A invoices delivered in Gujarat; five of FY 2025-26 charged CGST + SGST instead of IGST (D-05).`, exempt: 'G06 deals in gold and jewellery: no e-way bills at all, and none are expected.' };
   fs.writeFileSync(path.join(KEY_DIR, 'answer-key.json'), JSON.stringify(key, null, 1));
 };
 

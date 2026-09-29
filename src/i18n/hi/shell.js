@@ -67,6 +67,7 @@ registerMessages('hi', {
   Help: 'सहायता',
   Dashboard: 'डैशबोर्ड',
   'EIU signals': 'EIU संकेत',
+  'E-way bills': 'ई-वे बिल',
   'Taxpayer 360°': 'करदाता 360°',
   Notices: 'नोटिस',
   Collections: 'संग्रहण',

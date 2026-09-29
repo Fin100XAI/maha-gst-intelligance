@@ -25,6 +25,7 @@ const PAGES = [
     { id: 'revenue', label: 'Revenue' },
     { id: 'network', label: 'Network' },
     { id: 'eiu', label: 'EIU signals' },
+    { id: 'ewb', label: 'E-way bills' },
     { id: 'cases', label: 'Cases' },
     { id: 'taxpayer', label: 'Taxpayer 360°' },
     { id: 'notices', label: 'Notices' },

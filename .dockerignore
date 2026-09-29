@@ -18,3 +18,4 @@ scrutiny/public/reports
 scrutiny/test-data
 scrutiny/data/*_GEN *
 scrutiny/data/.corporates.version
+scrutiny/data/ewb

@@ -1,5 +1,5 @@
 {
- "generatedBy": "scripts/synth/corporates.mjs (seed 31415, corporates-v3)",
+ "generatedBy": "scripts/synth/corporates.mjs (seed 31415, corporates-v5)",
  "jurisdiction": "LTU-MUMBAI",
  "synthetic": true,
  "note": "Every name, PAN and figure is invented. The groups resemble kinds of businesses in behaviour only; none represents a real company.",
@@ -1591,5 +1591,12 @@
    "purchases": 424,
    "cdns": 24
   }
- ]
+ ],
+ "ewb": {
+  "noMovement": "G07 purchases from its four shell suppliers (80%) and G23 from its shell (90%) have no e-way bill: the goods never moved (B-03).",
+  "suppressed": "G07 4%, G09 5%, G08 2%, G24 2% of bills move goods to unregistered buyers with no invoice in GSTR-1 (G-05).",
+  "vehicleClash": "G07: 6, G23: 3 impossible journeys.",
+  "shipTo": "354 G11B -> G11A invoices delivered in Gujarat; five of FY 2025-26 charged CGST + SGST instead of IGST (D-05).",
+  "exempt": "G06 deals in gold and jewellery: no e-way bills at all, and none are expected."
+ }
 }

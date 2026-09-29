@@ -5,6 +5,7 @@ import Taxpayer from './views/Taxpayer.jsx';
 import Revenue from './views/Revenue.jsx';
 import Network from './views/Network.jsx';
 import Eiu from './views/Eiu.jsx';
+import EwayBills from './views/EwayBills.jsx';
 import Overview from './views/Overview.jsx';
 import Collections from './views/Collections.jsx';
 import Actions from './views/Actions.jsx';
@@ -49,6 +50,7 @@ const NAV = [
   { id: 'revenue', label: 'Revenue', icon: 'trend' },
   { id: 'network', label: 'Network', icon: 'network' },
   { id: 'eiu', label: 'EIU signals', icon: 'alert' },
+  { id: 'ewb', label: 'E-way bills', icon: 'truck' },
   { id: 'cases', label: 'Cases', icon: 'cases', badge: true },
   { id: 'taxpayer', label: 'Taxpayer 360°', icon: 'taxpayer' },
   { id: 'notices', label: 'Notices', icon: 'notice' },
@@ -128,6 +130,7 @@ export default function App() {
   useEffect(() => { if (user && raw?.taxpayers.length && !tourState.done && !embedded) setTouring(true); }, [user, raw, tourState.done, embedded]);
   const hideProps = (scope) => ({ hidden: !!insightsHidden[scope], setHidden: (v) => setInsightsHidden((h) => ({ ...h, [scope]: v })) });
 
+  const reloadData = useCallback(() => fetch(api('/data.json'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((d) => { if (d) setRaw(d); }), []);
   useEffect(() => {
     fetch(api('/data.json'), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(`data.json: HTTP ${r.status}`); return r.json(); })
       .then(setRaw).catch((e) => setError(e.message));
@@ -388,6 +391,7 @@ export default function App() {
         {route.view === 'targets' && <Targets data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
         {route.view === 'learning' && <Learning data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
         {route.view === 'eiu' && <Eiu data={data} registers={registers} cases={cases} dispatch={dispatch} selected={route.id} setSelected={(id) => { window.location.hash = `/eiu/${id}`; }} openTaxpayer={(g) => openTaxpayerTab(g, null)} toast={setToast} />}
+        {route.view === 'ewb' && <EwayBills data={data} openTaxpayer={(g) => openTaxpayerTab(g, 'ewb')} toast={setToast} reload={reloadData} />}
         {route.view === 'network' && <Network data={data} registers={registers} openTaxpayer={openTaxpayerTab} />}
         {route.view === 'revenue' && <Revenue data={data} registers={registers} openRevenue={openRevenue} />}
         {route.view === 'cases' && <Cases data={data} cases={cases} setCaseStatus={changeStatus} openTaxpayer={openTaxpayer} openNotice={(id) => go('notices', id)} go={go} />}

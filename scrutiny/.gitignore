@@ -27,6 +27,8 @@ data/superseded/
 # Large-taxpayer workbooks ("_GEN " in the name) are generated at build time by
 # scripts/synth/corporates.mjs (deterministic, hundreds of MB); the stamp records the version.
 data/.corporates.version
+# E-way bills: fetched from the (simulated) e-way bill system at build time, or uploaded exports. Working data.
+data/ewb/
 # Built from data/ at start-up and on every upload, so they can carry real returns too.
 public/data.json
 public/reports/
