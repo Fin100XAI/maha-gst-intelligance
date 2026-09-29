@@ -53,13 +53,15 @@ export const SUPPLY_ROWS = ['(a) Outward Taxable Supplies (other than Zero rated
  *                  (a negative underDeclare declares more than GSTR-1: a later-period catch-up)
  *   activeFrom     first FY month the GSTIN was registered (default 0 = April): no returns before it
  *   unfiledPeriods GSTR-3B periods never filed: GSTR-1 is still reported, 3B, payment and ledgers are not
+ *   stateNames     { code: name } for states beyond the shared STATES list (place of supply)
  * @param {{ filingLead: () => number }} opts  days before the due date a return was filed, when not overridden
  * @returns {{ wb: object, stats: object }}
  */
 export function writeReturns(r, { filingLead }) {
   const { fy, sales, cdns = [], purchases, supplierCdns = [] } = r;
   const own = String(r.state).padStart(2, '0');
-  const pos = (sc) => STATES[sc] || STATES[Number(sc)] || 'Maharashtra';
+  const names = { ...STATES, ...(r.stateNames || {}) }; // a generator may name further states for its counterparties
+  const pos = (sc) => names[sc] || names[Number(sc)] || 'Maharashtra';
   const qrmp = r.filing === 'qrmp';
   const allPeriods = (qrmp ? [2, 5, 8, 11] : MONTHS.map((_, i) => i)).filter((p) => p >= (r.activeFrom ?? 0));
   const unfiled = new Set(r.unfiledPeriods || []);

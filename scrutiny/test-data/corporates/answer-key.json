@@ -1,0 +1,1595 @@
+{
+ "generatedBy": "scripts/synth/corporates.mjs (seed 31415, corporates-v3)",
+ "jurisdiction": "LTU-MUMBAI",
+ "synthetic": true,
+ "note": "Every name, PAN and figure is invented. The groups resemble kinds of businesses in behaviour only; none represents a real company.",
+ "groups": [
+  {
+   "key": "G01",
+   "kind": "clean",
+   "sector": "IT services",
+   "name": "SAHYADRI INFOTECH SERVICES LIMITED",
+   "turnoverCrore": [
+    9335,
+    10254
+   ],
+   "registrations": [
+    {
+     "key": "G01A",
+     "gstin": "27ZZSCS2101K1Z3",
+     "name": "SAHYADRI INFOTECH SERVICES LIMITED",
+     "state": "27",
+     "role": "Head office (Pune)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G01B",
+     "gstin": "29ZZSCS2101K1ZZ",
+     "name": "SAHYADRI INFOTECH SERVICES LIMITED",
+     "state": "29",
+     "role": "Branch (Bengaluru)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G01C",
+     "gstin": "36ZZSCS2101K1Z4",
+     "name": "SAHYADRI INFOTECH SERVICES LIMITED",
+     "state": "36",
+     "role": "Branch (Hyderabad)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G02",
+   "kind": "clean",
+   "sector": "FMCG (home and personal care)",
+   "name": "GODAVARI CONSUMER PRODUCTS LIMITED",
+   "turnoverCrore": [
+    8563,
+    9119
+   ],
+   "registrations": [
+    {
+     "key": "G02A",
+     "gstin": "27ZZGCG2202L1ZN",
+     "name": "GODAVARI CONSUMER PRODUCTS LIMITED",
+     "state": "27",
+     "role": "Plant and head office (Nashik)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G02B",
+     "gstin": "24ZZGCG2202L1ZT",
+     "name": "GODAVARI CONSUMER PRODUCTS LIMITED",
+     "state": "24",
+     "role": "Depot (Ahmedabad)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G02C",
+     "gstin": "29ZZGCG2202L1ZJ",
+     "name": "GODAVARI CONSUMER PRODUCTS LIMITED",
+     "state": "29",
+     "role": "Depot (Bengaluru)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G02D",
+     "gstin": "33ZZGCG2202L1ZU",
+     "name": "GODAVARI CONSUMER PRODUCTS LIMITED",
+     "state": "33",
+     "role": "Depot (Chennai)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G03",
+   "kind": "clean",
+   "sector": "Auto components",
+   "name": "DECCAN PRECISION FORGINGS LIMITED",
+   "turnoverCrore": [
+    5291,
+    5906
+   ],
+   "registrations": [
+    {
+     "key": "G03A",
+     "gstin": "27ZZDCD2303M1ZP",
+     "name": "DECCAN PRECISION FORGINGS LIMITED",
+     "state": "27",
+     "role": "Forging plant (Chakan)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G03B",
+     "gstin": "27ZZDCD2304N1ZM",
+     "name": "DECCAN PRECISION CASTINGS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Subsidiary: foundry (Satara)",
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G04",
+   "kind": "clean",
+   "sector": "Pharmaceuticals",
+   "name": "KONKAN LIFE SCIENCES LIMITED",
+   "turnoverCrore": [
+    6676,
+    7293
+   ],
+   "registrations": [
+    {
+     "key": "G04A",
+     "gstin": "27ZZKCK2405P1Z2",
+     "name": "KONKAN LIFE SCIENCES LIMITED",
+     "state": "27",
+     "role": "Formulations plant (Tarapur)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G04B",
+     "gstin": "24ZZKCK2405P1Z8",
+     "name": "KONKAN LIFE SCIENCES LIMITED",
+     "state": "24",
+     "role": "API plant (Ankleshwar)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G05",
+   "kind": "clean",
+   "sector": "Cement",
+   "name": "TRIVENI CEMENT LIMITED",
+   "turnoverCrore": [
+    4793,
+    5132
+   ],
+   "registrations": [
+    {
+     "key": "G05A",
+     "gstin": "27ZZTCT2506Q1ZG",
+     "name": "TRIVENI CEMENT LIMITED",
+     "state": "27",
+     "role": "Integrated plant (Chandrapur)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G05B",
+     "gstin": "23ZZTCT2506Q1ZO",
+     "name": "TRIVENI CEMENT LIMITED",
+     "state": "23",
+     "role": "Grinding unit (Satna)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G16",
+   "kind": "clean",
+   "sector": "Paper",
+   "name": "UNNATI PAPER MILLS LIMITED",
+   "turnoverCrore": [
+    1605,
+    1697
+   ],
+   "registrations": [
+    {
+     "key": "G16A",
+     "gstin": "27ZZUCU2616R1Z9",
+     "name": "UNNATI PAPER MILLS LIMITED",
+     "state": "27",
+     "role": "Mill (Ballarpur)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G19",
+   "kind": "clean",
+   "sector": "Electronics manufacturing services",
+   "name": "TEJAS ELECTRONICS MANUFACTURING LIMITED",
+   "turnoverCrore": [
+    8458,
+    10019
+   ],
+   "registrations": [
+    {
+     "key": "G19A",
+     "gstin": "33ZZTCT2619S1ZD",
+     "name": "TEJAS ELECTRONICS MANUFACTURING LIMITED",
+     "state": "33",
+     "role": "EMS plant (Sriperumbudur)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G19B",
+     "gstin": "27ZZTCT2619S1Z6",
+     "name": "TEJAS ELECTRONICS MANUFACTURING LIMITED",
+     "state": "27",
+     "role": "Assembly unit (Pune)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G21",
+   "kind": "clean",
+   "sector": "Dairy products",
+   "name": "KESHAV DAIRY PRODUCTS LIMITED",
+   "turnoverCrore": [
+    2288,
+    2457
+   ],
+   "registrations": [
+    {
+     "key": "G21A",
+     "gstin": "27ZZKCK2621T1ZS",
+     "name": "KESHAV DAIRY PRODUCTS LIMITED",
+     "state": "27",
+     "role": "Dairy plant (Baramati)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G06",
+   "kind": "risky",
+   "sector": "Bullion and jewellery trading",
+   "name": "SWARNAMUKHI BULLION AND JEWELS LIMITED",
+   "turnoverCrore": [
+    70223,
+    84048
+   ],
+   "registrations": [
+    {
+     "key": "G06A",
+     "gstin": "27ZZSCS2606U1Z9",
+     "name": "SWARNAMUKHI BULLION AND JEWELS LIMITED",
+     "state": "27",
+     "role": "Head office (Zaveri Bazaar, Mumbai)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G06B",
+     "gstin": "24ZZSCS2606U1ZF",
+     "name": "SWARNAMUKHI BULLION AND JEWELS LIMITED",
+     "state": "24",
+     "role": "Manufacturing unit (Surat SEZ area)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G06C",
+     "gstin": "24ZZSFS2607V1Z6",
+     "name": "SWARNAMUKHI GOLD TRADING LLP",
+     "state": "24",
+     "role": "Related party (common partners)",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G06D",
+     "gstin": "27ZZNCN2608W1ZD",
+     "name": "NAVKAR BULLION PRIVATE LIMITED",
+     "state": "27",
+     "role": "Associate (common director)",
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G07",
+   "kind": "risky",
+   "sector": "Steel trading",
+   "name": "VIDARBHA STEEL AND ALLOYS PRIVATE LIMITED",
+   "turnoverCrore": [
+    3022,
+    5769
+   ],
+   "registrations": [
+    {
+     "key": "G07A",
+     "gstin": "27ZZVCV2709X1ZT",
+     "name": "VIDARBHA STEEL AND ALLOYS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Trading office (Nagpur)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G08",
+   "kind": "risky",
+   "sector": "Mobile phone distribution",
+   "name": "PRATHAM MOBILE DISTRIBUTION PRIVATE LIMITED",
+   "turnoverCrore": [
+    1802,
+    2067
+   ],
+   "registrations": [
+    {
+     "key": "G08A",
+     "gstin": "27ZZPCP2810Y1Z9",
+     "name": "PRATHAM MOBILE DISTRIBUTION PRIVATE LIMITED",
+     "state": "27",
+     "role": "Distribution hub (Bhiwandi)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G09",
+   "kind": "risky",
+   "sector": "Metal scrap trading",
+   "name": "OMKAR METAL SCRAP PRIVATE LIMITED",
+   "turnoverCrore": [
+    1207,
+    1246
+   ],
+   "registrations": [
+    {
+     "key": "G09A",
+     "gstin": "27ZZOCO2911Z1Z7",
+     "name": "OMKAR METAL SCRAP PRIVATE LIMITED",
+     "state": "27",
+     "role": "Yard (Taloja)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G10",
+   "kind": "risky",
+   "sector": "Agro commodities",
+   "name": "NIRMAL AGRO COMMODITIES LIMITED",
+   "turnoverCrore": [
+    3166,
+    3352
+   ],
+   "registrations": [
+    {
+     "key": "G10A",
+     "gstin": "27ZZNCN3012A1ZU",
+     "name": "NIRMAL AGRO COMMODITIES LIMITED",
+     "state": "27",
+     "role": "Head office (Latur)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G10B",
+     "gstin": "23ZZNCN3012A1Z2",
+     "name": "NIRMAL AGRO COMMODITIES LIMITED",
+     "state": "23",
+     "role": "Procurement branch (Indore)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G23",
+   "kind": "risky",
+   "sector": "Polymer trading",
+   "name": "NAVKAR POLYMERS PRIVATE LIMITED",
+   "turnoverCrore": [
+    893,
+    1265
+   ],
+   "registrations": [
+    {
+     "key": "G23A",
+     "gstin": "27ZZNCN3123B1ZO",
+     "name": "NAVKAR POLYMERS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Trading office (Bhiwandi)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G24",
+   "kind": "risky",
+   "sector": "Pharma distribution",
+   "name": "AKSHAY PHARMA DISTRIBUTORS PRIVATE LIMITED",
+   "turnoverCrore": [
+    1324,
+    1367
+   ],
+   "registrations": [
+    {
+     "key": "G24A",
+     "gstin": "27ZZACA3224C1ZA",
+     "name": "AKSHAY PHARMA DISTRIBUTORS PRIVATE LIMITED",
+     "state": "27",
+     "role": "C&F agent (Mumbai)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G11",
+   "kind": "tricky",
+   "sector": "Diversified conglomerate",
+   "name": "VARDHAN INDUSTRIES LIMITED",
+   "turnoverCrore": [
+    76202,
+    82411
+   ],
+   "registrations": [
+    {
+     "key": "G11A",
+     "gstin": "27ZZVCV3301D1Z8",
+     "name": "VARDHAN INDUSTRIES LIMITED",
+     "state": "27",
+     "role": "Parent: polymers and head office (Mumbai)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G11B",
+     "gstin": "24ZZVCV3302E1ZB",
+     "name": "VARDHAN PETROCHEMICALS LIMITED",
+     "state": "24",
+     "role": "Subsidiary: refinery-chemicals (Jamnagar)",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G11C",
+     "gstin": "27ZZVCV3303F1Z2",
+     "name": "VARDHAN RETAIL VENTURES LIMITED",
+     "state": "27",
+     "role": "Subsidiary: retail sourcing (Mumbai)",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G11D",
+     "gstin": "29ZZVCV3303F1ZY",
+     "name": "VARDHAN RETAIL VENTURES LIMITED",
+     "state": "29",
+     "role": "Retail sourcing branch (Bengaluru)",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G11E",
+     "gstin": "27ZZVCV3304G1ZZ",
+     "name": "VARDHAN DIGITAL SERVICES LIMITED",
+     "state": "27",
+     "role": "Subsidiary: broadband and digital (Navi Mumbai)",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G11F",
+     "gstin": "27ZZVCV3305H1ZW",
+     "name": "VARDHAN LOGISTICS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Subsidiary: group logistics (Navi Mumbai)",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G11G",
+     "gstin": "24ZZVCV3306J1ZW",
+     "name": "VARDHAN SOLAR ENERGY LIMITED",
+     "state": "24",
+     "role": "Subsidiary: solar modules (Dholera)",
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G12",
+   "kind": "tricky",
+   "sector": "Infrastructure (EPC)",
+   "name": "MAHABAL INFRASTRUCTURE LIMITED",
+   "turnoverCrore": [
+    13722,
+    15953
+   ],
+   "registrations": [
+    {
+     "key": "G12A",
+     "gstin": "27ZZMCM3407K1Z4",
+     "name": "MAHABAL INFRASTRUCTURE LIMITED",
+     "state": "27",
+     "role": "Parent EPC contractor (Thane)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G12B",
+     "gstin": "27ZZMCM3408L1Z1",
+     "name": "MAHABAL EXPRESSWAY PRIVATE LIMITED",
+     "state": "27",
+     "role": "SPV: expressway project",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G12C",
+     "gstin": "23ZZMCM3409M1Z6",
+     "name": "MAHABAL POWER PROJECTS PRIVATE LIMITED",
+     "state": "23",
+     "role": "SPV: transmission project (Madhya Pradesh)",
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G13",
+   "kind": "tricky",
+   "sector": "Two-wheeler manufacturing",
+   "name": "SANGAM MOTORS LIMITED",
+   "turnoverCrore": [
+    23943,
+    26322
+   ],
+   "registrations": [
+    {
+     "key": "G13A",
+     "gstin": "27ZZSCS3510N1ZQ",
+     "name": "SANGAM MOTORS LIMITED",
+     "state": "27",
+     "role": "Parent: vehicle plant (Aurangabad)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G13B",
+     "gstin": "27ZZSCS3511P1ZL",
+     "name": "SANGAM AUTO PARTS LIMITED",
+     "state": "27",
+     "role": "Subsidiary: spares distribution (Aurangabad)",
+     "samePanAsParent": false
+    },
+    {
+     "key": "G13C",
+     "gstin": "33ZZSCS3510N1ZX",
+     "name": "SANGAM MOTORS LIMITED",
+     "state": "33",
+     "role": "Branch plant (Hosur)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G14",
+   "kind": "tricky",
+   "sector": "Textiles (spinning to garments)",
+   "name": "AARAMBH TEXTILES LIMITED",
+   "turnoverCrore": [
+    6062,
+    6128
+   ],
+   "registrations": [
+    {
+     "key": "G14A",
+     "gstin": "24ZZACA3612Q1ZN",
+     "name": "AARAMBH TEXTILES LIMITED",
+     "state": "24",
+     "role": "Spinning (Rajkot)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G14B",
+     "gstin": "27ZZACA3612Q1ZH",
+     "name": "AARAMBH TEXTILES LIMITED",
+     "state": "27",
+     "role": "Weaving (Bhiwandi)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G14C",
+     "gstin": "33ZZACA3613R1ZL",
+     "name": "AARAMBH APPARELS PRIVATE LIMITED",
+     "state": "33",
+     "role": "Subsidiary: garments (Tiruppur)",
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G15",
+   "kind": "tricky",
+   "sector": "Chemicals and fertilisers",
+   "name": "KALPATARU CHEMICALS AND FERTILISERS LIMITED",
+   "turnoverCrore": [
+    9183,
+    9741
+   ],
+   "registrations": [
+    {
+     "key": "G15A",
+     "gstin": "27ZZKCK3714S1ZQ",
+     "name": "KALPATARU CHEMICALS AND FERTILISERS LIMITED",
+     "state": "27",
+     "role": "Chemicals complex (Thal)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G15B",
+     "gstin": "27ZZKCK3715T1ZN",
+     "name": "KALPATARU FERTILISERS LIMITED",
+     "state": "27",
+     "role": "Subsidiary: fertilisers (Thal)",
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G17",
+   "kind": "tricky",
+   "sector": "Cables and wires",
+   "name": "SURYODAY CABLES LIMITED",
+   "turnoverCrore": [
+    3493,
+    3904
+   ],
+   "registrations": [
+    {
+     "key": "G17A",
+     "gstin": "24ZZSCS3816U1Z9",
+     "name": "SURYODAY CABLES LIMITED",
+     "state": "24",
+     "role": "Plant (Halol)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G17B",
+     "gstin": "27ZZSCS3816U1Z3",
+     "name": "SURYODAY CABLES LIMITED",
+     "state": "27",
+     "role": "Plant (Silvassa-Vapi belt, Maharashtra side)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G18",
+   "kind": "clean",
+   "sector": "Packaging",
+   "name": "PADMA PACKAGING INDUSTRIES LIMITED",
+   "turnoverCrore": [
+    1347,
+    1448
+   ],
+   "registrations": [
+    {
+     "key": "G18A",
+     "gstin": "27ZZPCP3918V1Z4",
+     "name": "PADMA PACKAGING INDUSTRIES LIMITED",
+     "state": "27",
+     "role": "Plant (Ambernath)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G20",
+   "kind": "clean",
+   "sector": "Logistics (3PL and GTA)",
+   "name": "MEGHDOOT LOGISTICS LIMITED",
+   "turnoverCrore": [
+    1838,
+    2043
+   ],
+   "registrations": [
+    {
+     "key": "G20A",
+     "gstin": "27ZZMCM4020W1ZL",
+     "name": "MEGHDOOT LOGISTICS LIMITED",
+     "state": "27",
+     "role": "Head office (Bhiwandi)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G22",
+   "kind": "tricky",
+   "sector": "Tyres",
+   "name": "VISHWA TYRES LIMITED",
+   "turnoverCrore": [
+    7266,
+    7685
+   ],
+   "registrations": [
+    {
+     "key": "G22A",
+     "gstin": "27ZZVCV4122X1ZY",
+     "name": "VISHWA TYRES LIMITED",
+     "state": "27",
+     "role": "Plant (Ranjangaon)",
+     "samePanAsParent": true
+    },
+    {
+     "key": "G22B",
+     "gstin": "24ZZVCV4122X1Z4",
+     "name": "VISHWA TYRES LIMITED",
+     "state": "24",
+     "role": "Plant (Sanand)",
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G25",
+   "kind": "tricky",
+   "sector": "Solar EPC",
+   "name": "LAKSHYA SOLAR EPC PRIVATE LIMITED",
+   "turnoverCrore": [
+    830,
+    1256
+   ],
+   "registrations": [
+    {
+     "key": "G25A",
+     "gstin": "27ZZLCL4225Y1ZC",
+     "name": "LAKSHYA SOLAR EPC PRIVATE LIMITED",
+     "state": "27",
+     "role": "EPC contractor (Pune)",
+     "samePanAsParent": true
+    }
+   ]
+  }
+ ],
+ "planted": {
+  "G06": "Bullion round-trip A -> D -> C -> B -> A within days at 0.08-0.2% mark-ups, plus reciprocal trade with the associate (D); two shell suppliers without GSTR-3B; ITC above GSTR-2B in six months of FY 2025-26 (about Rs 210 crore, not reversed); 3B short of GSTR-1 in Nov 2025 and Mar 2026; late returns; related LLP stops filing from Jan 2026. Gold and jewellery are exempt from e-way bills.",
+  "G07": "Pass-through steel trading: four recently registered suppliers (no GSTR-3B) -> G07 -> customers within 1-3 days at ~1%; ITC above GSTR-2B in five months of FY 2025-26; 3B short in Mar 2026; late returns.",
+  "G08": "Retail invoices bunched at ₹44,000-49,900, just under the ₹50,000 e-way bill threshold; 3B short of GSTR-1 in Oct and Nov 2025.",
+  "G09": "IRN not generated in FY 2024-25; 3B short of GSTR-1 in Sep 2024; purchases from a supplier after its registration was cancelled (30-06-2025), which never reach 2A/2B.",
+  "G10": "3B short in Jun 2024, caught up in Aug 2024; RCM on GTA declared at 35% in FY 2025-26.",
+  "G23": "New shell supplier from Jul 2025; excess ITC in Dec 2025 and Feb 2026.",
+  "G24": "3B short of GSTR-1 in Nov and Dec 2025.",
+  "G11": "Legitimate but noisy: seven registrations, heavy intra-group trade, same-PAN stock transfers, bill-to-ship-to deliveries in Gujarat billed to Mumbai, Q4 volume discounts.",
+  "G12": "Legitimate but spiky: milestone billing concentrated in quarter-end months; SPVs billed by the parent.",
+  "G13": "Legitimate: two-wheeler and parts rates fall from 28% to 18% on 22-09-2025, so tax falls while turnover grows.",
+  "G17": "Two returns filed late in FY 2025-26, with interest paid."
+ },
+ "workbooks": [
+  {
+   "key": "G01A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSCS2101K1Z3_2024 - 2025_GEN Sahyadri Infotech A.xlsx",
+   "sales": 1315,
+   "purchases": 1051,
+   "cdns": 0
+  },
+  {
+   "key": "G01A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSCS2101K1Z3_2025 - 2026_GEN Sahyadri Infotech A.xlsx",
+   "sales": 1375,
+   "purchases": 1099,
+   "cdns": 0
+  },
+  {
+   "key": "G01B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_29ZZSCS2101K1ZZ_2024 - 2025_GEN Sahyadri Infotech B.xlsx",
+   "sales": 834,
+   "purchases": 666,
+   "cdns": 0
+  },
+  {
+   "key": "G01B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_29ZZSCS2101K1ZZ_2025 - 2026_GEN Sahyadri Infotech B.xlsx",
+   "sales": 881,
+   "purchases": 704,
+   "cdns": 0
+  },
+  {
+   "key": "G01C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_36ZZSCS2101K1Z4_2024 - 2025_GEN Sahyadri Infotech C.xlsx",
+   "sales": 541,
+   "purchases": 433,
+   "cdns": 0
+  },
+  {
+   "key": "G01C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_36ZZSCS2101K1Z4_2025 - 2026_GEN Sahyadri Infotech C.xlsx",
+   "sales": 565,
+   "purchases": 452,
+   "cdns": 0
+  },
+  {
+   "key": "G02A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZGCG2202L1ZN_2024 - 2025_GEN Godavari Consumer A.xlsx",
+   "sales": 2432,
+   "purchases": 1675,
+   "cdns": 0
+  },
+  {
+   "key": "G02A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZGCG2202L1ZN_2025 - 2026_GEN Godavari Consumer A.xlsx",
+   "sales": 2468,
+   "purchases": 1703,
+   "cdns": 0
+  },
+  {
+   "key": "G02B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZGCG2202L1ZT_2024 - 2025_GEN Godavari Consumer B.xlsx",
+   "sales": 1075,
+   "purchases": 1039,
+   "cdns": 0
+  },
+  {
+   "key": "G02B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZGCG2202L1ZT_2025 - 2026_GEN Godavari Consumer B.xlsx",
+   "sales": 1117,
+   "purchases": 1074,
+   "cdns": 0
+  },
+  {
+   "key": "G02C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_29ZZGCG2202L1ZJ_2024 - 2025_GEN Godavari Consumer C.xlsx",
+   "sales": 963,
+   "purchases": 936,
+   "cdns": 0
+  },
+  {
+   "key": "G02C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_29ZZGCG2202L1ZJ_2025 - 2026_GEN Godavari Consumer C.xlsx",
+   "sales": 1003,
+   "purchases": 969,
+   "cdns": 0
+  },
+  {
+   "key": "G02D",
+   "fy": "2024-25",
+   "file": "Get Download All Report_33ZZGCG2202L1ZU_2024 - 2025_GEN Godavari Consumer D.xlsx",
+   "sales": 834,
+   "purchases": 823,
+   "cdns": 0
+  },
+  {
+   "key": "G02D",
+   "fy": "2025-26",
+   "file": "Get Download All Report_33ZZGCG2202L1ZU_2025 - 2026_GEN Godavari Consumer D.xlsx",
+   "sales": 867,
+   "purchases": 850,
+   "cdns": 0
+  },
+  {
+   "key": "G03A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZDCD2303M1ZP_2024 - 2025_GEN Deccan Precision A.xlsx",
+   "sales": 1328,
+   "purchases": 1040,
+   "cdns": 0
+  },
+  {
+   "key": "G03A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZDCD2303M1ZP_2025 - 2026_GEN Deccan Precision A.xlsx",
+   "sales": 1395,
+   "purchases": 1095,
+   "cdns": 0
+  },
+  {
+   "key": "G03B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZDCD2304N1ZM_2024 - 2025_GEN Deccan Precision B.xlsx",
+   "sales": 853,
+   "purchases": 577,
+   "cdns": 0
+  },
+  {
+   "key": "G03B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZDCD2304N1ZM_2025 - 2026_GEN Deccan Precision B.xlsx",
+   "sales": 894,
+   "purchases": 609,
+   "cdns": 0
+  },
+  {
+   "key": "G04A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZKCK2405P1Z2_2024 - 2025_GEN Konkan Life Sciences A.xlsx",
+   "sales": 1568,
+   "purchases": 1316,
+   "cdns": 0
+  },
+  {
+   "key": "G04A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZKCK2405P1Z2_2025 - 2026_GEN Konkan Life Sciences A.xlsx",
+   "sales": 1634,
+   "purchases": 1369,
+   "cdns": 0
+  },
+  {
+   "key": "G04B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZKCK2405P1Z8_2024 - 2025_GEN Konkan Life Sciences B.xlsx",
+   "sales": 831,
+   "purchases": 531,
+   "cdns": 0
+  },
+  {
+   "key": "G04B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZKCK2405P1Z8_2025 - 2026_GEN Konkan Life Sciences B.xlsx",
+   "sales": 861,
+   "purchases": 553,
+   "cdns": 0
+  },
+  {
+   "key": "G05A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZTCT2506Q1ZG_2024 - 2025_GEN Triveni Cement A.xlsx",
+   "sales": 1894,
+   "purchases": 1414,
+   "cdns": 0
+  },
+  {
+   "key": "G05A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZTCT2506Q1ZG_2025 - 2026_GEN Triveni Cement A.xlsx",
+   "sales": 1956,
+   "purchases": 1465,
+   "cdns": 0
+  },
+  {
+   "key": "G05B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_23ZZTCT2506Q1ZO_2024 - 2025_GEN Triveni Cement B.xlsx",
+   "sales": 1199,
+   "purchases": 1055,
+   "cdns": 0
+  },
+  {
+   "key": "G05B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_23ZZTCT2506Q1ZO_2025 - 2026_GEN Triveni Cement B.xlsx",
+   "sales": 1245,
+   "purchases": 1091,
+   "cdns": 0
+  },
+  {
+   "key": "G16A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZUCU2616R1Z9_2024 - 2025_GEN Unnati Paper.xlsx",
+   "sales": 1103,
+   "purchases": 815,
+   "cdns": 0
+  },
+  {
+   "key": "G16A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZUCU2616R1Z9_2025 - 2026_GEN Unnati Paper.xlsx",
+   "sales": 1130,
+   "purchases": 836,
+   "cdns": 0
+  },
+  {
+   "key": "G19A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_33ZZTCT2619S1ZD_2024 - 2025_GEN Tejas Electronics A.xlsx",
+   "sales": 1433,
+   "purchases": 965,
+   "cdns": 0
+  },
+  {
+   "key": "G19A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_33ZZTCT2619S1ZD_2025 - 2026_GEN Tejas Electronics A.xlsx",
+   "sales": 1542,
+   "purchases": 1052,
+   "cdns": 0
+  },
+  {
+   "key": "G19B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZTCT2619S1Z6_2024 - 2025_GEN Tejas Electronics B.xlsx",
+   "sales": 1053,
+   "purchases": 993,
+   "cdns": 0
+  },
+  {
+   "key": "G19B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZTCT2619S1Z6_2025 - 2026_GEN Tejas Electronics B.xlsx",
+   "sales": 1134,
+   "purchases": 1058,
+   "cdns": 0
+  },
+  {
+   "key": "G21A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZKCK2621T1ZS_2024 - 2025_GEN Keshav Dairy.xlsx",
+   "sales": 1793,
+   "purchases": 1492,
+   "cdns": 0
+  },
+  {
+   "key": "G21A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZKCK2621T1ZS_2025 - 2026_GEN Keshav Dairy.xlsx",
+   "sales": 1860,
+   "purchases": 1550,
+   "cdns": 0
+  },
+  {
+   "key": "G06A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSCS2606U1Z9_2024 - 2025_GEN Swarnamukhi Bullion A.xlsx",
+   "sales": 1948,
+   "purchases": 1648,
+   "cdns": 0
+  },
+  {
+   "key": "G06A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSCS2606U1Z9_2025 - 2026_GEN Swarnamukhi Bullion A.xlsx",
+   "sales": 2059,
+   "purchases": 1838,
+   "cdns": 0
+  },
+  {
+   "key": "G06B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZSCS2606U1ZF_2024 - 2025_GEN Swarnamukhi Bullion B.xlsx",
+   "sales": 1246,
+   "purchases": 1031,
+   "cdns": 0
+  },
+  {
+   "key": "G06B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZSCS2606U1ZF_2025 - 2026_GEN Swarnamukhi Bullion B.xlsx",
+   "sales": 1314,
+   "purchases": 1086,
+   "cdns": 0
+  },
+  {
+   "key": "G06C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZSFS2607V1Z6_2024 - 2025_GEN Swarnamukhi Bullion C.xlsx",
+   "sales": 643,
+   "purchases": 549,
+   "cdns": 0
+  },
+  {
+   "key": "G06C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZSFS2607V1Z6_2025 - 2026_GEN Swarnamukhi Bullion C.xlsx",
+   "sales": 676,
+   "purchases": 574,
+   "cdns": 0
+  },
+  {
+   "key": "G06D",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZNCN2608W1ZD_2024 - 2025_GEN Swarnamukhi Bullion D.xlsx",
+   "sales": 624,
+   "purchases": 551,
+   "cdns": 0
+  },
+  {
+   "key": "G06D",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZNCN2608W1ZD_2025 - 2026_GEN Swarnamukhi Bullion D.xlsx",
+   "sales": 647,
+   "purchases": 571,
+   "cdns": 0
+  },
+  {
+   "key": "G07A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZVCV2709X1ZT_2024 - 2025_GEN Vidarbha Steel.xlsx",
+   "sales": 1448,
+   "purchases": 1077,
+   "cdns": 0
+  },
+  {
+   "key": "G07A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZVCV2709X1ZT_2025 - 2026_GEN Vidarbha Steel.xlsx",
+   "sales": 1974,
+   "purchases": 1561,
+   "cdns": 0
+  },
+  {
+   "key": "G08A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZPCP2810Y1Z9_2024 - 2025_GEN Pratham Mobile.xlsx",
+   "sales": 4433,
+   "purchases": 665,
+   "cdns": 0
+  },
+  {
+   "key": "G08A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZPCP2810Y1Z9_2025 - 2026_GEN Pratham Mobile.xlsx",
+   "sales": 5931,
+   "purchases": 713,
+   "cdns": 0
+  },
+  {
+   "key": "G09A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZOCO2911Z1Z7_2024 - 2025_GEN Omkar Metal Scrap.xlsx",
+   "sales": 1084,
+   "purchases": 868,
+   "cdns": 0
+  },
+  {
+   "key": "G09A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZOCO2911Z1Z7_2025 - 2026_GEN Omkar Metal Scrap.xlsx",
+   "sales": 1101,
+   "purchases": 905,
+   "cdns": 0
+  },
+  {
+   "key": "G10A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZNCN3012A1ZU_2024 - 2025_GEN Nirmal Agro A.xlsx",
+   "sales": 1425,
+   "purchases": 1139,
+   "cdns": 0
+  },
+  {
+   "key": "G10A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZNCN3012A1ZU_2025 - 2026_GEN Nirmal Agro A.xlsx",
+   "sales": 1468,
+   "purchases": 1177,
+   "cdns": 0
+  },
+  {
+   "key": "G10B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_23ZZNCN3012A1Z2_2024 - 2025_GEN Nirmal Agro B.xlsx",
+   "sales": 718,
+   "purchases": 574,
+   "cdns": 0
+  },
+  {
+   "key": "G10B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_23ZZNCN3012A1Z2_2025 - 2026_GEN Nirmal Agro B.xlsx",
+   "sales": 739,
+   "purchases": 592,
+   "cdns": 0
+  },
+  {
+   "key": "G23A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZNCN3123B1ZO_2024 - 2025_GEN Navkar Polymers.xlsx",
+   "sales": 717,
+   "purchases": 681,
+   "cdns": 0
+  },
+  {
+   "key": "G23A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZNCN3123B1ZO_2025 - 2026_GEN Navkar Polymers.xlsx",
+   "sales": 853,
+   "purchases": 836,
+   "cdns": 0
+  },
+  {
+   "key": "G24A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZACA3224C1ZA_2024 - 2025_GEN Akshay Pharma Distributors.xlsx",
+   "sales": 1575,
+   "purchases": 1392,
+   "cdns": 0
+  },
+  {
+   "key": "G24A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZACA3224C1ZA_2025 - 2026_GEN Akshay Pharma Distributors.xlsx",
+   "sales": 1602,
+   "purchases": 1415,
+   "cdns": 0
+  },
+  {
+   "key": "G11A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZVCV3301D1Z8_2024 - 2025_GEN Vardhan Industries A.xlsx",
+   "sales": 2630,
+   "purchases": 2332,
+   "cdns": 0
+  },
+  {
+   "key": "G11A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZVCV3301D1Z8_2025 - 2026_GEN Vardhan Industries A.xlsx",
+   "sales": 2720,
+   "purchases": 2403,
+   "cdns": 109
+  },
+  {
+   "key": "G11B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZVCV3302E1ZB_2024 - 2025_GEN Vardhan Industries B.xlsx",
+   "sales": 1907,
+   "purchases": 1271,
+   "cdns": 0
+  },
+  {
+   "key": "G11B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZVCV3302E1ZB_2025 - 2026_GEN Vardhan Industries B.xlsx",
+   "sales": 1962,
+   "purchases": 1317,
+   "cdns": 69
+  },
+  {
+   "key": "G11C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZVCV3303F1Z2_2024 - 2025_GEN Vardhan Industries C.xlsx",
+   "sales": 2082,
+   "purchases": 1938,
+   "cdns": 0
+  },
+  {
+   "key": "G11C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZVCV3303F1Z2_2025 - 2026_GEN Vardhan Industries C.xlsx",
+   "sales": 2155,
+   "purchases": 1993,
+   "cdns": 99
+  },
+  {
+   "key": "G11D",
+   "fy": "2024-25",
+   "file": "Get Download All Report_29ZZVCV3303F1ZY_2024 - 2025_GEN Vardhan Industries D.xlsx",
+   "sales": 1084,
+   "purchases": 1024,
+   "cdns": 0
+  },
+  {
+   "key": "G11D",
+   "fy": "2025-26",
+   "file": "Get Download All Report_29ZZVCV3303F1ZY_2025 - 2026_GEN Vardhan Industries D.xlsx",
+   "sales": 1119,
+   "purchases": 1052,
+   "cdns": 64
+  },
+  {
+   "key": "G11E",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZVCV3304G1ZZ_2024 - 2025_GEN Vardhan Industries E.xlsx",
+   "sales": 1433,
+   "purchases": 1204,
+   "cdns": 0
+  },
+  {
+   "key": "G11E",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZVCV3304G1ZZ_2025 - 2026_GEN Vardhan Industries E.xlsx",
+   "sales": 1503,
+   "purchases": 1262,
+   "cdns": 81
+  },
+  {
+   "key": "G11F",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZVCV3305H1ZW_2024 - 2025_GEN Vardhan Industries F.xlsx",
+   "sales": 933,
+   "purchases": 573,
+   "cdns": 0
+  },
+  {
+   "key": "G11F",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZVCV3305H1ZW_2025 - 2026_GEN Vardhan Industries F.xlsx",
+   "sales": 965,
+   "purchases": 600,
+   "cdns": 47
+  },
+  {
+   "key": "G11G",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZVCV3306J1ZW_2024 - 2025_GEN Vardhan Industries G.xlsx",
+   "sales": 695,
+   "purchases": 431,
+   "cdns": 0
+  },
+  {
+   "key": "G11G",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZVCV3306J1ZW_2025 - 2026_GEN Vardhan Industries G.xlsx",
+   "sales": 716,
+   "purchases": 451,
+   "cdns": 36
+  },
+  {
+   "key": "G12A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZMCM3407K1Z4_2024 - 2025_GEN Mahabal Infrastructure A.xlsx",
+   "sales": 918,
+   "purchases": 711,
+   "cdns": 0
+  },
+  {
+   "key": "G12A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZMCM3407K1Z4_2025 - 2026_GEN Mahabal Infrastructure A.xlsx",
+   "sales": 966,
+   "purchases": 752,
+   "cdns": 32
+  },
+  {
+   "key": "G12B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZMCM3408L1Z1_2024 - 2025_GEN Mahabal Infrastructure B.xlsx",
+   "sales": 331,
+   "purchases": 445,
+   "cdns": 0
+  },
+  {
+   "key": "G12B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZMCM3408L1Z1_2025 - 2026_GEN Mahabal Infrastructure B.xlsx",
+   "sales": 357,
+   "purchases": 465,
+   "cdns": 21
+  },
+  {
+   "key": "G12C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_23ZZMCM3409M1Z6_2024 - 2025_GEN Mahabal Infrastructure C.xlsx",
+   "sales": 274,
+   "purchases": 437,
+   "cdns": 0
+  },
+  {
+   "key": "G12C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_23ZZMCM3409M1Z6_2025 - 2026_GEN Mahabal Infrastructure C.xlsx",
+   "sales": 298,
+   "purchases": 455,
+   "cdns": 14
+  },
+  {
+   "key": "G13A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSCS3510N1ZQ_2024 - 2025_GEN Sangam Motors A.xlsx",
+   "sales": 2301,
+   "purchases": 2341,
+   "cdns": 0
+  },
+  {
+   "key": "G13A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSCS3510N1ZQ_2025 - 2026_GEN Sangam Motors A.xlsx",
+   "sales": 2408,
+   "purchases": 2426,
+   "cdns": 118
+  },
+  {
+   "key": "G13B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSCS3511P1ZL_2024 - 2025_GEN Sangam Motors B.xlsx",
+   "sales": 2011,
+   "purchases": 1436,
+   "cdns": 0
+  },
+  {
+   "key": "G13B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSCS3511P1ZL_2025 - 2026_GEN Sangam Motors B.xlsx",
+   "sales": 2095,
+   "purchases": 1503,
+   "cdns": 106
+  },
+  {
+   "key": "G13C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_33ZZSCS3510N1ZX_2024 - 2025_GEN Sangam Motors C.xlsx",
+   "sales": 837,
+   "purchases": 827,
+   "cdns": 0
+  },
+  {
+   "key": "G13C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_33ZZSCS3510N1ZX_2025 - 2026_GEN Sangam Motors C.xlsx",
+   "sales": 869,
+   "purchases": 851,
+   "cdns": 48
+  },
+  {
+   "key": "G14A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZACA3612Q1ZN_2024 - 2025_GEN Aarambh Textiles A.xlsx",
+   "sales": 1253,
+   "purchases": 868,
+   "cdns": 0
+  },
+  {
+   "key": "G14A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZACA3612Q1ZN_2025 - 2026_GEN Aarambh Textiles A.xlsx",
+   "sales": 1261,
+   "purchases": 873,
+   "cdns": 64
+  },
+  {
+   "key": "G14B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZACA3612Q1ZH_2024 - 2025_GEN Aarambh Textiles B.xlsx",
+   "sales": 1237,
+   "purchases": 1032,
+   "cdns": 0
+  },
+  {
+   "key": "G14B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZACA3612Q1ZH_2025 - 2026_GEN Aarambh Textiles B.xlsx",
+   "sales": 1247,
+   "purchases": 1041,
+   "cdns": 64
+  },
+  {
+   "key": "G14C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_33ZZACA3613R1ZL_2024 - 2025_GEN Aarambh Textiles C.xlsx",
+   "sales": 1317,
+   "purchases": 1210,
+   "cdns": 0
+  },
+  {
+   "key": "G14C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_33ZZACA3613R1ZL_2025 - 2026_GEN Aarambh Textiles C.xlsx",
+   "sales": 1320,
+   "purchases": 1213,
+   "cdns": 79
+  },
+  {
+   "key": "G15A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZKCK3714S1ZQ_2024 - 2025_GEN Kalpataru Chemicals A.xlsx",
+   "sales": 1420,
+   "purchases": 953,
+   "cdns": 0
+  },
+  {
+   "key": "G15A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZKCK3714S1ZQ_2025 - 2026_GEN Kalpataru Chemicals A.xlsx",
+   "sales": 1452,
+   "purchases": 980,
+   "cdns": 66
+  },
+  {
+   "key": "G15B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZKCK3715T1ZN_2024 - 2025_GEN Kalpataru Chemicals B.xlsx",
+   "sales": 1313,
+   "purchases": 1279,
+   "cdns": 0
+  },
+  {
+   "key": "G15B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZKCK3715T1ZN_2025 - 2026_GEN Kalpataru Chemicals B.xlsx",
+   "sales": 1355,
+   "purchases": 1312,
+   "cdns": 72
+  },
+  {
+   "key": "G17A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZSCS3816U1Z9_2024 - 2025_GEN Suryoday Cables A.xlsx",
+   "sales": 1281,
+   "purchases": 861,
+   "cdns": 0
+  },
+  {
+   "key": "G17A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZSCS3816U1Z9_2025 - 2026_GEN Suryoday Cables A.xlsx",
+   "sales": 1347,
+   "purchases": 915,
+   "cdns": 69
+  },
+  {
+   "key": "G17B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSCS3816U1Z3_2024 - 2025_GEN Suryoday Cables B.xlsx",
+   "sales": 845,
+   "purchases": 797,
+   "cdns": 0
+  },
+  {
+   "key": "G17B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSCS3816U1Z3_2025 - 2026_GEN Suryoday Cables B.xlsx",
+   "sales": 889,
+   "purchases": 829,
+   "cdns": 60
+  },
+  {
+   "key": "G18A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZPCP3918V1Z4_2024 - 2025_GEN Padma Packaging.xlsx",
+   "sales": 1571,
+   "purchases": 1309,
+   "cdns": 0
+  },
+  {
+   "key": "G18A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZPCP3918V1Z4_2025 - 2026_GEN Padma Packaging.xlsx",
+   "sales": 1627,
+   "purchases": 1354,
+   "cdns": 0
+  },
+  {
+   "key": "G20A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZMCM4020W1ZL_2024 - 2025_GEN Meghdoot Logistics.xlsx",
+   "sales": 1805,
+   "purchases": 1337,
+   "cdns": 0
+  },
+  {
+   "key": "G20A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZMCM4020W1ZL_2025 - 2026_GEN Meghdoot Logistics.xlsx",
+   "sales": 1895,
+   "purchases": 1409,
+   "cdns": 0
+  },
+  {
+   "key": "G22A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZVCV4122X1ZY_2024 - 2025_GEN Vishwa Tyres A.xlsx",
+   "sales": 1669,
+   "purchases": 1067,
+   "cdns": 0
+  },
+  {
+   "key": "G22A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZVCV4122X1ZY_2025 - 2026_GEN Vishwa Tyres A.xlsx",
+   "sales": 1697,
+   "purchases": 1088,
+   "cdns": 70
+  },
+  {
+   "key": "G22B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZVCV4122X1Z4_2024 - 2025_GEN Vishwa Tyres B.xlsx",
+   "sales": 1083,
+   "purchases": 987,
+   "cdns": 0
+  },
+  {
+   "key": "G22B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZVCV4122X1Z4_2025 - 2026_GEN Vishwa Tyres B.xlsx",
+   "sales": 1113,
+   "purchases": 1011,
+   "cdns": 62
+  },
+  {
+   "key": "G25A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZLCL4225Y1ZC_2024 - 2025_GEN Lakshya Solar EPC.xlsx",
+   "sales": 335,
+   "purchases": 362,
+   "cdns": 0
+  },
+  {
+   "key": "G25A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZLCL4225Y1ZC_2025 - 2026_GEN Lakshya Solar EPC.xlsx",
+   "sales": 409,
+   "purchases": 424,
+   "cdns": 24
+  }
+ ]
+}

@@ -24,6 +24,9 @@ data/*.xlsx
 !data/*_TEST *.xlsx
 !data/GST_Scrutiny_Rule_Matrix.xlsx
 data/superseded/
+# Large-taxpayer workbooks ("_GEN " in the name) are generated at build time by
+# scripts/synth/corporates.mjs (deterministic, hundreds of MB); the stamp records the version.
+data/.corporates.version
 # Built from data/ at start-up and on every upload, so they can carry real returns too.
 public/data.json
 public/reports/

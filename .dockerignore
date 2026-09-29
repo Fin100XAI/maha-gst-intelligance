@@ -16,3 +16,5 @@ scrutiny/store
 scrutiny/public/data.json
 scrutiny/public/reports
 scrutiny/test-data
+scrutiny/data/*_GEN *
+scrutiny/data/.corporates.version

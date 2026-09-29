@@ -167,6 +167,8 @@ location /scrutiny/ {
 
 **Taxpayer data.** This repository is public, and filed GST returns are confidential (s.158 CGST Act), so it carries only **synthetic** workbooks (`_SYN ` / `_TEST ` in the file name). Real returns are added on the machine that serves the app: copy them into `scrutiny/data/` (or the `workbooks` volume under Docker) or upload them through *Upload data*. `scrutiny/.gitignore` keeps them, and everything built from them (`public/data.json`, saved reports, the case log), out of git.
 
+**Large-taxpayer data.** GST Scrutiny also carries 25 fictional corporate groups in a *Large Taxpayer Unit* (`LTU-MUMBAI`): 53 registrations with subsidiaries and same-PAN branches in other states, ₹800 to ₹48,000+ crore turnover, two financial years, and clean, high-risk and complex-but-legitimate behaviour (see `scrutiny/test-data/corporates/answer-key.json`). Their workbooks (~100 MB, `_GEN ` in the name) are produced by `scrutiny/scripts/synth/corporates.mjs` from a fixed seed during `npm run build:data`, so they are identical everywhere and never committed. The first build after a pull takes a minute or two longer while they are generated.
+
 ---
 
 ## GST Intelligence - the scrutiny and demand engine

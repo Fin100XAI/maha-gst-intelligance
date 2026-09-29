@@ -7,6 +7,7 @@
 // Local only (like report saving) unless GST_ALLOW_REMOTE=1.
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { execFile } from 'node:child_process';
 import * as XLSX from 'xlsx';
 import { parseWorkbook } from '../src/engine/parse.js';
@@ -37,11 +38,20 @@ export default function dataStore() {
           (err, stdout, stderr) => (err ? reject(new Error((stderr || err.message).trim().split('\n').pop())) : resolve(stdout)));
       }));
 
+      // data.json runs to megabytes; compressed once per rebuild, it is about a tenth of that on the wire.
+      let gz = null; // { mtimeMs, buf }
       server.middlewares.use('/data.json', (req, res, next) => {
         if (req.method !== 'GET' && req.method !== 'HEAD') return next();
         if (!fs.existsSync(outFile)) return next();
         res.setHeader('content-type', 'application/json; charset=utf-8');
         res.setHeader('cache-control', 'no-store');
+        if (/\bgzip\b/.test(req.headers['accept-encoding'] || '')) {
+          const { mtimeMs } = fs.statSync(outFile);
+          if (!gz || gz.mtimeMs !== mtimeMs) gz = { mtimeMs, buf: zlib.gzipSync(fs.readFileSync(outFile)) };
+          res.setHeader('content-encoding', 'gzip');
+          res.setHeader('vary', 'accept-encoding');
+          return res.end(req.method === 'HEAD' ? undefined : gz.buf);
+        }
         fs.createReadStream(outFile).pipe(res);
       });
 
