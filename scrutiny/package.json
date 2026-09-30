@@ -6,6 +6,10 @@
   "scripts": {
     "build:data": "node scripts/synth/corporates.mjs --if-missing && node scripts/build-data.mjs",
     "gen:corporates": "node scripts/synth/corporates.mjs",
+    "gen:ltu-pune": "node scripts/synth/ltu-pune.mjs",
+    "pack:ltu-pune": "node scripts/synth/pack-ltu-pune.mjs",
+    "demo:reset": "node scripts/synth/ltu-pune.mjs --remove && node scripts/build-data.mjs",
+    "validate:synth": "node scripts/synth/validate.mjs",
     "dev": "npm run build:data && vite",
     "build": "npm run build:data && vite build",
     "build:platform": "npm run build:data && vite build --base=/scrutiny/",

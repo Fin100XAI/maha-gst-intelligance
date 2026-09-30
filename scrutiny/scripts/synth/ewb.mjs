@@ -52,8 +52,9 @@ let planCache = null;
 export function loadPlan(root) {
   if (planCache) return planCache;
   const plan = JSON.parse(JSON.stringify(BASE_PLAN));
-  const f = path.join(root, 'test-data', 'corporates', 'ewb-plan.json');
-  if (fs.existsSync(f)) {
+  for (const unit of ['corporates', 'ltu-pune']) { // the large-taxpayer units (corporates.mjs, ltu-pune.mjs)
+    const f = path.join(root, 'test-data', unit, 'ewb-plan.json');
+    if (!fs.existsSync(f)) continue;
     const p = JSON.parse(fs.readFileSync(f, 'utf8'));
     plan.noMovement.push(...(p.noMovement || []));
     Object.assign(plan.suppressed, p.suppressed || {}); Object.assign(plan.vehicleClash, p.vehicleClash || {}); Object.assign(plan.cancel, p.cancel || {}); Object.assign(plan.shipTo, p.shipTo || {});
