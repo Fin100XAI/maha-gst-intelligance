@@ -24,7 +24,7 @@ export default function registerStore() {
         req.on('end', () => {
           if (res.writableEnded) return;
           const q = new URL(req.url || '/', 'http://x').searchParams;
-          const result = saveRegister({ dir, type: q.get('type'), name: q.get('name'), buf: Buffer.concat(chunks) });
+          const result = saveRegister({ dir, type: q.get('type'), name: q.get('name'), buf: Buffer.concat(chunks), mode: q.get('mode') === 'replace' ? 'replace' : 'merge' });
           json(res, result.ok ? 200 : 400, result.ok ? { ok: true, meta: result.meta, replaced: result.replaced } : { ok: false, errors: result.errors.slice(0, 100), more: Math.max(0, result.errors.length - 100) });
         });
       });

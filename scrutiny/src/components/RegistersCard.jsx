@@ -32,7 +32,7 @@ function RegisterRow({ type, loaded, onUpload }) {
       </div>
       <div className="reg-actions">
         <button className="btn small" onClick={() => download(`${type}-register-template.csv`, registerTemplate(type))}><Icon name="download" size={14} /> Template</button>
-        <button className="btn small primary" disabled={busy} onClick={() => input.current?.click()}>{busy ? 'Checking…' : loaded ? 'Replace' : 'Upload'}</button>
+        <button className="btn small primary" disabled={busy} onClick={() => input.current?.click()}>{busy ? 'Checking…' : loaded ? 'Add rows' : 'Upload'}</button>
         <input ref={input} type="file" accept=".csv,.xlsx" hidden onChange={(e) => { pick(e.target.files[0]); e.target.value = ''; }} />
       </div>
       {result && !result.ok && (
@@ -42,7 +42,14 @@ function RegisterRow({ type, loaded, onUpload }) {
           {result.more > 0 && <div>…and {result.more} more.</div>}
         </div>
       )}
-      {result?.ok && <div className="reg-ok">Loaded {result.meta.rows} rows from {result.meta.file}.{result.replaced ? ' The previous version is kept in data/registers/superseded.' : ''}</div>}
+      {result?.ok && (
+        <div className="reg-ok">
+          {result.meta.mode === 'merge'
+            ? `${result.meta.file}: ${result.meta.added} row${result.meta.added === 1 ? '' : 's'} added, ${result.meta.updated} updated, ${result.meta.kept} already saved kept (${result.meta.rows} in all).`
+            : `Loaded ${result.meta.rows} rows from ${result.meta.file}.`}
+          {result.replaced ? ' The previous version is kept in data/registers/superseded.' : ''}
+        </div>
+      )}
     </div>
   );
 }

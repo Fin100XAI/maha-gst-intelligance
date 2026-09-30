@@ -103,3 +103,20 @@ test('storage: invalid files save nothing; valid files replace the previous vers
     assert.deepEqual(saveRegister({ dir, type: 'nope', name: 'x.csv', buf: csv('a') }).errors, ['Unknown register type: nope']);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('storage: an upload adds rows and updates matching ones; every other saved row stays (replace only on request)', () => {
+  const dir = tmp();
+  const head = 'gstin,legal_name,jurisdiction,registration_date,status\n';
+  try {
+    saveRegister({ dir, type: 'master', name: 'a.csv', buf: csv(`${head}27ZZKPK7730D1ZM,KONKAN STEEL TRADERS,PUNE-WARD-01,01-07-2017,Active\n29ZZDFD5512Q1ZY,DECCAN FOODS,PUNE-WARD-01,01-07-2017,Active\n`) });
+    const up = saveRegister({ dir, type: 'master', name: 'b.csv', buf: csv(`${head}29ZZDFD5512Q1ZY,DECCAN FOODS,PUNE-WARD-01,01-07-2017,Cancelled\n27ZZTCT5737H1ZK,TORNA COMMODITY TRADERS,LTU-PUNE,10-01-2023,Active\n`) });
+    assert.equal(up.ok, true);
+    assert.deepEqual([up.meta.mode, up.meta.added, up.meta.updated, up.meta.kept, up.meta.rows], ['merge', 1, 1, 1, 3]);
+    const rows = loadRegisters(dir).master.records;
+    assert.deepEqual(rows.map((r) => r.gstin), ['27ZZKPK7730D1ZM', '29ZZDFD5512Q1ZY', '27ZZTCT5737H1ZK'], 'existing order kept, new rows after');
+    assert.equal(rows[1].status, 'Cancelled', 'a row for the same GSTIN is updated');
+    const rep = saveRegister({ dir, type: 'master', name: 'c.csv', buf: csv(`${head}27ZZTCT5737H1ZK,TORNA COMMODITY TRADERS,LTU-PUNE,10-01-2023,Active\n`), mode: 'replace' });
+    assert.deepEqual([rep.meta.mode, rep.meta.rows], ['replace', 1]);
+    assert.equal(fs.readdirSync(path.join(dir, 'superseded')).length, 2, 'every earlier version is kept');
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
