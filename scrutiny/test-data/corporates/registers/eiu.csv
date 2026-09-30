@@ -1,7 +1,7 @@
 signal_id,gstin,risk_parameter,rule_id,fy,amount,signal_date,priority,source,remarks
-EIU-2025-0201,27ZZSCS2606U1Z9,Circular trading among related parties at negligible margin,,2025-26,2179774508,12-12-2025,High,EIU network risk run,"Four registrations, common directors and partners"
+EIU-2025-0201,27ZZSCS2606U1Z9,Circular trading among related parties at negligible margin,,2025-26,2225741898,12-12-2025,High,EIU network risk run,"Four registrations, common directors and partners"
 EIU-2025-0202,27ZZSCS2606U1Z9,ITC claimed in excess of GSTR-2B,B-01,2025-26,2100000000,15-02-2026,High,EIU monthly risk run,"Aug to Feb returns, not reversed"
-EIU-2025-0203,27ZZVCV2709X1ZT,ITC availed from suppliers not filing GSTR-3B,A-02,2025-26,3184325704,20-11-2025,High,EIU network risk run,Four recently registered suppliers
+EIU-2025-0203,27ZZVCV2709X1ZT,ITC availed from suppliers not filing GSTR-3B,A-02,2025-26,3186309411,20-11-2025,High,EIU network risk run,Four recently registered suppliers
 EIU-2025-0204,27ZZPCP2810Y1Z9,Invoice values bunched below the e-way bill threshold,,2025-26,0,05-10-2025,Medium,EIU e-way bill analytics,"Retail invoices of ₹44,000 to ₹49,900"
 EIU-2025-0205,27ZZACA3224C1ZA,GSTR-1 tax exceeds GSTR-3B tax,G-02,2025-26,10000000,18-01-2026,Medium,EIU monthly risk run,November and December 2025
 EIU-2025-0206,27ZZVCV3301D1Z8,Place of supply on bill-to-ship-to movements,D-05,2025-26,0,02-02-2026,Low,EIU e-way bill analytics,"Refinery shipments delivered in Gujarat, billed to Mumbai"

@@ -10,7 +10,7 @@ export const ewbLimit = (fromState, toState) => (String(fromState) === String(to
 // move without an e-way bill.
 export const ewbExempt = (hsn) => /^71/.test(String(hsn ?? ''));
 // The returns carry no HSN per invoice, so the supplier's line of business decides goods vs services and exemption.
-const SERVICE_NAME = /INFOTECH|DIGITAL SERVICES|LOGISTICS|ROADWAYS|ROADLINES|TRANSPORT|LEGAL|TECHNOLOGIES|CONSULT|INFRASTRUCTURE|INFRA PROJECTS|EXPRESSWAY|POWER PROJECTS|SOLAR EPC/;
+const SERVICE_NAME = /INFOTECH|DIGITAL SERVICES|LOGISTICS|ROADWAYS|ROADLINES|TRANSPORT|LEGAL|TECHNOLOGIES|CONSULT|INFRASTRUCTURE|INFRA PROJECTS|EXPRESSWAY|POWER PROJECTS|SOLAR EPC|HOTELS|RESORTS/;
 const EXEMPT_NAME = /BULLION|JEWEL|GOLD TRADING/;
 export const likelyServices = (name) => SERVICE_NAME.test(String(name ?? '').toUpperCase());
 export const likelyExempt = (name) => EXEMPT_NAME.test(String(name ?? '').toUpperCase());
