@@ -18,67 +18,18 @@ import { fileURLToPath } from 'node:url';
 import * as XLSX from 'xlsx';
 import { MONTHS, r2, gstin, makeRng, heads, taxOf, calOf, iso } from './lib.mjs';
 import { writeReturns } from './workbook.mjs';
+import { P, rateOf, STATE_NAME } from './products.mjs';
+
+export { P };
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DATA = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(ROOT, 'data');
 const KEY_DIR = path.join(ROOT, 'test-data', 'corporates');
-export const VERSION = 'corporates-v5';
+export const VERSION = 'corporates-v6';
 export const JURISDICTION = 'LTU-MUMBAI';
 export const FYS = [2024, 2025];
 const EXTRACT = { 2024: '2025-11-20', 2025: '2026-09-26' };
-const RATE_CUT_FROM = '2025-09-22'; // the September 2025 rate rationalisation
 const CR = 1e7; // ₹ one crore
-
-// ------------------------------------------------------------------ products: HSN tuple (code, description, UQC, unit price), rate, cut-to rate
-const p = (code, desc, uqc, price, rate, cutTo, extra = {}) => ({ hsn: [code, desc, uqc, price], rate, cutTo, ...extra });
-export const P = {
-  itsvc: p('998313', 'IT consulting and support services', 'OTH-OTHERS', 1, 18, null, { service: true }),
-  soap: p('3401', 'Toilet soap and surface-active products', 'KGS-KILOGRAMS', 185, 18),
-  detergent: p('3402', 'Washing and cleaning preparations', 'KGS-KILOGRAMS', 140, 18),
-  forging: p('8708', 'Parts of motor vehicles (forgings)', 'NOS-NUMBERS', 2400, 28, 18),
-  casting: p('7325', 'Cast articles of iron or steel', 'KGS-KILOGRAMS', 165, 18),
-  pharma: p('3004', 'Medicaments in measured doses', 'NOS-NUMBERS', 95, 12, 5),
-  api: p('2941', 'Antibiotics (bulk drugs)', 'KGS-KILOGRAMS', 4200, 18),
-  cement: p('2523', 'Portland cement', 'BAG-BAGS', 380, 28, 18),
-  coal: p('2701', 'Coal', 'MTS-METRIC TON', 9800, 5),
-  gold: p('7108', 'Gold bars (bullion)', 'GMS-GRAMMES', 7200, 3, null, { ewbExempt: true }),
-  jewel: p('7113', 'Articles of gold jewellery', 'GMS-GRAMMES', 7900, 3, null, { ewbExempt: true }),
-  hrc: p('7208', 'Hot-rolled coils of non-alloy steel', 'MTS-METRIC TON', 56000, 18),
-  tmt: p('7214', 'TMT bars of iron or steel', 'MTS-METRIC TON', 61000, 18),
-  phone: p('8517', 'Smartphones', 'NOS-NUMBERS', 16500, 18),
-  scrap: p('7204', 'Ferrous waste and scrap', 'MTS-METRIC TON', 32000, 18),
-  pulses: p('0713', 'Dried pulses (packaged, labelled)', 'KGS-KILOGRAMS', 110, 5),
-  oil: p('1512', 'Refined sunflower oil', 'LTR-LITRES', 140, 5),
-  polymer: p('3901', 'Polyethylene in primary forms', 'MTS-METRIC TON', 104000, 18),
-  pp: p('3902', 'Polypropylene in primary forms', 'MTS-METRIC TON', 98000, 18),
-  digital: p('998422', 'Broadband and telecommunication services', 'OTH-OTHERS', 1, 18, null, { service: true }),
-  apparel: p('6109', 'Cotton T-shirts and knitted apparel', 'NOS-NUMBERS', 320, 5),
-  gta: p('996511', 'Road transport of goods (GTA)', 'OTH-OTHERS', 1, 12, null, { service: true }),
-  module: p('8541', 'Solar photovoltaic modules', 'NOS-NUMBERS', 11500, 12, 5),
-  works: p('995421', 'Works contract (civil infrastructure)', 'OTH-OTHERS', 1, 18, null, { service: true }),
-  bike: p('8711', 'Motorcycles up to 350 cc', 'NOS-NUMBERS', 82000, 28, 18),
-  yarn: p('5205', 'Cotton yarn', 'KGS-KILOGRAMS', 280, 5),
-  fabric: p('5208', 'Woven cotton fabrics', 'MTR-METERS', 150, 5),
-  garment: p('6205', 'Men\'s cotton shirts', 'NOS-NUMBERS', 650, 5),
-  chem: p('2902', 'Cyclic hydrocarbons (benzene, toluene)', 'MTS-METRIC TON', 88000, 18),
-  fert: p('3105', 'Mineral fertilisers (NPK)', 'MTS-METRIC TON', 26000, 5),
-  ammonia: p('2814', 'Ammonia', 'MTS-METRIC TON', 42000, 18),
-  paper: p('4802', 'Writing and printing paper', 'MTS-METRIC TON', 78000, 18),
-  pulp: p('4703', 'Chemical wood pulp', 'MTS-METRIC TON', 52000, 12),
-  cable: p('8544', 'Insulated wires and cables', 'MTR-METERS', 95, 18),
-  copper: p('7408', 'Copper wire', 'KGS-KILOGRAMS', 860, 18),
-  carton: p('4819', 'Corrugated cartons and boxes', 'NOS-NUMBERS', 42, 12, 5),
-  pcba: p('8473', 'Printed circuit board assemblies', 'NOS-NUMBERS', 2600, 18),
-  tv: p('8528', 'LED television sets', 'NOS-NUMBERS', 26000, 28, 18),
-  milkpowder: p('0402', 'Milk powder', 'KGS-KILOGRAMS', 420, 5),
-  ghee: p('0405', 'Ghee and butter', 'KGS-KILOGRAMS', 560, 12, 5),
-  milk: p('0401', 'Raw milk (procurement)', 'LTR-LITRES', 42, 0),
-  tyre: p('4011', 'New pneumatic tyres', 'NOS-NUMBERS', 6200, 28, 18),
-  rubber: p('4001', 'Natural rubber', 'KGS-KILOGRAMS', 185, 5),
-  legal: p('998212', 'Legal advisory services', 'OTH-OTHERS', 1, 18, null, { service: true, rc: true }),
-  crude: p('2710', 'Naphtha and light oils', 'KLR-KILOLITRE', 58000, 18),
-};
-const rateOf = (prod, date) => (prod.cutTo != null && date >= RATE_CUT_FROM ? prod.cutTo : prod.rate);
 
 // ------------------------------------------------------------------ the groups
 // turnover: ₹ crore of external sales in FY 2024-25 for the whole group; share splits it across registrations.
@@ -134,7 +85,7 @@ export const GROUPS = [
       E('G06D', 'NAVKAR BULLION PRIVATE LIMITED', 27, 'ZZNCN2608W', { role: 'Associate (common director)', share: 0.05, inv: 30, sell: [P.gold], buy: [P.gold], buyRatio: 0.999, custStates: [27], supStates: [27] }),
     ] },
   { key: 'G07', kind: 'risky', short: 'Vidarbha Steel', sector: 'Steel trading', turnover: 2600, growth: 1.35, officer: 'M. Shaikh', range: 'LTU Range 4',
-    entities: [E('G07A', 'VIDARBHA STEEL AND ALLOYS PRIVATE LIMITED', 27, 'ZZVCV2709X', { role: 'Trading office (Nagpur)', share: 1, inv: 110, sell: [P.hrc, P.tmt], buy: [P.hrc, P.tmt], buyRatio: 0.985, custStates: [27, 27, 23, 22], supStates: [27, 22] })] },
+    entities: [E('G07A', 'VIDARBHA STEEL AND ALLOYS PRIVATE LIMITED', 27, 'ZZVCV2709X', { role: 'Trading office (Nagpur)', share: 1, inv: 110, sell: [P.hrc, P.tmt], buy: [P.hrc, P.tmt], buyRatio: 0.985, backToBack: true, custStates: [27, 27, 23, 22], supStates: [27, 22] })] },
   { key: 'G08', kind: 'risky', short: 'Pratham Mobile', sector: 'Mobile phone distribution', turnover: 1800, growth: 1.12, officer: 'M. Shaikh', range: 'LTU Range 4',
     entities: [E('G08A', 'PRATHAM MOBILE DISTRIBUTION PRIVATE LIMITED', 27, 'ZZPCP2810Y', { role: 'Distribution hub (Bhiwandi)', share: 1, inv: 70, sell: [P.phone], buy: [P.phone], buyRatio: 0.95, custStates: [27, 27, 27, 30], supStates: [27, 33] })] },
   { key: 'G09', kind: 'risky', short: 'Omkar Metal Scrap', sector: 'Metal scrap trading', turnover: 1200, growth: 1.05, officer: 'V. Jadhav', range: 'LTU Range 4',
@@ -254,10 +205,11 @@ const G09cancelled = makeExternal(27, P.scrap, { cancelledOn: '2025-06-30', note
 const ledger = []; // { fy, m, seller, buyer, date, prod, rate, taxable, tags[], shipTo? }
 // tags are copied: a flow's tag list is shared by all its invoices, and later tagging marks one invoice only
 const add = (fy, m, seller, buyer, date, prod, taxable, tags = [], extra = {}) => ledger.push({ fy, m, seller, buyer, date, prod, rate: rateOf(prod, date), taxable: r2(taxable), tags: [...tags], ...extra });
-// Split an amount into about n invoices with a log-normal spread (first digits then follow Benford's law).
+// Split an amount into about n invoices, log-uniform over two decades (first digits then follow Benford's law, as in
+// genuine trade; a narrower spread gives a first-digit profile the Benford indicator rightly calls unnatural).
 const split = (amount, n) => {
   if (amount <= 0) return [];
-  const w = Array.from({ length: Math.max(1, n) }, () => g.logU(0.25, 4));
+  const w = Array.from({ length: Math.max(1, n) }, () => g.logU(0.1, 10)); // two full decades: first digits follow Benford's law
   const tot = w.reduce((a, b) => a + b, 0);
   return w.map((x) => (amount * x) / tot);
 };
@@ -272,9 +224,17 @@ for (const fy of FYS) {
       // EPC: milestone billing: most of a quarter's value is certified in its last month
       if (e.milestones) sales *= [0.35, 0.45, 2.2][m % 3];
       const n = Math.max(6, Math.round(e.inv * (sales / (annual(e) / 12)) ** 0.5));
+      const supplierPool = e.suppliers.filter((s) => isActive(s, fy, m));
+      if (e.backToBack) { // a trader buying against orders: each sale bought from a supplier one to three days earlier
+        for (const v of split(sales, n)) {
+          const d = workday(fy, m), prod = g.pick(e.sell);
+          add(fy, m, pickWeighted(supplierPool), e, dateIn(fy, m, Math.max(1, Number(d.slice(8)) - g.ri(1, 3))), prod, v * e.buyRatio);
+          add(fy, m, e, pickWeighted(e.customers), d, prod, v);
+        }
+        continue;
+      }
       for (const v of split(sales, n)) add(fy, m, e, pickWeighted(e.customers), workday(fy, m), g.pick(e.sell), v);
       const buy = sales * e.buyRatio * (0.97 + g.rnd() * 0.06);
-      const supplierPool = e.suppliers.filter((s) => isActive(s, fy, m));
       for (const v of split(buy, Math.round(n * 0.8))) {
         const prod = g.pick(e.buy);
         add(fy, m, pickWeighted(supplierPool), e, workday(fy, m), prod, v, prod.rc ? ['rcm'] : []);
@@ -306,6 +266,8 @@ for (const fy of FYS) {
       const s = byKey[from], b = byKey[to];
       const amount = (cr * CR / 12) * (fy === 2025 ? s.group.growth : 1) * (0.9 + g.rnd() * 0.2);
       for (const v of split(amount, Math.max(4, Math.round(Math.sqrt(cr) / 2)))) add(fy, m, s, b, workday(fy, m), prod, v, tags);
+      // a trader buys what it sells, including what it supplies to other groups
+      if (s.buyRatio >= 0.95) for (const v of split(amount * s.buyRatio, Math.max(4, Math.round(Math.sqrt(cr) / 2)))) add(fy, m, pickWeighted(s.suppliers.filter((x) => isActive(x, fy, m))), s, workday(fy, m), prod, v);
     }
   }
 }
@@ -328,13 +290,13 @@ for (const fy of FYS) {
       add(fy, m, byKey.G06B, byKey.G06A, d3, P.gold, v * 1.002, ['cycle', 'stock-transfer']);
     }
     // the associate is both customer and supplier of the Mumbai office (reciprocal trade at near-zero margin)
-    for (const v of split(140 * CR * (0.85 + g.rnd() * 0.3), 8)) {
+    for (const v of split(185 * CR * (0.85 + g.rnd() * 0.3), 8)) {
       const d = workday(fy, m);
       add(fy, m, byKey.G06D, byKey.G06A, d, P.gold, v, ['cycle', 'reciprocal']);
       add(fy, m, byKey.G06A, byKey.G06D, laterInMonth(fy, m, d, g.ri(1, 3)), P.gold, v * 1.0006, ['cycle', 'reciprocal']);
     }
     // shell suppliers (no GSTR-3B) feeding the Mumbai office once they are registered
-    for (const s of G06shells.filter((x) => isActive(x, fy, m))) for (const v of split(95 * CR * (0.8 + g.rnd() * 0.4), 6)) add(fy, m, s, byKey.G06A, workday(fy, m), P.gold, v, ['shell-supplier']);
+    for (const s of G06shells.filter((x) => isActive(x, fy, m))) for (const v of split(135 * CR * (0.8 + g.rnd() * 0.4), 6)) add(fy, m, s, byKey.G06A, workday(fy, m), P.gold, v, ['shell-supplier']);
   }
 }
 
@@ -407,7 +369,8 @@ const stamp = path.join(DATA, '.corporates.version');
 
 export async function generate({ registers = false } = {}) {
   fs.mkdirSync(DATA, { recursive: true });
-  for (const f of fs.readdirSync(DATA)) if (/_GEN .*\.xlsx$/i.test(f)) fs.rmSync(path.join(DATA, f)); // previous versions
+  const mine = new Set(ALL.map((e) => e.gstin));
+  for (const f of fs.readdirSync(DATA)) if (/_GEN .*\.xlsx$/i.test(f) && mine.has(f.split('_')[1])) fs.rmSync(path.join(DATA, f)); // previous versions (not other units')
   const written = [];
   for (const e of ALL) {
     for (const fy of FYS) {
@@ -431,7 +394,7 @@ export async function generate({ registers = false } = {}) {
       const lead = e.group.kind === 'clean' ? () => g.ri(2, 8) : e.group.kind === 'tricky' ? () => g.ri(0, 5) : () => g.ri(-1, 2);
       const { wb, stats } = writeReturns({
         name: e.name, gstin: e.gstin, state: Number(e.state), fy, filing: 'monthly', irn: !(e.key === 'G09A' && fy === 2024), extractDate: EXTRACT[fy],
-        title: `SYNTHETIC LARGE TAXPAYER ${JURISDICTION} - not a real taxpayer`, sales, cdns, purchases, stateNames: STATE_NAME, ...opts,
+        title: `SYNTHETIC LARGE TAXPAYER ${JURISDICTION} - not a real taxpayer`, portalLateFee: true, sales, cdns, purchases, stateNames: STATE_NAME, ...opts,
       }, { filingLead: lead });
       const file = fileOf(e, fy);
       fs.writeFileSync(path.join(DATA, file), XLSX.write(wb, { bookType: 'xlsx', type: 'buffer', compression: true }));
@@ -448,7 +411,6 @@ export async function generate({ registers = false } = {}) {
 const csvLine = (vals) => vals.map((v) => { const s = v === null || v === undefined ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',');
 const dmy = (d) => d.split('-').reverse().join('-');
 const fyLabel = (fy) => `${fy}-${String(fy + 1).slice(2)}`;
-const STATE_NAME = { 8: 'Rajasthan', 9: 'Uttar Pradesh', 19: 'West Bengal', 22: 'Chhattisgarh', 23: 'Madhya Pradesh', 24: 'Gujarat', 29: 'Karnataka', 32: 'Kerala', 33: 'Tamil Nadu', 36: 'Telangana' };
 const outputTax = (e, fy, m) => ledger.filter((x) => x.seller === e && x.fy === fy && (m == null || x.m === m)).reduce((s, x) => s + taxOf(heads(x.taxable, x.rate, x.buyer.state === e.state)), 0);
 const inLtu = ALL.filter((e) => e.state === '27');
 const REG_DATES = ['2017-07-01', '2017-07-01', '2017-07-01', '2018-04-01', '2019-10-01'];
@@ -472,6 +434,27 @@ export const registerRows = () => ({
     ['EIU-2025-0207', byKey.G10A.gstin, 'Reverse charge liability under-declared', '', '2025-26', 0, '10-03-2026', 'Medium', 'EIU monthly risk run', 'Legal services received under reverse charge'],
   ],
 });
+// What the planted behaviour must trigger, per registration and year: checked end to end by scripts/synth/validate.mjs.
+export const EXPECT = [
+  { key: 'G06A', fy: 2025, rules: { 'B-01': 'Fail', 'G-02': 'Fail', 'B-04': 'Review' }, flags: ['nonfiler', 'circular'] },
+  { key: 'G06C', fy: 2025, rules: { 'A-02': 'Fail' } },
+  { key: 'G07A', fy: 2025, rules: { 'B-01': 'Fail', 'G-02': 'Fail', 'B-03': 'Fail', 'G-05': 'Fail', 'B-04': 'Review' }, flags: ['nonfiler', 'vehicle'] },
+  { key: 'G08A', fy: 2025, rules: { 'G-02': 'Fail', 'G-05': 'Fail' }, flags: ['ewb'] },
+  { key: 'G09A', fy: 2025, rules: { 'B-01': 'Fail', 'G-05': 'Fail' } },
+  { key: 'G09A', fy: 2024, rules: { 'G-02': 'Fail', 'G-03': 'Review' } },
+  { key: 'G10A', fy: 2025, rules: { 'C-01': 'Fail' } },
+  { key: 'G11B', fy: 2025, rules: { 'D-05': 'Fail' } },
+  { key: 'G23A', fy: 2025, rules: { 'B-03': 'Fail', 'B-04': 'Review' }, flags: ['nonfiler', 'vehicle'] },
+  { key: 'G24A', fy: 2025, rules: { 'G-02': 'Fail', 'G-05': 'Fail' } },
+  { key: 'G17A', fy: 2025, rules: { 'J-03': 'Pass' } },
+  { key: 'G12A', fy: 2025, prompts: ['spike'] },
+];
+export const EXPECT_NETWORK = [
+  { fy: '2025-2026', type: 'cycle', via: null, from: 'G06A', to: 'G06D' },
+  { fy: '2025-2026', type: 'passThrough', via: 'G07A' },
+  { fy: '2025-2026', type: 'nonFiler', from: () => G07shells[1].gstin, to: 'G07A' },
+];
+
 const writeKey = (written) => {
   fs.mkdirSync(path.join(KEY_DIR, 'registers'), { recursive: true });
   for (const [name, rows] of Object.entries(registerRows())) fs.writeFileSync(path.join(KEY_DIR, 'registers', `${name}.csv`), rows.map(csvLine).join('\n') + '\n');

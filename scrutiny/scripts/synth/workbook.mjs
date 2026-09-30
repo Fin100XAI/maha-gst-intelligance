@@ -38,13 +38,17 @@ export const H = {
   'GSTR-7 TCS': ['Sr. #', 'Month', 'GSTIN of Collector', 'Name of Collector', 'Tax period of GSTR-8', 'Gross value', 'Supplies returned', 'Net value', 'Integrated Tax', 'Central Tax', 'State/UT Tax', 'Action'],
   'GSTR-7 TDSA': ['Sr. #', 'Month', 'GSTIN of Deductee', 'Party Name of Deductee', 'Amount Paid To Deductee on Which Tax is Deducted', 'IGST', 'CGST', 'SGST'],
 };
+// Written only when the taxpayer-year has rows for it (the export omits it otherwise)
+export const OPTIONAL = {
+  GSTR1_B2CS: ['Sr. #', 'Month', 'Type', 'Place Of Supply', 'Rate', 'Total Taxable Value', 'IGST Amount', 'CGST Amount', 'SGST Amount', 'CESS Amount', 'E-Commerce GSTIN', 'Supply Type'],
+};
 export const ITC_ROWS = ['(A) ITC Available (Whether in full or part)', '   (1) Import of goods', '   (2) Import of Services', '   (3) Inward Supplies liable to reverse charge(other than 1 & 2 above)', '   (4) Inward supplies from ISD', '   (5) All other ITC', 'Total ITC Available (A)', '(B) ITC Reversed', '   (1) As per rules 38,42 & 43 of CGST Rules and section 17(5)', '   (2) Others ITC Reversed', 'Total ITC Reversed (B)', '(C) Net ITC Available (A) – (B)', '(D) Ineligible ITC', '   (1) ITC reclaimed which was reversed under Table 4(B)(2) in earlier tax period', '   (2) Ineligible ITC under section 16(4) & ITC restricted due to PoS rules'];
 export const SUPPLY_ROWS = ['(a) Outward Taxable Supplies (other than Zero rated,nil rated and exemted)', '(b) Outward Taxable Supplies (Zero rated)', '(c) Other outward Supplies(Nil rated, exemted)', '(d) Inward Supplies(liable to reverse charge)', '(e) Non-GST outward supplies'];
 
 /**
  * @param {object} r  one taxpayer-year
  *   name, gstin, state, fy (start year), filing ('monthly' | 'qrmp'), irn (bool), extractDate (ISO), title?
- *   sales[]        { m, c:{gstin,name,state}, no, seq, date, rate, taxable, igst, cgst, sgst, hsn:[code,desc,uqc,unitPrice], posState?, rc? }
+ *   sales[]        { m, c:{gstin,name,state}, no, seq, date, rate, taxable, igst, cgst, sgst, hsn:[code,desc,uqc,unitPrice], posState?, rc?, noIrn? }
  *   cdns[]         outward credit notes { m, c, no, date, origNo?, origDate?, rate, taxable, igst, cgst, sgst, hsn }
  *   purchases[]    { m, s:{gstin,name,state}, no, date, rate, taxable, igst, cgst, sgst, rc, filed3B, m2b?, in2B?, in2A? }
  *   supplierCdns[] inward credit notes { m, s, no, date, rate, taxable, igst, cgst, sgst }
@@ -54,11 +58,20 @@ export const SUPPLY_ROWS = ['(a) Outward Taxable Supplies (other than Zero rated
  *   activeFrom     first FY month the GSTIN was registered (default 0 = April): no returns before it
  *   unfiledPeriods GSTR-3B periods never filed: GSTR-1 is still reported, 3B, payment and ledgers are not
  *   stateNames     { code: name } for states beyond the shared STATES list (place of supply)
+ *   b2cs[]         B2C (small) outward supplies { m, state, rate, taxable, igst, cgst, sgst, hsn, eco? } (sheet GSTR1_B2CS)
+ *   imports[]      bills of entry { m, date, port, boe, taxable, igst }: 2B IMPG and 2A ICEGATE rows, 3B 4A(1)
+ *   tds[]          GSTR-7 TDS credits received { m, deductor, base, cgst, sgst, igst } (2A TDS)
+ *   tcs[]          GSTR-8 TCS credits received { m, eco, ecoName, period, gross, returned, net, igst, cgst, sgst }
+ *   purchases[].itcNo       2B line marked ITC not available (place of supply in the supplier's state); posState sets its POS
+ *   excessImportItc{p: ₹}   planted: 3B 4A(1) above the IGST on bills of entry in 2B
+ *   ignoreSupplierCdns      planted: supplier credit notes in 2B not netted from the ITC claimed
+ *   rcmItcShare             planted: RCM ITC in 4A(3) on this share of the RCM tax (default: the share declared)
+ *   portalLateFee           a late GSTR-3B carries the late fee the portal levies (unless lateFeePaid says otherwise)
  * @param {{ filingLead: () => number }} opts  days before the due date a return was filed, when not overridden
  * @returns {{ wb: object, stats: object }}
  */
 export function writeReturns(r, { filingLead }) {
-  const { fy, sales, cdns = [], purchases, supplierCdns = [] } = r;
+  const { fy, sales, cdns = [], purchases, supplierCdns = [], b2cs = [], imports = [], tds = [], tcs = [] } = r;
   const own = String(r.state).padStart(2, '0');
   const names = { ...STATES, ...(r.stateNames || {}) }; // a generator may name further states for its counterparties
   const pos = (sc) => names[sc] || names[Number(sc)] || 'Maharashtra';
@@ -75,22 +88,26 @@ export function writeReturns(r, { filingLead }) {
   const tb = {};
   let credit = { igst: 0, cgst: 0, sgst: 0 };
   for (const p of periods) {
-    const inv = sales.filter((x) => in_(x, p) && !x.rc);
+    const inv = [...sales.filter((x) => in_(x, p) && !x.rc), ...b2cs.filter((x) => in_(x, p))];
     const cn = cdns.filter((x) => in_(x, p));
     const out = { taxable: sumBy(inv, (x) => x.taxable) - sumBy(cn, (x) => x.taxable), igst: sumBy(inv, (x) => x.igst) - sumBy(cn, (x) => x.igst), cgst: sumBy(inv, (x) => x.cgst) - sumBy(cn, (x) => x.cgst), sgst: sumBy(inv, (x) => x.sgst) - sumBy(cn, (x) => x.sgst) };
     const hold = r.underDeclare?.[p]; // planted: part of GSTR-1 not declared in 3B
     if (hold) { out.taxable -= hold.taxable; out.cgst -= hold.tax / 2; out.sgst -= hold.tax / 2; }
-    const pin = in2B.filter((x) => in_(x, p) && !x.rc);
-    const pcn = supplierCdns.filter((x) => in_(x, p));
+    const pin = in2B.filter((x) => in_(x, p) && !x.rc && !x.itcNo);
+    const pcn = r.ignoreSupplierCdns ? [] : supplierCdns.filter((x) => in_(x, p)); // planted: credit notes not netted
     const itc = { igst: sumBy(pin, (x) => x.igst) - sumBy(pcn, (x) => x.igst), cgst: sumBy(pin, (x) => x.cgst) - sumBy(pcn, (x) => x.cgst), sgst: sumBy(pin, (x) => x.sgst) - sumBy(pcn, (x) => x.sgst) };
     const extra = r.excessItc?.[p] || 0; // planted: ITC claimed beyond 2B
     itc.cgst += extra / 2; itc.sgst += extra / 2;
+    const imp = sumBy(imports.filter((x) => in_(x, p)), (x) => x.igst) + (r.excessImportItc?.[p] || 0); // 4A(1), IGST only
     const rcmIn = purchases.filter((x) => in_(x, p) && x.rc);
     const rcmTax = { igst: sumBy(rcmIn, (x) => x.igst), cgst: sumBy(rcmIn, (x) => x.cgst), sgst: sumBy(rcmIn, (x) => x.sgst) };
     const rcmFactor = r.rcmDeclaredShare ?? 1; // planted: RCM liability under-declared
     const rcm = { taxable: sumBy(rcmIn, (x) => x.taxable) * rcmFactor, igst: rcmTax.igst * rcmFactor, cgst: rcmTax.cgst * rcmFactor, sgst: rcmTax.sgst * rcmFactor };
+    const itcFactor = r.rcmItcShare ?? rcmFactor; // planted: RCM ITC taken on more than the RCM tax paid
+    const rcmItc = { igst: rcmTax.igst * itcFactor, cgst: rcmTax.cgst * itcFactor, sgst: rcmTax.sgst * itcFactor };
     // utilisation (IGST credit first, then own head), carried forward
     for (const k of ['igst', 'cgst', 'sgst']) credit[k] += itc[k];
+    credit.igst += imp;
     const use = { igst: {}, cgst: {}, sgst: {} };
     const liab = { igst: Math.max(0, out.igst), cgst: Math.max(0, out.cgst), sgst: Math.max(0, out.sgst) };
     const take = (head, from) => { const v = Math.max(0, Math.min(liab[head] - sumBy(Object.values(use[head]), (x) => x), credit[from])); use[head][from] = (use[head][from] || 0) + v; credit[from] -= v; };
@@ -100,7 +117,11 @@ export function writeReturns(r, { filingLead }) {
     const { y, cm } = calOf(fy, p);
     const due = qrmp ? nextMonthDay(fy, p, 22) : nextMonthDay(fy, p, 20);
     const filed = r.filedOn?.[p] || addDays(due, -filingLead());
-    tb[p] = { out, itc, rcm, rcmTax, liab, use, cash, due, filed, interest: r.interestPaid?.[p] || 0, lateFee: r.lateFeePaid?.[p] || 0, y, cm };
+    // portalLateFee: the portal will not accept a late GSTR-3B until its late fee (₹50 a day, ₹20 for a nil return, capped) is paid
+    const lateDays = Math.max(0, Math.round((Date.parse(filed) - Date.parse(due)) / 86400000));
+    const nilReturn = liab.igst + liab.cgst + liab.sgst + rcm.igst + rcm.cgst + rcm.sgst === 0;
+    const portalFee = r.portalLateFee && lateDays ? Math.min(lateDays * (nilReturn ? 20 : 50), nilReturn ? 1000 : 10000) : 0;
+    tb[p] = { out, itc, imp, rcm, rcmItc, rcmTax, liab, use, cash, due, filed, interest: r.interestPaid?.[p] || 0, lateFee: r.lateFeePaid?.[p] || portalFee, y, cm };
   }
 
   // ------------------------------------------------------------------ rows per sheet
@@ -108,13 +129,14 @@ export function writeReturns(r, { filingLead }) {
   const monthOf = (m) => MONTHS[m];
   const g1Filed = (m) => serial(nextMonthDay(fy, m, 11));
   const periodCode = (m) => { const { y, cm } = calOf(fy, m); return Number(`${cm}${y}`); };
-  const irn = (x) => (r.irn ? [`${x.no.replace(/\W/g, '')}${String(x.seq).padStart(6, '0')}`.slice(0, 20), '01-' + String(calOf(fy, x.m).cm).padStart(2, '0') + '-' + calOf(fy, x.m).y] : [null, null]);
+  const irn = (x) => (r.irn && !x.noIrn ? [`${x.no.replace(/\W/g, '')}${String(x.seq).padStart(6, '0')}`.slice(0, 20), '01-' + String(calOf(fy, x.m).cm).padStart(2, '0') + '-' + calOf(fy, x.m).y] : [null, null]);
 
-  sales.forEach((x, i) => S.GSTR1_B2B.push([i + 1, monthOf(x.m), x.c.gstin, x.c.name, x.no, serial(x.date), r2(x.taxable + taxOf(x)), x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, pos(x.posState || x.c.state), 'No', 'Regular', null, r.irn ? 'E-Invoice' : null, ...irn(x)]));
+  sales.forEach((x, i) => S.GSTR1_B2B.push([i + 1, monthOf(x.m), x.c.gstin, x.c.name, x.no, serial(x.date), r2(x.taxable + taxOf(x)), x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, pos(x.posState || x.c.state), 'No', 'Regular', null, r.irn && !x.noIrn ? 'E-Invoice' : null, ...irn(x)]));
+  const B2CS = b2cs.map((x, i) => [i + 1, monthOf(x.m), x.eco ? 'E' : 'OE', pos(x.state), x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, x.eco || null, String(x.state).padStart(2, '0') === own ? 'Intra-State' : 'Inter-State']);
   cdns.forEach((x, i) => S.GSTR1_CDN.push([i + 1, monthOf(x.m), x.c.gstin, x.c.name, 'Credit Note', 'No', x.no, serial(x.date), x.origNo || null, x.origDate ? serial(x.origDate) : null, r2(x.taxable + taxOf(x)), x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, pos(x.c.state), null, null, null]));
   // HSN summary: per month, HSN and rate
   const hsnAgg = {};
-  for (const x of sales) { const k = `${x.m}|${x.hsn[0]}|${x.rate}`; const a = (hsnAgg[k] ||= { m: x.m, hsn: x.hsn, rate: x.rate, qty: 0, value: 0, taxable: 0, igst: 0, cgst: 0, sgst: 0 }); a.qty += Math.round(x.taxable / x.hsn[3]); a.value += x.taxable + taxOf(x); a.taxable += x.taxable; a.igst += x.igst; a.cgst += x.cgst; a.sgst += x.sgst; }
+  for (const x of [...sales, ...b2cs]) { const k = `${x.m}|${x.hsn[0]}|${x.rate}`; const a = (hsnAgg[k] ||= { m: x.m, hsn: x.hsn, rate: x.rate, qty: 0, value: 0, taxable: 0, igst: 0, cgst: 0, sgst: 0 }); a.qty += Math.round(x.taxable / x.hsn[3]); a.value += x.taxable + taxOf(x); a.taxable += x.taxable; a.igst += x.igst; a.cgst += x.cgst; a.sgst += x.sgst; }
   for (const c of cdns) { const a = hsnAgg[`${c.m}|${c.hsn[0]}|${c.rate}`] ||= { m: c.m, hsn: c.hsn, rate: c.rate, qty: 0, value: 0, taxable: 0, igst: 0, cgst: 0, sgst: 0 }; a.qty -= Math.round(c.taxable / c.hsn[3]); a.value -= c.taxable + taxOf(c); a.taxable -= c.taxable; a.igst -= c.igst; a.cgst -= c.cgst; a.sgst -= c.sgst; }
   Object.values(hsnAgg).forEach((a, i) => S.GSTR1_HSNSummary.push([i + 1, monthOf(a.m), a.hsn[0], a.hsn[1], a.hsn[2], a.qty, r2(a.value), r2(a.taxable), a.rate, r2(a.igst), r2(a.cgst), r2(a.sgst), 0]));
   // document summary: the series as issued (gaps are not reported as cancelled)
@@ -130,9 +152,17 @@ export function writeReturns(r, { filingLead }) {
   for (const x of purchases) {
     const m2b = x.m2b ?? x.m;
     const row = [x.s.gstin, x.s.name, x.no];
-    if (x.in2B !== false) S.GSTR2B_B2B.push([monthOf(m2b), ...row, 'Regular', serial(x.date), r2(x.taxable + taxOf(x)), pos(own), x.rc ? 'Yes' : 'No', x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, periodCode(x.m), g1Filed(x.m), 'Yes', null, null, null, null, null]);
-    if (x.in2A !== false) S.GSTR2A_B2B.push([++n2a, monthOf(x.m), x.s.gstin, x.s.name, x.no, serial(x.date), r2(x.taxable + taxOf(x)), x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, pos(own), x.rc ? 'Yes' : 'No', 'Regular', 'Yes', g1Filed(x.m), periodCode(x.m), x.filed3B ? 'Yes' : 'No', 'Yes', null, null, null]);
+    const xpos = pos(x.posState || own);
+    const avail = x.itcNo ? ['No', 'POS and supplier state are same but recipient state is different'] : ['Yes', null];
+    if (x.in2B !== false) S.GSTR2B_B2B.push([monthOf(m2b), ...row, 'Regular', serial(x.date), r2(x.taxable + taxOf(x)), xpos, x.rc ? 'Yes' : 'No', x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, periodCode(x.m), g1Filed(x.m), ...avail, null, null, null, null]);
+    if (x.in2A !== false) S.GSTR2A_B2B.push([++n2a, monthOf(x.m), x.s.gstin, x.s.name, x.no, serial(x.date), r2(x.taxable + taxOf(x)), x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, xpos, x.rc ? 'Yes' : 'No', 'Regular', 'Yes', g1Filed(x.m), periodCode(x.m), x.filed3B ? 'Yes' : 'No', 'Yes', null, null, null]);
   }
+  // imports: ICEGATE bills of entry in 2B and 2A
+  imports.forEach((x) => S.GSTR2B_IMPG.push([monthOf(x.m), serial(x.date), x.port, x.boe, serial(x.date), x.taxable, x.igst, 0, null]));
+  imports.forEach((x, i) => S.GSTR2A_IMPGOS.push([i + 1, serial(x.date), x.port, x.boe, serial(x.date), x.taxable, x.igst, 0, monthOf(x.m)]));
+  // TDS (s.51) and TCS (s.52) credits received
+  tds.forEach((x, i) => S.GSTR2A_TDS.push([i + 1, monthOf(x.m), x.deductor, x.base, x.igst || 0, x.cgst || 0, x.sgst || 0, 'Yes']));
+  tcs.forEach((x, i) => S['GSTR-7 TCS'].push([i + 1, monthOf(x.m), x.eco, x.ecoName, x.period, x.gross, x.returned, x.net, x.igst || 0, x.cgst || 0, x.sgst || 0, 'Accepted']));
   supplierCdns.forEach((x) => S.GSTR2B_CDNR.push([monthOf(x.m), x.s.gstin, x.s.name, x.no, 'Credit Note', 'Regular', serial(x.date), r2(x.taxable + taxOf(x)), pos(own), 'No', x.rate, x.taxable, x.igst, x.cgst, x.sgst, 0, periodCode(x.m), g1Filed(x.m), 'Yes', null, null, null, null, null]));
 
   // 3B sheets, ledgers, challans
@@ -142,10 +172,12 @@ export function writeReturns(r, { filingLead }) {
     const t = tb[p]; const M = monthOf(p);
     const sup = [[t.out.taxable, t.out.igst, t.out.cgst, t.out.sgst], [0, 0, 0, 0], [0, 0, 0, 0], [t.rcm.taxable, t.rcm.igst, t.rcm.cgst, t.rcm.sgst], [0, 0, 0, 0]];
     SUPPLY_ROWS.forEach((lbl, i) => S.GSTR3B_Supplies.push([++sr, M, lbl, ...sup[i].map(r2), 0]));
-    const a3 = [t.rcm.igst, t.rcm.cgst, t.rcm.sgst];
+    const a3 = [t.rcm.igst, t.rcm.cgst, t.rcm.sgst]; // RCM liability
+    const a3i = [t.rcmItc.igst, t.rcmItc.cgst, t.rcmItc.sgst]; // RCM ITC, 4A(3)
+    const a1 = [t.imp, 0, 0];
     const a5 = [t.itc.igst, t.itc.cgst, t.itc.sgst];
-    const totA = a3.map((v, i) => v + a5[i]);
-    const itcVals = { '   (3) Inward Supplies liable to reverse charge(other than 1 & 2 above)': a3, '   (5) All other ITC': a5, 'Total ITC Available (A)': totA, '(C) Net ITC Available (A) – (B)': totA };
+    const totA = a3i.map((v, i) => v + a5[i] + a1[i]);
+    const itcVals = { '   (1) Import of goods': a1, '   (3) Inward Supplies liable to reverse charge(other than 1 & 2 above)': a3i, '   (5) All other ITC': a5, 'Total ITC Available (A)': totA, '(C) Net ITC Available (A) – (B)': totA };
     ITC_ROWS.forEach((lbl) => S.GSTR3B_ITC.push([S.GSTR3B_ITC.length + 1, M, lbl, ...(itcVals[lbl] || [0, 0, 0]).map(r2), 0]));
     S.GSTR3B_Nil.push([S.GSTR3B_Nil.length + 1, M, 'From a supplier under composition scheme, Exempt and Nil rated Supply', 0, 0], [S.GSTR3B_Nil.length + 2, M, 'Non GST Supply', 0, 0]);
     const rcmCash = { igst: t.rcm.igst, cgst: t.rcm.cgst, sgst: t.rcm.sgst };
@@ -192,6 +224,8 @@ export function writeReturns(r, { filingLead }) {
     const banner = [[null, 'Company Name : ', r.name], [null, 'Company GSTN : ', r.gstin], [null, 'Return Period : ', fyLabel, 'http://www.microvistatech.com'], [null, 'Report Name : ', name.replace(/_/g, '-')], []];
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([...banner, header, ...S[name]]), name);
   }
+  const banner = (name) => [[null, 'Company Name : ', r.name], [null, 'Company GSTN : ', r.gstin], [null, 'Return Period : ', fyLabel, 'http://www.microvistatech.com'], [null, 'Report Name : ', name.replace(/_/g, '-')], []];
+  if (B2CS.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([...banner('GSTR1_B2CS'), OPTIONAL.GSTR1_B2CS, ...B2CS]), 'GSTR1_B2CS');
   wb.Props = { Title: r.title || 'SYNTHETIC TEST DATA - not a real taxpayer', Author: 'GST Intelligence test-data generator', CreatedDate: new Date(`${r.extractDate}T10:30:00Z`) };
   return { wb, stats: { sales: sales.length, cdns: cdns.length, purchases: purchases.length, periods: periods.length } };
 }

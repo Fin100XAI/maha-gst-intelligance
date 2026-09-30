@@ -1,5 +1,5 @@
 {
- "generatedBy": "scripts/synth/corporates.mjs (seed 31415, corporates-v5)",
+ "generatedBy": "scripts/synth/corporates.mjs (seed 31415, corporates-v6)",
  "jurisdiction": "LTU-MUMBAI",
  "synthetic": true,
  "note": "Every name, PAN and figure is invented. The groups resemble kinds of businesses in behaviour only; none represents a real company.",
@@ -10,8 +10,8 @@
    "sector": "IT services",
    "name": "SAHYADRI INFOTECH SERVICES LIMITED",
    "turnoverCrore": [
-    9335,
-    10254
+    9421,
+    10214
    ],
    "registrations": [
     {
@@ -46,8 +46,8 @@
    "sector": "FMCG (home and personal care)",
    "name": "GODAVARI CONSUMER PRODUCTS LIMITED",
    "turnoverCrore": [
-    8563,
-    9119
+    8542,
+    9159
    ],
    "registrations": [
     {
@@ -90,8 +90,8 @@
    "sector": "Auto components",
    "name": "DECCAN PRECISION FORGINGS LIMITED",
    "turnoverCrore": [
-    5291,
-    5906
+    5330,
+    5921
    ],
    "registrations": [
     {
@@ -118,8 +118,8 @@
    "sector": "Pharmaceuticals",
    "name": "KONKAN LIFE SCIENCES LIMITED",
    "turnoverCrore": [
-    6676,
-    7293
+    6612,
+    7381
    ],
    "registrations": [
     {
@@ -146,8 +146,8 @@
    "sector": "Cement",
    "name": "TRIVENI CEMENT LIMITED",
    "turnoverCrore": [
-    4793,
-    5132
+    4782,
+    5079
    ],
    "registrations": [
     {
@@ -174,8 +174,8 @@
    "sector": "Paper",
    "name": "UNNATI PAPER MILLS LIMITED",
    "turnoverCrore": [
-    1605,
-    1697
+    1609,
+    1698
    ],
    "registrations": [
     {
@@ -194,8 +194,8 @@
    "sector": "Electronics manufacturing services",
    "name": "TEJAS ELECTRONICS MANUFACTURING LIMITED",
    "turnoverCrore": [
-    8458,
-    10019
+    8546,
+    10013
    ],
    "registrations": [
     {
@@ -222,8 +222,8 @@
    "sector": "Dairy products",
    "name": "KESHAV DAIRY PRODUCTS LIMITED",
    "turnoverCrore": [
-    2288,
-    2457
+    2308,
+    2522
    ],
    "registrations": [
     {
@@ -242,8 +242,8 @@
    "sector": "Bullion and jewellery trading",
    "name": "SWARNAMUKHI BULLION AND JEWELS LIMITED",
    "turnoverCrore": [
-    70223,
-    84048
+    71354,
+    84030
    ],
    "registrations": [
     {
@@ -286,8 +286,8 @@
    "sector": "Steel trading",
    "name": "VIDARBHA STEEL AND ALLOYS PRIVATE LIMITED",
    "turnoverCrore": [
-    3022,
-    5769
+    3040,
+    5783
    ],
    "registrations": [
     {
@@ -306,8 +306,8 @@
    "sector": "Mobile phone distribution",
    "name": "PRATHAM MOBILE DISTRIBUTION PRIVATE LIMITED",
    "turnoverCrore": [
-    1802,
-    2067
+    1804,
+    2029
    ],
    "registrations": [
     {
@@ -326,8 +326,8 @@
    "sector": "Metal scrap trading",
    "name": "OMKAR METAL SCRAP PRIVATE LIMITED",
    "turnoverCrore": [
-    1207,
-    1246
+    1218,
+    1261
    ],
    "registrations": [
     {
@@ -346,8 +346,8 @@
    "sector": "Agro commodities",
    "name": "NIRMAL AGRO COMMODITIES LIMITED",
    "turnoverCrore": [
-    3166,
-    3352
+    3201,
+    3303
    ],
    "registrations": [
     {
@@ -374,8 +374,8 @@
    "sector": "Polymer trading",
    "name": "NAVKAR POLYMERS PRIVATE LIMITED",
    "turnoverCrore": [
-    893,
-    1265
+    910,
+    1257
    ],
    "registrations": [
     {
@@ -394,8 +394,8 @@
    "sector": "Pharma distribution",
    "name": "AKSHAY PHARMA DISTRIBUTORS PRIVATE LIMITED",
    "turnoverCrore": [
-    1324,
-    1367
+    1296,
+    1383
    ],
    "registrations": [
     {
@@ -414,8 +414,8 @@
    "sector": "Diversified conglomerate",
    "name": "VARDHAN INDUSTRIES LIMITED",
    "turnoverCrore": [
-    76202,
-    82411
+    76383,
+    82541
    ],
    "registrations": [
     {
@@ -482,8 +482,8 @@
    "sector": "Infrastructure (EPC)",
    "name": "MAHABAL INFRASTRUCTURE LIMITED",
    "turnoverCrore": [
-    13722,
-    15953
+    13780,
+    15924
    ],
    "registrations": [
     {
@@ -518,8 +518,8 @@
    "sector": "Two-wheeler manufacturing",
    "name": "SANGAM MOTORS LIMITED",
    "turnoverCrore": [
-    23943,
-    26322
+    23862,
+    26321
    ],
    "registrations": [
     {
@@ -554,8 +554,8 @@
    "sector": "Textiles (spinning to garments)",
    "name": "AARAMBH TEXTILES LIMITED",
    "turnoverCrore": [
-    6062,
-    6128
+    5949,
+    6156
    ],
    "registrations": [
     {
@@ -590,8 +590,8 @@
    "sector": "Chemicals and fertilisers",
    "name": "KALPATARU CHEMICALS AND FERTILISERS LIMITED",
    "turnoverCrore": [
-    9183,
-    9741
+    9288,
+    9702
    ],
    "registrations": [
     {
@@ -618,8 +618,8 @@
    "sector": "Cables and wires",
    "name": "SURYODAY CABLES LIMITED",
    "turnoverCrore": [
-    3493,
-    3904
+    3492,
+    3987
    ],
    "registrations": [
     {
@@ -646,8 +646,8 @@
    "sector": "Packaging",
    "name": "PADMA PACKAGING INDUSTRIES LIMITED",
    "turnoverCrore": [
-    1347,
-    1448
+    1365,
+    1446
    ],
    "registrations": [
     {
@@ -666,8 +666,8 @@
    "sector": "Logistics (3PL and GTA)",
    "name": "MEGHDOOT LOGISTICS LIMITED",
    "turnoverCrore": [
-    1838,
-    2043
+    1849,
+    2053
    ],
    "registrations": [
     {
@@ -686,8 +686,8 @@
    "sector": "Tyres",
    "name": "VISHWA TYRES LIMITED",
    "turnoverCrore": [
-    7266,
-    7685
+    7168,
+    7626
    ],
    "registrations": [
     {
@@ -714,8 +714,8 @@
    "sector": "Solar EPC",
    "name": "LAKSHYA SOLAR EPC PRIVATE LIMITED",
    "turnoverCrore": [
-    830,
-    1256
+    821,
+    1260
    ],
    "registrations": [
     {
@@ -747,8 +747,8 @@
    "key": "G01A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZSCS2101K1Z3_2024 - 2025_GEN Sahyadri Infotech A.xlsx",
-   "sales": 1315,
-   "purchases": 1051,
+   "sales": 1322,
+   "purchases": 1058,
    "cdns": 0
   },
   {
@@ -756,134 +756,134 @@
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZSCS2101K1Z3_2025 - 2026_GEN Sahyadri Infotech A.xlsx",
    "sales": 1375,
-   "purchases": 1099,
+   "purchases": 1100,
    "cdns": 0
   },
   {
    "key": "G01B",
    "fy": "2024-25",
    "file": "Get Download All Report_29ZZSCS2101K1ZZ_2024 - 2025_GEN Sahyadri Infotech B.xlsx",
-   "sales": 834,
-   "purchases": 666,
+   "sales": 836,
+   "purchases": 668,
    "cdns": 0
   },
   {
    "key": "G01B",
    "fy": "2025-26",
    "file": "Get Download All Report_29ZZSCS2101K1ZZ_2025 - 2026_GEN Sahyadri Infotech B.xlsx",
-   "sales": 881,
-   "purchases": 704,
+   "sales": 873,
+   "purchases": 698,
    "cdns": 0
   },
   {
    "key": "G01C",
    "fy": "2024-25",
    "file": "Get Download All Report_36ZZSCS2101K1Z4_2024 - 2025_GEN Sahyadri Infotech C.xlsx",
-   "sales": 541,
-   "purchases": 433,
+   "sales": 543,
+   "purchases": 435,
    "cdns": 0
   },
   {
    "key": "G01C",
    "fy": "2025-26",
    "file": "Get Download All Report_36ZZSCS2101K1Z4_2025 - 2026_GEN Sahyadri Infotech C.xlsx",
-   "sales": 565,
-   "purchases": 452,
+   "sales": 566,
+   "purchases": 453,
    "cdns": 0
   },
   {
    "key": "G02A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZGCG2202L1ZN_2024 - 2025_GEN Godavari Consumer A.xlsx",
-   "sales": 2432,
-   "purchases": 1675,
+   "sales": 2418,
+   "purchases": 1664,
    "cdns": 0
   },
   {
    "key": "G02A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZGCG2202L1ZN_2025 - 2026_GEN Godavari Consumer A.xlsx",
-   "sales": 2468,
-   "purchases": 1703,
+   "sales": 2481,
+   "purchases": 1713,
    "cdns": 0
   },
   {
    "key": "G02B",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZGCG2202L1ZT_2024 - 2025_GEN Godavari Consumer B.xlsx",
-   "sales": 1075,
-   "purchases": 1039,
+   "sales": 1080,
+   "purchases": 1044,
    "cdns": 0
   },
   {
    "key": "G02B",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZGCG2202L1ZT_2025 - 2026_GEN Godavari Consumer B.xlsx",
-   "sales": 1117,
-   "purchases": 1074,
+   "sales": 1128,
+   "purchases": 1081,
    "cdns": 0
   },
   {
    "key": "G02C",
    "fy": "2024-25",
    "file": "Get Download All Report_29ZZGCG2202L1ZJ_2024 - 2025_GEN Godavari Consumer C.xlsx",
-   "sales": 963,
-   "purchases": 936,
+   "sales": 959,
+   "purchases": 935,
    "cdns": 0
   },
   {
    "key": "G02C",
    "fy": "2025-26",
    "file": "Get Download All Report_29ZZGCG2202L1ZJ_2025 - 2026_GEN Godavari Consumer C.xlsx",
-   "sales": 1003,
-   "purchases": 969,
+   "sales": 988,
+   "purchases": 958,
    "cdns": 0
   },
   {
    "key": "G02D",
    "fy": "2024-25",
    "file": "Get Download All Report_33ZZGCG2202L1ZU_2024 - 2025_GEN Godavari Consumer D.xlsx",
-   "sales": 834,
-   "purchases": 823,
+   "sales": 837,
+   "purchases": 824,
    "cdns": 0
   },
   {
    "key": "G02D",
    "fy": "2025-26",
    "file": "Get Download All Report_33ZZGCG2202L1ZU_2025 - 2026_GEN Godavari Consumer D.xlsx",
-   "sales": 867,
-   "purchases": 850,
+   "sales": 866,
+   "purchases": 848,
    "cdns": 0
   },
   {
    "key": "G03A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZDCD2303M1ZP_2024 - 2025_GEN Deccan Precision A.xlsx",
-   "sales": 1328,
-   "purchases": 1040,
+   "sales": 1342,
+   "purchases": 1054,
    "cdns": 0
   },
   {
    "key": "G03A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZDCD2303M1ZP_2025 - 2026_GEN Deccan Precision A.xlsx",
-   "sales": 1395,
-   "purchases": 1095,
+   "sales": 1392,
+   "purchases": 1092,
    "cdns": 0
   },
   {
    "key": "G03B",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZDCD2304N1ZM_2024 - 2025_GEN Deccan Precision B.xlsx",
-   "sales": 853,
-   "purchases": 577,
+   "sales": 851,
+   "purchases": 575,
    "cdns": 0
   },
   {
    "key": "G03B",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZDCD2304N1ZM_2025 - 2026_GEN Deccan Precision B.xlsx",
-   "sales": 894,
+   "sales": 896,
    "purchases": 609,
    "cdns": 0
   },
@@ -891,72 +891,72 @@
    "key": "G04A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZKCK2405P1Z2_2024 - 2025_GEN Konkan Life Sciences A.xlsx",
-   "sales": 1568,
-   "purchases": 1316,
+   "sales": 1561,
+   "purchases": 1311,
    "cdns": 0
   },
   {
    "key": "G04A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZKCK2405P1Z2_2025 - 2026_GEN Konkan Life Sciences A.xlsx",
-   "sales": 1634,
-   "purchases": 1369,
+   "sales": 1639,
+   "purchases": 1372,
    "cdns": 0
   },
   {
    "key": "G04B",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZKCK2405P1Z8_2024 - 2025_GEN Konkan Life Sciences B.xlsx",
-   "sales": 831,
-   "purchases": 531,
+   "sales": 828,
+   "purchases": 528,
    "cdns": 0
   },
   {
    "key": "G04B",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZKCK2405P1Z8_2025 - 2026_GEN Konkan Life Sciences B.xlsx",
-   "sales": 861,
-   "purchases": 553,
+   "sales": 860,
+   "purchases": 554,
    "cdns": 0
   },
   {
    "key": "G05A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZTCT2506Q1ZG_2024 - 2025_GEN Triveni Cement A.xlsx",
-   "sales": 1894,
-   "purchases": 1414,
+   "sales": 1896,
+   "purchases": 1416,
    "cdns": 0
   },
   {
    "key": "G05A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZTCT2506Q1ZG_2025 - 2026_GEN Triveni Cement A.xlsx",
-   "sales": 1956,
-   "purchases": 1465,
+   "sales": 1942,
+   "purchases": 1452,
    "cdns": 0
   },
   {
    "key": "G05B",
    "fy": "2024-25",
    "file": "Get Download All Report_23ZZTCT2506Q1ZO_2024 - 2025_GEN Triveni Cement B.xlsx",
-   "sales": 1199,
-   "purchases": 1055,
+   "sales": 1207,
+   "purchases": 1063,
    "cdns": 0
   },
   {
    "key": "G05B",
    "fy": "2025-26",
    "file": "Get Download All Report_23ZZTCT2506Q1ZO_2025 - 2026_GEN Triveni Cement B.xlsx",
-   "sales": 1245,
-   "purchases": 1091,
+   "sales": 1242,
+   "purchases": 1089,
    "cdns": 0
   },
   {
    "key": "G16A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZUCU2616R1Z9_2024 - 2025_GEN Unnati Paper.xlsx",
-   "sales": 1103,
-   "purchases": 815,
+   "sales": 1099,
+   "purchases": 811,
    "cdns": 0
   },
   {
@@ -964,95 +964,95 @@
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZUCU2616R1Z9_2025 - 2026_GEN Unnati Paper.xlsx",
    "sales": 1130,
-   "purchases": 836,
+   "purchases": 837,
    "cdns": 0
   },
   {
    "key": "G19A",
    "fy": "2024-25",
    "file": "Get Download All Report_33ZZTCT2619S1ZD_2024 - 2025_GEN Tejas Electronics A.xlsx",
-   "sales": 1433,
-   "purchases": 965,
+   "sales": 1443,
+   "purchases": 975,
    "cdns": 0
   },
   {
    "key": "G19A",
    "fy": "2025-26",
    "file": "Get Download All Report_33ZZTCT2619S1ZD_2025 - 2026_GEN Tejas Electronics A.xlsx",
-   "sales": 1542,
-   "purchases": 1052,
+   "sales": 1534,
+   "purchases": 1045,
    "cdns": 0
   },
   {
    "key": "G19B",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZTCT2619S1Z6_2024 - 2025_GEN Tejas Electronics B.xlsx",
-   "sales": 1053,
-   "purchases": 993,
+   "sales": 1058,
+   "purchases": 998,
    "cdns": 0
   },
   {
    "key": "G19B",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZTCT2619S1Z6_2025 - 2026_GEN Tejas Electronics B.xlsx",
-   "sales": 1134,
-   "purchases": 1058,
+   "sales": 1142,
+   "purchases": 1065,
    "cdns": 0
   },
   {
    "key": "G21A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZKCK2621T1ZS_2024 - 2025_GEN Keshav Dairy.xlsx",
-   "sales": 1793,
-   "purchases": 1492,
+   "sales": 1804,
+   "purchases": 1502,
    "cdns": 0
   },
   {
    "key": "G21A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZKCK2621T1ZS_2025 - 2026_GEN Keshav Dairy.xlsx",
-   "sales": 1860,
-   "purchases": 1550,
+   "sales": 1884,
+   "purchases": 1568,
    "cdns": 0
   },
   {
    "key": "G06A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZSCS2606U1Z9_2024 - 2025_GEN Swarnamukhi Bullion A.xlsx",
-   "sales": 1948,
-   "purchases": 1648,
+   "sales": 1943,
+   "purchases": 1644,
    "cdns": 0
   },
   {
    "key": "G06A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZSCS2606U1Z9_2025 - 2026_GEN Swarnamukhi Bullion A.xlsx",
-   "sales": 2059,
-   "purchases": 1838,
+   "sales": 2048,
+   "purchases": 1827,
    "cdns": 0
   },
   {
    "key": "G06B",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZSCS2606U1ZF_2024 - 2025_GEN Swarnamukhi Bullion B.xlsx",
-   "sales": 1246,
-   "purchases": 1031,
+   "sales": 1242,
+   "purchases": 1028,
    "cdns": 0
   },
   {
    "key": "G06B",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZSCS2606U1ZF_2025 - 2026_GEN Swarnamukhi Bullion B.xlsx",
-   "sales": 1314,
-   "purchases": 1086,
+   "sales": 1305,
+   "purchases": 1078,
    "cdns": 0
   },
   {
    "key": "G06C",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZSFS2607V1Z6_2024 - 2025_GEN Swarnamukhi Bullion C.xlsx",
-   "sales": 643,
-   "purchases": 549,
+   "sales": 641,
+   "purchases": 546,
    "cdns": 0
   },
   {
@@ -1060,39 +1060,39 @@
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZSFS2607V1Z6_2025 - 2026_GEN Swarnamukhi Bullion C.xlsx",
    "sales": 676,
-   "purchases": 574,
+   "purchases": 575,
    "cdns": 0
   },
   {
    "key": "G06D",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZNCN2608W1ZD_2024 - 2025_GEN Swarnamukhi Bullion D.xlsx",
-   "sales": 624,
-   "purchases": 551,
+   "sales": 619,
+   "purchases": 547,
    "cdns": 0
   },
   {
    "key": "G06D",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZNCN2608W1ZD_2025 - 2026_GEN Swarnamukhi Bullion D.xlsx",
-   "sales": 647,
-   "purchases": 571,
+   "sales": 649,
+   "purchases": 573,
    "cdns": 0
   },
   {
    "key": "G07A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZVCV2709X1ZT_2024 - 2025_GEN Vidarbha Steel.xlsx",
-   "sales": 1448,
-   "purchases": 1077,
+   "sales": 1452,
+   "purchases": 1452,
    "cdns": 0
   },
   {
    "key": "G07A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZVCV2709X1ZT_2025 - 2026_GEN Vidarbha Steel.xlsx",
-   "sales": 1974,
-   "purchases": 1561,
+   "sales": 1978,
+   "purchases": 1978,
    "cdns": 0
   },
   {
@@ -1100,215 +1100,215 @@
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZPCP2810Y1Z9_2024 - 2025_GEN Pratham Mobile.xlsx",
    "sales": 4433,
-   "purchases": 665,
+   "purchases": 667,
    "cdns": 0
   },
   {
    "key": "G08A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZPCP2810Y1Z9_2025 - 2026_GEN Pratham Mobile.xlsx",
-   "sales": 5931,
-   "purchases": 713,
+   "sales": 5924,
+   "purchases": 707,
    "cdns": 0
   },
   {
    "key": "G09A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZOCO2911Z1Z7_2024 - 2025_GEN Omkar Metal Scrap.xlsx",
-   "sales": 1084,
-   "purchases": 868,
+   "sales": 1088,
+   "purchases": 872,
    "cdns": 0
   },
   {
    "key": "G09A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZOCO2911Z1Z7_2025 - 2026_GEN Omkar Metal Scrap.xlsx",
-   "sales": 1101,
-   "purchases": 905,
+   "sales": 1107,
+   "purchases": 908,
    "cdns": 0
   },
   {
    "key": "G10A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZNCN3012A1ZU_2024 - 2025_GEN Nirmal Agro A.xlsx",
-   "sales": 1425,
-   "purchases": 1139,
+   "sales": 1436,
+   "purchases": 1149,
    "cdns": 0
   },
   {
    "key": "G10A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZNCN3012A1ZU_2025 - 2026_GEN Nirmal Agro A.xlsx",
-   "sales": 1468,
-   "purchases": 1177,
+   "sales": 1456,
+   "purchases": 1166,
    "cdns": 0
   },
   {
    "key": "G10B",
    "fy": "2024-25",
    "file": "Get Download All Report_23ZZNCN3012A1Z2_2024 - 2025_GEN Nirmal Agro B.xlsx",
-   "sales": 718,
-   "purchases": 574,
+   "sales": 719,
+   "purchases": 575,
    "cdns": 0
   },
   {
    "key": "G10B",
    "fy": "2025-26",
    "file": "Get Download All Report_23ZZNCN3012A1Z2_2025 - 2026_GEN Nirmal Agro B.xlsx",
-   "sales": 739,
-   "purchases": 592,
+   "sales": 733,
+   "purchases": 588,
    "cdns": 0
   },
   {
    "key": "G23A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZNCN3123B1ZO_2024 - 2025_GEN Navkar Polymers.xlsx",
-   "sales": 717,
-   "purchases": 681,
+   "sales": 722,
+   "purchases": 686,
    "cdns": 0
   },
   {
    "key": "G23A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZNCN3123B1ZO_2025 - 2026_GEN Navkar Polymers.xlsx",
-   "sales": 853,
-   "purchases": 836,
+   "sales": 851,
+   "purchases": 834,
    "cdns": 0
   },
   {
    "key": "G24A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZACA3224C1ZA_2024 - 2025_GEN Akshay Pharma Distributors.xlsx",
-   "sales": 1575,
-   "purchases": 1392,
+   "sales": 1557,
+   "purchases": 1376,
    "cdns": 0
   },
   {
    "key": "G24A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZACA3224C1ZA_2025 - 2026_GEN Akshay Pharma Distributors.xlsx",
-   "sales": 1602,
-   "purchases": 1415,
+   "sales": 1609,
+   "purchases": 1420,
    "cdns": 0
   },
   {
    "key": "G11A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZVCV3301D1Z8_2024 - 2025_GEN Vardhan Industries A.xlsx",
-   "sales": 2630,
-   "purchases": 2332,
+   "sales": 2643,
+   "purchases": 2343,
    "cdns": 0
   },
   {
    "key": "G11A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZVCV3301D1Z8_2025 - 2026_GEN Vardhan Industries A.xlsx",
-   "sales": 2720,
-   "purchases": 2403,
-   "cdns": 109
+   "sales": 2713,
+   "purchases": 2396,
+   "cdns": 108
   },
   {
    "key": "G11B",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZVCV3302E1ZB_2024 - 2025_GEN Vardhan Industries B.xlsx",
-   "sales": 1907,
-   "purchases": 1271,
+   "sales": 1900,
+   "purchases": 1265,
    "cdns": 0
   },
   {
    "key": "G11B",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZVCV3302E1ZB_2025 - 2026_GEN Vardhan Industries B.xlsx",
-   "sales": 1962,
-   "purchases": 1317,
+   "sales": 1971,
+   "purchases": 1323,
    "cdns": 69
   },
   {
    "key": "G11C",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZVCV3303F1Z2_2024 - 2025_GEN Vardhan Industries C.xlsx",
-   "sales": 2082,
-   "purchases": 1938,
+   "sales": 2071,
+   "purchases": 1928,
    "cdns": 0
   },
   {
    "key": "G11C",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZVCV3303F1Z2_2025 - 2026_GEN Vardhan Industries C.xlsx",
-   "sales": 2155,
-   "purchases": 1993,
-   "cdns": 99
+   "sales": 2145,
+   "purchases": 1986,
+   "cdns": 105
   },
   {
    "key": "G11D",
    "fy": "2024-25",
    "file": "Get Download All Report_29ZZVCV3303F1ZY_2024 - 2025_GEN Vardhan Industries D.xlsx",
-   "sales": 1084,
-   "purchases": 1024,
+   "sales": 1073,
+   "purchases": 1013,
    "cdns": 0
   },
   {
    "key": "G11D",
    "fy": "2025-26",
    "file": "Get Download All Report_29ZZVCV3303F1ZY_2025 - 2026_GEN Vardhan Industries D.xlsx",
-   "sales": 1119,
-   "purchases": 1052,
-   "cdns": 64
+   "sales": 1120,
+   "purchases": 1051,
+   "cdns": 62
   },
   {
    "key": "G11E",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZVCV3304G1ZZ_2024 - 2025_GEN Vardhan Industries E.xlsx",
-   "sales": 1433,
-   "purchases": 1204,
+   "sales": 1441,
+   "purchases": 1212,
    "cdns": 0
   },
   {
    "key": "G11E",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZVCV3304G1ZZ_2025 - 2026_GEN Vardhan Industries E.xlsx",
-   "sales": 1503,
-   "purchases": 1262,
-   "cdns": 81
+   "sales": 1493,
+   "purchases": 1254,
+   "cdns": 72
   },
   {
    "key": "G11F",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZVCV3305H1ZW_2024 - 2025_GEN Vardhan Industries F.xlsx",
-   "sales": 933,
-   "purchases": 573,
+   "sales": 932,
+   "purchases": 572,
    "cdns": 0
   },
   {
    "key": "G11F",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZVCV3305H1ZW_2025 - 2026_GEN Vardhan Industries F.xlsx",
-   "sales": 965,
-   "purchases": 600,
-   "cdns": 47
+   "sales": 962,
+   "purchases": 598,
+   "cdns": 44
   },
   {
    "key": "G11G",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZVCV3306J1ZW_2024 - 2025_GEN Vardhan Industries G.xlsx",
-   "sales": 695,
-   "purchases": 431,
+   "sales": 700,
+   "purchases": 436,
    "cdns": 0
   },
   {
    "key": "G11G",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZVCV3306J1ZW_2025 - 2026_GEN Vardhan Industries G.xlsx",
-   "sales": 716,
+   "sales": 717,
    "purchases": 451,
-   "cdns": 36
+   "cdns": 39
   },
   {
    "key": "G12A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZMCM3407K1Z4_2024 - 2025_GEN Mahabal Infrastructure A.xlsx",
-   "sales": 918,
-   "purchases": 711,
+   "sales": 919,
+   "purchases": 712,
    "cdns": 0
   },
   {
@@ -1316,8 +1316,8 @@
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZMCM3407K1Z4_2025 - 2026_GEN Mahabal Infrastructure A.xlsx",
    "sales": 966,
-   "purchases": 752,
-   "cdns": 32
+   "purchases": 750,
+   "cdns": 27
   },
   {
    "key": "G12B",
@@ -1333,94 +1333,94 @@
    "file": "Get Download All Report_27ZZMCM3408L1Z1_2025 - 2026_GEN Mahabal Infrastructure B.xlsx",
    "sales": 357,
    "purchases": 465,
-   "cdns": 21
+   "cdns": 19
   },
   {
    "key": "G12C",
    "fy": "2024-25",
    "file": "Get Download All Report_23ZZMCM3409M1Z6_2024 - 2025_GEN Mahabal Infrastructure C.xlsx",
-   "sales": 274,
-   "purchases": 437,
+   "sales": 277,
+   "purchases": 438,
    "cdns": 0
   },
   {
    "key": "G12C",
    "fy": "2025-26",
    "file": "Get Download All Report_23ZZMCM3409M1Z6_2025 - 2026_GEN Mahabal Infrastructure C.xlsx",
-   "sales": 298,
-   "purchases": 455,
+   "sales": 296,
+   "purchases": 454,
    "cdns": 14
   },
   {
    "key": "G13A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZSCS3510N1ZQ_2024 - 2025_GEN Sangam Motors A.xlsx",
-   "sales": 2301,
-   "purchases": 2341,
+   "sales": 2300,
+   "purchases": 2339,
    "cdns": 0
   },
   {
    "key": "G13A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZSCS3510N1ZQ_2025 - 2026_GEN Sangam Motors A.xlsx",
-   "sales": 2408,
-   "purchases": 2426,
-   "cdns": 118
+   "sales": 2411,
+   "purchases": 2428,
+   "cdns": 117
   },
   {
    "key": "G13B",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZSCS3511P1ZL_2024 - 2025_GEN Sangam Motors B.xlsx",
-   "sales": 2011,
-   "purchases": 1436,
+   "sales": 2018,
+   "purchases": 1442,
    "cdns": 0
   },
   {
    "key": "G13B",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZSCS3511P1ZL_2025 - 2026_GEN Sangam Motors B.xlsx",
-   "sales": 2095,
-   "purchases": 1503,
-   "cdns": 106
+   "sales": 2093,
+   "purchases": 1501,
+   "cdns": 102
   },
   {
    "key": "G13C",
    "fy": "2024-25",
    "file": "Get Download All Report_33ZZSCS3510N1ZX_2024 - 2025_GEN Sangam Motors C.xlsx",
-   "sales": 837,
-   "purchases": 827,
+   "sales": 836,
+   "purchases": 824,
    "cdns": 0
   },
   {
    "key": "G13C",
    "fy": "2025-26",
    "file": "Get Download All Report_33ZZSCS3510N1ZX_2025 - 2026_GEN Sangam Motors C.xlsx",
-   "sales": 869,
-   "purchases": 851,
-   "cdns": 48
+   "sales": 863,
+   "purchases": 847,
+   "cdns": 56
   },
   {
    "key": "G14A",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZACA3612Q1ZN_2024 - 2025_GEN Aarambh Textiles A.xlsx",
-   "sales": 1253,
-   "purchases": 868,
+   "sales": 1241,
+   "purchases": 858,
    "cdns": 0
   },
   {
    "key": "G14A",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZACA3612Q1ZN_2025 - 2026_GEN Aarambh Textiles A.xlsx",
-   "sales": 1261,
-   "purchases": 873,
-   "cdns": 64
+   "sales": 1258,
+   "purchases": 871,
+   "cdns": 65
   },
   {
    "key": "G14B",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZACA3612Q1ZH_2024 - 2025_GEN Aarambh Textiles B.xlsx",
-   "sales": 1237,
-   "purchases": 1032,
+   "sales": 1230,
+   "purchases": 1029,
    "cdns": 0
   },
   {
@@ -1428,175 +1428,175 @@
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZACA3612Q1ZH_2025 - 2026_GEN Aarambh Textiles B.xlsx",
    "sales": 1247,
-   "purchases": 1041,
-   "cdns": 64
+   "purchases": 1040,
+   "cdns": 72
   },
   {
    "key": "G14C",
    "fy": "2024-25",
    "file": "Get Download All Report_33ZZACA3613R1ZL_2024 - 2025_GEN Aarambh Textiles C.xlsx",
-   "sales": 1317,
-   "purchases": 1210,
+   "sales": 1310,
+   "purchases": 1203,
    "cdns": 0
   },
   {
    "key": "G14C",
    "fy": "2025-26",
    "file": "Get Download All Report_33ZZACA3613R1ZL_2025 - 2026_GEN Aarambh Textiles C.xlsx",
-   "sales": 1320,
-   "purchases": 1213,
+   "sales": 1331,
+   "purchases": 1221,
    "cdns": 79
   },
   {
    "key": "G15A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZKCK3714S1ZQ_2024 - 2025_GEN Kalpataru Chemicals A.xlsx",
-   "sales": 1420,
-   "purchases": 953,
+   "sales": 1429,
+   "purchases": 959,
    "cdns": 0
   },
   {
    "key": "G15A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZKCK3714S1ZQ_2025 - 2026_GEN Kalpataru Chemicals A.xlsx",
-   "sales": 1452,
-   "purchases": 980,
-   "cdns": 66
+   "sales": 1454,
+   "purchases": 981,
+   "cdns": 61
   },
   {
    "key": "G15B",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZKCK3715T1ZN_2024 - 2025_GEN Kalpataru Chemicals B.xlsx",
-   "sales": 1313,
-   "purchases": 1279,
+   "sales": 1316,
+   "purchases": 1282,
    "cdns": 0
   },
   {
    "key": "G15B",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZKCK3715T1ZN_2025 - 2026_GEN Kalpataru Chemicals B.xlsx",
-   "sales": 1355,
-   "purchases": 1312,
-   "cdns": 72
+   "sales": 1347,
+   "purchases": 1304,
+   "cdns": 77
   },
   {
    "key": "G17A",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZSCS3816U1Z9_2024 - 2025_GEN Suryoday Cables A.xlsx",
-   "sales": 1281,
-   "purchases": 861,
+   "sales": 1286,
+   "purchases": 866,
    "cdns": 0
   },
   {
    "key": "G17A",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZSCS3816U1Z9_2025 - 2026_GEN Suryoday Cables A.xlsx",
-   "sales": 1347,
-   "purchases": 915,
-   "cdns": 69
+   "sales": 1359,
+   "purchases": 924,
+   "cdns": 70
   },
   {
    "key": "G17B",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZSCS3816U1Z3_2024 - 2025_GEN Suryoday Cables B.xlsx",
-   "sales": 845,
-   "purchases": 797,
+   "sales": 835,
+   "purchases": 787,
    "cdns": 0
   },
   {
    "key": "G17B",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZSCS3816U1Z3_2025 - 2026_GEN Suryoday Cables B.xlsx",
-   "sales": 889,
-   "purchases": 829,
-   "cdns": 60
+   "sales": 898,
+   "purchases": 838,
+   "cdns": 52
   },
   {
    "key": "G18A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZPCP3918V1Z4_2024 - 2025_GEN Padma Packaging.xlsx",
-   "sales": 1571,
-   "purchases": 1309,
+   "sales": 1581,
+   "purchases": 1316,
    "cdns": 0
   },
   {
    "key": "G18A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZPCP3918V1Z4_2025 - 2026_GEN Padma Packaging.xlsx",
-   "sales": 1627,
-   "purchases": 1354,
+   "sales": 1623,
+   "purchases": 1350,
    "cdns": 0
   },
   {
    "key": "G20A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZMCM4020W1ZL_2024 - 2025_GEN Meghdoot Logistics.xlsx",
-   "sales": 1805,
-   "purchases": 1337,
+   "sales": 1814,
+   "purchases": 1347,
    "cdns": 0
   },
   {
    "key": "G20A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZMCM4020W1ZL_2025 - 2026_GEN Meghdoot Logistics.xlsx",
-   "sales": 1895,
-   "purchases": 1409,
+   "sales": 1900,
+   "purchases": 1415,
    "cdns": 0
   },
   {
    "key": "G22A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZVCV4122X1ZY_2024 - 2025_GEN Vishwa Tyres A.xlsx",
-   "sales": 1669,
-   "purchases": 1067,
+   "sales": 1646,
+   "purchases": 1048,
    "cdns": 0
   },
   {
    "key": "G22A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZVCV4122X1ZY_2025 - 2026_GEN Vishwa Tyres A.xlsx",
-   "sales": 1697,
-   "purchases": 1088,
-   "cdns": 70
+   "sales": 1686,
+   "purchases": 1081,
+   "cdns": 78
   },
   {
    "key": "G22B",
    "fy": "2024-25",
    "file": "Get Download All Report_24ZZVCV4122X1Z4_2024 - 2025_GEN Vishwa Tyres B.xlsx",
-   "sales": 1083,
-   "purchases": 987,
+   "sales": 1085,
+   "purchases": 989,
    "cdns": 0
   },
   {
    "key": "G22B",
    "fy": "2025-26",
    "file": "Get Download All Report_24ZZVCV4122X1Z4_2025 - 2026_GEN Vishwa Tyres B.xlsx",
-   "sales": 1113,
-   "purchases": 1011,
-   "cdns": 62
+   "sales": 1114,
+   "purchases": 1010,
+   "cdns": 66
   },
   {
    "key": "G25A",
    "fy": "2024-25",
    "file": "Get Download All Report_27ZZLCL4225Y1ZC_2024 - 2025_GEN Lakshya Solar EPC.xlsx",
-   "sales": 335,
-   "purchases": 362,
+   "sales": 331,
+   "purchases": 360,
    "cdns": 0
   },
   {
    "key": "G25A",
    "fy": "2025-26",
    "file": "Get Download All Report_27ZZLCL4225Y1ZC_2025 - 2026_GEN Lakshya Solar EPC.xlsx",
-   "sales": 409,
-   "purchases": 424,
-   "cdns": 24
+   "sales": 410,
+   "purchases": 423,
+   "cdns": 27
   }
  ],
  "ewb": {
   "noMovement": "G07 purchases from its four shell suppliers (80%) and G23 from its shell (90%) have no e-way bill: the goods never moved (B-03).",
   "suppressed": "G07 4%, G09 5%, G08 2%, G24 2% of bills move goods to unregistered buyers with no invoice in GSTR-1 (G-05).",
   "vehicleClash": "G07: 6, G23: 3 impossible journeys.",
-  "shipTo": "354 G11B -> G11A invoices delivered in Gujarat; five of FY 2025-26 charged CGST + SGST instead of IGST (D-05).",
+  "shipTo": "355 G11B -> G11A invoices delivered in Gujarat; five of FY 2025-26 charged CGST + SGST instead of IGST (D-05).",
   "exempt": "G06 deals in gold and jewellery: no e-way bills at all, and none are expected."
  }
 }

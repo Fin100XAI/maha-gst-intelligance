@@ -96,7 +96,7 @@ export default function App() {
     try {
       const r = await fetch(api(`/__registers/upload?type=${encodeURIComponent(type)}&name=${encodeURIComponent(file.name)}`), { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
       const body = await r.json();
-      if (body.ok) { await loadRegisters(); setToast(`${body.meta.title}: ${body.meta.rows} rows loaded`); }
+      if (body.ok) { await loadRegisters(); setToast(body.meta.mode === 'merge' ? `${body.meta.title}: ${body.meta.added} added, ${body.meta.updated} updated, ${body.meta.rows} rows in all` : `${body.meta.title}: ${body.meta.rows} rows loaded`); }
       return body;
     } catch (e) {
       return { ok: false, errors: [`Upload failed: ${e.message}`] };
@@ -205,6 +205,7 @@ export default function App() {
 
   // Uploads are saved on the server (data/ + rebuilt data.json) so they survive reloads and restarts.
   // If the server cannot save (static hosting, remote browser), the workbook is analysed in this browser only.
+  const [uploadProgress, setUploadProgress] = useState(null);
   const onFiles = useCallback(async (files) => {
     if (!files.length || !raw) return;
     setBusy(true);
@@ -213,15 +214,33 @@ export default function App() {
       const uploadOne = async (f) => {
         if (!/\.xlsx$/i.test(f.name) || f.size > 40 * 1024 * 1024) { problems.push(`${f.name}: .xlsx under 40 MB only`); return; }
         let r = null;
-        try { r = await fetch(api(`/__data/upload?name=${encodeURIComponent(f.name)}`), { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
+        // defer=1: save only; the batch is analysed once, after the last file
+        try { r = await fetch(api(`/__data/upload?name=${encodeURIComponent(f.name)}&defer=1`), { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
         const body = r ? await r.json().catch(() => null) : null;
         if (r?.ok && body?.ok) saved.push(body);
         else if (r && (r.status === 400 || r.status === 413)) problems.push(`${f.name}: ${body?.error || 'not a returns export'}`);
         else browserOnly.push({ f, why: body?.error || (r ? `HTTP ${r.status}` : 'server not reachable') });
       };
-      // A few uploads at a time: the server merges their rebuilds, so a bulk upload stays quick.
+      // A few uploads at a time, then one rebuild on the server in the background, with its progress shown.
       const queue = [...files];
-      await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => { while (queue.length) await uploadOne(queue.shift()); }));
+      let sent = 0;
+      setUploadProgress({ stage: 'upload', done: 0, total: files.length });
+      await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => {
+        while (queue.length) { await uploadOne(queue.shift()); setUploadProgress({ stage: 'upload', done: ++sent, total: files.length }); }
+      }));
+      if (saved.some((s) => s.deferred)) {
+        setUploadProgress({ stage: 'analyse', done: 0, total: 0 });
+        const start = await fetch(api('/__data/rebuild'), { method: 'POST' }).then((r) => r.json()).catch(() => null);
+        // A rebuild already running when the batch ended is followed by one that includes it: wait for that one.
+        const mine = start?.job?.id, waitNext = !!start?.queued;
+        for (let tries = 0; mine && tries < 1800; tries++) {
+          await new Promise((ok) => setTimeout(ok, 1000));
+          const p = await fetch(api('/__data/progress'), { cache: 'no-store' }).then((r) => r.json()).catch(() => null);
+          if (!p) continue;
+          if (waitNext ? p.id > mine : p.id === mine) setUploadProgress({ stage: 'analyse', done: p.done || 0, total: p.total || 0 });
+          if (p.finishedAt && (waitNext ? p.id > mine : p.id === mine)) { if (p.stage === 'error') problems.push(`analysis stopped: ${p.error}`); break; }
+        }
+      }
 
       let next = raw;
       if (saved.length) {
@@ -267,6 +286,7 @@ export default function App() {
       setToast(`Could not read file: ${e.message}`);
     } finally {
       setBusy(false);
+      setUploadProgress(null);
     }
   }, [raw, severity, go]);
 
@@ -407,7 +427,7 @@ export default function App() {
         {route.view === 'ai' && <AISettings data={data} ai={ai} setAi={setAi} toast={setToast} />}
         {route.view === 'scoring' && <Scoring data={data} baseTaxpayers={raw.taxpayers} cfg={cfg} onSave={setCfg} toast={setToast} />}
         {PUBLIC.has(route.view) && renderPublic(route.view, user)}
-        {route.view === 'data' && <DataMethod data={data} onFiles={onFiles} busy={busy} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
+        {route.view === 'data' && <DataMethod data={data} onFiles={onFiles} busy={busy} uploadProgress={uploadProgress} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
         </>)}
         </ErrorBoundary>
       </main>

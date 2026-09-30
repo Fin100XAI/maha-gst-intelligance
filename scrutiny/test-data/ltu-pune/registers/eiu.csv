@@ -1,0 +1,9 @@
+signal_id,gstin,risk_parameter,rule_id,fy,amount,signal_date,priority,source,remarks
+EIU-2025-0301,27ZZSCS5333C1Z4,E-commerce TCS value exceeds turnover declared,G-14,2025-26,0,14-05-2026,High,EIU e-commerce analytics,GSTR-8 of two marketplaces against GSTR-3B
+EIU-2025-0302,24ZZCCC5232B1ZA,Import IGST claimed in excess of ICEGATE bills of entry,B-09,2025-26,343000000,22-04-2026,High,EIU customs data match,Bills of entry claimed twice
+EIU-2025-0303,27ZZTCT5737H1ZK,ITC availed from suppliers not filing GSTR-3B,B-04,2025-26,1835208000,09-01-2026,High,EIU network risk run,Three suppliers registered in 2025
+EIU-2025-0304,27ZZTCT5737H1ZK,Invoices from a supplier after retrospective cancellation,,2025-26,64800245,03-03-2026,High,EIU network risk run,Registration cancelled with effect from 31-08-2025
+EIU-2025-0305,27ZZRCR5636G1ZS,Reverse charge liability under-declared,C-01,2025-26,0,18-02-2026,Medium,EIU monthly risk run,GTA services under reverse charge
+EIU-2025-0306,27ZZSCS5535F1ZU,Credit notes issued after the time limit,H-01,2025-26,0,11-05-2026,Medium,EIU monthly risk run,March 2026 credit notes against FY 2024-25 invoices
+EIU-2025-0307,27ZZPCP5838K1ZJ,GSTR-3B not filed while GSTR-1 filed,A-02,2025-26,0,20-05-2026,High,EIU return filing run,February and March 2026
+EIU-2025-0308,27ZZICI5131A1ZW,ITC on supplies with place of supply outside the State,D-02,2025-26,0,06-04-2026,Low,EIU monthly risk run,Conference services in Goa

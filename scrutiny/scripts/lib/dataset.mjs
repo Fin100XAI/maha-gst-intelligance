@@ -6,14 +6,28 @@
 //   - Every GSTIN-year also contributes its trade (per-counterparty values, filing months, flow timing) to one
 //     buyer-seller graph (network), so counterparty intelligence never needs the workbooks in the browser.
 //   - Two workbooks for the same GSTIN and year: the most recently modified wins, the other is reported.
+//   - Each workbook's analysis is cached in <dataDir>/.cache, keyed by the file's contents, the engine's code and
+//     inputs (rule severities, e-way bill simulation plan) and the stored e-way bills for that GSTIN-year, so a rebuild
+//     after an upload only analyses what changed (seconds instead of minutes). DATA_CACHE=0 turns it off.
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import * as XLSX from 'xlsx';
 import { parseWorkbook, parseRuleMatrix, parseMatrixExtras } from '../../src/engine/parse.js';
 import { analyze, portfolio } from '../../src/engine/analyze.js';
 import { baselineOf } from '../../src/engine/baseline.js';
 import { tradeOf, graphOf } from '../../src/engine/network.js';
-import { ewbFor } from '../synth/ewb.mjs';
+import { ewbFor, ewbFile, loadPlan } from '../synth/ewb.mjs';
+
+const APP_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const sha = (x) => crypto.createHash('sha256').update(x).digest('hex');
+// Everything besides the workbook that shapes its analysis: the engine and the code around it.
+const ENGINE_FILES = () => [
+  ...fs.readdirSync(path.join(APP_ROOT, 'src', 'engine')).filter((f) => /\.js$/.test(f)).sort().map((f) => path.join(APP_ROOT, 'src', 'engine', f)),
+  path.join(APP_ROOT, 'scripts', 'synth', 'ewb.mjs'), fileURLToPath(import.meta.url),
+];
+const statOf = (file) => { try { const st = fs.statSync(file); return `${st.size}:${Math.round(st.mtimeMs)}`; } catch { return 'none'; } };
 
 // Lookarounds rather than \b: file names join parts with "_", which counts as a word character.
 export const GSTIN_RE = /(?<![0-9A-Z])\d{2}[A-Z]{5}\d{4}[A-Z][0-9A-Z]Z[0-9A-Z](?![0-9A-Z])/;
@@ -46,10 +60,11 @@ export function identityOfFile(file) {
 }
 
 /**
- * @param {{ dataDir: string, now?: Date, log?: (msg: string) => void, warn?: (msg: string) => void }} opts
- * @returns {{ dataset: object, errors: string[] }}
+ * @param {{ dataDir: string, now?: Date, log?: (msg: string) => void, warn?: (msg: string) => void,
+ *   progress?: (done: number, total: number, file: string) => void, cache?: boolean }} opts
+ * @returns {{ dataset: object, errors: string[], stats: { analysed: number, cached: number } }}
  */
-export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn = () => {} }) {
+export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn = () => {}, progress = () => {}, cache = process.env.DATA_CACHE !== '0' }) {
   const files = fs.readdirSync(dataDir).filter(isWorkbook);
   const matrixFile = files.find(isRuleMatrix);
   const matrixWb = matrixFile ? XLSX.read(fs.readFileSync(path.join(dataDir, matrixFile)), { type: 'buffer' }) : null;
@@ -59,16 +74,43 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
 
   const errors = [];
   const byGstin = new Map();
-  for (const f of files.filter((x) => x !== matrixFile)) {
+  const root = path.resolve(dataDir, '..');
+  const cacheDir = path.join(dataDir, '.cache');
+  const simulate = process.env.EWB_SIMULATE !== '0';
+  const engine = cache ? sha(JSON.stringify([ENGINE_FILES().map((f) => sha(fs.readFileSync(f))), severity, simulate ? loadPlan(root).hash : 'no-sim'])) : null;
+  if (cache) fs.mkdirSync(cacheDir, { recursive: true });
+  const used = new Set();
+  const stats = { analysed: 0, cached: 0 };
+  const list = files.filter((x) => x !== matrixFile);
+  list.forEach((f, i) => {
     const file = path.join(dataDir, f);
     const t0 = Date.now();
     try {
-      const tp = parseWorkbook(XLSX.read(fs.readFileSync(file), { type: 'buffer' }), f);
-      if (!tp.gstin) { warn(`skip ${f}: no GSTIN banner`); continue; }
-      // E-way bills: the stored copy (fetched or uploaded), else a simulated fetch (scripts/synth/ewb.mjs)
-      tp.ewb = ewbFor({ dataDir, root: path.resolve(dataDir, '..'), tp });
-      const a = analyze(tp, { severity });
-      const entry = { file: f, mtime: fs.statSync(file).mtimeMs, fyStart: tp.fyStart, a, trade: tradeOf(tp) };
+      const buf = fs.readFileSync(file);
+      const cacheFile = cache ? path.join(cacheDir, `${sha(buf)}.json`) : null;
+      let hit = null;
+      if (cache && fs.existsSync(cacheFile)) {
+        try {
+          const c = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+          if (c.engine === engine && c.ewb === statOf(ewbFile(dataDir, c.gstin, c.fyStart)) && c.file === f) hit = c;
+        } catch { /* unreadable cache entry: analyse again */ }
+      }
+      let gstin, fyStart, a, trade;
+      if (hit) ({ gstin, fyStart, a, trade } = hit);
+      else {
+        const tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), f);
+        if (!tp.gstin) { warn(`skip ${f}: no GSTIN banner`); return; }
+        // E-way bills: the stored copy (fetched or uploaded), else a simulated fetch (scripts/synth/ewb.mjs)
+        tp.ewb = ewbFor({ dataDir, root, tp });
+        ({ gstin, fyStart } = tp);
+        a = analyze(tp, { severity });
+        trade = tradeOf(tp);
+        if (cache) fs.writeFileSync(cacheFile, JSON.stringify({ engine, file: f, gstin, fyStart, ewb: statOf(ewbFile(dataDir, gstin, fyStart)), a, trade }));
+      }
+      stats[hit ? 'cached' : 'analysed']++;
+      if (cache) used.add(path.basename(cacheFile));
+      const entry = { file: f, mtime: fs.statSync(file).mtimeMs, fyStart, a, trade };
+      const tp = { gstin, fyStart };
       const years = byGstin.get(tp.gstin) || new Map();
       const dup = years.get(tp.fyStart);
       if (dup) {
@@ -77,11 +119,14 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
         years.set(tp.fyStart, keep);
       } else years.set(tp.fyStart, entry);
       byGstin.set(tp.gstin, years);
-      log(`${a.name.padEnd(40)} FY ${a.fy}  score ${String(a.score).padStart(3)} ${a.band.padEnd(8)} fails ${a.results.filter((r) => r.status === 'Fail').length}  (${Date.now() - t0} ms)`);
+      log(`${a.name.padEnd(40)} FY ${a.fy}  score ${String(a.score).padStart(3)} ${a.band.padEnd(8)} fails ${a.results.filter((r) => r.status === 'Fail').length}  (${hit ? 'cached' : `${Date.now() - t0} ms`})`);
     } catch (e) {
       errors.push(`${f}: ${e.message}`);
+    } finally {
+      progress(i + 1, list.length, f);
     }
-  }
+  });
+  if (cache) for (const f of fs.readdirSync(cacheDir)) if (!used.has(f)) fs.rmSync(path.join(cacheDir, f), { force: true }); // workbooks removed or replaced
 
   const taxpayers = [];
   const baselines = {};
@@ -92,7 +137,7 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
   }
   const network = graphOf([...byGstin.values()].flatMap((years) => [...years.values()].map((e) => e.trade)));
   taxpayers.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
-  return { dataset: { generatedAt: now.toISOString(), catalog, matrix, taxpayers, baselines, network, portfolio: portfolio(taxpayers) }, errors };
+  return { dataset: { generatedAt: now.toISOString(), catalog, matrix, taxpayers, baselines, network, portfolio: portfolio(taxpayers) }, errors, stats };
 }
 
 /**

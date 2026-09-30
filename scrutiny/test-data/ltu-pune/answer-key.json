@@ -1,0 +1,1194 @@
+{
+ "generatedBy": "scripts/synth/ltu-pune.mjs (seed 27183, ltu-pune-v1)",
+ "jurisdiction": "LTU-PUNE",
+ "synthetic": true,
+ "note": "Every name, PAN and figure is invented. The groups resemble kinds of businesses in behaviour only; none represents a real company.",
+ "groups": [
+  {
+   "key": "G31",
+   "kind": "clean",
+   "sector": "Consumer durables",
+   "name": "INDRAYANI HOME APPLIANCES LIMITED",
+   "turnoverCrore": [
+    9066,
+    9792,
+    10133
+   ],
+   "registrations": [
+    {
+     "key": "G31A",
+     "gstin": "27ZZICI5131A1ZW",
+     "name": "INDRAYANI HOME APPLIANCES LIMITED",
+     "state": "27",
+     "role": "Plant and head office (Chakan)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G31B",
+     "gstin": "24ZZICI5131A1Z2",
+     "name": "INDRAYANI HOME APPLIANCES LIMITED",
+     "state": "24",
+     "role": "Depot and assembly (Sanand)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G31C",
+     "gstin": "29ZZICI5131A1ZS",
+     "name": "INDRAYANI HOME APPLIANCES LIMITED",
+     "state": "29",
+     "role": "Depot (Bengaluru)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G39",
+   "kind": "clean",
+   "sector": "Sugar and ethanol",
+   "name": "KRISHNAI SUGAR AND DISTILLERIES LIMITED",
+   "turnoverCrore": [
+    3248,
+    3466,
+    3187
+   ],
+   "registrations": [
+    {
+     "key": "G39A",
+     "gstin": "27ZZKCK5939L1ZP",
+     "name": "KRISHNAI SUGAR AND DISTILLERIES LIMITED",
+     "state": "27",
+     "role": "Sugar mill (Baramati taluka)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G39B",
+     "gstin": "27ZZKCK5940M1ZU",
+     "name": "KRISHNAI BIO-ENERGY LIMITED",
+     "state": "27",
+     "role": "Subsidiary: ethanol distillery",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G32",
+   "kind": "tricky",
+   "sector": "Edible oil refining (importer)",
+   "name": "CHANDRABHAGA EDIBLE OILS LIMITED",
+   "turnoverCrore": [
+    13750,
+    14545,
+    15230
+   ],
+   "registrations": [
+    {
+     "key": "G32A",
+     "gstin": "24ZZCCC5232B1ZA",
+     "name": "CHANDRABHAGA EDIBLE OILS LIMITED",
+     "state": "24",
+     "role": "Port refinery (Kandla)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G32B",
+     "gstin": "27ZZCCC5232B1Z4",
+     "name": "CHANDRABHAGA EDIBLE OILS LIMITED",
+     "state": "27",
+     "role": "Packing unit and depot (Pune)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G34",
+   "kind": "tricky",
+   "sector": "Infrastructure (EPC, government contracts)",
+   "name": "LENYADRI INFRA PROJECTS LIMITED",
+   "turnoverCrore": [
+    5891,
+    6798,
+    6438
+   ],
+   "registrations": [
+    {
+     "key": "G34A",
+     "gstin": "27ZZLCL5434D1ZE",
+     "name": "LENYADRI INFRA PROJECTS LIMITED",
+     "state": "27",
+     "role": "Parent EPC contractor (Pune)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G34B",
+     "gstin": "27ZZLCL5435E1ZB",
+     "name": "LENYADRI RING ROAD INFRA PROJECTS PRIVATE LIMITED",
+     "state": "27",
+     "role": "SPV: ring-road project",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": false
+    },
+    {
+     "key": "G34C",
+     "gstin": "29ZZLCL5434D1ZA",
+     "name": "LENYADRI INFRA PROJECTS LIMITED",
+     "state": "29",
+     "role": "Branch: metro package (Bengaluru)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G33",
+   "kind": "risky",
+   "sector": "Online retail (marketplace seller)",
+   "name": "SHIVNERI E-RETAIL PRIVATE LIMITED",
+   "turnoverCrore": [
+    1141,
+    1950,
+    3150
+   ],
+   "registrations": [
+    {
+     "key": "G33A",
+     "gstin": "27ZZSCS5333C1Z4",
+     "name": "SHIVNERI E-RETAIL PRIVATE LIMITED",
+     "state": "27",
+     "role": "Fulfilment centre (Bhiwandi)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G33B",
+     "gstin": "29ZZSCS5333C1Z0",
+     "name": "SHIVNERI E-RETAIL PRIVATE LIMITED",
+     "state": "29",
+     "role": "Fulfilment centre (Bengaluru)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G35",
+   "kind": "risky",
+   "sector": "FMCG distribution (super-stockist)",
+   "name": "SINHAGAD CONSUMER DISTRIBUTORS PRIVATE LIMITED",
+   "turnoverCrore": [
+    2397,
+    2496,
+    2204
+   ],
+   "registrations": [
+    {
+     "key": "G35A",
+     "gstin": "27ZZSCS5535F1ZU",
+     "name": "SINHAGAD CONSUMER DISTRIBUTORS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Head office and warehouse (Pune)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G35B",
+     "gstin": "30ZZSCS5535F1Z7",
+     "name": "SINHAGAD CONSUMER DISTRIBUTORS PRIVATE LIMITED",
+     "state": "30",
+     "role": "Depot (Verna, Goa)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G36",
+   "kind": "risky",
+   "sector": "Steel re-rolling",
+   "name": "RAJGAD STEEL RE-ROLLERS PRIVATE LIMITED",
+   "turnoverCrore": [
+    3461,
+    3733,
+    3024
+   ],
+   "registrations": [
+    {
+     "key": "G36A",
+     "gstin": "27ZZRCR5636G1ZS",
+     "name": "RAJGAD STEEL RE-ROLLERS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Rolling mill (Jalna)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    }
+   ]
+  },
+  {
+   "key": "G37",
+   "kind": "risky",
+   "sector": "Commodity trading (metals and polymers)",
+   "name": "TORNA COMMODITY TRADERS PRIVATE LIMITED",
+   "turnoverCrore": [
+    83,
+    970,
+    3713
+   ],
+   "registrations": [
+    {
+     "key": "G37A",
+     "gstin": "27ZZTCT5737H1ZK",
+     "name": "TORNA COMMODITY TRADERS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Trading office (Vashi, Navi Mumbai)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    },
+    {
+     "key": "G37B",
+     "gstin": "24ZZTFT5738J1ZE",
+     "name": "TORNA IMPEX LLP",
+     "state": "24",
+     "role": "Related party (common partners)",
+     "years": [
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": false
+    }
+   ]
+  },
+  {
+   "key": "G38",
+   "kind": "risky",
+   "sector": "Non-ferrous scrap trading",
+   "name": "PURANDAR METALS AND ALLOYS PRIVATE LIMITED",
+   "turnoverCrore": [
+    1903,
+    2115,
+    2215
+   ],
+   "registrations": [
+    {
+     "key": "G38A",
+     "gstin": "27ZZPCP5838K1ZJ",
+     "name": "PURANDAR METALS AND ALLOYS PRIVATE LIMITED",
+     "state": "27",
+     "role": "Scrap yard (Kurkumbh)",
+     "years": [
+      "2023-24",
+      "2024-25",
+      "2025-26"
+     ],
+     "samePanAsParent": true
+    }
+   ]
+  }
+ ],
+ "planted": {
+  "G31": "Clean benchmark. Imports compressors (bills of entry match 3B 4A(1)). January 2026 dealer conference at a Goa resort: place of supply Goa, GSTR-2B marks the ITC not available and it is not disclosed in 4D(2) (D-02). Air-conditioner rate falls from 28% to 18% on 22-09-2025.",
+  "G32": "Large importer of crude palm and soyabean oil. FY 2025-26: 3B 4A(1) import ITC exceeds the IGST on ICEGATE bills of entry by Rs 34.3 crore in four months (B-09). Same-PAN stock transfers Kandla -> Pune.",
+  "G33": "Marketplace seller: 85% of sales to consumers through two e-commerce operators who collect TCS. From July 2025 a third of those sales is left out of GSTR-1 and GSTR-3B, so the operators' TCS statements exceed the turnover declared for FY 2025-26 (G-14). Turnover nearly triples over three years.",
+  "G34": "EPC contractor for government departments that deduct TDS (G-14 passes: TDS base within turnover). Milestone billing (turnover spike prompt). January 2026: FY 2024-25 sub-contractor invoices reach GSTR-2B late and are claimed after 30 November (B-07). Rajgad Steel files its Feb-Mar 2026 GSTR-1 late, so Lenyadri's GSTR-2B shows less than Rajgad reported (network: seller and buyer records differ).",
+  "G35": "FMCG super-stockist. Credit notes rise from 2% to 9.5% of sales, bunched in March; in FY 2025-26 a quarter of them are issued after 30 November against FY 2024-25 invoices (H-01) and a third carry no invoice reference (H-02). Turnover falls in FY 2025-26.",
+  "G36": "Steel re-roller. FY 2024-25 and 2025-26: reverse-charge GTA tax declared at 40% while RCM ITC is taken in full (C-01, C-02). FY 2025-26: quarterly price-protection credit notes from its mills (4.5%) not netted from ITC (B-01, H-06). Genuine fall in business in FY 2025-26.",
+  "G37": "Commodity trader growing from about Rs 80 crore to about Rs 3,700 crore in three years. FY 2025-26: three shell suppliers (no GSTR-3B) resold within days at under 1% in round lakh amounts; goods never moved (no e-way bills); six shell invoices twice in GSTR-2B; a tenth of sales invoices charge tax on 90% of the value; sales to a customer whose GSTIN fails its check digit; a supplier cancelled retrospectively from 31-08-2025 whose later invoices are in GSTR-2B; related LLP in Gujarat registered May 2024 trading at full volume from its first month; no IRN in FY 2023-24 and 2024-25, and an eighth of invoices without IRN in FY 2025-26.",
+  "G38": "Non-ferrous scrap dealer. A fifth of sales invoices dated on Sundays; consignments to Gujarat split just under the Rs 50,000 inter-state e-way bill limit; e-way bills for goods moved with no invoice in GSTR-1 (G-05); three late returns in FY 2024-25 with the late fee but no interest (J-01); GSTR-3B for February and March 2026 not filed though GSTR-1 was (A-02).",
+  "G39": "Clean benchmark with seasonal (crushing) sales. Molasses rate falls from 28% to 5% on 07-10-2023. The distillery loses most of its largest ethanol customer's allocation in FY 2025-26."
+ },
+ "expectations": [
+  {
+   "key": "G31A",
+   "fy": "2025-26",
+   "rules": {
+    "D-02": "Review",
+    "B-09": "Pass",
+    "B-01": "Pass"
+   },
+   "gstin": "27ZZICI5131A1ZW"
+  },
+  {
+   "key": "G31A",
+   "fy": "2024-25",
+   "rules": {
+    "B-09": "Pass",
+    "D-02": "Pass"
+   },
+   "gstin": "27ZZICI5131A1ZW"
+  },
+  {
+   "key": "G32A",
+   "fy": "2025-26",
+   "rules": {
+    "B-09": "Fail"
+   },
+   "gstin": "24ZZCCC5232B1ZA"
+  },
+  {
+   "key": "G32A",
+   "fy": "2024-25",
+   "rules": {
+    "B-09": "Pass"
+   },
+   "gstin": "24ZZCCC5232B1ZA"
+  },
+  {
+   "key": "G33A",
+   "fy": "2025-26",
+   "rules": {
+    "G-14": "Fail"
+   },
+   "gstin": "27ZZSCS5333C1Z4"
+  },
+  {
+   "key": "G33B",
+   "fy": "2025-26",
+   "rules": {
+    "G-14": "Fail"
+   },
+   "gstin": "29ZZSCS5333C1Z0"
+  },
+  {
+   "key": "G33A",
+   "fy": "2024-25",
+   "rules": {
+    "G-14": "Pass"
+   },
+   "gstin": "27ZZSCS5333C1Z4"
+  },
+  {
+   "key": "G34A",
+   "fy": "2025-26",
+   "rules": {
+    "B-07": "Fail",
+    "G-14": "Pass"
+   },
+   "gstin": "27ZZLCL5434D1ZE"
+  },
+  {
+   "key": "G34A",
+   "fy": "2024-25",
+   "rules": {
+    "B-07": "Pass",
+    "G-14": "Pass"
+   },
+   "gstin": "27ZZLCL5434D1ZE"
+  },
+  {
+   "key": "G35A",
+   "fy": "2025-26",
+   "rules": {
+    "H-01": "Fail",
+    "H-02": "Review"
+   },
+   "flags": [
+    "cn"
+   ],
+   "gstin": "27ZZSCS5535F1ZU"
+  },
+  {
+   "key": "G35A",
+   "fy": "2023-24",
+   "rules": {
+    "H-01": "Pass",
+    "H-02": "Pass"
+   },
+   "gstin": "27ZZSCS5535F1ZU"
+  },
+  {
+   "key": "G36A",
+   "fy": "2025-26",
+   "rules": {
+    "B-01": "Fail",
+    "H-06": "Fail",
+    "C-01": "Fail",
+    "C-02": "Fail"
+   },
+   "gstin": "27ZZRCR5636G1ZS"
+  },
+  {
+   "key": "G36A",
+   "fy": "2024-25",
+   "rules": {
+    "C-01": "Fail",
+    "C-02": "Fail",
+    "H-06": "Pass",
+    "B-01": "Pass"
+   },
+   "gstin": "27ZZRCR5636G1ZS"
+  },
+  {
+   "key": "G36A",
+   "fy": "2023-24",
+   "rules": {
+    "C-01": "Pass",
+    "C-02": "Pass"
+   },
+   "gstin": "27ZZRCR5636G1ZS"
+  },
+  {
+   "key": "G37A",
+   "fy": "2025-26",
+   "rules": {
+    "A-01": "Fail",
+    "B-08": "Fail",
+    "G-10": "Fail",
+    "G-03": "Fail",
+    "B-03": "Fail",
+    "B-04": "Review"
+   },
+   "flags": [
+    "round",
+    "dup",
+    "arith",
+    "nonfiler"
+   ],
+   "gstin": "27ZZTCT5737H1ZK"
+  },
+  {
+   "key": "G37A",
+   "fy": "2024-25",
+   "rules": {
+    "G-03": "Review"
+   },
+   "gstin": "27ZZTCT5737H1ZK"
+  },
+  {
+   "key": "G38A",
+   "fy": "2025-26",
+   "rules": {
+    "A-02": "Fail",
+    "G-05": "Fail"
+   },
+   "flags": [
+    "ewb"
+   ],
+   "prompts": [
+    "sunday"
+   ],
+   "gstin": "27ZZPCP5838K1ZJ"
+  },
+  {
+   "key": "G38A",
+   "fy": "2024-25",
+   "rules": {
+    "J-01": "Fail",
+    "J-03": "Pass"
+   },
+   "gstin": "27ZZPCP5838K1ZJ"
+  }
+ ],
+ "workbooks": [
+  {
+   "key": "G31A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZICI5131A1ZW_2023 - 2024_GEN Indrayani Home Appliances A.xlsx",
+   "sales": 2159,
+   "purchases": 1441,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 65,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZICI5131A1ZW_2024 - 2025_GEN Indrayani Home Appliances A.xlsx",
+   "sales": 2232,
+   "purchases": 1488,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 58,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZICI5131A1ZW_2025 - 2026_GEN Indrayani Home Appliances A.xlsx",
+   "sales": 2279,
+   "purchases": 1520,
+   "cdns": 291,
+   "b2cs": 0,
+   "imports": 57,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31B",
+   "fy": "2023-24",
+   "file": "Get Download All Report_24ZZICI5131A1Z2_2023 - 2024_GEN Indrayani Home Appliances B.xlsx",
+   "sales": 1078,
+   "purchases": 1066,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZICI5131A1Z2_2024 - 2025_GEN Indrayani Home Appliances B.xlsx",
+   "sales": 1121,
+   "purchases": 1100,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZICI5131A1Z2_2025 - 2026_GEN Indrayani Home Appliances B.xlsx",
+   "sales": 1140,
+   "purchases": 1127,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31C",
+   "fy": "2023-24",
+   "file": "Get Download All Report_29ZZICI5131A1ZS_2023 - 2024_GEN Indrayani Home Appliances C.xlsx",
+   "sales": 948,
+   "purchases": 915,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_29ZZICI5131A1ZS_2024 - 2025_GEN Indrayani Home Appliances C.xlsx",
+   "sales": 989,
+   "purchases": 959,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G31C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_29ZZICI5131A1ZS_2025 - 2026_GEN Indrayani Home Appliances C.xlsx",
+   "sales": 1020,
+   "purchases": 982,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G39A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZKCK5939L1ZP_2023 - 2024_GEN Krishnai Sugar A.xlsx",
+   "sales": 997,
+   "purchases": 662,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G39A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZKCK5939L1ZP_2024 - 2025_GEN Krishnai Sugar A.xlsx",
+   "sales": 1043,
+   "purchases": 692,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G39A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZKCK5939L1ZP_2025 - 2026_GEN Krishnai Sugar A.xlsx",
+   "sales": 986,
+   "purchases": 654,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G39B",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZKCK5940M1ZU_2023 - 2024_GEN Krishnai Sugar B.xlsx",
+   "sales": 479,
+   "purchases": 503,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G39B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZKCK5940M1ZU_2024 - 2025_GEN Krishnai Sugar B.xlsx",
+   "sales": 491,
+   "purchases": 525,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G39B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZKCK5940M1ZU_2025 - 2026_GEN Krishnai Sugar B.xlsx",
+   "sales": 470,
+   "purchases": 495,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G32A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_24ZZCCC5232B1ZA_2023 - 2024_GEN Chandrabhaga Edible Oils A.xlsx",
+   "sales": 1613,
+   "purchases": 1050,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 63,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G32A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZCCC5232B1ZA_2024 - 2025_GEN Chandrabhaga Edible Oils A.xlsx",
+   "sales": 1661,
+   "purchases": 1078,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 66,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G32A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZCCC5232B1ZA_2025 - 2026_GEN Chandrabhaga Edible Oils A.xlsx",
+   "sales": 1705,
+   "purchases": 1103,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 55,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G32B",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZCCC5232B1Z4_2023 - 2024_GEN Chandrabhaga Edible Oils B.xlsx",
+   "sales": 1759,
+   "purchases": 1642,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 59,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G32B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZCCC5232B1Z4_2024 - 2025_GEN Chandrabhaga Edible Oils B.xlsx",
+   "sales": 1793,
+   "purchases": 1680,
+   "cdns": 174,
+   "b2cs": 0,
+   "imports": 51,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G32B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZCCC5232B1Z4_2025 - 2026_GEN Chandrabhaga Edible Oils B.xlsx",
+   "sales": 1844,
+   "purchases": 1731,
+   "cdns": 208,
+   "b2cs": 0,
+   "imports": 56,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G34A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZLCL5434D1ZE_2023 - 2024_GEN Lenyadri Infra A.xlsx",
+   "sales": 582,
+   "purchases": 445,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 343,
+   "tcs": 0
+  },
+  {
+   "key": "G34A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZLCL5434D1ZE_2024 - 2025_GEN Lenyadri Infra A.xlsx",
+   "sales": 625,
+   "purchases": 472,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 371,
+   "tcs": 0
+  },
+  {
+   "key": "G34A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZLCL5434D1ZE_2025 - 2026_GEN Lenyadri Infra A.xlsx",
+   "sales": 611,
+   "purchases": 469,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 359,
+   "tcs": 0
+  },
+  {
+   "key": "G34B",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZLCL5435E1ZB_2023 - 2024_GEN Lenyadri Infra B.xlsx",
+   "sales": 222,
+   "purchases": 321,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 222,
+   "tcs": 0
+  },
+  {
+   "key": "G34B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZLCL5435E1ZB_2024 - 2025_GEN Lenyadri Infra B.xlsx",
+   "sales": 237,
+   "purchases": 346,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 237,
+   "tcs": 0
+  },
+  {
+   "key": "G34B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZLCL5435E1ZB_2025 - 2026_GEN Lenyadri Infra B.xlsx",
+   "sales": 229,
+   "purchases": 339,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 229,
+   "tcs": 0
+  },
+  {
+   "key": "G34C",
+   "fy": "2023-24",
+   "file": "Get Download All Report_29ZZLCL5434D1ZA_2023 - 2024_GEN Lenyadri Infra C.xlsx",
+   "sales": 200,
+   "purchases": 220,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 200,
+   "tcs": 0
+  },
+  {
+   "key": "G34C",
+   "fy": "2024-25",
+   "file": "Get Download All Report_29ZZLCL5434D1ZA_2024 - 2025_GEN Lenyadri Infra C.xlsx",
+   "sales": 213,
+   "purchases": 230,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 213,
+   "tcs": 0
+  },
+  {
+   "key": "G34C",
+   "fy": "2025-26",
+   "file": "Get Download All Report_29ZZLCL5434D1ZA_2025 - 2026_GEN Lenyadri Infra C.xlsx",
+   "sales": 207,
+   "purchases": 225,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 207,
+   "tcs": 0
+  },
+  {
+   "key": "G33A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZSCS5333C1Z4_2023 - 2024_GEN Shivneri E-Retail A.xlsx",
+   "sales": 849,
+   "purchases": 681,
+   "cdns": 0,
+   "b2cs": 240,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 24
+  },
+  {
+   "key": "G33A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSCS5333C1Z4_2024 - 2025_GEN Shivneri E-Retail A.xlsx",
+   "sales": 1103,
+   "purchases": 883,
+   "cdns": 0,
+   "b2cs": 240,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 24
+  },
+  {
+   "key": "G33A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSCS5333C1Z4_2025 - 2026_GEN Shivneri E-Retail A.xlsx",
+   "sales": 1393,
+   "purchases": 1114,
+   "cdns": 0,
+   "b2cs": 240,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 24
+  },
+  {
+   "key": "G33B",
+   "fy": "2023-24",
+   "file": "Get Download All Report_29ZZSCS5333C1Z0_2023 - 2024_GEN Shivneri E-Retail B.xlsx",
+   "sales": 536,
+   "purchases": 429,
+   "cdns": 0,
+   "b2cs": 240,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 24
+  },
+  {
+   "key": "G33B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_29ZZSCS5333C1Z0_2024 - 2025_GEN Shivneri E-Retail B.xlsx",
+   "sales": 710,
+   "purchases": 568,
+   "cdns": 0,
+   "b2cs": 240,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 24
+  },
+  {
+   "key": "G33B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_29ZZSCS5333C1Z0_2025 - 2026_GEN Shivneri E-Retail B.xlsx",
+   "sales": 907,
+   "purchases": 726,
+   "cdns": 0,
+   "b2cs": 240,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 24
+  },
+  {
+   "key": "G35A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZSCS5535F1ZU_2023 - 2024_GEN Sinhagad Consumer A.xlsx",
+   "sales": 1916,
+   "purchases": 1664,
+   "cdns": 172,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G35A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZSCS5535F1ZU_2024 - 2025_GEN Sinhagad Consumer A.xlsx",
+   "sales": 1954,
+   "purchases": 1695,
+   "cdns": 448,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G35A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZSCS5535F1ZU_2025 - 2026_GEN Sinhagad Consumer A.xlsx",
+   "sales": 1835,
+   "purchases": 1602,
+   "cdns": 415,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G35B",
+   "fy": "2023-24",
+   "file": "Get Download All Report_30ZZSCS5535F1Z7_2023 - 2024_GEN Sinhagad Consumer B.xlsx",
+   "sales": 1078,
+   "purchases": 861,
+   "cdns": 34,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G35B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_30ZZSCS5535F1Z7_2024 - 2025_GEN Sinhagad Consumer B.xlsx",
+   "sales": 1103,
+   "purchases": 882,
+   "cdns": 53,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G35B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_30ZZSCS5535F1Z7_2025 - 2026_GEN Sinhagad Consumer B.xlsx",
+   "sales": 1042,
+   "purchases": 834,
+   "cdns": 63,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G36A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZRCR5636G1ZS_2023 - 2024_GEN Rajgad Steel.xlsx",
+   "sales": 1473,
+   "purchases": 1161,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G36A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZRCR5636G1ZS_2024 - 2025_GEN Rajgad Steel.xlsx",
+   "sales": 1526,
+   "purchases": 1204,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G36A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZRCR5636G1ZS_2025 - 2026_GEN Rajgad Steel.xlsx",
+   "sales": 1378,
+   "purchases": 1086,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G37A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZTCT5737H1ZK_2023 - 2024_GEN Torna Commodity A.xlsx",
+   "sales": 763,
+   "purchases": 655,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G37A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZTCT5737H1ZK_2024 - 2025_GEN Torna Commodity A.xlsx",
+   "sales": 2138,
+   "purchases": 1826,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G37A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZTCT5737H1ZK_2025 - 2026_GEN Torna Commodity A.xlsx",
+   "sales": 3683,
+   "purchases": 3202,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G37B",
+   "fy": "2024-25",
+   "file": "Get Download All Report_24ZZTFT5738J1ZE_2024 - 2025_GEN Torna Commodity B.xlsx",
+   "sales": 974,
+   "purchases": 844,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G37B",
+   "fy": "2025-26",
+   "file": "Get Download All Report_24ZZTFT5738J1ZE_2025 - 2026_GEN Torna Commodity B.xlsx",
+   "sales": 1698,
+   "purchases": 1500,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G38A",
+   "fy": "2023-24",
+   "file": "Get Download All Report_27ZZPCP5838K1ZJ_2023 - 2024_GEN Purandar Metals.xlsx",
+   "sales": 2205,
+   "purchases": 1293,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G38A",
+   "fy": "2024-25",
+   "file": "Get Download All Report_27ZZPCP5838K1ZJ_2024 - 2025_GEN Purandar Metals.xlsx",
+   "sales": 2297,
+   "purchases": 1392,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  },
+  {
+   "key": "G38A",
+   "fy": "2025-26",
+   "file": "Get Download All Report_27ZZPCP5838K1ZJ_2025 - 2026_GEN Purandar Metals.xlsx",
+   "sales": 2661,
+   "purchases": 1491,
+   "cdns": 0,
+   "b2cs": 0,
+   "imports": 0,
+   "tds": 0,
+   "tcs": 0
+  }
+ ],
+ "ewb": {
+  "noMovement": "G37 purchases from its three shell suppliers (85%) have no e-way bill: the goods never moved (B-03).",
+  "suppressed": "G38 5% and G37 3% of bills move goods to unregistered buyers with no invoice in GSTR-1 (G-05).",
+  "vehicleClash": "G38: 3, G37: 4 impossible journeys."
+ }
+}

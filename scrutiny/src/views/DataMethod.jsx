@@ -23,20 +23,20 @@ function Step({ n, title, lead, points, status, children, tour }) {
   );
 }
 
-export default function DataMethod({ data, onFiles, busy, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
+export default function DataMethod({ data, onFiles, busy, uploadProgress, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
   const years = Object.values(data.baselines || {}).reduce((s, b) => s + b.length, 0) || data.taxpayers.length;
   const regLoaded = registers ? Object.keys(REGISTERS).filter((t) => registers[t]).length : 0;
   return (
     <div className="page">
       <PageHead title="Upload data" path={`${int(data.taxpayers.length)} taxpayers · ${int(years)} returns files · ${regLoaded} of ${Object.keys(REGISTERS).length} registers loaded`} />
 
-      <div className="note">Three kinds of file feed the platform. Each file is checked before it is saved, and a file that fails never replaces what is already loaded. Saving works from the computer running the platform.</div>
+      <div className="note">Three kinds of file feed the platform. Each file is checked before it is saved, and uploads add to what is already loaded: nothing already saved is removed, and a file that fails changes nothing.</div>
 
       <Step n={1} tour="upload-returns" title="Returns files"
         lead="The “Get Download All Report” Excel export: one file per taxpayer per financial year."
         points={['Upload the file as exported. Do not rename its sheets or columns.', 'Choose several files at once if you like. A second file for the same taxpayer and year replaces the first, which is kept.', 'Excel (.xlsx), up to 40 MB each.']}
         status={<span className="chip good">{int(data.taxpayers.length)} taxpayers loaded</span>}>
-        <ReturnsDrop onFiles={onFiles} busy={busy} />
+        <ReturnsDrop onFiles={onFiles} busy={busy} progress={uploadProgress} />
         <details className="up-more">
           <summary>Show loaded taxpayers</summary>
           <Loaded data={data} openTaxpayer={openTaxpayer} openReport={openReport} />
@@ -45,7 +45,7 @@ export default function DataMethod({ data, onFiles, busy, openTaxpayer, openRepo
 
       <Step n={2} tour="upload-registers" title="Registers"
         lead="Five lists covering the whole jurisdiction. Upload each one on its own row."
-        points={['Start from the template: column names in row 1. CSV or Excel.', 'Always upload the complete list. A new upload replaces the previous one, which is kept.', 'Every row is checked. If anything is wrong, nothing is saved and every problem is listed.']}
+        points={['Start from the template: column names in row 1. CSV or Excel.', 'An upload adds its rows: new rows are added, a row for the same GSTIN or ID is updated, and every row already saved stays. The previous version is also kept.', 'Every row is checked. If anything is wrong, nothing is saved and every problem is listed.']}
         status={<span className={`chip ${regLoaded === Object.keys(REGISTERS).length ? 'good' : ''}`}>{regLoaded} of {Object.keys(REGISTERS).length} loaded</span>}>
         <div className="up-registers"><RegisterList registers={registers} onUpload={onRegisterUpload} /></div>
       </Step>
@@ -74,14 +74,23 @@ export default function DataMethod({ data, onFiles, busy, openTaxpayer, openRepo
   );
 }
 
-function ReturnsDrop({ onFiles, busy }) {
+// progress: { stage: 'upload' | 'analyse', done, total } while a batch is being saved and then analysed
+function ReturnsDrop({ onFiles, busy, progress }) {
   const [hot, setHot] = useState(false);
   const input = useRef(null);
   const drop = (e) => { e.preventDefault(); setHot(false); onFiles([...e.dataTransfer.files]); };
+  const text = !busy ? 'Drop returns files here'
+    : progress?.stage === 'upload' ? `Saving files · ${int(progress.done)} of ${int(progress.total)}`
+      : progress?.stage === 'analyse' ? (progress.total ? `Analysing returns · ${int(progress.done)} of ${int(progress.total)}` : 'Analysing returns…')
+        : 'Saving and analysing…';
+  const share = progress?.total ? progress.done / progress.total : 0;
   return (
     <div className={`drop ${hot ? 'hot' : ''}`} onDragOver={(e) => { e.preventDefault(); setHot(true); }} onDragLeave={() => setHot(false)} onDrop={drop}>
       <Icon name="upload" size={26} />
-      <div style={{ fontWeight: 600, marginTop: 4 }}>{busy ? 'Saving and analysing…' : 'Drop returns files here'}</div>
+      <div style={{ fontWeight: 600, marginTop: 4 }}>{text}</div>
+      {busy && progress && (
+        <div className="kpi" style={{ padding: 0, margin: '8px auto 0', maxWidth: 360 }}><div className="bar" style={{ marginTop: 0 }}><i style={{ width: `${Math.max(2, share * 100)}%`, background: 'var(--brand)', transition: 'width .5s' }} /></div></div>
+      )}
       <div className="muted" style={{ margin: '4px 0 12px' }}>or</div>
       <button className="btn primary" onClick={() => input.current?.click()} disabled={busy}>Choose files</button>
       <input ref={input} type="file" accept=".xlsx" multiple hidden onChange={(e) => { onFiles([...e.target.files]); e.target.value = ''; }} />
