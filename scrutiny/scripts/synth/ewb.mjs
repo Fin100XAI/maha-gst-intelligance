@@ -177,6 +177,6 @@ export function ewbFor({ dataDir, root, tp, simulate: sim = process.env.EWB_SIMU
   if (!sim) return null;
   const { outward, inward } = simulate(tp, plan);
   const meta = { gstin: tp.gstin, fy: tp.fyStart, source: 'simulated', version: SIM_VERSION, plan: plan.hash, fetchedAt: new Date().toISOString() };
-  writeEwb(file, { meta, outward, inward });
+  try { writeEwb(file, { meta, outward, inward }); } catch { /* not stored (e.g. folder permissions): fetched again next time */ }
   return { ...meta, outward, inward };
 }
