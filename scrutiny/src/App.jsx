@@ -206,16 +206,46 @@ export default function App() {
   // Uploads are saved on the server (data/ + rebuilt data.json) so they survive reloads and restarts.
   // If the server cannot save (static hosting, remote browser), the workbook is analysed in this browser only.
   const [uploadProgress, setUploadProgress] = useState(null);
+  // The upload log (server): each batch's files and the analysis that followed, newest first. null = no server store.
+  const [uploads, setUploads] = useState(null);
+  const loadUploads = useCallback(() => fetch(api('/__data/uploads'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((v) => setUploads(v && Array.isArray(v.batches) ? v : null)).catch(() => setUploads(null)), []);
+  useEffect(() => { loadUploads(); }, [loadUploads]);
+  // Analyse on the server in the background and follow its progress. Returns the finished run (or null).
+  const analyseOnServer = useCallback(async (batch) => {
+    setUploadProgress({ stage: 'analyse', done: 0, total: 0 });
+    const start = await fetch(api(`/__data/rebuild${batch ? `?batch=${batch}` : ''}`), { method: 'POST' }).then((r) => r.json()).catch(() => null);
+    // A run already going when the batch ended is followed by one that includes it: wait for that one.
+    const mine = start?.job?.id, waitNext = !!start?.queued;
+    for (let tries = 0; mine && tries < 1800; tries++) {
+      await new Promise((ok) => setTimeout(ok, 1000));
+      const p = await fetch(api('/__data/progress'), { cache: 'no-store' }).then((r) => r.json()).catch(() => null);
+      if (!p || !(waitNext ? p.id > mine : p.id === mine)) continue;
+      setUploadProgress({ stage: 'analyse', done: p.done || 0, total: p.total || 0 });
+      if (p.finishedAt) return p;
+    }
+    return null;
+  }, []);
+  // Analyse again (e.g. after a failed run): the files are already saved.
+  const retryAnalysis = useCallback(async (batch) => {
+    setBusy(true);
+    try {
+      const run = await analyseOnServer(batch);
+      await reloadData();
+      await loadUploads();
+      setToast(run?.stage === 'done' ? 'Analysis finished: the dashboard shows the uploaded data' : `Analysis did not finish: ${run?.error || 'no answer from the server'}`);
+    } finally { setBusy(false); setUploadProgress(null); }
+  }, [analyseOnServer, reloadData, loadUploads]);
   const onFiles = useCallback(async (files) => {
     if (!files.length || !raw) return;
     setBusy(true);
+    const batch = `b${Date.now()}`;
     try {
       const saved = [], browserOnly = [], problems = [];
       const uploadOne = async (f) => {
         if (!/\.xlsx$/i.test(f.name) || f.size > 40 * 1024 * 1024) { problems.push(`${f.name}: .xlsx under 40 MB only`); return; }
         let r = null;
         // defer=1: save only; the batch is analysed once, after the last file
-        try { r = await fetch(api(`/__data/upload?name=${encodeURIComponent(f.name)}&defer=1`), { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
+        try { r = await fetch(api(`/__data/upload?name=${encodeURIComponent(f.name)}&defer=1&batch=${batch}`), { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
         const body = r ? await r.json().catch(() => null) : null;
         if (r?.ok && body?.ok) saved.push(body);
         else if (r && (r.status === 400 || r.status === 413)) problems.push(`${f.name}: ${body?.error || 'not a returns export'}`);
@@ -228,19 +258,9 @@ export default function App() {
       await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => {
         while (queue.length) { await uploadOne(queue.shift()); setUploadProgress({ stage: 'upload', done: ++sent, total: files.length }); }
       }));
-      if (saved.some((s) => s.deferred)) {
-        setUploadProgress({ stage: 'analyse', done: 0, total: 0 });
-        const start = await fetch(api('/__data/rebuild'), { method: 'POST' }).then((r) => r.json()).catch(() => null);
-        // A rebuild already running when the batch ended is followed by one that includes it: wait for that one.
-        const mine = start?.job?.id, waitNext = !!start?.queued;
-        for (let tries = 0; mine && tries < 1800; tries++) {
-          await new Promise((ok) => setTimeout(ok, 1000));
-          const p = await fetch(api('/__data/progress'), { cache: 'no-store' }).then((r) => r.json()).catch(() => null);
-          if (!p) continue;
-          if (waitNext ? p.id > mine : p.id === mine) setUploadProgress({ stage: 'analyse', done: p.done || 0, total: p.total || 0 });
-          if (p.finishedAt && (waitNext ? p.id > mine : p.id === mine)) { if (p.stage === 'error') problems.push(`analysis stopped: ${p.error}`); break; }
-        }
-      }
+      let run = null;
+      if (saved.some((s) => s.deferred)) run = await analyseOnServer(batch);
+      else if (problems.length) await fetch(api(`/__data/rebuild?batch=${batch}`), { method: 'POST' }).catch(() => null); // only rejected files: close the batch
 
       let next = raw;
       if (saved.length) {
@@ -267,28 +287,27 @@ export default function App() {
         }
       }
       if (next !== raw) setRaw(next);
+      await loadUploads(); // after the fresh data, so the report never shows a finished analysis without its results
 
       const nameOf = (gstin) => next.taxpayers.find((t) => t.gstin === gstin)?.name || gstin;
       const msgs = [];
       if (saved.length) {
-        // One line however many files: "Saved 46 workbooks for 16 taxpayers: A, B, C and 13 more".
+        // The full result is the upload report on this page; the toast says it in one line.
         const names = [...new Set(saved.map((s) => nameOf(s.gstin)))];
-        const list = names.length > 3 ? `${names.slice(0, 3).join(', ')} and ${names.length - 3} more` : names.join(', ');
-        msgs.push(`Saved ${saved.length} workbook${saved.length > 1 ? 's' : ''} for ${names.length} taxpayer${names.length > 1 ? 's' : ''}: ${list}${saved.some((s) => s.replaced) ? ' (earlier workbooks for the same year kept in data/superseded)' : ''}`);
+        msgs.push(run?.stage === 'done' ? `Uploaded and analysed ${saved.length} file${saved.length > 1 ? 's' : ''} for ${names.length} taxpayer${names.length > 1 ? 's' : ''}: see the upload report below`
+          : `Saved ${saved.length} file${saved.length > 1 ? 's' : ''}, but the analysis did not finish${run?.error ? ` (${run.error})` : ''}: see the upload report below`);
       }
       if (added.length) msgs.push(`Analysed ${added.map((a) => a.name).join(', ')} in this browser only: not saved (${browserOnly[0].why})`);
-      if (problems.length) msgs.push(`Skipped ${problems.join('; ')}`);
+      if (problems.length) msgs.push(`Not accepted: ${problems.join('; ')}`);
       if (msgs.length) setToast(msgs.join('. '));
-      const first = saved[0]?.gstin || added[0]?.gstin;
-      const firstId = first && next.taxpayers.find((t) => t.gstin === first)?.id;
-      if (firstId) go('taxpayer', firstId);
+      go('data');
     } catch (e) {
       setToast(`Could not read file: ${e.message}`);
     } finally {
       setBusy(false);
       setUploadProgress(null);
     }
-  }, [raw, severity, go]);
+  }, [raw, severity, go, analyseOnServer, loadUploads]);
 
   // Render each taxpayer's report in turn and save it (HTML + PDF) to the dev-server library.
   const saveAllReports = useCallback(async () => {
@@ -401,7 +420,7 @@ export default function App() {
             </div>
           </div>
         ) : (<>
-        {route.view === 'dashboard' && <Portfolio data={data} openTaxpayer={openTaxpayer} go={go} aiProps={{ ai, setAi, cache: aiCache, setCache: setAiCache, go, ...hideProps('portfolio') }} />}
+        {route.view === 'dashboard' && <Portfolio data={data} openTaxpayer={openTaxpayer} go={go} latestUpload={uploads?.batches?.[0] || null} aiProps={{ ai, setAi, cache: aiCache, setCache: setAiCache, go, ...hideProps('portfolio') }} />}
         {route.view === 'demo' && <DemoScript data={data} registers={registers} cases={cases} go={(v, id, tab) => (v === 'taxpayer' ? openTaxpayerTab(id, tab || null) : go(v, id))} onStart={() => { setJurisdiction(WARD.jurisdiction); setTouring(false); setDemoOn(true); }} />}
         {route.view === 'overview' && <Overview data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} user={user} roleHint={route.id} go={(v, id, tab) => (v === 'taxpayer' ? openTaxpayerTab(id, tab || null) : go(v, id))} />}
         {route.view === 'collections' && <Collections data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
@@ -427,7 +446,7 @@ export default function App() {
         {route.view === 'ai' && <AISettings data={data} ai={ai} setAi={setAi} toast={setToast} />}
         {route.view === 'scoring' && <Scoring data={data} baseTaxpayers={raw.taxpayers} cfg={cfg} onSave={setCfg} toast={setToast} />}
         {PUBLIC.has(route.view) && renderPublic(route.view, user)}
-        {route.view === 'data' && <DataMethod data={data} onFiles={onFiles} busy={busy} uploadProgress={uploadProgress} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
+        {route.view === 'data' && <DataMethod data={data} onFiles={onFiles} busy={busy} uploadProgress={uploadProgress} uploads={uploads} retryAnalysis={retryAnalysis} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
         </>)}
         </ErrorBoundary>
       </main>

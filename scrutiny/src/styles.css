@@ -264,6 +264,22 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
 .evidence { background: #fbfaff; padding: 16px 18px !important; }
 .drop { border: 1.5px dashed var(--lav-3); border-radius: var(--r-card); padding: 30px; text-align: center; color: var(--ink-2); background: #fcfbff; }
 .drop.hot { border-color: var(--brand); background: var(--lav); }
+/* Latest upload report (Upload data) and its notice on the Dashboard */
+.upr { padding: 16px 18px; }
+.upr-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.upr-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.upr-step { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--r-inner); border: 1px solid var(--line-2); background: #fff; }
+.upr-dot { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--line-2); color: var(--ink-2); }
+.upr-step.ok .upr-dot { background: var(--good-bg); color: var(--good); }
+.upr-step.bad { border-color: var(--tint-bad-line); background: var(--tint-bad); }
+.upr-step.bad .upr-dot { background: var(--critical); color: #fff; }
+.upr-error { padding: 10px 12px; margin-bottom: 12px; border-radius: var(--r-inner); background: var(--tint-bad); border: 1px solid var(--tint-bad-line); display: grid; gap: 8px; }
+.upr-error pre { white-space: pre-wrap; font-size: 11px; margin: 6px 0 0; max-height: 200px; overflow: auto; }
+.upr-note { padding: 8px 12px; margin-bottom: 12px; border-radius: var(--r-inner); background: var(--warn-bg); color: var(--warn-ink); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.upr-rejected { margin: 0 0 12px; padding-left: 18px; color: var(--critical); font-size: 13px; }
+.upload-banner { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 10px 14px; margin-bottom: 14px; border-radius: var(--r-inner); border: 1px solid var(--line-2); background: #fff; font-size: 13px; }
+.upload-banner.bad { background: var(--tint-bad); border-color: var(--tint-bad-line); }
+.upload-banner .grow { flex: 1; min-width: 200px; }
 .toast { position: fixed; bottom: 24px; right: 24px; background: var(--ink); color: #fff; padding: 13px 18px; border-radius: var(--r-inner); font-size: 13.5px; box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22); z-index: 60; max-width: 440px; display: flex; gap: 10px; align-items: center; }
 .recharts-cartesian-axis-tick-value { font-size: 11px; }
 .recharts-text { fill: var(--ink-3); font-family: var(--sans); }

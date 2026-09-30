@@ -35,4 +35,6 @@ public/data.json
 public/reports/
 # Analysis cache of the data build (scripts/lib/dataset.mjs) and the LTU-PUNE upload pack (npm run pack:ltu-pune)
 data/.cache/
+# What each upload did (scripts/lib/uploadLog.mjs): working data
+data/uploads.json
 upload-pack/

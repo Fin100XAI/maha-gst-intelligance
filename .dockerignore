@@ -20,5 +20,6 @@ scrutiny/data/*_GEN *
 scrutiny/data/.corporates.version
 scrutiny/data/.ltu-pune.version
 scrutiny/data/.cache
+scrutiny/data/uploads.json
 scrutiny/upload-pack
 scrutiny/data/ewb
