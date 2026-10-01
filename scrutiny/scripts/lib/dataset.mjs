@@ -78,7 +78,9 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
   const cacheDir = path.join(dataDir, '.cache');
   const simulate = process.env.EWB_SIMULATE !== '0';
   const engine = cache ? sha(JSON.stringify([ENGINE_FILES().map((f) => sha(fs.readFileSync(f))), severity, simulate ? loadPlan(root).hash : 'no-sim'])) : null;
-  if (cache) fs.mkdirSync(cacheDir, { recursive: true });
+  // The cache only saves time: if it cannot be written (e.g. folder permissions), the build carries on without it.
+  const noCache = (e) => { if (cache) warn(`analysis cache off: ${e.message}`); cache = false; };
+  if (cache) { try { fs.mkdirSync(cacheDir, { recursive: true }); fs.accessSync(cacheDir, fs.constants.W_OK); } catch (e) { noCache(e); } }
   const used = new Set();
   const stats = { analysed: 0, cached: 0 };
   const list = files.filter((x) => x !== matrixFile);
@@ -105,7 +107,7 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
         ({ gstin, fyStart } = tp);
         a = analyze(tp, { severity });
         trade = tradeOf(tp);
-        if (cache) fs.writeFileSync(cacheFile, JSON.stringify({ engine, file: f, gstin, fyStart, ewb: statOf(ewbFile(dataDir, gstin, fyStart)), a, trade }));
+        if (cache) { try { fs.writeFileSync(cacheFile, JSON.stringify({ engine, file: f, gstin, fyStart, ewb: statOf(ewbFile(dataDir, gstin, fyStart)), a, trade })); } catch (e) { noCache(e); } }
       }
       stats[hit ? 'cached' : 'analysed']++;
       if (cache) used.add(path.basename(cacheFile));
@@ -126,7 +128,7 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
       progress(i + 1, list.length, f);
     }
   });
-  if (cache) for (const f of fs.readdirSync(cacheDir)) if (!used.has(f)) fs.rmSync(path.join(cacheDir, f), { force: true }); // workbooks removed or replaced
+  if (cache) { try { for (const f of fs.readdirSync(cacheDir)) if (!used.has(f)) fs.rmSync(path.join(cacheDir, f), { force: true }); } catch (e) { warn(`analysis cache not tidied: ${e.message}`); } } // workbooks removed or replaced
 
   const taxpayers = [];
   const baselines = {};

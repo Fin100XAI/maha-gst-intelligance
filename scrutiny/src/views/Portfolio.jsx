@@ -13,7 +13,7 @@ import { inr, axisInr, pct, int } from '../lib/format.js';
 const short = (n, k = 22) => (n.length > k ? `${n.slice(0, k - 1)}…` : n);
 const title = (s) => s.replace(/\b(PRIVATE|PVT\.?|LIMITED|LTD\.?)\b/gi, '').replace(/\s+/g, ' ').trim();
 
-export default function Portfolio({ data, openTaxpayer, go, aiProps }) {
+export default function Portfolio({ data, openTaxpayer, go, aiProps, latestUpload }) {
   const { taxpayers, catalog, portfolio } = data;
   // Taxpayers can be on different latest years: say so, and date the view by the newest extract.
   const fys = [...new Set(taxpayers.map((a) => a.fy))].sort();
@@ -39,6 +39,7 @@ export default function Portfolio({ data, openTaxpayer, go, aiProps }) {
         {aiProps?.hidden && <button className="btn" data-tour="insights" onClick={() => aiProps.setHidden(false)}><Icon name="rules" size={15} /> Show key insights</button>}
         <button className="btn primary" onClick={() => go('cases')}>Open cases <Icon name="arrow" size={16} stroke={2.4} /></button>
       </PageHead>
+      <UploadBanner batch={latestUpload} go={go} />
 
       <div className="grid g-kpi" data-tour="kpis">
         <Kpi label="High · critical risk" value={int(totals.highRisk)} dot={totals.highRisk ? '#b02222' : '#0c6a4a'} sub={`of ${int(taxpayers.length)} taxpayers scrutinised`} />
@@ -127,5 +128,22 @@ function Register({ taxpayers, openTaxpayer }) {
         </div>
       </div>
     </Card>
+  );
+}
+
+// The most recent upload, one line above everything else: when, how much, and whether its analysis is in these figures.
+function UploadBanner({ batch, go }) {
+  if (!batch?.files?.length) return null;
+  const ok = batch.files.filter((f) => f.ok);
+  const a = batch.analysis || {};
+  const taxpayers = new Set(ok.map((f) => f.gstin)).size;
+  const when = new Date(batch.startedAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+  const state = a.stage === 'done' ? 'analysed: included in the figures below' : a.stage === 'error' ? 'analysis did not finish' : 'analysis in progress';
+  return (
+    <div className={`upload-banner ${a.stage === 'error' ? 'bad' : ''}`}>
+      <Icon name="upload" size={16} />
+      <span className="grow"><b>Latest upload</b> · {when} · {ok.length} file{ok.length === 1 ? '' : 's'} for {taxpayers} taxpayer{taxpayers === 1 ? '' : 's'} · {state}</span>
+      <button className="btn small" onClick={() => go('data')}>View upload report</button>
+    </div>
   );
 }

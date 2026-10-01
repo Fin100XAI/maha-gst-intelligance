@@ -3,7 +3,9 @@
 //                                          with scripts/build-data.mjs (the same engine run as `npm run build:data`).
 //        …&defer=1                          saved only: a batch upload asks for one rebuild at the end instead
 //   POST /__data/rebuild                   rebuild in the background (one job; a request during a run queues one more)
-//   GET  /__data/progress                  { stage: idle|running|done|error, done, total, startedAt, finishedAt, error }
+//   GET  /__data/progress                  { stage: idle|running|done|error, done, total, startedAt, finishedAt, error, detail }
+//   GET  /__data/uploads                   the upload log (scripts/lib/uploadLog.mjs): recent batches, newest first
+//        …&batch=<id> on upload and rebuild records the files and the analysis against that batch
 //                                          One workbook per GSTIN and financial year: an earlier upload for the same GSTIN
 //                                          and year moves to data/superseded/; other years stay as history.
 //   GET  /data.json                        served from public/data.json without caching, so rebuilds show at once.
@@ -16,6 +18,12 @@ import * as XLSX from 'xlsx';
 import { parseWorkbook } from '../src/engine/parse.js';
 import { storeWorkbook } from './lib/dataset.mjs';
 import { coalesce } from './lib/coalesce.mjs';
+import { readLog, recordFile, recordAnalysis, cleanBatchId } from './lib/uploadLog.mjs';
+
+// What a failed build said: the line naming the error (not Node's closing "Node.js v20…" line), and the last lines.
+const outputLines = (text) => String(text || '').split('\n').map((l) => l.trim()).filter((l) => l && !/^Node\.js v\d/.test(l));
+export const errorLine = (text) => { const lines = outputLines(text).filter((l) => !/^at\s/.test(l)); return lines.find((l) => /\b(\w*Error|FAILED)\b/.test(l)) || lines.pop() || ''; };
+const errorDetail = (text) => outputLines(text).slice(-15).join('\n');
 
 const MAX_BYTES = 40 * 1024 * 1024;
 
@@ -38,7 +46,7 @@ export default function dataStore() {
       // Uploads arriving together share rebuilds (scripts/lib/coalesce.mjs): a bulk upload costs a few rebuilds, not one each.
       const rebuild = coalesce(() => new Promise((resolve, reject) => {
         execFile(process.execPath, [buildScript], { env: { ...process.env, DATA_DIR: dataDir, OUT_FILE: outFile }, timeout: 300000, maxBuffer: 16 * 1024 * 1024 },
-          (err, stdout, stderr) => (err ? reject(new Error((stderr || err.message).trim().split('\n').pop())) : resolve(stdout)));
+          (err, stdout, stderr) => (err ? reject(new Error(errorLine(stderr) || err.message)) : resolve(stdout)));
       }));
 
       // data.json runs to megabytes; compressed once per rebuild, it is about a tenth of that on the wire.
@@ -66,15 +74,19 @@ export default function dataStore() {
         req.on('data', (c) => { size += c.length; if (size > MAX_BYTES) { json(res, 413, { ok: false, error: 'Workbook is larger than 40 MB' }); req.destroy(); } else chunks.push(c); });
         req.on('end', async () => {
           if (res.writableEnded) return;
+          const q = new URL(req.url || '/', 'http://x').searchParams;
+          const batch = cleanBatchId(q.get('batch'));
+          const name = cleanName(q.get('name'));
+          const reject = (error) => { if (batch) recordFile(dataDir, batch, { name, error }); return json(res, 400, { ok: false, error }); };
           try {
             const buf = Buffer.concat(chunks);
-            const name = cleanName(new URL(req.url || '/', 'http://x').searchParams.get('name'));
             let tp;
-            try { tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), name); } catch (e) { return json(res, 400, { ok: false, error: `Not a readable .xlsx workbook (${e.message})` }); }
-            if (!tp.gstin || !tp.periods.length) return json(res, 400, { ok: false, error: 'Not a returns export: no GSTIN banner or GSTR-3B periods found' });
+            try { tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), name); } catch (e) { return reject(`Not a readable .xlsx workbook (${e.message})`); }
+            if (!tp.gstin || !tp.periods.length) return reject('Not a returns export: no GSTIN banner or GSTR-3B periods found');
 
             const { file: target, replaced } = storeWorkbook({ dataDir, name, buf, tp });
-            if (new URL(req.url || '/', 'http://x').searchParams.get('defer') === '1') return json(res, 200, { ok: true, gstin: tp.gstin, fy: tp.fy, file: target, replaced: replaced.length, deferred: true });
+            if (batch) recordFile(dataDir, batch, { name, stored: target, gstin: tp.gstin, fy: tp.fy, taxpayer: tp.name, periods: tp.periods.length, replaced: replaced.length });
+            if (q.get('defer') === '1') return json(res, 200, { ok: true, gstin: tp.gstin, fy: tp.fy, file: target, replaced: replaced.length, deferred: true });
             await rebuild();
             json(res, 200, { ok: true, gstin: tp.gstin, fy: tp.fy, file: target, replaced: replaced.length });
           } catch (e) {
@@ -85,10 +97,13 @@ export default function dataStore() {
 
       // Background rebuild after a batch upload: answers at once, so no proxy timeout can cut it off, and reports its
       // progress (one step per workbook, from the build's own output) for the screen to show.
-      let job = null; // { id, stage, done, total, startedAt, finishedAt, error, again }
+      let job = null; // { id, stage, done, total, startedAt, finishedAt, error, detail, again, batches }
+      let waiting = new Set(); // upload batches whose analysis is the next run
       const startJob = () => {
-        job = { id: Date.now(), stage: 'running', done: 0, total: 0, startedAt: new Date().toISOString(), finishedAt: null, error: null, again: false };
+        job = { id: Date.now(), stage: 'running', done: 0, total: 0, startedAt: new Date().toISOString(), finishedAt: null, error: null, detail: null, again: false, batches: [...waiting] };
+        waiting = new Set();
         const current = job;
+        recordAnalysis(dataDir, current.batches, { stage: 'running', startedAt: current.startedAt, finishedAt: null, error: null, detail: null });
         const child = spawn(process.execPath, [buildScript], { env: { ...process.env, DATA_DIR: dataDir, OUT_FILE: outFile, PROGRESS: '1' } });
         const kill = setTimeout(() => child.kill(), 15 * 60000);
         let out = '', err = '';
@@ -104,15 +119,21 @@ export default function dataStore() {
         child.on('close', (code) => {
           clearTimeout(kill);
           current.finishedAt = new Date().toISOString();
+          // workbooks the analysis could not read ("FAILED <file>: <reason>"): the rest is analysed and saved regardless
+          current.failed = outputLines(err).filter((l) => l.startsWith('FAILED ')).map((l) => { const m = l.slice(7).match(/^(.*?\.xlsx): (.*)$/i); return m ? { file: m[1], error: m[2] } : { file: '', error: l.slice(7) }; });
           if (code === 0) current.stage = 'done';
-          else Object.assign(current, { stage: 'error', error: err.trim().split('\n').pop() || `stopped (code ${code})` });
+          else Object.assign(current, { stage: 'error', error: errorLine(err) || `stopped (code ${code})`, detail: errorDetail(err) });
+          recordAnalysis(dataDir, current.batches, { stage: current.stage, finishedAt: current.finishedAt, error: current.error, detail: current.detail, failed: current.failed });
           if (current.again) startJob(); // uploads that arrived during this run
         });
       };
       server.middlewares.use('/__data/progress', (req, res) => json(res, 200, job ? { ...job, again: undefined } : { stage: 'idle' }));
+      server.middlewares.use('/__data/uploads', (req, res) => { res.setHeader('cache-control', 'no-store'); json(res, 200, { ...readLog(dataDir), job: job ? { ...job, again: undefined } : null }); });
       server.middlewares.use('/__data/rebuild', (req, res) => {
         if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
         if (!local(req)) return json(res, 403, { ok: false, error: 'Uploading is allowed from this computer only' });
+        const batch = cleanBatchId(new URL(req.url || '/', 'http://x').searchParams.get('batch'));
+        if (batch) waiting.add(batch);
         if (job && !job.finishedAt) { job.again = true; return json(res, 202, { ok: true, queued: true, job: { ...job, again: undefined } }); }
         startJob();
         json(res, 202, { ok: true, job: { ...job, again: undefined } });

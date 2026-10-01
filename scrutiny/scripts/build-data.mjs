@@ -14,9 +14,18 @@ const outFile = process.env.OUT_FILE ? path.resolve(process.env.OUT_FILE) : path
 const quiet = process.env.PROGRESS === '1';
 const { dataset, errors, stats } = buildDataset({ dataDir, log: quiet ? () => {} : (m) => console.log(m), warn: (m) => console.warn(m), progress: quiet ? (i, n) => console.log(`progress ${i}/${n}`) : () => {} });
 for (const e of errors) console.error(`FAILED ${e}`);
-if (errors.length) process.exitCode = 1;
+// A workbook that cannot be read fails the command-line build; the upload job reports it and carries on.
+if (errors.length && !quiet) process.exitCode = 1;
 
-fs.mkdirSync(path.dirname(outFile), { recursive: true });
-fs.writeFileSync(outFile, JSON.stringify(dataset));
+// Written to a temporary file and moved into place, so the screens never read a half-written file.
+try {
+  fs.mkdirSync(path.dirname(outFile), { recursive: true });
+  const tmp = `${outFile}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(dataset));
+  fs.renameSync(tmp, outFile);
+} catch (e) {
+  console.error(`Error: could not save the analysis to ${outFile}: ${e.message}`);
+  process.exit(1);
+}
 const years = Object.values(dataset.baselines).reduce((s, b) => s + b.length, 0);
 console.log(`\nWrote ${path.relative(root, outFile)}: ${dataset.taxpayers.length} taxpayers (${years} taxpayer-years), ${dataset.catalog.length} rules. ${stats.analysed} workbooks analysed, ${stats.cached} from the cache.`);
