@@ -28,7 +28,7 @@ export const CAPABILITIES = [
   C(15, 'C', 'Genuine-vs-requires-verification evidence', 'built', 'taxpayer', 'network.js', 'network.test.mjs'),
   C(16, 'D', 'Consume existing EIU signals', 'built', 'eiu', 'eiu.js, registers.js', 'eiu.test.mjs, registers.test.mjs', 'By register upload; a live EIU connector needs approved integration.'),
   C(17, 'D', 'Risk signal revalidation', 'built', 'eiu', 'eiu.js', 'eiu.test.mjs'),
-  C(18, 'D', 'Taxpayer / CA reconciliation intelligence', 'built', 'eiu', 'eiu.js, scripts/lib/docText.mjs', 'eiu.test.mjs, docs.test.mjs', 'Claims found by fixed patterns; scanned (image) PDFs need their text pasted (no OCR).'),
+  C(18, 'D', 'Taxpayer / CA reconciliation intelligence', 'built', 'eiu', 'eiu.js, scripts/lib/docText.mjs, scripts/lib/ocr.mjs', 'eiu.test.mjs, docs.test.mjs, ocr.test.mjs', 'Claims found by fixed patterns. Scans and photos are read by OCR on the server (English, Hindi, Marathi), with the confidence shown; fax-compressed scans still need their text pasted.'),
   C(19, 'D', 'Reconciliation challenge engine', 'built', 'eiu', 'eiu.js', 'eiu.test.mjs, cases.test.mjs'),
   C(20, 'D', 'Unresolved revenue exposure', 'built', 'eiu', 'eiu.js', 'eiu.test.mjs'),
   C(21, 'E', 'Self-assessed / regular revenue intelligence', 'partial', 'collections', 'collections.js', 'leadership.test.mjs', 'No official collection totals loaded to reconcile against.'),

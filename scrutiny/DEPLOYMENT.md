@@ -67,6 +67,7 @@ Environment variables (set in the shell or `.env.local`):
 | `STORE_DIR` | `./store` | Case log (`events.jsonl`), reply documents (`docs/`), alerts, and with accounts `accounts.json`, `access-log.jsonl`, `session.key` |
 | `CHROME_PATH` | auto | Path to Chrome/Edge/Chromium for PDFs if not found automatically |
 | `CHROME_NO_SANDBOX` | off | `1` inside containers |
+| `OCR_LANGS` | `eng+hin+mar` | Languages OCR reads in scanned replies. OCR runs on this server (tesseract.js, installed by `npm ci` as optional packages); without them, officers paste the text |
 
 The user running the server needs write access to `data/`, `store/` and `public/reports/`.
 
@@ -127,6 +128,14 @@ failed sign-in and account change is appended to `store/access-log.jsonl` (no pa
 
 The platform shell's own sign-in (the access code) is separate: with accounts on, GST Scrutiny asks the officer to
 sign in to their account inside the shell as well.
+
+### OCR for scanned replies
+
+A reply letter that arrives as a scan (a PDF of page images) or a photo (.jpg / .png) is read with OCR on the server,
+in English, Hindi and Marathi, with the confidence shown; the officer checks the text before it is tested. Nothing is
+sent outside the server. It needs the optional packages from `npm ci` (or `npm install`) in this folder: after
+updating an existing installation, run it once before restarting. Without them the app works as before and asks for
+the text to be pasted. Scans stored with fax (CCITT) or JPEG 2000 compression are named as unreadable, not guessed.
 
 ## 3. Docker
 

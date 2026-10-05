@@ -62,7 +62,7 @@ export default function DataMethod({ data, canUpload = true, canUploadRegisters 
 
       <Step n={3} tour="upload-replies" title="Reply letters"
         lead="The taxpayer’s or CA’s written reply to an EIU signal. Optional."
-        points={['Choose the signal, then attach the letter: PDF, Word (.docx) or text, up to 15 MB.', 'Check the text read from the letter, correct it if needed, then record it.', 'Each statement in it is tested against the returns. See the result under EIU signals.']}
+        points={['Choose the signal, then attach the letter: PDF, Word (.docx), text, or a scan or photo (read by OCR), up to 15 MB.', 'Check the text read from the letter, correct it if needed, then record it.', 'Each statement in it is tested against the returns. See the result under EIU signals.']}
         status={<RepliesStatus registers={registers} cases={cases} />}>
         <ReplyUpload registers={registers} cases={cases} dispatch={dispatch} toast={toast} go={go} />
       </Step>

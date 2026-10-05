@@ -29,5 +29,11 @@
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^6.0.0"
+  },
+  "optionalDependencies": {
+    "@tesseract.js-data/eng": "^1.0.0",
+    "@tesseract.js-data/hin": "^1.0.0",
+    "@tesseract.js-data/mar": "^1.0.0",
+    "tesseract.js": "^7.0.0"
   }
 }
