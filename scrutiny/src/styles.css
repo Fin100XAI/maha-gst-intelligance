@@ -813,3 +813,10 @@ button.rm-row:hover { background: var(--lav); }
 .tp-detail > summary { cursor: pointer; font-weight: 600; font-size: 13px; color: var(--ink-2); padding: 6px 2px; list-style-position: inside; }
 .tp-detail[open] > summary { margin-bottom: 10px; }
 .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ------------------------------------------------------------------ column mapping */
+.mapper { display: grid; gap: 10px; }
+.mapper-row { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; }
+.mapper-tbl select { max-width: 260px; }
+.mapper-tbl .req { color: #b02222; margin-left: 3px; }
+.mapper-result { display: grid; gap: 6px; }

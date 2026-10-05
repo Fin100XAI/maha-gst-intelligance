@@ -187,3 +187,27 @@ export function storeWorkbook({ dataDir, name, buf, tp, now = new Date() }) {
   fs.writeFileSync(path.join(dataDir, file), buf);
   return { file, replaced: same };
 }
+
+const fail = (status, message) => Object.assign(new Error(message), { status });
+
+/**
+ * Add or replace one sheet of a stored returns workbook: data brought in by column mapping (src/engine/mapping.js),
+ * such as a GSTR-2B downloaded on its own. The workbook is checked by the parser before it replaces the stored one,
+ * and the previous version is kept in superseded/ like any other replacement.
+ * @returns {{ file: string, replacedSheet: boolean, rows: number, superseded: string[], taxpayer: string, periods: number }}
+ */
+export function supplementWorkbook({ dataDir, gstin, fyStart, sheet, aoa, now = new Date() }) {
+  const corrections = readCorrections(dataDir);
+  const file = (fs.existsSync(dataDir) ? fs.readdirSync(dataDir) : []).filter((f) => isWorkbook(f) && !isRuleMatrix(f))
+    .find((f) => { const id = identityOfFile(path.join(dataDir, f), corrections[f]); return id.gstin === gstin && id.fyStart === fyStart; });
+  if (!file) throw fail(404, `No returns are stored for ${gstin} for FY ${fyStart}-${String(fyStart + 1).slice(2)}: upload the returns export first, or download the converted sheet`);
+  const wb = XLSX.read(fs.readFileSync(path.join(dataDir, file)), { type: 'buffer' });
+  const replacedSheet = !!wb.Sheets[sheet];
+  wb.Sheets[sheet] = XLSX.utils.aoa_to_sheet(aoa);
+  if (!wb.SheetNames.includes(sheet)) wb.SheetNames.push(sheet);
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  const tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), file, corrections[file] || {});
+  if (tp.gstin !== gstin || !tp.periods.length) throw fail(422, 'The workbook would no longer read correctly with this sheet: nothing was changed');
+  const { replaced } = storeWorkbook({ dataDir, name: file, buf, tp, now });
+  return { file, replacedSheet, rows: tp.intake.read[sheet] || 0, superseded: replaced, taxpayer: tp.name, periods: tp.periods.length };
+}

@@ -5,6 +5,9 @@
 //   POST /__data/rebuild                   rebuild in the background (one job; a request during a run queues one more)
 //   GET  /__data/progress                  { stage: idle|running|done|error, done, total, startedAt, finishedAt, error, detail }
 //   GET  /__data/uploads                   the upload log (scripts/lib/uploadLog.mjs): recent batches, newest first
+//   POST /__data/supplement?gstin=&fy=&sheet=&name=   { rows }  one template sheet converted by column mapping, added
+//                                          to (or replacing that sheet of) the stored workbook for that GSTIN and year;
+//                                          analysed with the next rebuild, like a deferred upload
 //        …&batch=<id> on upload and rebuild records the files and the analysis against that batch
 //                                          One workbook per GSTIN and financial year: an earlier upload for the same GSTIN
 //                                          and year moves to data/superseded/; other years stay as history.
@@ -18,7 +21,8 @@ import zlib from 'node:zlib';
 import { execFile, spawn } from 'node:child_process';
 import * as XLSX from 'xlsx';
 import { parseWorkbook } from '../src/engine/parse.js';
-import { storeWorkbook, saveCorrection } from './lib/dataset.mjs';
+import { storeWorkbook, saveCorrection, supplementWorkbook } from './lib/dataset.mjs';
+import { TARGETS, MAX_ROWS } from '../src/engine/mapping.js';
 import { gstinValid } from '../src/engine/gstin.js';
 import { coalesce } from './lib/coalesce.mjs';
 import { readLog, recordFile, recordAnalysis, cleanBatchId } from './lib/uploadLog.mjs';
@@ -137,6 +141,42 @@ export default function dataStore() {
             json(res, 500, { ok: false, error: e.message });
           }
         });
+      });
+
+      // Column mapping: one converted sheet into a stored workbook. Saved only; the browser then asks for the rebuild.
+      server.middlewares.use('/__data/supplement', (req, res) => {
+        if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
+        if (!local(req)) return json(res, 403, { ok: false, error: 'Uploading is allowed from this computer only' });
+        const acc = accessOf(req);
+        if (!acc.can('upload')) return forbid(res, 'Adding returns data needs the upload permission (supervisor or above)');
+        const q = new URL(req.url || '/', 'http://x').searchParams;
+        const gstin = String(q.get('gstin') || '').toUpperCase();
+        const fy = String(q.get('fy') || '');
+        const sheet = String(q.get('sheet') || '');
+        const batch = cleanBatchId(q.get('batch'));
+        const name = String(q.get('name') || 'mapped file').replace(/[^\w .()&,-]+/g, '_').slice(0, 120);
+        if (gstinValid(gstin) !== true) return json(res, 400, { ok: false, error: 'Choose a valid GSTIN' });
+        if (!/^(20\d{2})-(20\d{2})$/.test(fy) || Number(fy.slice(5)) !== Number(fy.slice(0, 4)) + 1) return json(res, 400, { ok: false, error: 'The financial year must look like 2025-2026' });
+        if (!TARGETS[sheet]) return json(res, 400, { ok: false, error: `sheet must be one of ${Object.keys(TARGETS).join(', ')}` });
+        if (!acc.inScope(gstin)) return forbid(res, `${gstin} is not in your jurisdiction`);
+        const chunks = [];
+        let size = 0;
+        req.on('data', (c) => { size += c.length; if (size > MAX_BYTES) { json(res, 413, { ok: false, error: 'Converted data is larger than 40 MB' }); req.destroy(); } else chunks.push(c); });
+        req.on('end', () => {
+          if (res.writableEnded) return undefined;
+          try {
+            const { rows } = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+            const cellOk = (c) => c === null || typeof c === 'number' || (typeof c === 'string' && c.length <= 500);
+            if (!Array.isArray(rows) || !rows.length || rows.length > MAX_ROWS + 10 || !rows.every((r) => Array.isArray(r) && r.length <= 60 && r.every(cellOk))) return json(res, 400, { ok: false, error: 'rows must be the converted sheet: a list of rows of plain values' });
+            const r = supplementWorkbook({ dataDir, gstin, fyStart: Number(fy.slice(0, 4)), sheet, aoa: rows });
+            if (batch) recordFile(dataDir, batch, { name: `${name} → ${sheet}`, stored: r.file, gstin, fy, taxpayer: r.taxpayer, periods: r.periods, replaced: r.superseded.length });
+            return json(res, 200, { ok: true, ...r, deferred: true });
+          } catch (e) {
+            if (batch) recordFile(dataDir, batch, { name: `${name} → ${sheet}`, error: e.message });
+            return json(res, e.status || 500, { ok: false, error: e.message });
+          }
+        });
+        return undefined;
       });
 
       // Background rebuild after a batch upload: answers at once, so no proxy timeout can cut it off, and reports its

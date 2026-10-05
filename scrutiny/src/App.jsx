@@ -386,6 +386,29 @@ export default function App() {
     }
   }, [raw, severity, go, analyseOnServer, loadUploads]);
 
+  // Column mapping (src/engine/mapping.js): one converted sheet into a stored workbook, then the usual analysis and
+  // upload report. Returns the server's answer so the mapper can keep or clear its form.
+  const addMappedSheet = useCallback(async ({ gstin, fy, sheet, name, rows }) => {
+    setBusy(true);
+    const batch = `b${Date.now()}`;
+    try {
+      const q = `gstin=${encodeURIComponent(gstin)}&fy=${encodeURIComponent(fy)}&sheet=${encodeURIComponent(sheet)}&name=${encodeURIComponent(name)}&batch=${batch}`;
+      const res = await fetch(api(`/__data/supplement?${q}`), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ rows }) }).catch(() => null);
+      const body = res ? await res.json().catch(() => ({ ok: false, error: `HTTP ${res.status}` })) : { ok: false, error: 'The server could not be reached' };
+      loadUploads();
+      if (!body.ok) {
+        await fetch(api(`/__data/rebuild?batch=${batch}`), { method: 'POST' }).catch(() => null); // closes the batch in the report
+        setToast(`Not added: ${body.error}`);
+        return body;
+      }
+      const run = await analyseOnServer(batch);
+      await reloadData();
+      await loadUploads();
+      setToast(run?.stage === 'done' ? `${body.rows} row${body.rows === 1 ? '' : 's'} of ${sheet} ${body.replacedSheet ? 'replaced' : 'added'} for ${body.taxpayer} and analysed: see the upload report` : `Saved, but the analysis did not finish${run?.error ? ` (${run.error})` : ''}`);
+      return body;
+    } finally { setBusy(false); setUploadProgress(null); }
+  }, [analyseOnServer, loadUploads, reloadData]);
+
   // Render each taxpayer's report in turn and save it (HTML + PDF) to the dev-server library.
   const saveAllReports = useCallback(async () => {
     if (!data || !user) return;
@@ -533,7 +556,7 @@ export default function App() {
         {route.view === 'ai' && <AISettings data={data} ai={ai} setAi={setAi} toast={setToast} />}
         {route.view === 'scoring' && <Scoring data={data} baseTaxpayers={raw.taxpayers} cfg={cfg} onSave={setCfg} toast={setToast} />}
         {PUBLIC.has(route.view) && renderPublic(route.view, user)}
-        {route.view === 'data' && <DataMethod data={data} canUpload={can(user, 'upload')} canUploadRegisters={can(user, 'upload') && (!user.jurisdictions || user.jurisdictions.includes('*'))} onFiles={onFiles} busy={busy} uploadProgress={uploadProgress} uploads={uploads} retryAnalysis={retryAnalysis} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
+        {route.view === 'data' && <DataMethod data={data} onMapped={addMappedSheet} canUpload={can(user, 'upload')} canUploadRegisters={can(user, 'upload') && (!user.jurisdictions || user.jurisdictions.includes('*'))} onFiles={onFiles} busy={busy} uploadProgress={uploadProgress} uploads={uploads} retryAnalysis={retryAnalysis} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
         </>)}
         </ErrorBoundary>
       </main>

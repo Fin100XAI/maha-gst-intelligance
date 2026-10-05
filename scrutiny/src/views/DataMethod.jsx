@@ -1,6 +1,7 @@
 // Upload data: every file the platform reads, in one place, as three numbered steps (returns files, registers,
 // reply letters), each with a few lines of instructions, plus the sample files and format guide.
 import React, { useMemo, useRef, useState } from 'react';
+import ColumnMapper from '../components/ColumnMapper.jsx';
 import { Card, Band, PageHead, TestTag } from '../components/ui.jsx';
 import { isTestData } from '../engine/names.js';
 import { changeText } from '../lib/uploads.js';
@@ -26,7 +27,7 @@ function Step({ n, title, lead, points, status, children, tour }) {
   );
 }
 
-export default function DataMethod({ data, canUpload = true, canUploadRegisters = true, onFiles, busy, uploadProgress, uploads, retryAnalysis, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
+export default function DataMethod({ data, onMapped, canUpload = true, canUploadRegisters = true, onFiles, busy, uploadProgress, uploads, retryAnalysis, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
   const years = Object.values(data.baselines || {}).reduce((s, b) => s + b.length, 0) || data.taxpayers.length;
   const regLoaded = registers ? Object.keys(REGISTERS).filter((t) => registers[t]).length : 0;
   // Files chosen but not yet confirmed: the staging step shows what was understood before anything is analysed
@@ -46,6 +47,11 @@ export default function DataMethod({ data, canUpload = true, canUploadRegisters 
           ? <Staging files={staged} data={data} onCancel={() => setStaged(null)} onConfirm={(items) => { setStaged(null); onFiles(items); }} />
           : <ReturnsDrop onFiles={(files) => files.length && setStaged(files)} busy={busy} progress={uploadProgress} />)}
         <UploadReport batch={uploads?.batches?.[0]} data={data} busy={busy} onRetry={retryAnalysis} openTaxpayer={openTaxpayer} />
+        <details className="up-more">
+          <summary>Data in another layout? Match its columns to the template</summary>
+          <p className="muted small" style={{ margin: '6px 0 10px' }}>For a CSV or Excel file that is not the “Get Download All Report” export, such as a GSTR-2B downloaded on its own or a purchase register: say what it holds, check which column is which, and put it into a taxpayer's stored returns in place of that sheet. Rows that cannot be converted are counted, not guessed.</p>
+          <ColumnMapper data={data} canUpload={canUpload} onAdd={onMapped} toast={toast} />
+        </details>
         <details className="up-more">
           <summary>Show loaded taxpayers</summary>
           <Loaded data={data} openTaxpayer={openTaxpayer} openReport={openReport} />
