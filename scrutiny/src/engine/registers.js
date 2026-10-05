@@ -43,6 +43,14 @@ const TYPES = {
     if (!d || Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== iso) throw new Error('must be a date (DD-MM-YYYY or YYYY-MM-DD)');
     return iso;
   },
+  // "All", or State codes separated by commas ("27, 24"): which States a due-date extension covers
+  states: (v) => {
+    const s = String(v).trim();
+    if (/^all$/i.test(s)) return 'All';
+    const codes = s.split(/[,;\s]+/).filter(Boolean).map((c) => c.padStart(2, '0'));
+    if (!codes.length || codes.some((c) => !/^\d{2}$/.test(c) || Number(c) < 1 || Number(c) > 38)) throw new Error('must be "All" or State codes such as 27, 24');
+    return [...new Set(codes)].sort().join(',');
+  },
   ruleId: (v) => {
     const s = String(v).trim().toUpperCase();
     if (!/^[A-K]-\d{2}$/.test(s)) throw new Error('must be a rule ID like B-01');
@@ -153,6 +161,20 @@ export const REGISTERS = {
       col('outcome', 'outcome', oneOf(CASE_OUTCOMES), { required: false, example: 'paid-voluntary' }),
       col('reason', 'reason', TYPES.text, { required: false, example: 'declared in a later return' }),
       col('note', 'note', TYPES.text, { required: false }),
+    ],
+  },
+  extensions: {
+    title: 'Due-date extensions',
+    purpose: 'GSTR-3B due dates extended by notification. Late filing, interest and late fee are judged against the extended date. A holiday does not move a due date unless an extension is notified.',
+    key: (r) => `${r.fy}|${r.month}|${r.filing}|${r.states}`,
+    keyLabel: 'same year, month, filing type and States',
+    columns: [
+      col('fy', 'fy', TYPES.fy, { example: '2025-26' }),
+      col('month', 'month', TYPES.month, { example: 'Dec' }),
+      col('filing', 'filing', oneOf(['All', 'Monthly', 'QRMP']), { example: 'All' }),
+      col('states', 'states', TYPES.states, { example: 'All' }),
+      col('dueDate', 'due_date', TYPES.date, { example: '22-01-2026' }),
+      col('notification', 'notification', TYPES.text, { required: false, example: 'Notification No. 01/2026-Central Tax' }),
     ],
   },
 };

@@ -196,6 +196,10 @@ function registerRows() {
       ['SCR-SAMPLE-002', c0.gstin, 'reply', '15-09-2026', {}],
       ['SCR-SAMPLE-002', c0.gstin, 'closed', '24-09-2026', { outcome: 'explained', reason: 'declared in a later return' }],
     ].map(([case_id, gst, event, date, o]) => ({ case_id, gstin: gst, fy: '2025-26', event, date: dt(date), officer: 'Officer A [SAMPLE]', ...o })),
+    extensions: [
+      { fy: '2025-26', month: 'Dec', filing: 'All', states: 'All', due_date: dt('22-01-2026'), notification: 'Notification No. 01/2026-Central Tax [SAMPLE]' },
+      { fy: '2025-26', month: 'Sep', filing: 'QRMP', states: '27, 30', due_date: dt('29-10-2025'), notification: 'Notification No. 12/2025-Central Tax [SAMPLE]' },
+    ],
   };
 }
 
@@ -294,9 +298,10 @@ const REG_MEANING = {
   eiu: { signal_id: 'Unique ID of the signal as issued by EIU', gstin: 'Taxpayer GSTIN', risk_parameter: 'Risk parameter, in EIU\'s words', rule_id: 'Matching platform rule, if known', fy: 'Financial year the signal is about', amount: 'Amount at risk stated in the signal (Rs.)', signal_date: 'Date EIU issued the signal', priority: 'Priority given by EIU', source: 'Which EIU run or report it came from', remarks: 'Any remarks' },
   targets: { jurisdiction: 'Ward / range / circle code', fy: 'Financial year', month: 'Month (leave blank for a whole-year target)', target_amount: 'Approved collection target (Rs.)', version: 'Version label; a revised target gets a new version', approved_on: 'Approval date', basis: 'How the target was set' },
   demands: { demand_id: 'Demand / order number (e.g. DRC-07 number)', gstin: 'Taxpayer GSTIN', case_ref: 'Case or notice reference', fy: 'Financial year of the demand', section: 'Section of the CGST Act under which it was raised', order_date: 'Date of the order', demand_tax: 'Tax demanded (Rs.)', demand_interest: 'Interest demanded (Rs.)', demand_penalty: 'Penalty demanded (Rs.)', paid_to_date: 'Total paid or recovered so far (Rs.)', last_payment_date: 'Date of the latest payment', stage: 'Current stage of the demand', blocker: 'What is holding up recovery, if anything' },
+  extensions: { fy: 'Financial year of the tax period', month: 'Last month of the tax period (for QRMP filers, the last month of the quarter)', filing: 'Which filers the extension covers: All, Monthly or QRMP', states: '"All", or the State codes covered, separated by commas (e.g. 27, 24)', due_date: 'The extended due date', notification: 'Notification that extended it' },
   caselog: { case_id: 'Case number in the case-management system', gstin: 'Taxpayer GSTIN', fy: 'Financial year under examination', source: 'What started the case', risk_type: 'Issue under examination', signal_id: 'EIU signal ID, if the case came from one', event: 'What happened (one row per step)', date: 'Date of the step', amount: 'Amount involved in this step (Rs.)', officer: 'Officer who took the step', ref: 'Document reference (notice, order, DRC-03 ...)', outcome: 'Closure outcome, on the "closed" row only', reason: 'Why the case closed that way', note: 'Free text' },
 };
-const REG_FILE = { master: 'Taxpayer master', eiu: 'EIU risk signals', targets: 'Revenue targets', demands: 'Demands and recoveries', caselog: 'Case action register' };
+const REG_FILE = { master: 'Taxpayer master', eiu: 'EIU risk signals', targets: 'Revenue targets', demands: 'Demands and recoveries', caselog: 'Case action register', extensions: 'Due-date extensions' };
 
 function formatOf(col) {
   try { col.type('__probe__'); return 'Text'; } catch (e) {
@@ -333,14 +338,15 @@ function guideBook(matrixSources) {
     [4, 'Revenue targets', 'One file for the whole jurisdiction', '2 Registers/targets.xlsx', 'Data sources > Registers > Revenue targets', 'For the Targets and Collections pages'],
     [5, 'Demands and recoveries', 'One file for the whole jurisdiction', '2 Registers/demands.xlsx', 'Data sources > Registers > Demands and recoveries', 'For the Recovery page'],
     [6, 'Case action register', 'One file for the whole jurisdiction', '2 Registers/caselog.xlsx', 'Data sources > Registers > Case action register', 'For the Actions and Learning pages'],
-    [7, 'Reply letter', 'One per taxpayer reply', '3 Reply letters/EIU-SAMPLE-0001 reply.pdf', 'EIU signals > open the signal > Record reply > attach', 'Optional: free-form PDF, Word (.docx) or text'],
-    [8, 'Rule matrix', 'One, set up once', '(not included: already on the platform)', 'Placed in the data folder by the administrator', 'Already in place'],
+    [7, 'Due-date extensions', 'One file, updated when an extension is notified', '2 Registers/extensions.xlsx', 'Data sources > Registers > Due-date extensions', 'When a GSTR-3B due date is extended; otherwise the statutory dates apply'],
+    [8, 'Reply letter', 'One per taxpayer reply', '3 Reply letters/EIU-SAMPLE-0001 reply.pdf', 'EIU signals > open the signal > Record reply > attach', 'Optional: free-form PDF, Word (.docx) or text'],
+    [9, 'Rule matrix', 'One, set up once', '(not included: already on the platform)', 'Placed in the data folder by the administrator', 'Already in place'],
     [],
     ['How to read this guide'],
     ['Sheet', 'What it covers'],
     ['Returns - sheets', 'Every sheet of the returns workbook: what it holds and whether the platform reads it'],
     ['Returns - columns', 'Every column of every returns sheet, exactly as spelled in the export, and whether the platform reads it'],
-    ['Registers - columns', 'Every column of the five registers: required or not, the accepted format, an example and the meaning'],
+    ['Registers - columns', 'Every column of the six registers: required or not, the accepted format, an example and the meaning'],
     ['Rules', 'The rules a file must follow to be accepted. A pipeline should check these before delivering a file'],
     ['Other sources', 'Data the rule matrix needs that no current file provides (for planning, not required now)'],
     [],
@@ -393,7 +399,7 @@ function guideBook(matrixSources) {
     [11, 'Registers', 'Every row is checked. One bad row rejects the whole file, and every problem is listed at once so it can be fixed in one pass.', 'Nothing is saved until the whole file is valid.'],
     [12, 'Registers', 'GSTIN: 15 characters with a valid check digit. Financial year: 2025-26. Month: Apr to Mar. Dates: DD-MM-YYYY, YYYY-MM-DD or an Excel date. Amounts: rupees, not negative.', 'Row-level error naming the row and column.'],
     [13, 'Registers', 'No duplicates: the key column (signal_id, demand_id, gstin ...) must be unique; the case register rejects the same case, event, date, reference and amount twice.', 'Row-level error.'],
-    [14, 'Registers', 'Each upload replaces the previous version of that register completely (the previous version and the original file are kept). Send the full register every time, not only changes.', 'Rows missing from a new upload disappear from the platform.'],
+    [14, 'Registers', 'Each upload adds to the register: new rows are added, a row with the same key (GSTIN, signal_id, demand_id ...) is updated, and every row already saved stays. Send only new or changed rows if you like. The previous version and the original file are kept.', 'A row cannot be removed by leaving it out of a new upload.'],
     [15, 'Registers', 'Size: up to 10 MB per file.', 'Larger files are refused.'],
     [16, 'Reply letters', 'PDF, Word (.docx) or plain text, up to 15 MB. Attached to one EIU signal. Scanned images without a text layer can be stored but not read.', 'Other formats are refused.'],
     [17, 'All', 'GSTINs must match across files: a register row should refer to a taxpayer whose returns workbook is loaded (the master may also list counterparties).', 'Rows for unknown taxpayers are kept but cannot be linked to returns.'],

@@ -130,6 +130,7 @@ export function parseWorkbook(wb, fileName = '') {
     const k = itcKey(r.Details);
     if (!k || !g3b[r._m]) continue;
     g3b[r._m].itc[k] = tt(tax(r));
+    (g3b[r._m].itcH ||= {})[k] = tax(r); // the same, head by head (for head-wise demands)
   }
   for (const r of readSheet(wb, 'GSTR3B_PaymentofTax')) {
     const d = g3b[r._m]; if (!d) continue;
@@ -186,7 +187,7 @@ export function parseWorkbook(wb, fileName = '') {
   // 2B amendments: the first 'Invoice number' / 'Invoice Date' columns are the original, the second the revised
   const g2bAmend = readSheet(wb, 'GSTR2B_B2BA').map((r) => ({ m: r._m, gstin: String(r['GSTIN of supplier'] || '').trim().toUpperCase(), origNo: String(r['Invoice number'] ?? '').trim(),
     origDate: toISO(r['Invoice Date']), no: String(r['Invoice number#2'] ?? '').trim(), date: toISO(r['Invoice date']), taxable: num(r['Taxable Value']) })).filter((r) => r.gstin);
-  const g2bIsd = readSheet(wb, 'GSTR2B_ISD').map((r) => ({ m: r._m, tax: tt(tax(r)) }));
+  const g2bIsd = readSheet(wb, 'GSTR2B_ISD').map((r) => ({ m: r._m, ...tax(r), tax: tt(tax(r)) }));
   // Bills of entry: 2B IMPG/IMPGSEZ plus 2A ICEGATE feed, de-duplicated on BoE number
   const boeMap = new Map();
   for (const r of [...readSheet(wb, 'GSTR2B_IMPG'), ...readSheet(wb, 'GSTR2B_IMPGSEZ'), ...readSheet(wb, 'GSTR2A_IMPGOS')]) {

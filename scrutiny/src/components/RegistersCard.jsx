@@ -54,7 +54,7 @@ function RegisterRow({ type, loaded, onUpload }) {
   );
 }
 
-/** The five registers as rows (status, template, upload), without a card around them. */
+/** The registers as rows (status, template, upload), without a card around them. */
 export function RegisterList({ registers, onUpload }) {
   if (registers === null) return <div className="muted">Registers need the server store (dev server or server.mjs).</div>;
   return registers ? Object.keys(REGISTERS).map((type) => <RegisterRow key={type} type={type} loaded={registers[type]} onUpload={onUpload} />) : null;

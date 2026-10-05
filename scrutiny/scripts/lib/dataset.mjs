@@ -71,13 +71,17 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
   const catalog = matrixWb ? parseRuleMatrix(matrixWb) : [];
   const matrix = matrixWb ? parseMatrixExtras(matrixWb) : { industries: [], applicability: {}, dataSources: [] };
   const severity = Object.fromEntries(catalog.map((r) => [r.id, r.severity]));
+  // Due-date extensions register (data/registers/extensions.json): late filing is judged against the extended dates
+  const extensions = (() => {
+    try { return JSON.parse(fs.readFileSync(path.join(process.env.REGISTER_DIR ? path.resolve(process.env.REGISTER_DIR) : path.join(dataDir, 'registers'), 'extensions.json'), 'utf8')).records || []; } catch { return []; }
+  })();
 
   const errors = [];
   const byGstin = new Map();
   const root = path.resolve(dataDir, '..');
   const cacheDir = path.join(dataDir, '.cache');
   const simulate = process.env.EWB_SIMULATE !== '0';
-  const engine = cache ? sha(JSON.stringify([ENGINE_FILES().map((f) => sha(fs.readFileSync(f))), severity, simulate ? loadPlan(root).hash : 'no-sim'])) : null;
+  const engine = cache ? sha(JSON.stringify([ENGINE_FILES().map((f) => sha(fs.readFileSync(f))), severity, extensions, simulate ? loadPlan(root).hash : 'no-sim'])) : null;
   // The cache only saves time: if it cannot be written (e.g. folder permissions), the build carries on without it.
   const noCache = (e) => { if (cache) warn(`analysis cache off: ${e.message}`); cache = false; };
   if (cache) { try { fs.mkdirSync(cacheDir, { recursive: true }); fs.accessSync(cacheDir, fs.constants.W_OK); } catch (e) { noCache(e); } }
@@ -105,7 +109,7 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
         // E-way bills: the stored copy (fetched or uploaded), else a simulated fetch (scripts/synth/ewb.mjs)
         tp.ewb = ewbFor({ dataDir, root, tp });
         ({ gstin, fyStart } = tp);
-        a = analyze(tp, { severity });
+        a = analyze(tp, { severity, extensions });
         trade = tradeOf(tp);
         if (cache) { try { fs.writeFileSync(cacheFile, JSON.stringify({ engine, file: f, gstin, fyStart, ewb: statOf(ewbFile(dataDir, gstin, fyStart)), a, trade })); } catch (e) { noCache(e); } }
       }

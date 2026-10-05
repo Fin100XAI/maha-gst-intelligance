@@ -4,10 +4,15 @@ import Icon from '../components/Icon.jsx';
 import { inr } from '../lib/format.js';
 import { Readiness, ScrutinyNote, readinessState } from './NoticeGate.jsx';
 import { isIssue, DISPOSITION_LABEL } from '../engine/verify.js';
+import { HEADS, BASIS, addHeads } from '../engine/heads.js';
 
 const addDays = (iso, n) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const today = () => new Date().toISOString().slice(0, 10);
 const dmy = (iso) => (iso ? iso.split('-').reverse().join('-') : '-');
+const rs = (v) => Math.round(v || 0).toLocaleString('en-IN');
+const HEAD_LABEL = { igst: 'IGST', cgst: 'CGST', sgst: 'SGST' };
+// IGST, CGST and SGST are separate levies owed to different governments: a notice states each.
+const headsText = (h) => HEADS.filter((k) => h?.[k]).map((k) => `${HEAD_LABEL[k]} ${inr(h[k], { compact: false })}`).join(', ');
 
 export default function Notices({ data, cases, notices, saveNotice, setReadiness, selected, setSelected, user, toast }) {
   const cat = useMemo(() => Object.fromEntries(data.catalog.map((r) => [r.id, r])), [data.catalog]);
@@ -32,14 +37,18 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
   const due = addDays(f.issued || today(), Number(f.replyDays) || 30);
   const items = candidates.filter((r) => f.items.includes(r.id));
   const total = items.reduce((s, r) => s + r.exposure, 0);
+  const totalHeads = addHeads(...items.map((r) => r.heads));
+  const bases = [...new Set(items.filter((r) => r.exposure > 0 && r.headsBasis).map((r) => r.headsBasis))];
+  const basisNote = (basis) => `${items.filter((r) => r.exposure > 0 && r.headsBasis === basis).map((r) => r.id).join(', ')}: heads ${BASIS[basis]}.`;
 
   const text = [
     'FORM GST ASMT-10', '[See rule 99(1)]', '', `Reference No.: ${f.ref}`, `Date: ${dmy(f.issued)}`, '',
     `To: ${a.name}`, `GSTIN: ${a.gstin}`, `State: ${a.state}`, `Tax period: FY ${a.fy}`, '',
     'Sub.: Notice for intimating discrepancies in the return after scrutiny', '',
     `This is to inform you that during scrutiny of the returns filed by you for the tax period FY ${a.fy}, the following discrepancies have been noticed:`, '',
-    ...items.map((r, i) => `${i + 1}. [${r.id}] ${cat[r.id]?.check} (${cat[r.id]?.legal}): ${r.finding}${r.exposure ? ` Tax involved: ${inr(r.exposure, { compact: false })}.` : ''}`),
-    '', `Total tax involved (indicative): ${inr(total, { compact: false })}`,
+    ...items.map((r, i) => `${i + 1}. [${r.id}] ${cat[r.id]?.check} (${cat[r.id]?.legal}): ${r.finding}${r.exposure ? ` Tax involved: ${inr(r.exposure, { compact: false })}${r.heads ? ` (${headsText(r.heads)})` : ''}.` : ''}`),
+    '', `Total tax involved (indicative): ${inr(total, { compact: false })}${total ? ` (${headsText(totalHeads)})` : ''}`,
+    ...(bases.length ? ['', ...bases.map(basisNote)] : []),
     ...(f.extra ? ['', f.extra] : []), '',
     `You are hereby directed to explain the reasons for the aforesaid discrepancies by ${dmy(due)}. If no explanation is received by the aforesaid date, it will be presumed that you have nothing to say in the matter and proceedings in accordance with law may be initiated against you without making any further reference to you in this regard.`,
     '', user.name, f.designation, `Jurisdiction: ${user.workspace}`, '', 'DRAFT: generated for review by the proper officer.',
@@ -51,7 +60,7 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
     const el = document.createElement('a'); el.href = url; el.download = `ASMT-10_${a.gstin}_${f.issued}.txt`; el.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const save = () => { if (!gate.finalReady) return; saveNotice(a.id, { ...f, due, total, savedAt: new Date().toISOString() }); toast(`ASMT-10 draft saved for ${a.name}`); };
+  const save = () => { if (!gate.finalReady) return; saveNotice(a.id, { ...f, due, total, heads: totalHeads, savedAt: new Date().toISOString() }); toast(`ASMT-10 draft saved for ${a.name}`); };
   const drafted = data.taxpayers.filter((t) => notices[t.id]);
 
   return (
@@ -153,14 +162,16 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
             <p><b>Sub.: Notice for intimating discrepancies in the return after scrutiny</b></p>
             <p>This is to inform you that during scrutiny of the returns filed by you for the tax period FY {a.fy}, the following discrepancies have been noticed:</p>
             <table>
-              <thead><tr><th>#</th><th>Discrepancy</th><th>Provision</th><th>Details</th><th className="num">Tax involved (₹)</th></tr></thead>
+              <thead><tr><th>#</th><th>Discrepancy</th><th>Provision</th><th>Details</th>{HEADS.map((k) => <th key={k} className="num">{HEAD_LABEL[k]} (₹)</th>)}<th className="num">Total (₹)</th></tr></thead>
               <tbody>
                 {items.map((r, i) => (
-                  <tr key={r.id}><td>{i + 1}</td><td><b>{cat[r.id]?.check}</b><div className="mono" style={{ fontSize: 11, color: '#54607a' }}>{r.id}</div></td><td>{cat[r.id]?.legal}</td><td>{r.finding}</td><td className="num">{r.exposure ? Math.round(r.exposure).toLocaleString('en-IN') : '-'}</td></tr>
+                  <tr key={r.id}><td>{i + 1}</td><td><b>{cat[r.id]?.check}</b><div className="mono" style={{ fontSize: 11, color: '#54607a' }}>{r.id}</div></td><td>{cat[r.id]?.legal}</td><td>{r.finding}</td>
+                    {HEADS.map((k) => <td key={k} className="num">{r.exposure ? rs(r.heads?.[k]) : '-'}</td>)}<td className="num">{r.exposure ? rs(r.exposure) : '-'}</td></tr>
                 ))}
-                <tr><td colSpan={4} style={{ textAlign: 'right' }}><b>Total (indicative)</b></td><td className="num"><b>{Math.round(total).toLocaleString('en-IN')}</b></td></tr>
+                <tr><td colSpan={4} style={{ textAlign: 'right' }}><b>Total (indicative)</b></td>{HEADS.map((k) => <td key={k} className="num"><b>{rs(totalHeads[k])}</b></td>)}<td className="num"><b>{rs(total)}</b></td></tr>
               </tbody>
             </table>
+            {bases.length > 0 && <p style={{ fontSize: 11.5, color: '#54607a' }}>{bases.map(basisNote).join(' ')}</p>}
             {f.extra && <p>{f.extra}</p>}
             <p>You are hereby directed to explain the reasons for the aforesaid discrepancies by <b>{dmy(due)}</b>. If no explanation is received by the aforesaid date, it will be presumed that you have nothing to say in the matter and proceedings in accordance with law may be initiated against you without making any further reference to you in this regard.</p>
             <div className="sig"><div>Signature ____________________</div><div style={{ marginTop: 6 }}><b>{user.name}</b></div><div>{f.designation}</div><div className="mono" style={{ fontSize: 12 }}>{user.workspace}</div></div>
