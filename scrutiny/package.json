@@ -9,6 +9,7 @@
     "gen:ltu-pune": "node scripts/synth/ltu-pune.mjs",
     "pack:ltu-pune": "node scripts/synth/pack-ltu-pune.mjs",
     "sample:upload": "node scripts/synth/sample-upload.mjs",
+    "pack:e2e": "node scripts/synth/e2e-pack.mjs",
     "demo:reset": "node scripts/synth/ltu-pune.mjs --remove && node scripts/build-data.mjs",
     "validate:synth": "node scripts/synth/validate.mjs",
     "dev": "npm run build:data && vite",
