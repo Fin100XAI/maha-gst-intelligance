@@ -7,3 +7,6 @@ dist
 .claude
 *.log
 ~$*
+
+# working state, never in an image: case log, documents, alerts, and with accounts the password hashes and session key
+store
