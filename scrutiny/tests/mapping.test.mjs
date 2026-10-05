@@ -110,3 +110,24 @@ test('a converted sheet is added to the stored workbook; the previous version is
   assert.equal(stored.periods.length, 1, 'the rest of the workbook is unchanged');
   assert.throws(() => supplementWorkbook({ dataDir, gstin: '27AAPFU0939F1ZV', fyStart: 2024, sheet: 'GSTR2B_B2B', aoa }), /No returns are stored/);
 });
+
+test('a column left unmatched is left out of the sheet, so the parser keeps its default (regression)', () => {
+  // "ITC Eligible" is not matched here: an empty "ITC Availability" column would read as "No" for every invoice
+  const grid = [['Supplier GSTIN', 'Bill No', 'Bill Date', 'Taxable Amount', 'CGST', 'SGST'], ['27AAPFU0939F1ZV', 'A-1', '05/04/2025', '1000.50', '90.05', '90.05']];
+  const t = TARGETS.GSTR2B_B2B;
+  const c = convertRows(t, grid, { headerRow: 0, mapping: suggestMapping(t, grid[0]), fyStart: 2025 });
+  assert.ok(!c.header.includes('ITC Availability') && !c.header.includes('Reason'), `header: ${c.header.join(', ')}`);
+  assert.ok(c.header.includes('Month') && c.header.includes('Taxable Value'));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Company Name : ', 'X'], ['Company GSTN : ', '27AAPFU0939F1ZV'], ['Return Period : ', '2025 - 2026'], [], [], ['Sr. #', 'Month', 'Nature of Supplies', 'Total Taxable Value', 'Integrated Tax', 'Central Tax', 'State/UT Tax', 'Cess'], [1, 'April', '(a) Outward Taxable Supplies', 1000, 0, 90, 90, 0]]), 'GSTR3B_Supplies');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(templateAoa(t, c, { gstin: '27AAPFU0939F1ZV', fyStart: 2025 })), 'GSTR2B_B2B');
+  const [line] = parseWorkbook(XLSX.read(XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })), 'x.xlsx').g2b;
+  assert.equal(line.itcAvail, true, 'no availability column: available, as in an export without one');
+  assert.equal(line.taxable, 1000.5, 'paise kept');
+});
+
+test('common accounting names are matched: bill amount, ITC eligible', () => {
+  const m = suggestMapping(TARGETS.GSTR2B_B2B, ['Supplier GSTIN', 'Bill No', 'Bill Date', 'Bill Amount', 'Taxable Amount', 'ITC Eligible']);
+  assert.equal(m['Invoice Value'], 3);
+  assert.equal(m['ITC Availability'], 5);
+});

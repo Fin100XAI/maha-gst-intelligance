@@ -25,14 +25,14 @@ export const TARGETS = {
       F('Invoice number', 'Invoice number', 'text', ['invoice number', 'invoice no', 'inv no', 'inum', 'document number', 'bill no'], true),
       F('Invoice type', 'Invoice type', 'text', ['invoice type', 'inv type', 'type']),
       F('Invoice Date', 'Invoice date', 'date', ['invoice date', 'inv date', 'idt', 'document date', 'bill date'], true),
-      F('Invoice Value', 'Invoice value', 'money', ['invoice value', 'inv value', 'val', 'total invoice value']),
+      F('Invoice Value', 'Invoice value', 'money', ['invoice value', 'inv value', 'val', 'total invoice value', 'bill amount', 'bill value', 'invoice amount']),
       F('Place of supply', 'Place of supply', 'text', ['place of supply', 'pos']),
       F('Supply Attract Reverse Charge', 'Reverse charge', 'yesno', ['supply attract reverse charge', 'reverse charge', 'rcm', 'rev']),
       F('Rate', 'Tax rate (%)', 'number', ['rate', 'tax rate', 'gst rate', 'rt']),
       F('Taxable Value', 'Taxable value', 'money', ['taxable value', 'txval', 'taxable amount', 'assessable value'], true),
       ...TAX_FIELDS('Integrated Tax', 'Central Tax', 'State/UT Tax', 'Cess'),
       F('GSTR-1/5 Filing Date', 'Supplier\'s GSTR-1 filing date', 'date', ['gstr-1/5 filing date', 'gstr1 filing date', 'filing date', 'supfildt']),
-      F('ITC Availability', 'ITC available', 'yesno', ['itc availability', 'itc available', 'itcavl', 'eligible for itc']),
+      F('ITC Availability', 'ITC available', 'yesno', ['itc availability', 'itc available', 'itcavl', 'eligible for itc', 'itc eligible', 'itc eligibility', 'eligible itc']),
       F('Reason', 'Reason ITC not available', 'text', ['reason', 'rsn']),
     ],
   },
@@ -44,7 +44,7 @@ export const TARGETS = {
       F('Name of Party', 'Supplier name', 'text', ['name of party', 'party name', 'supplier name', 'trade/legal name', 'trade name']),
       F('Invoice No.', 'Invoice number', 'text', ['invoice no', 'invoice number', 'inv no', 'inum', 'bill no'], true),
       F('Invoice Date', 'Invoice date', 'date', ['invoice date', 'inv date', 'idt', 'bill date'], true),
-      F('Invoice Value', 'Invoice value', 'money', ['invoice value', 'inv value', 'val']),
+      F('Invoice Value', 'Invoice value', 'money', ['invoice value', 'inv value', 'val', 'bill amount', 'bill value', 'invoice amount']),
       F('Rate', 'Tax rate (%)', 'number', ['rate', 'tax rate', 'gst rate']),
       F('Taxable Value', 'Taxable value', 'money', ['taxable value', 'txval', 'taxable amount'], true),
       ...TAX_FIELDS('Integrated Tax Amount', 'Central Tax Amount', 'State/ UT Tax Amount', 'Cess Tax Amount'),
@@ -63,7 +63,7 @@ export const TARGETS = {
       F('Party Name', 'Buyer name', 'text', ['party name', 'buyer name', 'customer name', 'receiver name', 'name']),
       F('Invoice No', 'Invoice number', 'text', ['invoice no', 'invoice number', 'inv no', 'inum', 'bill no'], true),
       F('Invoice Date', 'Invoice date', 'date', ['invoice date', 'inv date', 'idt', 'bill date'], true),
-      F('Invoice Value', 'Invoice value', 'money', ['invoice value', 'inv value', 'val']),
+      F('Invoice Value', 'Invoice value', 'money', ['invoice value', 'inv value', 'val', 'bill amount', 'bill value', 'invoice amount']),
       F('Rate', 'Tax rate (%)', 'number', ['rate', 'tax rate', 'gst rate']),
       F('Total Taxable Value', 'Taxable value', 'money', ['total taxable value', 'taxable value', 'txval', 'taxable amount'], true),
       ...TAX_FIELDS('IGST Amount', 'CGST Amount', 'SGST Amount', 'CESS Amount'),
@@ -196,7 +196,9 @@ const yesNo = (v) => { const s = String(v ?? '').trim().toLowerCase(); return ['
  * @returns {{ header: string[], rows: any[][], read: number, excluded: Record<string, number>, problems: string[], months: Record<string, number> }}
  */
 export function convertRows(target, grid, { headerRow, mapping, fyStart }) {
-  const header = target.fields.map((f) => f.key);
+  // Only the columns the file has (and the month): an empty column is not the same as an absent one. The parser
+  // reads a missing "ITC Availability" as available, but an empty one as not available.
+  const header = target.fields.filter((f) => f.key === 'Month' || (mapping[f.key] !== null && mapping[f.key] !== undefined)).map((f) => f.key);
   const missing = target.fields.filter((f) => f.required && (mapping[f.key] === null || mapping[f.key] === undefined));
   const monthless = target.monthFrom === null ? mapping.Month == null : mapping.Month == null && mapping[target.monthFrom] == null;
   const problems = [];
