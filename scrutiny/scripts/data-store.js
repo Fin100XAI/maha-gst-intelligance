@@ -99,10 +99,23 @@ export default function dataStore() {
       // progress (one step per workbook, from the build's own output) for the screen to show.
       let job = null; // { id, stage, done, total, startedAt, finishedAt, error, detail, again, batches }
       let waiting = new Set(); // upload batches whose analysis is the next run
+      // Each taxpayer's result in the dashboard data, to say what an upload changed: score, band, failed checks.
+      const snapshot = () => {
+        try {
+          const d = JSON.parse(fs.readFileSync(outFile, 'utf8'));
+          return Object.fromEntries((d.taxpayers || []).map((t) => [t.gstin, { fy: t.fy, score: t.score, band: t.band, fails: t.results.filter((r) => r.status === 'Fail').map((r) => r.id) }]));
+        } catch { return {}; }
+      };
+      const changesFor = (batchId, before, after) => {
+        const batch = readLog(dataDir).batches.find((b) => b.id === batchId);
+        const gstins = [...new Set((batch?.files || []).filter((f) => f.ok).map((f) => f.gstin))];
+        return gstins.map((g) => ({ gstin: g, before: before[g] || null, after: after[g] || null }));
+      };
       const startJob = () => {
         job = { id: Date.now(), stage: 'running', done: 0, total: 0, startedAt: new Date().toISOString(), finishedAt: null, error: null, detail: null, again: false, batches: [...waiting] };
         waiting = new Set();
         const current = job;
+        const before = current.batches.length ? snapshot() : {};
         recordAnalysis(dataDir, current.batches, { stage: 'running', startedAt: current.startedAt, finishedAt: null, error: null, detail: null });
         const child = spawn(process.execPath, [buildScript], { env: { ...process.env, DATA_DIR: dataDir, OUT_FILE: outFile, PROGRESS: '1' } });
         const kill = setTimeout(() => child.kill(), 15 * 60000);
@@ -123,7 +136,10 @@ export default function dataStore() {
           current.failed = outputLines(err).filter((l) => l.startsWith('FAILED ')).map((l) => { const m = l.slice(7).match(/^(.*?\.xlsx): (.*)$/i); return m ? { file: m[1], error: m[2] } : { file: '', error: l.slice(7) }; });
           if (code === 0) current.stage = 'done';
           else Object.assign(current, { stage: 'error', error: errorLine(err) || `stopped (code ${code})`, detail: errorDetail(err) });
-          recordAnalysis(dataDir, current.batches, { stage: current.stage, finishedAt: current.finishedAt, error: current.error, detail: current.detail, failed: current.failed });
+          const after = current.stage === 'done' && current.batches.length ? snapshot() : null;
+          for (const id of current.batches) {
+            recordAnalysis(dataDir, [id], { stage: current.stage, finishedAt: current.finishedAt, error: current.error, detail: current.detail, failed: current.failed, ...(after ? { changes: changesFor(id, before, after) } : {}) });
+          }
           if (current.again) startJob(); // uploads that arrived during this run
         });
       };

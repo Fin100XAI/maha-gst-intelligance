@@ -1,6 +1,7 @@
 // Departmental action (capabilities 22-25): where cases are and for how long, what action yields from selection to
 // realised revenue, which kinds of case take effort without outcome, and which payments followed departmental action.
 import React, { useEffect, useMemo, useState } from 'react';
+import { DataNeeds } from '../components/DataNeeds.jsx';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLine, LabelList } from 'recharts';
 import { Card, Kpi, PageHead, Legend, Seg, Tabs, InfoTip, axisProps, gridProps } from '../components/ui.jsx';
 import { useEvidence, JurisdictionPicker, jurisdictionsOf, ALL, STEP_COLOR, CONF_COLOR, pctOf } from '../components/leadership.jsx';
@@ -10,19 +11,20 @@ import { SERIES, BRAND, INK, STATUS } from '../lib/colors.js';
 import { inr, axisInr, int } from '../lib/format.js';
 const lowerFirst = (t) => String(t).replace(/^[A-Z](?=[a-z])/, (ch) => ch.toLowerCase()); // keeps acronyms such as DRC-01
 
-export default function Actions({ data, registers, cases, jurisdiction, setJurisdiction, selected }) {
+export default function Actions({ data, registers, cases, jurisdiction, setJurisdiction, selected, go }) {
   const jur = jurisdiction || jurisdictionsOf(data, registers)[0] || ALL;
   const eb = useEvidence({ data, registers, cases, jurisdiction: jur });
   const TABS = ['funnel', 'yield', 'effort', 'revenue'];
   const [tab, setTab] = useState(TABS.includes(selected) ? selected : 'funnel');
   useEffect(() => { if (TABS.includes(selected)) setTab(selected); }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
   const y = eb.yieldByRisk.total;
-  if (!registers?.caselog) return <div className="page"><PageHead title="Actions" /><div className="card note">No case action register is loaded. Upload one in Upload data (step 2, Case action register). Cases recorded on this platform are included either way.</div></div>;
+  if (!registers?.caselog) return <div className="page"><PageHead title="Actions" /><DataNeeds page="actions" registers={registers} go={go} /><div className="card note">No case action register is loaded. Upload one in Upload data (step 2, Case action register). Cases recorded on this platform are included either way.</div></div>;
   return (
     <div className="page">
       <PageHead title="Actions" path={`${jur === ALL ? 'all loaded GSTINs' : jur} · ${eb.cases.length} cases`}>
         <JurisdictionPicker data={data} registers={registers} value={jur} onChange={setJurisdiction} />
       </PageHead>
+      <DataNeeds page="actions" registers={registers} go={go} />
       <div className="grid g-4">
         <Kpi label="Cases" value={int(eb.funnel.cases)} sub={`${eb.funnel.open} open · ${eb.funnel.closed} closed · ${eb.funnel.reopened} reopened`} />
         <Kpi label="Selected → realised" value={pctOf(y.yield, 1)} sub={`${inr(y.realised)} realised of ${inr(y.selected)} selected`} />

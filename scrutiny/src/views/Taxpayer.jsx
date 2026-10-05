@@ -3,7 +3,8 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, PieChart, Pie, LineChart, Line, ComposedChart,
   ScatterChart, Scatter, Treemap, ReferenceLine, LabelList,
 } from 'recharts';
-import { Card, Kpi, Band, BandChip, CaseStatus, PageHead, SearchBox, Tip, Legend, Tabs, StatusPill, Sev, Seg, DataTable, axisProps, gridProps, xLab, yLab, Rag, InfoTip } from '../components/ui.jsx';
+import { Card, Kpi, Band, BandChip, CaseStatus, PageHead, SearchBox, Tip, Legend, Tabs, StatusPill, Sev, Seg, DataTable, axisProps, gridProps, xLab, yLab, Rag, InfoTip, TestTag } from '../components/ui.jsx';
+import { isTestData } from '../engine/names.js';
 import { verifyStep, routeIfConfirmed, raisedIndicators, reviewPrompts, isIssue, confirmBlocked, DISPOSITIONS, DISPOSITION_LABEL, CLOSURE_LABEL } from '../engine/verify.js';
 import { buildEvidencePack, downloadFile } from '../lib/evidencePack.js';
 import { nowStamp } from '../lib/store.js';
@@ -36,7 +37,7 @@ export default function Taxpayer({ a, initialTab, baselines, network, master, op
 
   return (
     <div className="page">
-      <PageHead title={a.name} path={`${a.gstin} · ${a.state} · ${a.filing.toLowerCase()} · FY ${a.fy}`}>
+      <PageHead title={isTestData(a.gstin, a.fileName) ? <>{a.name} <TestTag /></> : a.name} path={`${a.gstin} · ${a.state} · ${a.filing.toLowerCase()} · FY ${a.fy}`}>
         <SearchBox taxpayers={taxpayers} onPick={onSelect} placeholder="Jump to taxpayer or GSTIN" />
         <button className="btn" onClick={openReport}><Icon name="print" size={16} /> Generate report</button>
         <button className="btn" onClick={openNotice} title="Create scrutiny note: verification pending">Scrutiny note</button>

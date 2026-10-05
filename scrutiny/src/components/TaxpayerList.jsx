@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Icon from './Icon.jsx';
 import { raisedIndicators } from '../engine/verify.js';
+import { isTestData } from '../engine/names.js';
+import { TestTag } from './ui.jsx';
 import { BAND } from '../lib/colors.js';
 import { inr, int } from '../lib/format.js';
 
@@ -12,6 +14,7 @@ const clean = (s) => s.replace(/\b(PRIVATE|PVT\.?|LIMITED|LTD\.?)\b/gi, '').repl
 export const listRows = (taxpayers) => [...taxpayers].sort((a, b) => b.score - a.score).map((a, i) => ({
   uid: a.uid || a.id, id: a.id, rank: i + 1, name: a.name, gstin: a.gstin, score: a.score, band: a.band,
   fails: a.results.filter((r) => r.status === 'Fail').length, flags: raisedIndicators(a).length, exposure: a.exposure.confirmed + a.exposure.potential,
+  test: isTestData(a.gstin, a.fileName),
 }));
 
 export default function TaxpayerList({ rows, openTaxpayer, pageSize = 10, search = true, resetKey }) {
@@ -32,7 +35,7 @@ export default function TaxpayerList({ rows, openTaxpayer, pageSize = 10, search
           <li key={r.uid}>
             <button className="rr-row" onClick={() => openTaxpayer(r.id)} title={`Open ${r.name}`}>
               <span className="rr-rank">{r.rank}</span>
-              <span className="rr-name"><b>{clean(r.name)}</b><span className="mono muted">{r.gstin}</span></span>
+              <span className="rr-name"><b>{clean(r.name)}</b>{r.test && <> <TestTag /></>}<span className="mono muted">{r.gstin}</span></span>
               <span className="rr-bar" aria-hidden="true"><i style={{ width: `${Math.max(2, r.score)}%`, background: BAND[r.band].color }} /></span>
               <span className="rr-score">{r.score}</span>
               <span className="rr-why muted small">{r.fails} failed · {r.flags} indicator{r.flags === 1 ? '' : 's'}{r.exposure ? ` · ${inr(r.exposure)}` : ''}</span>

@@ -10,9 +10,14 @@ import { int } from '../lib/format.js';
 export const ORDER = ['Critical', 'High', 'Moderate', 'Low'];
 const BIN = 5;
 
+const KIND = { all: 'All taxpayers', real: 'Real only', test: 'Test data only' };
+
 export default function RiskRanking({ taxpayers, openTaxpayer }) {
   const [bands, setBands] = useState(() => new Set(['Critical', 'High']));
-  const ranked = useMemo(() => listRows(taxpayers), [taxpayers]);
+  const [kind, setKind] = useState('all');
+  const everyone = useMemo(() => listRows(taxpayers), [taxpayers]);
+  const testCount = everyone.filter((r) => r.test).length;
+  const ranked = useMemo(() => (kind === 'all' ? everyone : everyone.filter((r) => (kind === 'test') === r.test)), [everyone, kind]);
   const counts = useMemo(() => Object.fromEntries(ORDER.map((b) => [b, ranked.filter((r) => r.band === b).length])), [ranked]);
   // The whole population, 0-100 in bins of 5, stacked by band (bands are configurable, so a bin can hold two).
   const hist = useMemo(() => Array.from({ length: 100 / BIN }, (_, i) => {
@@ -46,8 +51,15 @@ export default function RiskRanking({ taxpayers, openTaxpayer }) {
             </button>
           ))}
         </div>
+        {testCount > 0 && (
+          <label className="field inline rr-kind"><span>Show</span>
+            <select value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Real or test taxpayers">
+              {Object.entries(KIND).map(([k, label]) => <option key={k} value={k}>{label} ({int(k === 'all' ? everyone.length : k === 'test' ? testCount : everyone.length - testCount)})</option>)}
+            </select>
+          </label>
+        )}
       </div>
-      <TaxpayerList rows={shown} openTaxpayer={openTaxpayer} resetKey={[...bands].join()} />
+      <TaxpayerList rows={shown} openTaxpayer={openTaxpayer} resetKey={`${[...bands].join()}|${kind}`} />
       <Legend items={ORDER.map((b) => ({ label: b, color: BAND[b].color }))} />
     </Card>
   );

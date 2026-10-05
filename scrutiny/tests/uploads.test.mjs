@@ -30,3 +30,12 @@ test('a failed build reports its error line, not Node\'s closing version line', 
   assert.equal(errorLine(stderr), "Error: EACCES: permission denied, open '/srv/app/public/data.json'");
   assert.equal(errorLine('FAILED x.xlsx: bad file\n'), 'FAILED x.xlsx: bad file');
 });
+
+test('the upload report says what changed for each taxpayer since the last run', async () => {
+  const { changeText } = await import('../src/lib/uploads.js');
+  const was = { fy: '2025-2026', score: 24, band: 'Low', fails: ['J-01'] };
+  assert.equal(changeText({ gstin: 'x', before: null, after: was }), 'New taxpayer');
+  assert.equal(changeText({ gstin: 'x', before: was, after: was }), 'No change');
+  assert.equal(changeText({ gstin: 'x', before: was, after: { ...was, score: 48, band: 'High', fails: ['B-01', 'J-01'] } }), 'score 24 → 48 (Low → High) · new failed: B-01');
+  assert.equal(changeText({ gstin: 'x', before: was, after: { ...was, score: 3, fails: [] } }), 'score 24 → 3 · no longer failing: J-01');
+});

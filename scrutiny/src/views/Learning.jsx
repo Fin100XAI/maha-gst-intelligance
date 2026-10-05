@@ -1,6 +1,7 @@
 // Outcome learning (capability 29): what closed cases teach. Which signals convert, which explanations recur, which
 // evidence combinations matter, and which cases consumed effort without an outcome.
 import React from 'react';
+import { DataNeeds } from '../components/DataNeeds.jsx';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LabelList } from 'recharts';
 import { Card, Kpi, PageHead, Legend, InfoTip, axisProps, gridProps } from '../components/ui.jsx';
 import { useEvidence, JurisdictionPicker, jurisdictionsOf, ALL, OUTCOME_COLOR, pctOf } from '../components/leadership.jsx';
@@ -8,7 +9,7 @@ import { OUTCOMES } from '../engine/actions.js';
 import { shortName } from '../components/RevenueChange.jsx';
 import { SERIES, INK } from '../lib/colors.js';
 
-export default function Learning({ data, registers, cases, jurisdiction, setJurisdiction }) {
+export default function Learning({ data, registers, cases, jurisdiction, setJurisdiction, go }) {
   const jur = jurisdiction || jurisdictionsOf(data, registers)[0] || ALL;
   const eb = useEvidence({ data, registers, cases, jurisdiction: jur });
   const l = eb.learning;
@@ -19,6 +20,7 @@ export default function Learning({ data, registers, cases, jurisdiction, setJuri
       <PageHead title="Learning" path={`${jur === ALL ? 'all loaded GSTINs' : jur} · ${l.closed} closed cases`}>
         <JurisdictionPicker data={data} registers={registers} value={jur} onChange={setJurisdiction} />
       </PageHead>
+      <DataNeeds page="learning" registers={registers} go={go} />
       <div className="grid g-4">
         <Kpi label="Closed cases" value={l.closed} sub="the base for everything on this page" />
         <Kpi label="Closed as confirmed" value={pctOf(eb.yieldByRisk.total.conversion)} sub="paid voluntarily or demand confirmed" />

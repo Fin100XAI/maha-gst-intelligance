@@ -92,16 +92,6 @@ export default function App() {
   const [registers, setRegisters] = useState(null);
   const loadRegisters = useCallback(() => fetch(api('/__registers'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((v) => setRegisters(v && typeof v === 'object' ? v : null)).catch(() => setRegisters(null)), []);
   useEffect(() => { loadRegisters(); }, [loadRegisters]);
-  const uploadRegister = useCallback(async (type, file) => {
-    try {
-      const r = await fetch(api(`/__registers/upload?type=${encodeURIComponent(type)}&name=${encodeURIComponent(file.name)}`), { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
-      const body = await r.json();
-      if (body.ok) { await loadRegisters(); setToast(body.meta.mode === 'merge' ? `${body.meta.title}: ${body.meta.added} added, ${body.meta.updated} updated, ${body.meta.rows} rows in all` : `${body.meta.title}: ${body.meta.rows} rows loaded`); }
-      return body;
-    } catch (e) {
-      return { ok: false, errors: [`Upload failed: ${e.message}`] };
-    }
-  }, [loadRegisters]);
   const [error, setError] = useState(null);
   // Embedded: the shell signs the officer in, so no session is read or saved here.
   const [embedded, setEmbedded] = useState(embedRequested);
@@ -235,6 +225,22 @@ export default function App() {
       setToast(run?.stage === 'done' ? 'Analysis finished: the dashboard shows the uploaded data' : `Analysis did not finish: ${run?.error || 'no answer from the server'}`);
     } finally { setBusy(false); setUploadProgress(null); }
   }, [analyseOnServer, reloadData, loadUploads]);
+  // Registers: saved on the server. A due-date extension changes when returns count as late, so the returns are
+  // analysed again (in the background, with progress) after that register is uploaded.
+  const uploadRegister = useCallback(async (type, file) => {
+    try {
+      const r = await fetch(api(`/__registers/upload?type=${encodeURIComponent(type)}&name=${encodeURIComponent(file.name)}`), { method: 'POST', body: file, headers: { 'content-type': 'application/octet-stream' } });
+      const body = await r.json();
+      if (body.ok) {
+        await loadRegisters();
+        setToast(body.meta.mode === 'merge' ? `${body.meta.title}: ${body.meta.added} added, ${body.meta.updated} updated, ${body.meta.rows} rows in all` : `${body.meta.title}: ${body.meta.rows} rows loaded`);
+        if (type === 'extensions') await retryAnalysis(null);
+      }
+      return body;
+    } catch (e) {
+      return { ok: false, errors: [`Upload failed: ${e.message}`] };
+    }
+  }, [loadRegisters, retryAnalysis]);
   const onFiles = useCallback(async (files) => {
     if (!files.length || !raw) return;
     setBusy(true);
@@ -423,12 +429,12 @@ export default function App() {
         {route.view === 'dashboard' && <Portfolio data={data} openTaxpayer={openTaxpayer} go={go} latestUpload={uploads?.batches?.[0] || null} aiProps={{ ai, setAi, cache: aiCache, setCache: setAiCache, go, ...hideProps('portfolio') }} />}
         {route.view === 'demo' && <DemoScript data={data} registers={registers} cases={cases} go={(v, id, tab) => (v === 'taxpayer' ? openTaxpayerTab(id, tab || null) : go(v, id))} onStart={() => { setJurisdiction(WARD.jurisdiction); setTouring(false); setDemoOn(true); }} />}
         {route.view === 'overview' && <Overview data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} user={user} roleHint={route.id} go={(v, id, tab) => (v === 'taxpayer' ? openTaxpayerTab(id, tab || null) : go(v, id))} />}
-        {route.view === 'collections' && <Collections data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
-        {route.view === 'actions' && <Actions data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} selected={route.id} />}
-        {route.view === 'recovery' && <Recovery data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} openTaxpayer={(g) => openTaxpayerTab(g, null)} />}
+        {route.view === 'collections' && <Collections data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
+        {route.view === 'actions' && <Actions data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} selected={route.id} />}
+        {route.view === 'recovery' && <Recovery data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} openTaxpayer={(g) => openTaxpayerTab(g, null)} />}
         {route.view === 'governance' && <Governance data={data} registers={registers} cases={cases} go={(v, id, tab) => (v === 'taxpayer' ? openTaxpayerTab(id, tab || null) : go(v, id))} />}
-        {route.view === 'targets' && <Targets data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
-        {route.view === 'learning' && <Learning data={data} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
+        {route.view === 'targets' && <Targets data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
+        {route.view === 'learning' && <Learning data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
         {route.view === 'eiu' && <Eiu data={data} registers={registers} cases={cases} dispatch={dispatch} selected={route.id} setSelected={(id) => { window.location.hash = `/eiu/${id}`; }} openTaxpayer={(g) => openTaxpayerTab(g, null)} toast={setToast} />}
         {route.view === 'ewb' && <EwayBills data={data} openTaxpayer={(g) => openTaxpayerTab(g, 'ewb')} toast={setToast} reload={reloadData} />}
         {route.view === 'network' && <Network data={data} registers={registers} openTaxpayer={openTaxpayerTab} />}

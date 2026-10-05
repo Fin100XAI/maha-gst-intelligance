@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card, Kpi, BandChip, Tip, Legend, axisProps, gridProps, PageHead, SearchBox, xLab } from '../components/ui.jsx';
+import { isTestData } from '../engine/names.js';
 import Icon from '../components/Icon.jsx';
 import Insights from '../components/Insights.jsx';
 import RiskRanking from '../components/RiskRanking.jsx';
@@ -18,7 +19,8 @@ export default function Portfolio({ data, openTaxpayer, go, aiProps, latestUploa
   // Taxpayers can be on different latest years: say so, and date the view by the newest extract.
   const fys = [...new Set(taxpayers.map((a) => a.fy))].sort();
   const newest = taxpayers.map((a) => a.asOf).filter(Boolean).sort().pop();
-  const headline = `${int(taxpayers.length)} taxpayers · ${fys.length > 1 ? `latest FY per taxpayer (${fys[0]} to ${fys[fys.length - 1]})` : `FY ${fys[0]}`}${newest ? ` · data to ${newest}` : ''}`;
+  const tests = taxpayers.filter((a) => isTestData(a.gstin, a.fileName)).length;
+  const headline = `${int(taxpayers.length)} taxpayers${tests ? ` (${int(tests)} test data)` : ''} · ${fys.length > 1 ? `latest FY per taxpayer (${fys[0]} to ${fys[fys.length - 1]})` : `FY ${fys[0]}`}${newest ? ` · data to ${newest}` : ''}`;
 
   const totals = useMemo(() => {
     const t = { turnover: 0, confirmed: 0, potential: 0, fails: 0, reviews: 0, flags: 0, highRisk: 0, itc: 0 };

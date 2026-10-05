@@ -1,7 +1,9 @@
 // Upload data: every file the platform reads, in one place, as three numbered steps (returns files, registers,
 // reply letters), each with a few lines of instructions, plus the sample files and format guide.
 import React, { useMemo, useRef, useState } from 'react';
-import { Card, Band, PageHead } from '../components/ui.jsx';
+import { Card, Band, PageHead, TestTag } from '../components/ui.jsx';
+import { isTestData } from '../engine/names.js';
+import { changeText } from '../lib/uploads.js';
 import Icon from '../components/Icon.jsx';
 import { RegisterList } from '../components/RegistersCard.jsx';
 import { ReplyForm } from './Eiu.jsx';
@@ -102,6 +104,7 @@ function ReturnsDrop({ onFiles, busy, progress }) {
 const when = (iso) => (iso ? new Date(iso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '');
 const fyShort = (fy) => String(fy || '').replace(/^(\d{4})-\d{2}(\d{2})$/, '$1-$2');
 
+
 // The latest upload, as the platform saw it: files received, files accepted, analysis finished, and what the
 // analysis found for each taxpayer in it. Kept on the server (upload log), so it is still here after a reload.
 export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
@@ -145,7 +148,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
       {groups.length > 0 && (
         <div className="tbl-wrap" style={{ maxHeight: 420 }}>
           <table className="tbl">
-            <thead><tr><th>Taxpayer</th><th>Years uploaded</th><th>Risk (latest year)</th><th>Failed checks</th><th>Main findings</th><th /></tr></thead>
+            <thead><tr><th>Taxpayer</th><th>Years uploaded</th><th>Risk (latest year)</th><th>Failed checks</th><th>Main findings</th><th>Since the last run</th><th /></tr></thead>
             <tbody>
               {groups.map((g) => {
                 const t = done ? data.taxpayers.find((x) => x.gstin === g.gstin) : null;
@@ -154,11 +157,12 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
                 const findings = t ? [...fails.map((r) => `${r.id} ${cat[r.id]?.check || ''}`.trim()), ...t.fraud.filter((f) => f.flagged && !f.prompt).sort((x, y) => y.weight - x.weight).map((f) => f.label)].slice(0, 3) : [];
                 return (
                   <tr key={g.gstin} className={t ? 'click' : ''} onClick={() => t && openTaxpayer(t.id)}>
-                    <td><b>{t?.name || g.name || g.gstin}</b><div className="muted" style={{ fontSize: 11 }}>{g.gstin}</div></td>
+                    <td><b>{t?.name || g.name || g.gstin}</b>{isTestData(g.gstin, t?.fileName) && <> <TestTag /></>}<div className="muted" style={{ fontSize: 11 }}>{g.gstin}</div></td>
                     <td style={{ whiteSpace: 'nowrap' }}>{[...new Set(g.fys)].sort().map((fy) => `FY ${fyShort(fy)}`).join(', ')}</td>
                     <td>{t ? <><Band band={t.band} score={t.score} /><div className="muted" style={{ fontSize: 11 }}>FY {fyShort(t.fy)}</div></> : <span className="muted small">{failed ? 'not analysed' : 'analysing…'}</span>}</td>
                     <td>{t ? int(fails.length) : ''}</td>
                     <td style={{ fontSize: 12 }}>{t ? (findings.length ? findings.join(' · ') : 'no failed checks or risk indicators') : ''}</td>
+                    <td style={{ fontSize: 12 }}>{done ? changeText(a.changes?.find((c) => c.gstin === g.gstin)) : ''}</td>
                     <td>{t && <button className="btn small soft" onClick={(e) => { e.stopPropagation(); openTaxpayer(t.id); }}>Open</button>}</td>
                   </tr>
                 );
@@ -179,7 +183,7 @@ function Loaded({ data, openTaxpayer, openReport }) {
         <tbody>
           {data.taxpayers.map((a) => (
             <tr key={a.uid || a.id} className="click" onClick={() => openTaxpayer(a.id)}>
-              <td><b>{a.name}</b><div className="muted" style={{ fontSize: 11 }}>{a.gstin}</div></td>
+              <td><b>{a.name}</b>{isTestData(a.gstin, a.fileName) && <> <TestTag /></>}<div className="muted" style={{ fontSize: 11 }}>{a.gstin}</div></td>
               <td style={{ fontSize: 11.5, wordBreak: 'break-all' }}>{a.fileName}</td>
               <td style={{ whiteSpace: 'nowrap' }} title="Financial years loaded for this GSTIN (the latest drives the screens)">{(data.baselines?.[a.gstin] || [{ fy: a.fy }]).map((b) => `FY ${String(b.fy).replace(/^(\d{4})-\d{2}(\d{2})$/, '$1-$2')}`).join(', ')}</td>
               <td>{a.profile.periodsFiled} · {a.filing.split(' ')[0]}</td>

@@ -1,6 +1,7 @@
 // Recovery intelligence (capability 26): established demands, what is outstanding and whether it can be recovered
 // now, ranked by a published rule, with an officer-controlled next step. Nothing here initiates recovery.
 import React, { useState } from 'react';
+import { DataNeeds } from '../components/DataNeeds.jsx';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { Card, Kpi, PageHead, Legend, Seg, InfoTip, axisProps, gridProps } from '../components/ui.jsx';
 import { useEvidence, JurisdictionPicker, jurisdictionsOf, ALL } from '../components/leadership.jsx';
@@ -12,7 +13,7 @@ import { inr, axisInr } from '../lib/format.js';
 const SEG_COLOR = { now: SERIES[1], blocked: '#b9c5e1', settled: SERIES[5] };
 const SEG_CHIP = { now: 'bad', blocked: '', settled: 'good' };
 
-export default function Recovery({ data, registers, cases, jurisdiction, setJurisdiction, openTaxpayer }) {
+export default function Recovery({ data, registers, cases, jurisdiction, setJurisdiction, openTaxpayer, go }) {
   const jur = jurisdiction || jurisdictionsOf(data, registers)[0] || ALL;
   const eb = useEvidence({ data, registers, cases, jurisdiction: jur });
   const w = eb.recovery;
@@ -25,6 +26,7 @@ export default function Recovery({ data, registers, cases, jurisdiction, setJuri
       <PageHead title="Recovery" path={`${jur === ALL ? 'all loaded GSTINs' : jur} · as of ${w.asOf}`}>
         <JurisdictionPicker data={data} registers={registers} value={jur} onChange={setJurisdiction} />
       </PageHead>
+      <DataNeeds page="recovery" registers={registers} go={go} />
       <div className="grid g-4">
         <Kpi label="Outstanding" value={inr(w.totals.outstanding)} sub={`of ${inr(w.totals.demand)} demanded · ${inr(w.totals.paid)} paid`} />
         <Kpi label={SEGMENTS.now.label} value={inr(w.totals.now)} sub={SEGMENTS.now.note} dot={w.totals.now ? STATUS.critical : undefined} />
