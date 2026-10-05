@@ -85,6 +85,9 @@ const NAV = [
   { id: 'tour', label: 'Guided tour', icon: 'arrow', action: true },
 ];
 const PUBLIC = new Set(['home', 'features', 'guide', 'howto', 'catalog']);
+// Which sidebar section each entry sits in. Help (guides, catalogue, demo) is folded away until opened.
+const SECTION_OF = NAV.reduce((acc, n, i) => { acc.push(n.section || acc[i - 1] || null); return acc; }, []);
+const FOLDED = 'Help';
 const VIEWS = new Set([...NAV.filter((n) => n.id && !n.action).map((n) => n.id), 'login', 'home']);
 
 // #/view, #/view/ID or #/view/ID/tab
@@ -126,6 +129,7 @@ export default function App() {
   const { cases, notices, dispatch, mode: caseMode, error: caseError } = useCaseStore(dataKey ? user : null);
   // Jurisdiction shared by the Leadership screens (remembered in this browser)
   const [jurisdiction, setJurisdiction] = usePersistent('gst.jurisdiction', null);
+  const [helpOpen, setHelpOpen] = usePersistent('gst.navHelp', false);
   const [aiStored, setAi] = usePersistent('gst.ai', AI_DEFAULTS);
   const ai = { ...AI_DEFAULTS, ...aiStored };
   const [aiCache, setAiCache] = usePersistent('gst.aiCache', {});
@@ -447,9 +451,11 @@ export default function App() {
       {!embedded && (
       <aside className="sidebar no-print" data-tour="sidebar">
         <div className="logo-row"><span className="logo-mark"><Icon name="wave" size={14} stroke={2.4} /></span>GST Intelligence</div>
-        {NAV.map((n) => (n.section
-          ? <div key={n.section} className="nav-label">{n.section}</div>
-          : (
+        {NAV.map((n, i) => (n.section
+          ? (n.section === FOLDED
+            ? <button key={n.section} className="nav-label nav-fold" aria-expanded={helpOpen} onClick={() => setHelpOpen(!helpOpen)}>{n.section}<Icon name="arrow" size={12} style={{ transform: helpOpen ? 'rotate(90deg)' : 'none' }} /></button>
+            : <div key={n.section} className="nav-label">{n.section}</div>)
+          : SECTION_OF[i] === FOLDED && !helpOpen && route.view !== n.id ? null : (
             <button key={n.id} data-tour={`nav-${n.id}`} className={`nav-item ${route.view === n.id ? 'on' : ''}`} onClick={() => (n.action ? setTouring(true) : go(n.id, n.id === 'taxpayer' || n.id === 'notices' || n.id === 'report' ? selectedId : null))} disabled={n.action && !hasData}>
               <Icon name={n.icon} size={18} />{n.label}{n.badge && <span className="badge">{n.badge === 'alerts' ? alertCount : openCount}</span>}{n.id === 'ai' && <span className={`live ${aiLive ? '' : 'off'}`} title={aiLive ? 'AI connection is live' : 'AI not connected'}><i />{aiLive ? 'live' : 'off'}</span>}
             </button>

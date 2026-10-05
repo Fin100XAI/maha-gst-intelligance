@@ -796,3 +796,20 @@ button.rm-row:hover { background: var(--lav); }
 .acc-once { border-left: 3px solid var(--good, #2e7d32); }
 .acc-pw { font-size: 20px; letter-spacing: .06em; margin: 8px 0; user-select: all; }
 .acc-form { max-width: 560px; }
+
+/* ------------------------------------------------------------------ less to read: verdict, folded detail, short findings */
+.nav-fold { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: 0; cursor: pointer; text-align: left; }
+.nav-fold svg { transition: transform .15s; }
+.verdict { padding: 14px 18px; margin-bottom: 14px; border-left: 4px solid var(--ink-3, #8a8a8a); }
+.verdict.bad { border-left-color: #b02222; }
+.verdict.warn { border-left-color: #c98a12; }
+.verdict.good { border-left-color: #0c6a4a; }
+.verdict-line { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; line-height: 1.5; }
+.verdict-dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; display: inline-block; }
+.verdict.bad .verdict-dot { color: #b02222; } .verdict.warn .verdict-dot { color: #c98a12; } .verdict.good .verdict-dot { color: #0c6a4a; }
+.verdict-actions { margin: 8px 0 0; padding-left: 22px; display: grid; gap: 3px; font-size: 13.5px; }
+.verdict-actions .link-btn { font-weight: 600; text-align: left; }
+.tp-detail { margin-bottom: 14px; }
+.tp-detail > summary { cursor: pointer; font-weight: 600; font-size: 13px; color: var(--ink-2); padding: 6px 2px; list-style-position: inside; }
+.tp-detail[open] > summary { margin-bottom: 10px; }
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
