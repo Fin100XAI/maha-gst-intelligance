@@ -5,7 +5,10 @@
 import { DISPOSITIONS, DISPOSITION_LABEL, CLOSURE, CLOSURE_LABEL, READINESS } from '../engine/verify.js';
 
 export const HISTORY_LIMIT = 50;
-export const EVENT_TYPES = ['status', 'note', 'readiness', 'disposition', 'response', 'log', 'close', 'notice', 'import', 'eiu-reply', 'eiu-challenge', 'eiu-review'];
+export const EVENT_TYPES = ['status', 'note', 'readiness', 'disposition', 'response', 'log', 'close', 'notice', 'notice-issue', 'notice-reminder', 'notice-escalate', 'import', 'eiu-reply', 'eiu-challenge', 'eiu-review'];
+// How a notice reached the taxpayer (the portal itself has no interface for this platform: the officer records it)
+export const ISSUE_MODES = ['GST portal', 'Email', 'Registered post', 'By hand'];
+export const SCN_SECTIONS = ['73', '74', '74A'];
 export const EIU_REVIEW = { agree: 'Agrees with the revalidation', disagree: 'Disagrees with the revalidation' };
 // Statuses an officer may set directly. "Notice drafted" comes only from saving a notice, "Closed" only from a
 // reasoned closure, so neither can be set by hand.
@@ -81,6 +84,26 @@ export function applyEvent(state, ev) {
       nextNotices = { ...notices, [id]: ev.notice };
       next = withLog({ ...c, status: 'Notice drafted', assignee: c.assignee || ev.by }, ev, `ASMT-10 drafted · ${ev.notice.items.length} items · reply by ${ev.notice.due}`);
       break;
+    // After drafting: the officer records the issue (outside this platform), any reminders, and the escalation to a
+    // show cause notice when no acceptable reply comes. The draft itself is never changed by these.
+    case 'notice-issue': {
+      const n = notices[id] || {};
+      nextNotices = { ...notices, [id]: { ...n, issue: { ref: ev.ref, issued: ev.issued, mode: ev.mode, replyDue: ev.replyDue, at: ev.at, by: ev.by } } };
+      next = withLog({ ...c, status: 'Notice issued' }, ev, `ASMT-10 issued · ${ev.ref} · ${ev.mode} · ${ev.issued} · reply due ${ev.replyDue}`);
+      break;
+    }
+    case 'notice-reminder': {
+      const n = notices[id] || {};
+      nextNotices = { ...notices, [id]: { ...n, reminders: [{ sent: ev.sent, mode: ev.mode, note: ev.note || '', at: ev.at, by: ev.by }, ...(n.reminders || [])] } };
+      next = withLog(c, ev, `Reminder sent · ${ev.mode} · ${ev.sent}${ev.note ? ` (${ev.note})` : ''}`);
+      break;
+    }
+    case 'notice-escalate': {
+      const n = notices[id] || {};
+      nextNotices = { ...notices, [id]: { ...n, escalation: { section: ev.section, reason: ev.reason, at: ev.at, by: ev.by } } };
+      next = withLog({ ...c, status: 'Escalated' }, ev, `Escalated: DRC-01 drafted under s.${ev.section} (${ev.reason})`);
+      break;
+    }
     default:
       throw new Error(`Unknown case event type: ${ev.type}`);
   }
@@ -95,6 +118,7 @@ const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const DISPOSITION_CODES = new Set(DISPOSITIONS.map(([k]) => k));
 const CLOSURE_CODES = new Set(CLOSURE.map(([k]) => k));
 const READINESS_KEYS = new Set(READINESS.map(([k]) => k));
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** @returns {string|null} why the event is invalid, or null when it is valid */
 export function validateEvent(ev) {
@@ -148,6 +172,18 @@ export function validateEvent(ev) {
     case 'notice':
       if (!isObj(ev.notice) || !Array.isArray(ev.notice.items) || !isStr(ev.notice.due, 20) || !isStr(ev.notice.ref, 200)) return 'notice needs ref, due and items';
       return null;
+    case 'notice-issue':
+      if (!isStr(ev.ref, 200)) return 'the notice reference (as issued) is required';
+      if (!ISO_DATE.test(String(ev.issued)) || !ISO_DATE.test(String(ev.replyDue))) return 'issued and replyDue must be dates (YYYY-MM-DD)';
+      if (ev.replyDue < ev.issued) return 'the reply cannot be due before the notice is issued';
+      return ISSUE_MODES.includes(ev.mode) ? null : `mode must be one of ${ISSUE_MODES.join(', ')}`;
+    case 'notice-reminder':
+      if (!ISO_DATE.test(String(ev.sent))) return 'sent must be a date (YYYY-MM-DD)';
+      if (!ISSUE_MODES.includes(ev.mode)) return `mode must be one of ${ISSUE_MODES.join(', ')}`;
+      return isStr(ev.note, 1000, { required: false }) ? null : 'note is too long';
+    case 'notice-escalate':
+      if (!SCN_SECTIONS.includes(ev.section)) return `section must be one of ${SCN_SECTIONS.join(', ')}`;
+      return isStr(ev.reason, 2000) ? null : 'escalation needs a written reason';
     default: return 'unhandled type';
   }
 }

@@ -28,6 +28,7 @@ import registerStore from './scripts/register-store.js';
 import docStore from './scripts/doc-store.js';
 import governance from './scripts/governance.js';
 import ewbStore from './scripts/ewb-store.js';
+import alertStore from './scripts/alert-store.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(root, 'dist');
@@ -70,6 +71,7 @@ registerStore().configureServer(fakeServer);
 docStore().configureServer(fakeServer);
 governance().configureServer(fakeServer);
 ewbStore().configureServer(fakeServer);
+alertStore().configureServer(fakeServer);
 reportLibrary().configureServer(fakeServer);
 aiProxy(process.env).configureServer(fakeServer);
 

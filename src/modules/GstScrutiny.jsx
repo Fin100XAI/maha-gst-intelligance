@@ -22,6 +22,7 @@ const FRAME_SRC = (() => {
 const PAGES = [
   { section: 'Operate', items: [
     { id: 'dashboard', label: 'Dashboard' },
+    { id: 'alerts', label: 'Alerts' },
     { id: 'revenue', label: 'Revenue' },
     { id: 'network', label: 'Network' },
     { id: 'eiu', label: 'EIU signals' },

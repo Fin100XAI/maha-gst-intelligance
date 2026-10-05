@@ -21,6 +21,8 @@ import RuleRegister from './views/RuleRegister.jsx';
 import DataMethod from './views/DataMethod.jsx';
 import Cases from './views/Cases.jsx';
 import Notices from './views/Notices.jsx';
+import Alerts from './views/Alerts.jsx';
+import { followUps } from './engine/notices.js';
 import Report, { saveReport } from './views/Report.jsx';
 import Scoring from './views/Scoring.jsx';
 import Login from './views/Login.jsx';
@@ -47,6 +49,7 @@ import { embedRequested, fromTrustedParent, HANDSHAKE_MS, applyShellTheme } from
 const NAV = [
   { section: 'Operate' },
   { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { id: 'alerts', label: 'Alerts', icon: 'alert', badge: 'alerts' },
   { id: 'revenue', label: 'Revenue', icon: 'trend' },
   { id: 'network', label: 'Network', icon: 'network' },
   { id: 'eiu', label: 'EIU signals', icon: 'alert' },
@@ -191,6 +194,28 @@ export default function App() {
     setToast('Case closed with reasons recorded');
   }, [dispatch]);
   const saveNotice = useCallback((id, n) => dispatch({ type: 'notice', caseId: id, notice: n }), [dispatch]);
+  // After drafting: the issue, reminders and escalation the officer records (src/lib/caseEvents.js)
+  const issueNotice = useCallback((id, issue) => dispatch({ type: 'notice-issue', caseId: id, ...issue }), [dispatch]);
+  const remindNotice = useCallback((id, r) => dispatch({ type: 'notice-reminder', caseId: id, ...r }), [dispatch]);
+  const escalateNotice = useCallback((id, e) => dispatch({ type: 'notice-escalate', caseId: id, ...e }), [dispatch]);
+
+  // Alert queue (server: scripts/alert-store.js). lastSeen is when this officer last opened the queue, for "New".
+  const [alertQueue, setAlertQueue] = useState(undefined); // undefined = loading, null = no server store
+  const [alertsSeenAt, setAlertsSeenAt] = useState(null);
+  const officer = user?.name || '';
+  const loadAlerts = useCallback(() => fetch(api(`/__alerts?user=${encodeURIComponent(officer)}`), { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null)).then((q) => { setAlertQueue(q && Array.isArray(q.alerts) ? q : null); return q; }).catch(() => setAlertQueue(null)), [officer]);
+  const alertAction = useCallback(async (key, action, note) => {
+    const r = await fetch(api('/__alerts/action'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ key, action, note, by: officer }) }).then((x) => x.json()).catch(() => null);
+    if (!r?.ok) setToast(r?.error || 'Could not record that');
+    else setToast(action === 'dismiss' ? 'Alert dismissed, with your reason' : action === 'acknowledge' ? 'Alert acknowledged' : 'Alert reopened');
+    loadAlerts();
+  }, [officer, loadAlerts]);
+  const saveAlertRules = useCallback(async (rules) => {
+    const r = await fetch(api('/__alerts/rules'), { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ rules }) }).then((x) => x.json()).catch((e) => ({ ok: false, error: e.message }));
+    if (r?.ok) { setToast('Alert rules saved: the queue is refreshed'); loadAlerts(); }
+    return r;
+  }, [loadAlerts]);
   useEffect(() => { if (caseError) setToast(caseError); }, [caseError]);
 
   // Uploads are saved on the server (data/ + rebuilt data.json) so they survive reloads and restarts.
@@ -200,6 +225,15 @@ export default function App() {
   const [uploads, setUploads] = useState(null);
   const loadUploads = useCallback(() => fetch(api('/__data/uploads'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((v) => setUploads(v && Array.isArray(v.batches) ? v : null)).catch(() => setUploads(null)), []);
   useEffect(() => { loadUploads(); }, [loadUploads]);
+  useEffect(() => { loadAlerts(); }, [loadAlerts, raw]); // raw changes after every analysis
+  // Opening the queue: keep the previous visit's time for "New" on this visit, then record this one
+  useEffect(() => {
+    if (route.view !== 'alerts' || !officer) return;
+    loadAlerts().then((q) => {
+      setAlertsSeenAt(q?.lastSeen || null);
+      fetch(api('/__alerts/seen'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ user: officer }) }).catch(() => {});
+    });
+  }, [route.view, officer, loadAlerts]);
   // Analyse on the server in the background and follow its progress. Returns the finished run (or null).
   const analyseOnServer = useCallback(async (batch) => {
     setUploadProgress({ stage: 'analyse', done: 0, total: 0 });
@@ -366,6 +400,8 @@ export default function App() {
   const selectedId = route.id && data.taxpayers.some((a) => a.id === route.id) ? route.id : data.taxpayers[0]?.id;
   const current = data.taxpayers.find((a) => a.id === selectedId);
   const openCount = data.taxpayers.filter((a) => (cases[a.id]?.status || 'New') !== 'Closed').length;
+  const noticeFollowUps = followUps({ notices, cases, taxpayers: data.taxpayers, today: new Date().toISOString().slice(0, 10) }).length;
+  const alertCount = (alertQueue?.alerts || []).filter((a) => a.status === 'open').length + noticeFollowUps;
   const watch = data.taxpayers.filter((a) => (cases[a.id]?.status || 'New') !== 'Closed').slice(0, 5);
   const initials = user.name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
   const openTaxpayer = (id) => go('taxpayer', id);
@@ -383,7 +419,7 @@ export default function App() {
           ? <div key={n.section} className="nav-label">{n.section}</div>
           : (
             <button key={n.id} data-tour={`nav-${n.id}`} className={`nav-item ${route.view === n.id ? 'on' : ''}`} onClick={() => (n.action ? setTouring(true) : go(n.id, n.id === 'taxpayer' || n.id === 'notices' || n.id === 'report' ? selectedId : null))} disabled={n.action && !hasData}>
-              <Icon name={n.icon} size={18} />{n.label}{n.badge && <span className="badge">{openCount}</span>}{n.id === 'ai' && <span className={`live ${aiLive ? '' : 'off'}`} title={aiLive ? 'AI connection is live' : 'AI not connected'}><i />{aiLive ? 'live' : 'off'}</span>}
+              <Icon name={n.icon} size={18} />{n.label}{n.badge && <span className="badge">{n.badge === 'alerts' ? alertCount : openCount}</span>}{n.id === 'ai' && <span className={`live ${aiLive ? '' : 'off'}`} title={aiLive ? 'AI connection is live' : 'AI not connected'}><i />{aiLive ? 'live' : 'off'}</span>}
             </button>
           )))}
 
@@ -452,7 +488,8 @@ export default function App() {
         {route.view === 'report' && current && (
           <Report key={current.id} data={data} a={current} caseInfo={cases[current.id] || { status: 'New' }} notice={notices[current.id]} user={user} setSelected={(id) => go('report', id)} toast={setToast} saveAll={saveAllReports} savingAll={savingAll} ai={ai} aiCache={aiCache} openTaxpayer={openTaxpayer} />
         )}
-        {route.view === 'notices' && <Notices data={data} cases={cases} notices={notices} saveNotice={saveNotice} setReadiness={setReadiness} selected={selectedId} setSelected={(id) => go('notices', id)} user={user} toast={setToast} />}
+        {route.view === 'notices' && <Notices data={data} cases={cases} notices={notices} saveNotice={saveNotice} issueNotice={issueNotice} remindNotice={remindNotice} escalateNotice={escalateNotice} setReadiness={setReadiness} selected={selectedId} setSelected={(id) => go('notices', id)} user={user} toast={setToast} />}
+        {route.view === 'alerts' && <Alerts data={data} queue={alertQueue} lastSeen={alertsSeenAt} cases={cases} notices={notices} master={registers?.master?.records || []} onAction={alertAction} onSaveRules={saveAlertRules} openTaxpayer={openTaxpayer} openNotice={(id) => go('notices', id)} />}
         {route.view === 'rules' && <RuleRegister data={data} openTaxpayer={openTaxpayer} />}
         {route.view === 'ai' && <AISettings data={data} ai={ai} setAi={setAi} toast={setToast} />}
         {route.view === 'scoring' && <Scoring data={data} baseTaxpayers={raw.taxpayers} cfg={cfg} onSave={setCfg} toast={setToast} />}

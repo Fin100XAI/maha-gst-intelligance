@@ -9,7 +9,7 @@ import { verifyStep, routeIfConfirmed, raisedIndicators, reviewPrompts, isIssue,
 import { buildEvidencePack, downloadFile } from '../lib/evidencePack.js';
 import { nowStamp } from '../lib/store.js';
 import Icon from '../components/Icon.jsx';
-import { CASE_STATUS } from '../lib/store.js';
+import { CASE_STATUS, WORKFLOW_STATUSES } from '../lib/store.js';
 import Insights from '../components/Insights.jsx';
 import Measures from '../components/Measures.jsx';
 import BenfordCard from '../components/BenfordCard.jsx';
@@ -42,7 +42,7 @@ export default function Taxpayer({ a, initialTab, baselines, network, master, op
         <button className="btn" onClick={openReport}><Icon name="print" size={16} /> Generate report</button>
         <button className="btn" onClick={openNotice} title="Create scrutiny note: verification pending">Scrutiny note</button>
         {caseInfo.status === 'New' && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'In review')}>Start review</button>}
-        {(caseInfo.status === 'In review' || caseInfo.status === 'Notice drafted') && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'Closed')}>Close case</button>}
+        {['In review', 'Notice drafted', 'Notice issued', 'Escalated'].includes(caseInfo.status) && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'Closed')}>Close case</button>}
         {caseInfo.status === 'Closed' && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'In review')}>Reopen case</button>}
       </PageHead>
 
@@ -589,7 +589,7 @@ function CaseFile({ a, caseInfo, setCaseStatus, addNote, addResponse, openNotice
         <section className="card">
           <div className="eyebrow">Case status</div>
           <select style={{ marginTop: 12 }} value={caseInfo.status} onChange={(e) => setCaseStatus(a.id, e.target.value)} aria-label="Case status">
-            {Object.entries(CASE_STATUS).map(([k, v]) => <option key={k} value={k} disabled={k === 'Notice drafted' && caseInfo.status !== k} title={k === 'Notice drafted' ? 'Set automatically when a draft is saved after the readiness checklist' : undefined}>{v.label}</option>)}
+            {Object.entries(CASE_STATUS).map(([k, v]) => <option key={k} value={k} disabled={WORKFLOW_STATUSES.includes(k) && caseInfo.status !== k} title={WORKFLOW_STATUSES.includes(k) ? 'Set by the notice workflow (saving the draft, recording the issue, escalating)' : undefined}>{v.label}</option>)}
           </select>
           {caseInfo.closure && caseInfo.status === 'Closed' && <div className="note" style={{ marginTop: 10 }}><b>{CLOSURE_LABEL[caseInfo.closure.code]}</b><br />{caseInfo.closure.reason}<div className="mono muted" style={{ fontSize: 11 }}>{caseInfo.closure.at} · {caseInfo.closure.by}</div></div>}
           <button className="btn soft" style={{ width: '100%', marginTop: 12 }} onClick={openNotice}><Icon name="notice" size={16} /> Scrutiny note &amp; notice readiness</button>
