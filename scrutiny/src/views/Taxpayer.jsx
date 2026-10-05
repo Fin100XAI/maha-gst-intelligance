@@ -52,10 +52,10 @@ export default function Taxpayer({ a, initialTab, baselines, network, master, op
         {caseInfo.status === 'Closed' && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'In review')}>Reopen case</button>}
       </PageHead>
 
-      <section className={`card verdict ${v.tone}`} aria-label="Verdict">
-        <div className="verdict-line"><span className="verdict-dot" /><b>{v.line}</b> <span className="muted">{v.next}</span></div>
+      <section className={`card tp-verdict ${v.tone}`} aria-label="Verdict">
+        <div className="tpv-line"><span className="tpv-dot" /><b>{v.line}</b> <span className="muted">{v.next}</span></div>
         {v.actions.length > 0 && (
-          <ol className="verdict-actions">
+          <ol className="tpv-actions">
             {v.actions.map((x) => (
               <li key={x.ruleId}><button className="link-btn" onClick={() => openRule(x.ruleId)}><span className="mono">{x.ruleId}</span> {x.check}</button><span className="muted"> · {x.todo}{x.amount ? ` · ${inr(x.amount)}` : ''}</span></li>
             ))}
