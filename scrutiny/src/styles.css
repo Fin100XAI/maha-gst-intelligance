@@ -788,3 +788,11 @@ button.rm-row:hover { background: var(--lav); }
 .up-samples a:hover { text-decoration: underline; }
 .up-method-list { margin: 6px 0 0; padding-left: 18px; line-height: 1.6; color: var(--ink-2); font-size: 13px; }
 @media (max-width: 700px) { .up-step { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+
+/* ------------------------------------------------------------------ accounts and maker-checker */
+.plain-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.acc-jur { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow: auto; padding: 4px 0; }
+.acc-jur label { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.acc-once { border-left: 3px solid var(--good, #2e7d32); }
+.acc-pw { font-size: 20px; letter-spacing: .06em; margin: 8px 0; user-select: all; }
+.acc-form { max-width: 560px; }

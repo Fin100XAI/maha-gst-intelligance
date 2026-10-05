@@ -16,6 +16,7 @@
     "build:platform": "npm run build:data && vite build --base=/scrutiny/",
     "preview": "vite preview",
     "start": "node server.mjs",
+    "accounts": "node scripts/accounts.mjs",
     "serve": "npm run build && node server.mjs",
     "test": "node --test \"tests/**/*.test.mjs\""
   },

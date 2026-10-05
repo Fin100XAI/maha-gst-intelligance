@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { DEFAULT_RULES, validateRule, matchRule, evaluateAlerts } from '../src/engine/alerts.js';
 import { buildQueue } from '../scripts/alert-store.js';
 import { noticeStage, followUps, drc01Text } from '../src/engine/notices.js';
-import { applyEvent, emptyState, validateEvent } from '../src/lib/caseEvents.js';
+import { applyEvent, emptyState, validateEvent, guardEvent } from '../src/lib/caseEvents.js';
 
 const tp = (o) => ({ id: o.gstin, gstin: o.gstin, name: o.name || o.gstin, fy: '2025-2026', band: 'Low', score: 5, exposure: { confirmed: 0, potential: 0 }, results: [], fraud: [], ...o });
 const risky = tp({ gstin: '27AAAAA0000A1Z5', name: 'RISKY', band: 'High', score: 60, exposure: { confirmed: 2.5e6, potential: 0 }, results: [{ id: 'B-01', status: 'Fail', exposure: 2.5e6 }], fraud: [{ key: 'nonfiler', label: 'ITC from suppliers who did not file 3B', value: '12%', flagged: true }] });
@@ -47,20 +47,24 @@ test('the queue remembers: first seen, officer actions, and resolution when the 
   assert.equal(q.store.state[key].resolvedAt, '2026-10-03T00:00:00Z');
 });
 
-test('a notice moves from drafted to issued to reminded to escalated, each step validated and recorded', () => {
+test('a notice moves from drafted to approved, issued, reminded and escalated, each step validated and recorded', () => {
   const at = '2026-10-01T10:00:00Z', by = 'Officer A';
   let s = emptyState();
-  const ev = (o) => { const e = { at, by, caseId: 'G1', ...o }; assert.equal(validateEvent(e), null, JSON.stringify(o)); s = applyEvent(s, e); };
+  const ev = (o) => { const e = { at, by, caseId: 'G1', ...o }; assert.equal(validateEvent(e) || guardEvent(s, e), null, JSON.stringify(o)); s = applyEvent(s, e); };
   ev({ type: 'notice', notice: { ref: 'ASMT-10/1', due: '2026-10-31', items: ['B-01'], savedAt: '2026-09-20T00:00:00Z' } });
   assert.equal(noticeStage(s.notices.G1, s.cases.G1, '2026-10-01').stage, 'drafted');
   assert.equal(validateEvent({ type: 'notice-issue', at, by, caseId: 'G1', ref: 'X', issued: '2026-10-02', replyDue: '2026-10-01', mode: 'Email' }), 'the reply cannot be due before the notice is issued');
+  ev({ type: 'approval-request', stage: 'issue' });
+  assert.equal(noticeStage(s.notices.G1, s.cases.G1, '2026-10-01').stage, 'approval');
+  ev({ type: 'approval-decide', stage: 'issue', decision: 'approve', by: 'Officer B' });
   ev({ type: 'notice-issue', ref: 'ASMT-10/1/ISSUED', issued: '2026-10-02', replyDue: '2026-11-01', mode: 'GST portal' });
   assert.equal(s.cases.G1.status, 'Notice issued');
   assert.deepEqual(noticeStage(s.notices.G1, s.cases.G1, '2026-10-28'), { stage: 'awaiting', days: 4 });
   assert.deepEqual(noticeStage(s.notices.G1, s.cases.G1, '2026-11-06'), { stage: 'overdue', days: 5 });
   ev({ type: 'notice-reminder', sent: '2026-11-06', mode: 'Email', note: 'First reminder' });
-  assert.equal(validateEvent({ type: 'notice-escalate', at, by, caseId: 'G1', section: '74A', reason: '' }), 'escalation needs a written reason');
-  ev({ type: 'notice-escalate', section: '74A', reason: 'No reply after reminder' });
+  assert.equal(validateEvent({ type: 'approval-request', stage: 'escalate', at, by, caseId: 'G1', section: '74A', reason: '' }), 'escalation needs a written reason');
+  ev({ type: 'approval-request', stage: 'escalate', section: '74A', reason: 'No reply after reminder' });
+  ev({ type: 'approval-decide', stage: 'escalate', decision: 'approve', by: 'Officer B' });
   assert.equal(s.cases.G1.status, 'Escalated');
   assert.equal(noticeStage(s.notices.G1, s.cases.G1, '2026-11-20').stage, 'escalated');
   assert.equal(s.notices.G1.ref, 'ASMT-10/1', 'the draft itself is untouched');

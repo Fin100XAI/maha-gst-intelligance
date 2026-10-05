@@ -16,7 +16,7 @@ const HEAD_LABEL = { igst: 'IGST', cgst: 'CGST', sgst: 'SGST' };
 // IGST, CGST and SGST are separate levies owed to different governments: a notice states each.
 const headsText = (h) => HEADS.filter((k) => h?.[k]).map((k) => `${HEAD_LABEL[k]} ${inr(h[k], { compact: false })}`).join(', ');
 
-export default function Notices({ data, cases, notices, saveNotice, issueNotice, remindNotice, escalateNotice, setReadiness, selected, setSelected, user, toast }) {
+export default function Notices({ data, cases, notices, saveNotice, issueNotice, remindNotice, requestApproval, decideApproval, viewer, setReadiness, selected, setSelected, user, toast }) {
   const cat = useMemo(() => Object.fromEntries(data.catalog.map((r) => [r.id, r])), [data.catalog]);
   const a = data.taxpayers.find((t) => t.id === selected) || data.taxpayers[0];
   const saved = notices[a.id];
@@ -68,7 +68,7 @@ export default function Notices({ data, cases, notices, saveNotice, issueNotice,
     const el = document.createElement('a'); el.href = url; el.download = `ASMT-10_${a.gstin}_${f.issued}.txt`; el.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const save = () => { if (!gate.finalReady) return; saveNotice(a.id, { ...f, due, total, heads: totalHeads, savedAt: new Date().toISOString() }); toast(`ASMT-10 draft saved for ${a.name}`); };
+  const save = () => { if (!gate.finalReady) return; const refused = saveNotice(a.id, { ...f, due, total, heads: totalHeads, savedAt: new Date().toISOString() }); if (!refused) toast(`ASMT-10 draft saved for ${a.name}${saved?.approvals?.issue ? ': ask again for approval to issue' : ''}`); };
   const drafted = data.taxpayers.filter((t) => notices[t.id]);
 
   return (
@@ -190,7 +190,7 @@ export default function Notices({ data, cases, notices, saveNotice, issueNotice,
 
         <div className="stack no-print">
           {saved && <NoticeTracking a={a} notice={saved} caseInfo={cases[a.id] || {}} items={candidates.filter((r) => saved.items.includes(r.id))} cat={cat} user={user}
-            onIssue={(x) => issueNotice(a.id, x)} onRemind={(x) => remindNotice(a.id, x)} onEscalate={(x) => escalateNotice(a.id, x)} toast={toast} />}
+            viewer={viewer} onIssue={(x) => issueNotice(a.id, x)} onRemind={(x) => remindNotice(a.id, x)} onAsk={(stage, x) => requestApproval(a.id, stage, x)} onDecide={(stage, d, n) => decideApproval(a.id, stage, d, n)} toast={toast} />}
           <section className="card">
             <div className="eyebrow">Case</div>
             <div style={{ fontWeight: 600, fontSize: 16, marginTop: 10 }}>{a.name}</div>
@@ -218,28 +218,70 @@ export default function Notices({ data, cases, notices, saveNotice, issueNotice,
   );
 }
 
-const STAGE_LABEL = { drafted: 'Drafted, not yet issued', awaiting: 'Issued: awaiting reply', overdue: 'Reply overdue', replied: 'Reply received', escalated: 'Escalated to DRC-01', closed: 'Case closed' };
+const STAGE_LABEL = {
+  drafted: 'Drafted: not yet sent for approval', approval: 'Awaiting a second officer\'s approval to issue', returned: 'Returned for changes', approved: 'Approved for issue',
+  awaiting: 'Issued: awaiting reply', overdue: 'Reply overdue', replied: 'Reply received', 'escalation-pending': 'Escalation awaiting approval', escalated: 'Escalated to DRC-01', closed: 'Case closed',
+};
+const isRequester = (viewer, a) => (viewer?.id && a?.requestedById ? viewer.id === a.requestedById : String(viewer?.name || '').trim().toLowerCase() === String(a?.requestedBy || '').trim().toLowerCase());
 
-// After the draft: the issue (made outside this platform, recorded here), reminders, and escalation to a DRC-01
-// summary. Each step is a case event, so it is logged with the officer's name and drives the alert queue.
-function NoticeTracking({ a, notice, caseInfo, items, cat, user, onIssue, onRemind, onEscalate, toast }) {
+// The checker's side of a pending request: approve, or return with a reason. Never offered to the officer who asked.
+function Decide({ request, viewer, onDecide, what, toast }) {
+  const [note, setNote] = useState('');
+  if (isRequester(viewer, request)) return <div className="muted small" style={{ marginTop: 6 }}>You asked for this approval: another officer with approval rights decides it.</div>;
+  if (!viewer?.canApprove) return <div className="muted small" style={{ marginTop: 6 }}>A supervisor or Commissioner decides it.</div>;
+  const decide = (decision) => {
+    if (decision === 'return' && !note.trim()) return toast('Returning needs a reason for the officer');
+    const refused = onDecide(decision, note.trim());
+    if (!refused) toast(decision === 'approve' ? `${what} approved` : 'Returned to the officer with your reason');
+    return undefined;
+  };
+  return (
+    <div className="track-form">
+      <b>Your decision (maker-checker)</b>
+      <label>Note to the officer<textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Required to return; optional to approve" /></label>
+      <div style={{ display: 'flex', gap: 6 }}><button type="button" className="btn small primary" onClick={() => decide('approve')}>Approve</button><button type="button" className="btn small" onClick={() => decide('return')}>Return</button></div>
+    </div>
+  );
+}
+
+// After the draft: approval to issue (maker-checker), the issue itself (made outside this platform, recorded here),
+// reminders, and escalation to a DRC-01 summary, again only with a second officer's approval. Each step is a case
+// event: logged with the officer's name, checked against the case as it stands (guardEvent), and feeding the queue.
+function NoticeTracking({ a, notice, caseInfo, items, cat, user, viewer, onIssue, onRemind, onAsk, onDecide, toast }) {
   const st = noticeStage(notice, caseInfo, today());
   const [issue, setIssue] = useState({ ref: notice.ref, issued: today(), mode: ISSUE_MODES[0], replyDue: notice.due });
   const [rem, setRem] = useState({ sent: today(), mode: ISSUE_MODES[1], note: '' });
   const [esc, setEsc] = useState({ section: Number(String(a.fy).slice(0, 4)) >= 2024 ? '74A' : '73', reason: '' });
+  const [askNote, setAskNote] = useState('');
+  const approvals = notice.approvals || {};
   const drc = notice.escalation ? drc01Text({ a, notice, items, cat, section: notice.escalation.section, reason: notice.escalation.reason, officer: { name: user.name, designation: user.role, jurisdiction: user.workspace }, today: notice.escalation.at.slice(0, 10) }) : null;
   const copy = async (t) => { try { await navigator.clipboard.writeText(t); toast('DRC-01 text copied'); } catch { toast('Clipboard blocked: use Download'); } };
   const download = (t) => { const url = URL.createObjectURL(new Blob([t], { type: 'text/plain;charset=utf-8' })); const el = document.createElement('a'); el.href = url; el.download = `DRC-01_${a.gstin}.txt`; el.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  const done = (refused, ok) => { if (!refused) toast(ok); };
+  const trail = (x, label) => x && (
+    <div className="muted small">{label}: asked by {x.requestedBy} {dmy(x.requestedAt.slice(0, 10))}{x.note ? ` (${x.note})` : ''}{x.decidedBy ? ` · ${x.status === 'approved' ? 'approved' : 'returned'} by ${x.decidedBy} ${dmy(x.decidedAt.slice(0, 10))}${x.decisionNote ? `: ${x.decisionNote}` : ''}` : ''}</div>
+  );
   return (
     <section className="card">
       <div className="eyebrow">Notice tracking</div>
       <div style={{ fontWeight: 600, marginTop: 8 }}>{STAGE_LABEL[st.stage]}{st.stage === 'awaiting' ? ` · ${st.days} day${st.days === 1 ? '' : 's'} left` : st.stage === 'overdue' ? ` · ${st.days} day${st.days === 1 ? '' : 's'} late` : ''}</div>
+      {trail(approvals.issue, 'Issue')}
       {notice.issue && <div className="muted small" style={{ marginTop: 4 }}>{notice.issue.ref} · {notice.issue.mode} · issued {dmy(notice.issue.issued)} · reply due {dmy(notice.issue.replyDue)}</div>}
       {(notice.reminders || []).map((r, i) => <div key={i} className="muted small">Reminder {dmy(r.sent)} · {r.mode}{r.note ? `: ${r.note}` : ''}</div>)}
-      {st.stage === 'replied' && <div className="small" style={{ marginTop: 6 }}>Reply received {dmy(st.reply.received)}{st.reply.ref ? ` (${st.reply.ref})` : ''}: review it, then close the case or escalate.</div>}
+      {trail(approvals.escalate, `Escalation under s.${approvals.escalate?.section}`)}
+      {st.stage === 'replied' && <div className="small" style={{ marginTop: 6 }}>Reply received {dmy(st.reply.received)}{st.reply.ref ? ` (${st.reply.ref})` : ''}: review it, then close the case or ask to escalate.</div>}
 
-      {!notice.issue && st.stage !== 'closed' && (
-        <form className="track-form" onSubmit={(e) => { e.preventDefault(); onIssue(issue); toast('Issue recorded: the reply deadline is now tracked'); }}>
+      {(st.stage === 'drafted' || st.stage === 'returned') && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); done(onAsk('issue', askNote.trim() ? { note: askNote.trim() } : {}), 'Sent for approval: a second officer approves or returns it'); setAskNote(''); }}>
+          <b>{st.stage === 'returned' ? 'Ask again for approval to issue' : 'Ask for approval to issue'}</b>
+          <div className="small muted">A second officer with approval rights checks the draft before it is issued. Changing the draft afterwards needs a fresh approval.</div>
+          <label>Note for the approving officer<input value={askNote} onChange={(e) => setAskNote(e.target.value)} placeholder="optional" /></label>
+          <button className="btn small primary">Send for approval</button>
+        </form>
+      )}
+      {st.stage === 'approval' && <Decide request={st.approval} viewer={viewer} what="Issue" toast={toast} onDecide={(d, n) => onDecide('issue', d, n)} />}
+      {st.stage === 'approved' && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); done(onIssue(issue), 'Issue recorded: the reply deadline is now tracked'); }}>
           <b>Record the issue</b>
           <label>Reference as issued<input value={issue.ref} onChange={(e) => setIssue({ ...issue, ref: e.target.value })} required /></label>
           <label>Issued on<input type="date" value={issue.issued} onChange={(e) => setIssue({ ...issue, issued: e.target.value })} required /></label>
@@ -248,21 +290,24 @@ function NoticeTracking({ a, notice, caseInfo, items, cat, user, onIssue, onRemi
           <button className="btn small primary">Record issue</button>
         </form>
       )}
-      {notice.issue && !notice.escalation && st.stage !== 'closed' && (<>
-        <form className="track-form" onSubmit={(e) => { e.preventDefault(); onRemind(rem); setRem({ ...rem, note: '' }); toast('Reminder recorded'); }}>
+      {notice.issue && !notice.escalation && st.stage !== 'closed' && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); done(onRemind(rem), 'Reminder recorded'); setRem({ ...rem, note: '' }); }}>
           <b>Record a reminder</b>
           <label>Sent on<input type="date" value={rem.sent} onChange={(e) => setRem({ ...rem, sent: e.target.value })} required /></label>
           <label>How<select value={rem.mode} onChange={(e) => setRem({ ...rem, mode: e.target.value })}>{ISSUE_MODES.map((m) => <option key={m}>{m}</option>)}</select></label>
           <label>Note<input value={rem.note} onChange={(e) => setRem({ ...rem, note: e.target.value })} placeholder="optional" /></label>
           <button className="btn small">Record reminder</button>
         </form>
-        <form className="track-form" onSubmit={(e) => { e.preventDefault(); if (!esc.reason.trim()) return; onEscalate(esc); toast('Escalated: DRC-01 summary drafted'); }}>
-          <b>Escalate to a show cause notice</b>
+      )}
+      {st.stage === 'escalation-pending' && <Decide request={st.approval} viewer={viewer} what="Escalation" toast={toast} onDecide={(d, n) => onDecide('escalate', d, n)} />}
+      {notice.issue && !notice.escalation && !['closed', 'escalation-pending'].includes(st.stage) && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); if (!esc.reason.trim()) return; done(onAsk('escalate', { section: esc.section, reason: esc.reason.trim() }), 'Escalation sent for approval'); }}>
+          <b>Ask to escalate to a show cause notice</b>
           <label>Section<select value={esc.section} onChange={(e) => setEsc({ ...esc, section: e.target.value })}>{SCN_SECTIONS.map((x) => <option key={x}>{x}</option>)}</select></label>
           <label>Reason<textarea rows={2} value={esc.reason} onChange={(e) => setEsc({ ...esc, reason: e.target.value })} placeholder="e.g. No reply by the due date despite a reminder" required /></label>
-          <button className="btn small">Escalate: draft DRC-01</button>
+          <button className="btn small">Send for approval</button>
         </form>
-      </>)}
+      )}
       {drc && (
         <div className="track-form">
           <b>DRC-01 summary (draft)</b>

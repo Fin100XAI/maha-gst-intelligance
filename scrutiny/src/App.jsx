@@ -26,6 +26,10 @@ import { followUps } from './engine/notices.js';
 import Report, { saveReport } from './views/Report.jsx';
 import Scoring from './views/Scoring.jsx';
 import Login from './views/Login.jsx';
+import AccountSignIn from './views/AccountSignIn.jsx';
+import Accounts from './views/Accounts.jsx';
+import { authStatus, signOut } from './lib/auth.js';
+import { can, userFromAccount } from './lib/access.js';
 import Landing from './views/Landing.jsx';
 import AISettings from './views/AISettings.jsx';
 import Features from './views/Features.jsx';
@@ -71,6 +75,7 @@ const NAV = [
   { id: 'ai', label: 'AI assistant', icon: 'wave' },
   { id: 'data', label: 'Upload data', icon: 'upload' },
   { id: 'governance', label: 'Governance', icon: 'lock' },
+  { id: 'accounts', label: 'Accounts', icon: 'taxpayer' },
   { section: 'Help' },
   { id: 'guide', label: 'Guide', icon: 'notice' },
   { id: 'howto', label: 'How to', icon: 'check' },
@@ -94,19 +99,31 @@ export default function App() {
   // Registers (EIU signals, targets, demands): null when no server store is available.
   const [registers, setRegisters] = useState(null);
   const loadRegisters = useCallback(() => fetch(api('/__registers'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((v) => setRegisters(v && typeof v === 'object' ? v : null)).catch(() => setRegisters(null)), []);
-  useEffect(() => { loadRegisters(); }, [loadRegisters]);
   const [error, setError] = useState(null);
   // Embedded: the shell signs the officer in, so no session is read or saved here.
   const [embedded, setEmbedded] = useState(embedRequested);
   const [parentOrigin, setParentOrigin] = useState(null);
   const [user, setUser] = useState(() => (embedRequested ? null : withDesignation(session.get())));
+  // 'loading' until the server says whether officers have accounts (scripts/auth.js); open without a server
+  const [authMode, setAuthMode] = useState('loading');
+  const authModeRef = React.useRef(authMode);
+  authModeRef.current = authMode;
+  const checkAuth = useCallback(() => authStatus().then(({ mode, account }) => {
+    setAuthMode(mode);
+    if (mode === 'accounts') setUser((u) => (account ? (u?.id === account.id && !account.mustChange === !u.mustChange ? u : userFromAccount(account)) : null));
+  }), []);
+  useEffect(() => { checkAuth(); }, [checkAuth]);
+  // a session can end elsewhere (expiry, password reset, account disabled): look again when the tab comes back
+  useEffect(() => { const f = () => { if (authModeRef.current === 'accounts') checkAuth(); }; window.addEventListener('focus', f); return () => window.removeEventListener('focus', f); }, [checkAuth]);
+  // The analysis and the services answer only once someone may see them; with accounts, each officer gets their own cut.
+  const dataKey = authMode === 'loading' ? null : authMode === 'open' ? 'open' : user && !user.mustChange ? user.id : null;
   const [route, setRoute] = useState(readHash);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState(null);
   const [savingAll, setSavingAll] = useState(null);
   const [cfg, setCfg] = usePersistent('gst.scoring', DEFAULT_SCORING);
   // Case record: server-side event log when available, this browser's storage otherwise (src/lib/useCaseStore.js).
-  const { cases, notices, dispatch, mode: caseMode, error: caseError } = useCaseStore(user);
+  const { cases, notices, dispatch, mode: caseMode, error: caseError } = useCaseStore(dataKey ? user : null);
   // Jurisdiction shared by the Leadership screens (remembered in this browser)
   const [jurisdiction, setJurisdiction] = usePersistent('gst.jurisdiction', null);
   const [aiStored, setAi] = usePersistent('gst.ai', AI_DEFAULTS);
@@ -125,9 +142,12 @@ export default function App() {
 
   const reloadData = useCallback(() => fetch(api('/data.json'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((d) => { if (d) setRaw(d); }), []);
   useEffect(() => {
+    if (!dataKey) return;
+    setError(null);
     fetch(api('/data.json'), { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error(`data.json: HTTP ${r.status}`); return r.json(); })
       .then(setRaw).catch((e) => setError(e.message));
-  }, []);
+    loadRegisters();
+  }, [dataKey, loadRegisters]);
   useEffect(() => { const h = () => setRoute(readHash()); window.addEventListener('hashchange', h); return () => window.removeEventListener('hashchange', h); }, []);
   useEffect(() => { if (!toast) return undefined; const t = setTimeout(() => setToast(null), Math.min(12000, 4200 + toast.length * 25)); return () => clearTimeout(t); }, [toast]);
 
@@ -159,6 +179,7 @@ export default function App() {
       const msg = e.data || {};
       if (msg.type === 'scrutiny:officer') {
         setParentOrigin(e.origin);
+        if (authModeRef.current !== 'open') return; // accounts: the officer signs in to their own account
         setUser(withDesignation({ name: String(msg.officer?.name || 'Officer'), email: '', admin: 'state', workspace: 'ward-27', since: new Date().toISOString() }));
       } else if (msg.type === 'scrutiny:go' && VIEWS.has(msg.view)) {
         // Keep the open taxpayer when moving between the screens that show one, as the sidebar did.
@@ -194,15 +215,22 @@ export default function App() {
     setToast('Case closed with reasons recorded');
   }, [dispatch]);
   const saveNotice = useCallback((id, n) => dispatch({ type: 'notice', caseId: id, notice: n }), [dispatch]);
-  // After drafting: the issue, reminders and escalation the officer records (src/lib/caseEvents.js)
+  // After drafting: the issue and reminders the officer records (src/lib/caseEvents.js); escalation is by approval
   const issueNotice = useCallback((id, issue) => dispatch({ type: 'notice-issue', caseId: id, ...issue }), [dispatch]);
   const remindNotice = useCallback((id, r) => dispatch({ type: 'notice-reminder', caseId: id, ...r }), [dispatch]);
-  const escalateNotice = useCallback((id, e) => dispatch({ type: 'notice-escalate', caseId: id, ...e }), [dispatch]);
 
   // Alert queue (server: scripts/alert-store.js). lastSeen is when this officer last opened the queue, for "New".
   const [alertQueue, setAlertQueue] = useState(undefined); // undefined = loading, null = no server store
   const [alertsSeenAt, setAlertsSeenAt] = useState(null);
   const officer = user?.name || '';
+  const viewer = useMemo(() => (user ? { id: user.id, name: user.name, canApprove: can(user, 'approve') } : null), [user]);
+  // Maker-checker (src/lib/caseEvents.js guardEvent): ask, then a second officer approves or returns.
+  const requestApproval = useCallback((id, stage, extra = {}) => dispatch({ type: 'approval-request', caseId: id, stage, ...extra }), [dispatch]);
+  const decideApproval = useCallback((id, stage, decision, note) => dispatch({ type: 'approval-decide', caseId: id, stage, decision, ...(note ? { note } : {}) }), [dispatch]);
+  const endSession = useCallback(async () => {
+    if (authModeRef.current === 'accounts') await signOut(); else session.set(null);
+    setUser(null); setRaw(null); go('login');
+  }, [go]);
   const loadAlerts = useCallback(() => fetch(api(`/__alerts?user=${encodeURIComponent(officer)}`), { cache: 'no-store' })
     .then((r) => (r.ok ? r.json() : null)).then((q) => { setAlertQueue(q && Array.isArray(q.alerts) ? q : null); return q; }).catch(() => setAlertQueue(null)), [officer]);
   const alertAction = useCallback(async (key, action, note) => {
@@ -224,8 +252,8 @@ export default function App() {
   // The upload log (server): each batch's files and the analysis that followed, newest first. null = no server store.
   const [uploads, setUploads] = useState(null);
   const loadUploads = useCallback(() => fetch(api('/__data/uploads'), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).then((v) => setUploads(v && Array.isArray(v.batches) ? v : null)).catch(() => setUploads(null)), []);
-  useEffect(() => { loadUploads(); }, [loadUploads]);
-  useEffect(() => { loadAlerts(); }, [loadAlerts, raw]); // raw changes after every analysis
+  useEffect(() => { if (dataKey) loadUploads(); }, [loadUploads, dataKey]);
+  useEffect(() => { if (dataKey) loadAlerts(); }, [loadAlerts, raw, dataKey]); // raw changes after every analysis
   // Opening the queue: keep the previous visit's time for "New" on this visit, then record this one
   useEffect(() => {
     if (route.view !== 'alerts' || !officer) return;
@@ -385,6 +413,10 @@ export default function App() {
     if (view === 'howto') return <HowTo go={go} user={u} />;
     return <RulesCatalog data={data} go={go} user={u} />;
   };
+  if (authMode === 'loading') return <div className="page"><div className="empty">Loading…</div></div>;
+  if (authMode === 'accounts' && (!user || user.mustChange)) {
+    return <AccountSignIn embedded={embedded} go={go} mustChange={user?.mustChange ? user : null} onSignedIn={(a) => { setUser(userFromAccount(a)); if (!embedded) go('dashboard'); }} />;
+  }
   if (!user) {
     if (embedded) return <div className="page"><div className="empty">Loading scrutiny data…</div></div>; // the shell is handing over the officer
     if (PUBLIC.has(route.view)) return <SiteShell view={route.view} go={go}>{renderPublic(route.view)}</SiteShell>;
@@ -400,7 +432,7 @@ export default function App() {
   const selectedId = route.id && data.taxpayers.some((a) => a.id === route.id) ? route.id : data.taxpayers[0]?.id;
   const current = data.taxpayers.find((a) => a.id === selectedId);
   const openCount = data.taxpayers.filter((a) => (cases[a.id]?.status || 'New') !== 'Closed').length;
-  const noticeFollowUps = followUps({ notices, cases, taxpayers: data.taxpayers, today: new Date().toISOString().slice(0, 10) }).length;
+  const noticeFollowUps = followUps({ notices, cases, taxpayers: data.taxpayers, today: new Date().toISOString().slice(0, 10), viewer }).length;
   const alertCount = (alertQueue?.alerts || []).filter((a) => a.status === 'open').length + noticeFollowUps;
   const watch = data.taxpayers.filter((a) => (cases[a.id]?.status || 'New') !== 'Closed').slice(0, 5);
   const initials = user.name.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase();
@@ -441,7 +473,7 @@ export default function App() {
             <div className="n">{user.name}</div>
             <div className="r" title={`${user.role} · ${ADMINS[user.admin].label} · ${user.workspace}`}>{user.role} · {user.workspace}</div>
           </div>
-          <button className="icon-btn" title="Sign out" aria-label="Sign out" onClick={() => { session.set(null); setUser(null); }}><Icon name="logout" size={17} /></button>
+          <button className="icon-btn" title="Sign out" aria-label="Sign out" onClick={endSession}><Icon name="logout" size={17} /></button>
         </div>
       </aside>
       )}
@@ -473,6 +505,7 @@ export default function App() {
         {route.view === 'collections' && <Collections data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
         {route.view === 'actions' && <Actions data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} selected={route.id} />}
         {route.view === 'recovery' && <Recovery data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} openTaxpayer={(g) => openTaxpayerTab(g, null)} />}
+        {route.view === 'accounts' && <Accounts mode={authMode} user={user} onSignOut={endSession} toast={setToast} />}
         {route.view === 'governance' && <Governance data={data} registers={registers} cases={cases} go={(v, id, tab) => (v === 'taxpayer' ? openTaxpayerTab(id, tab || null) : go(v, id))} />}
         {route.view === 'targets' && <Targets data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
         {route.view === 'learning' && <Learning data={data} go={go} registers={registers} cases={cases} jurisdiction={jurisdiction} setJurisdiction={setJurisdiction} />}
@@ -488,13 +521,13 @@ export default function App() {
         {route.view === 'report' && current && (
           <Report key={current.id} data={data} a={current} caseInfo={cases[current.id] || { status: 'New' }} notice={notices[current.id]} user={user} setSelected={(id) => go('report', id)} toast={setToast} saveAll={saveAllReports} savingAll={savingAll} ai={ai} aiCache={aiCache} openTaxpayer={openTaxpayer} />
         )}
-        {route.view === 'notices' && <Notices data={data} cases={cases} notices={notices} saveNotice={saveNotice} issueNotice={issueNotice} remindNotice={remindNotice} escalateNotice={escalateNotice} setReadiness={setReadiness} selected={selectedId} setSelected={(id) => go('notices', id)} user={user} toast={setToast} />}
-        {route.view === 'alerts' && <Alerts data={data} queue={alertQueue} lastSeen={alertsSeenAt} cases={cases} notices={notices} master={registers?.master?.records || []} onAction={alertAction} onSaveRules={saveAlertRules} openTaxpayer={openTaxpayer} openNotice={(id) => go('notices', id)} />}
+        {route.view === 'notices' && <Notices data={data} cases={cases} notices={notices} saveNotice={saveNotice} issueNotice={issueNotice} remindNotice={remindNotice} requestApproval={requestApproval} decideApproval={decideApproval} viewer={viewer} setReadiness={setReadiness} selected={selectedId} setSelected={(id) => go('notices', id)} user={user} toast={setToast} />}
+        {route.view === 'alerts' && <Alerts data={data} queue={alertQueue} lastSeen={alertsSeenAt} cases={cases} notices={notices} master={registers?.master?.records || []} onAction={alertAction} onSaveRules={saveAlertRules} viewer={viewer} canConfigure={can(user, 'configure')} canAct={can(user, 'work')} openTaxpayer={openTaxpayer} openNotice={(id) => go('notices', id)} />}
         {route.view === 'rules' && <RuleRegister data={data} openTaxpayer={openTaxpayer} />}
         {route.view === 'ai' && <AISettings data={data} ai={ai} setAi={setAi} toast={setToast} />}
         {route.view === 'scoring' && <Scoring data={data} baseTaxpayers={raw.taxpayers} cfg={cfg} onSave={setCfg} toast={setToast} />}
         {PUBLIC.has(route.view) && renderPublic(route.view, user)}
-        {route.view === 'data' && <DataMethod data={data} onFiles={onFiles} busy={busy} uploadProgress={uploadProgress} uploads={uploads} retryAnalysis={retryAnalysis} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
+        {route.view === 'data' && <DataMethod data={data} canUpload={can(user, 'upload')} canUploadRegisters={can(user, 'upload') && (!user.jurisdictions || user.jurisdictions.includes('*'))} onFiles={onFiles} busy={busy} uploadProgress={uploadProgress} uploads={uploads} retryAnalysis={retryAnalysis} openTaxpayer={openTaxpayer} openReport={(id) => go('report', id)} cfg={cfg} registers={registers} onRegisterUpload={uploadRegister} cases={cases} dispatch={dispatch} toast={setToast} go={go} />}
         </>)}
         </ErrorBoundary>
       </main>

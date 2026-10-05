@@ -26,7 +26,7 @@ function Step({ n, title, lead, points, status, children, tour }) {
   );
 }
 
-export default function DataMethod({ data, onFiles, busy, uploadProgress, uploads, retryAnalysis, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
+export default function DataMethod({ data, canUpload = true, canUploadRegisters = true, onFiles, busy, uploadProgress, uploads, retryAnalysis, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
   const years = Object.values(data.baselines || {}).reduce((s, b) => s + b.length, 0) || data.taxpayers.length;
   const regLoaded = registers ? Object.keys(REGISTERS).filter((t) => registers[t]).length : 0;
   // Files chosen but not yet confirmed: the staging step shows what was understood before anything is analysed
@@ -41,9 +41,10 @@ export default function DataMethod({ data, onFiles, busy, uploadProgress, upload
         lead="The “Get Download All Report” Excel export: one file per taxpayer per financial year."
         points={['Upload the file as exported. Do not rename its sheets or columns.', 'Choose several files at once if you like. A second file for the same taxpayer and year replaces the first, which is kept.', 'Excel (.xlsx), up to 40 MB each.']}
         status={<span className="chip good">{int(data.taxpayers.length)} taxpayers loaded</span>}>
-        {staged
+        {!canUpload && <div className="note">Your role can see what is loaded but not upload returns: a supervisor or Commissioner uploads them.</div>}
+        {canUpload && (staged
           ? <Staging files={staged} data={data} onCancel={() => setStaged(null)} onConfirm={(items) => { setStaged(null); onFiles(items); }} />
-          : <ReturnsDrop onFiles={(files) => files.length && setStaged(files)} busy={busy} progress={uploadProgress} />}
+          : <ReturnsDrop onFiles={(files) => files.length && setStaged(files)} busy={busy} progress={uploadProgress} />)}
         <UploadReport batch={uploads?.batches?.[0]} data={data} busy={busy} onRetry={retryAnalysis} openTaxpayer={openTaxpayer} />
         <details className="up-more">
           <summary>Show loaded taxpayers</summary>
@@ -55,7 +56,8 @@ export default function DataMethod({ data, onFiles, busy, uploadProgress, upload
         lead="Five lists covering the whole jurisdiction. Upload each one on its own row."
         points={['Start from the template: column names in row 1. CSV or Excel.', 'An upload adds its rows: new rows are added, a row for the same GSTIN or ID is updated, and every row already saved stays. The previous version is also kept.', 'Every row is checked. If anything is wrong, nothing is saved and every problem is listed.']}
         status={<span className={`chip ${regLoaded === Object.keys(REGISTERS).length ? 'good' : ''}`}>{regLoaded} of {Object.keys(REGISTERS).length} loaded</span>}>
-        <div className="up-registers"><RegisterList registers={registers} onUpload={onRegisterUpload} /></div>
+        {!canUploadRegisters && <div className="note">Registers are department-wide: they are uploaded by an account covering all jurisdictions. You see the rows about your jurisdictions.</div>}
+        <div className="up-registers"><RegisterList registers={registers} onUpload={canUploadRegisters ? onRegisterUpload : null} /></div>
       </Step>
 
       <Step n={3} tour="upload-replies" title="Reply letters"

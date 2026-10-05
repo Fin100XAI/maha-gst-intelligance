@@ -69,6 +69,7 @@ registerMessages('hi', {
   'EIU signals': 'EIU संकेत',
   'E-way bills': 'ई-वे बिल',
   'Alerts': 'अलर्ट',
+  'Accounts': 'खाते',
   'Taxpayer 360°': 'करदाता 360°',
   Notices: 'नोटिस',
   Collections: 'संग्रहण',

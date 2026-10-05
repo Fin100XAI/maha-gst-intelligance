@@ -32,7 +32,7 @@ function RegisterRow({ type, loaded, onUpload }) {
       </div>
       <div className="reg-actions">
         <button className="btn small" onClick={() => download(`${type}-register-template.csv`, registerTemplate(type))}><Icon name="download" size={14} /> Template</button>
-        <button className="btn small primary" disabled={busy} onClick={() => input.current?.click()}>{busy ? 'Checking…' : loaded ? 'Add rows' : 'Upload'}</button>
+        {onUpload && <button className="btn small primary" disabled={busy} onClick={() => input.current?.click()}>{busy ? 'Checking…' : loaded ? 'Add rows' : 'Upload'}</button>}
         <input ref={input} type="file" accept=".csv,.xlsx" hidden onChange={(e) => { pick(e.target.files[0]); e.target.value = ''; }} />
       </div>
       {result && !result.ok && (

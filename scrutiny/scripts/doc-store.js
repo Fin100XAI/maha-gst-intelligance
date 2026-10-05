@@ -8,6 +8,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { extractText, DOC_TYPES } from './lib/docText.mjs';
+import { accessOf, forbid } from './lib/request-access.mjs';
+// With accounts: storing a document needs case work; a document is fetched by its SHA-256, which only the cases
+// that recorded it carry, and only by a signed-in officer.
 
 const MAX_BYTES = 15 * 1024 * 1024;
 
@@ -40,6 +43,7 @@ export default function docStore() {
       server.middlewares.use('/__docs/upload', (req, res) => {
         if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
         if (!local(req)) return json(res, 403, { ok: false, error: 'Uploading is allowed from this computer only' });
+        if (!accessOf(req).can('work')) return forbid(res, 'Your role does not include case work');
         const chunks = [];
         let size = 0;
         req.on('data', (c) => { size += c.length; if (size > MAX_BYTES) { json(res, 413, { ok: false, error: 'Documents are limited to 15 MB' }); req.destroy(); } else chunks.push(c); });

@@ -10,6 +10,8 @@
 //                                          and year moves to data/superseded/; other years stay as history.
 //   GET  /data.json                        served from public/data.json without caching, so rebuilds show at once.
 // Local only (like report saving) unless GST_ALLOW_REMOTE=1.
+// With accounts (AUTH_MODE=accounts): data.json and the upload log carry only the officer's jurisdictions
+// (scripts/lib/scope.mjs); uploading needs the upload permission and a GSTIN within the officer's jurisdictions.
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
@@ -20,6 +22,18 @@ import { storeWorkbook, saveCorrection } from './lib/dataset.mjs';
 import { gstinValid } from '../src/engine/gstin.js';
 import { coalesce } from './lib/coalesce.mjs';
 import { readLog, recordFile, recordAnalysis, cleanBatchId } from './lib/uploadLog.mjs';
+import { accessOf, forbid } from './lib/request-access.mjs';
+import { scopeDataset } from './lib/scope.mjs';
+
+/** The upload log limited to the officer's taxpayers: other files, and batches left empty, are left out. */
+export function scopeUploadLog(log, inScope) {
+  const batches = (log.batches || []).map((b) => ({
+    ...b,
+    files: (b.files || []).filter((f) => f.gstin && inScope(f.gstin)),
+    ...(b.analysis ? { analysis: { ...b.analysis, changes: (b.analysis.changes || []).filter((c) => inScope(c.gstin)) } } : {}),
+  })).filter((b) => b.files.length);
+  return { ...log, batches };
+}
 
 // What a failed build said: the line naming the error (not Node's closing "Node.js v20…" line), and the last lines.
 const outputLines = (text) => String(text || '').split('\n').map((l) => l.trim()).filter((l) => l && !/^Node\.js v\d/.test(l));
@@ -52,11 +66,32 @@ export default function dataStore() {
 
       // data.json runs to megabytes; compressed once per rebuild, it is about a tenth of that on the wire.
       let gz = null; // { mtimeMs, buf }
+      // An officer limited to some jurisdictions gets their own cut, kept per jurisdiction set until the next rebuild.
+      let scoped = { mtimeMs: -1, full: null, cuts: new Map() };
+      const scopedBody = (scope) => {
+        const { mtimeMs } = fs.statSync(outFile);
+        if (scoped.mtimeMs !== mtimeMs) scoped = { mtimeMs, full: null, cuts: new Map() };
+        const key = [...scope.jurisdictions].sort().join('|');
+        if (!scoped.cuts.has(key)) {
+          scoped.full ||= JSON.parse(fs.readFileSync(outFile, 'utf8'));
+          if (scoped.cuts.size >= 20) scoped.cuts.delete(scoped.cuts.keys().next().value);
+          const body = Buffer.from(JSON.stringify(scopeDataset(scoped.full, scope)));
+          scoped.cuts.set(key, { body, gz: zlib.gzipSync(body) });
+        }
+        return scoped.cuts.get(key);
+      };
       server.middlewares.use('/data.json', (req, res, next) => {
         if (req.method !== 'GET' && req.method !== 'HEAD') return next();
         if (!fs.existsSync(outFile)) return next();
         res.setHeader('content-type', 'application/json; charset=utf-8');
         res.setHeader('cache-control', 'no-store');
+        const acc = accessOf(req);
+        if (!acc.all) {
+          const cut = scopedBody(acc.scope);
+          const zip = /\bgzip\b/.test(req.headers['accept-encoding'] || '');
+          if (zip) { res.setHeader('content-encoding', 'gzip'); res.setHeader('vary', 'accept-encoding'); }
+          return res.end(req.method === 'HEAD' ? undefined : zip ? cut.gz : cut.body);
+        }
         if (/\bgzip\b/.test(req.headers['accept-encoding'] || '')) {
           const { mtimeMs } = fs.statSync(outFile);
           if (!gz || gz.mtimeMs !== mtimeMs) gz = { mtimeMs, buf: zlib.gzipSync(fs.readFileSync(outFile)) };
@@ -70,6 +105,8 @@ export default function dataStore() {
       server.middlewares.use('/__data/upload', (req, res) => {
         if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
         if (!local(req)) return json(res, 403, { ok: false, error: 'Uploading is allowed from this computer only' });
+        const acc = accessOf(req);
+        if (!acc.can('upload')) return forbid(res, 'Uploading returns needs the upload permission (supervisor or above)');
         const chunks = [];
         let size = 0;
         req.on('data', (c) => { size += c.length; if (size > MAX_BYTES) { json(res, 413, { ok: false, error: 'Workbook is larger than 40 MB' }); req.destroy(); } else chunks.push(c); });
@@ -88,6 +125,7 @@ export default function dataStore() {
             let tp;
             try { tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), name, correction); } catch (e) { return reject(`Not a readable .xlsx workbook (${e.message})`); }
             if (!tp.gstin || !tp.periods.length) return reject(tp.intake?.errors?.[0] || 'Not a returns export: no GSTIN banner or GSTR-3B periods found');
+            if (!acc.inScope(tp.gstin)) return reject(`${tp.gstin} is not in your jurisdiction (taxpayer master register): ask an officer covering it, or all jurisdictions`);
 
             const { file: target, replaced } = storeWorkbook({ dataDir, name, buf, tp });
             saveCorrection(dataDir, target, tp.intake.banner.gstin && tp.intake.banner.fy ? null : correction);
@@ -150,10 +188,16 @@ export default function dataStore() {
         });
       };
       server.middlewares.use('/__data/progress', (req, res) => json(res, 200, job ? { ...job, again: undefined } : { stage: 'idle' }));
-      server.middlewares.use('/__data/uploads', (req, res) => { res.setHeader('cache-control', 'no-store'); json(res, 200, { ...readLog(dataDir), job: job ? { ...job, again: undefined } : null }); });
+      server.middlewares.use('/__data/uploads', (req, res) => {
+        res.setHeader('cache-control', 'no-store');
+        const acc = accessOf(req);
+        const log = readLog(dataDir);
+        json(res, 200, { ...(acc.all ? log : scopeUploadLog(log, acc.inScope)), job: job ? { ...job, again: undefined, ...(acc.all ? {} : { failed: undefined, detail: undefined }) } : null });
+      });
       server.middlewares.use('/__data/rebuild', (req, res) => {
         if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
         if (!local(req)) return json(res, 403, { ok: false, error: 'Uploading is allowed from this computer only' });
+        if (!accessOf(req).can('upload')) return forbid(res, 'Re-running the analysis needs the upload permission');
         const batch = cleanBatchId(new URL(req.url || '/', 'http://x').searchParams.get('batch'));
         if (batch) waiting.add(batch);
         if (job && !job.finishedAt) { job.again = true; return json(res, 202, { ok: true, queued: true, job: { ...job, again: undefined } }); }

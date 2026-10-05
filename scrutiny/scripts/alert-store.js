@@ -9,6 +9,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DEFAULT_RULES, validateRule, evaluateAlerts } from '../src/engine/alerts.js';
+import { accessOf, forbid, gstinOfAlertKey } from './lib/request-access.mjs';
+// With accounts: an officer sees and acts on alerts of their jurisdictions only, as their own account (the user and
+// by fields the browser sends are ignored), and changing the rules needs the configure permission.
 
 const MAX_BODY = 256 * 1024;
 
@@ -65,15 +68,19 @@ export default function alertStore() {
       server.middlewares.use('/__alerts', async (req, res, next) => {
         const url = new URL(req.url || '/', 'http://x');
         const route = url.pathname.replace(/\/+$/, '') || '/';
+        const acc = accessOf(req);
+        const who = (given) => (acc.account ? acc.account.id : String(given || '').slice(0, 120));
         try {
           if (req.method === 'GET' && route === '/') {
             const q = buildQueue(readAlertStore(file), dataset(), master());
             if (q.changed) save(q.store);
-            const user = String(url.searchParams.get('user') || '').slice(0, 120);
-            return json(res, 200, { rules: q.store.rules, alerts: q.alerts, resolved: q.resolved, generatedAt: q.generatedAt, lastSeen: user ? q.store.seen[user] || null : null });
+            const user = who(url.searchParams.get('user'));
+            const mine = (key) => acc.inScope(gstinOfAlertKey(key));
+            return json(res, 200, { rules: q.store.rules, alerts: q.alerts.filter((a) => mine(a.key)), resolved: q.resolved.filter((a) => mine(a.key)), generatedAt: q.generatedAt, lastSeen: user ? q.store.seen[user] || null : null });
           }
           if (req.method === 'PUT' && route === '/rules') {
             if (!local(req)) return json(res, 403, { ok: false, error: 'Changing alert rules is allowed from this computer only' });
+            if (!acc.can('configure')) return forbid(res, 'Changing alert rules needs the configure permission (supervisor or above)');
             const { rules } = await body(req);
             if (!Array.isArray(rules) || rules.length > 100) return json(res, 400, { ok: false, errors: ['rules must be a list (at most 100)'] });
             const errors = rules.flatMap((r, i) => validateRule(r).map((e) => `Rule ${i + 1}${r?.name ? ` (${r.name})` : ''}: ${e}`));
@@ -87,19 +94,20 @@ export default function alertStore() {
             if (!local(req)) return json(res, 403, { ok: false, error: 'Recording alert actions is allowed from this computer only' });
             const { key, action, note, by } = await body(req);
             const s = readAlertStore(file);
-            if (!s.state[key]) return json(res, 404, { ok: false, error: 'No such alert' });
+            if (!s.state[key] || !acc.inScope(gstinOfAlertKey(key))) return json(res, 404, { ok: false, error: 'No such alert' });
+            if (!acc.can('work')) return forbid(res, 'Your role does not include case work');
             if (!['acknowledge', 'dismiss', 'reopen'].includes(action)) return json(res, 400, { ok: false, error: 'action must be acknowledge, dismiss or reopen' });
             if (action === 'dismiss' && !String(note || '').trim()) return json(res, 400, { ok: false, error: 'Dismissing an alert needs a reason' });
             const status = { acknowledge: 'acknowledged', dismiss: 'dismissed', reopen: 'open' }[action];
-            s.state[key] = { ...s.state[key], status, at: new Date().toISOString(), by: String(by || '').slice(0, 120), ...(note ? { note: String(note).slice(0, 1000) } : {}) };
+            s.state[key] = { ...s.state[key], status, at: new Date().toISOString(), by: acc.account ? acc.account.name : String(by || '').slice(0, 120), ...(note ? { note: String(note).slice(0, 1000) } : {}) };
             save(s);
             return json(res, 200, { ok: true, alert: { key, ...s.state[key] } });
           }
           if (req.method === 'POST' && route === '/seen') {
-            const { user } = await body(req);
+            const user = who((await body(req)).user);
             if (!String(user || '').trim()) return json(res, 400, { ok: false, error: 'user is required' });
             const s = readAlertStore(file);
-            s.seen = { ...s.seen, [String(user).slice(0, 120)]: new Date().toISOString() };
+            s.seen = { ...s.seen, [user]: new Date().toISOString() };
             save(s);
             return json(res, 200, { ok: true });
           }

@@ -14,10 +14,10 @@ const today = () => new Date().toISOString().slice(0, 10);
 const PRIORITY_TONE = { High: 'bad', Medium: 'warn', Low: '' };
 const STATUS_LABEL = { open: 'Open', acknowledged: 'Acknowledged', dismissed: 'Dismissed', resolved: 'Resolved' };
 
-export default function Alerts({ data, queue, lastSeen, cases, notices, master, onAction, onSaveRules, openTaxpayer, openNotice }) {
+export default function Alerts({ data, queue, lastSeen, cases, notices, master, onAction, onSaveRules, viewer = null, canConfigure = true, canAct = true, openTaxpayer, openNotice }) {
   const [tab, setTab] = useState('queue');
   const [show, setShow] = useState('open');
-  const follow = useMemo(() => followUps({ notices, cases, taxpayers: data.taxpayers, today: today() }), [notices, cases, data.taxpayers]);
+  const follow = useMemo(() => followUps({ notices, cases, taxpayers: data.taxpayers, today: today(), viewer }), [notices, cases, data.taxpayers, viewer]);
   if (!queue) return <div className="page"><PageHead title="Alerts" /><div className="card note">Alerts need the server store (dev server or server.mjs).</div></div>;
   const isNew = (a) => !lastSeen || a.firstSeen > lastSeen;
   const open = queue.alerts.filter((a) => a.status === 'open');
@@ -29,7 +29,7 @@ export default function Alerts({ data, queue, lastSeen, cases, notices, master, 
 
       {tab === 'queue' && (<>
         <section className="card mt">
-          <div className="card-head"><div><h3>Notices to follow up</h3><div className="sub">From the notice workflow: drafts not issued, replies due or overdue, replies to review.</div></div></div>
+          <div className="card-head"><div><h3>Notices to follow up</h3><div className="sub">From the notice workflow: approvals waiting for you, drafts not issued, replies due or overdue, replies to review.</div></div></div>
           {!follow.length && <div className="muted">Nothing due.</div>}
           {follow.length > 0 && (
             <table className="tbl">
@@ -40,7 +40,7 @@ export default function Alerts({ data, queue, lastSeen, cases, notices, master, 
                   <td><b>{f.name}</b>{isTestData(f.gstin) && <> <TestTag /></>}<div className="mono muted" style={{ fontSize: 11 }}>{f.gstin}</div></td>
                   <td className="mono" style={{ fontSize: 12 }}>{f.ref}</td>
                   <td>{f.text}</td>
-                  <td><button className="btn small primary" onClick={() => openNotice(f.id)}>Open notice</button></td>
+                  <td><button className="btn small primary" onClick={() => openNotice(f.id)}>{f.kind === 'approve' ? 'Review and decide' : 'Open notice'}</button></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -71,9 +71,9 @@ export default function Alerts({ data, queue, lastSeen, cases, notices, master, 
                     <td style={{ fontSize: 12 }}>{STATUS_LABEL[a.status]}{a.by ? <div className="muted">{a.by}{a.note ? `: ${a.note}` : ''}</div> : null}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       <button className="btn small soft" onClick={() => openTaxpayer(a.id)}>Open</button>{' '}
-                      {a.status === 'open' && <button className="btn small" onClick={() => onAction(a.key, 'acknowledge')}>Acknowledge</button>}{' '}
-                      {a.status === 'open' && <button className="btn small" onClick={() => { const note = window.prompt('Why is this alert being dismissed? (recorded with your name)'); if (note && note.trim()) onAction(a.key, 'dismiss', note.trim()); }}>Dismiss</button>}
-                      {a.status !== 'open' && <button className="btn small" onClick={() => onAction(a.key, 'reopen')}>Reopen</button>}
+                      {canAct && a.status === 'open' && <button className="btn small" onClick={() => onAction(a.key, 'acknowledge')}>Acknowledge</button>}{' '}
+                      {canAct && a.status === 'open' && <button className="btn small" onClick={() => { const note = window.prompt('Why is this alert being dismissed? (recorded with your name)'); if (note && note.trim()) onAction(a.key, 'dismiss', note.trim()); }}>Dismiss</button>}
+                      {canAct && a.status !== 'open' && <button className="btn small" onClick={() => onAction(a.key, 'reopen')}>Reopen</button>}
                     </td>
                   </tr>
                 ))}</tbody>
@@ -83,7 +83,7 @@ export default function Alerts({ data, queue, lastSeen, cases, notices, master, 
         </section>
       </>)}
 
-      {tab === 'rules' && <RuleEditor rules={queue.rules} data={data} master={master} onSave={onSaveRules} />}
+      {tab === 'rules' && <RuleEditor rules={queue.rules} data={data} master={master} onSave={onSaveRules} readOnly={!canConfigure} />}
 
       {tab === 'resolved' && (
         <section className="card mt">
@@ -101,7 +101,7 @@ export default function Alerts({ data, queue, lastSeen, cases, notices, master, 
 const blankRule = () => ({ id: `rule-${Date.now().toString(36)}`, name: '', enabled: true, priority: 'Medium', when: { type: 'band', band: 'High' } });
 
 // The department's alert rules, with a live preview of how many taxpayers each would raise today.
-function RuleEditor({ rules, data, master, onSave }) {
+function RuleEditor({ rules, data, master, onSave, readOnly }) {
   const [draft, setDraft] = useState(() => rules.map((r) => ({ ...r, when: { ...r.when } })));
   const [errors, setErrors] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -121,13 +121,14 @@ function RuleEditor({ rules, data, master, onSave }) {
     <section className="card mt">
       <div className="card-head">
         <div><h3>Alert rules</h3><div className="sub">What deserves an officer's attention. Each rule is checked against every analysis; the count shows how many taxpayers it would raise today.</div></div>
+        {readOnly ? <span className="chip">A supervisor or Commissioner changes the rules</span> : (
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn" onClick={() => setDraft((d) => [...d, blankRule()])}><Icon name="plus" size={15} /> Add rule</button>
           <button className="btn primary" disabled={saving} onClick={save}>{saving ? 'Saving…' : 'Save rules'}</button>
-        </div>
+        </div>)}
       </div>
       {errors.length > 0 && <div className="upr-error" role="alert">{errors.map((e) => <div key={e}>{e}</div>)}</div>}
-      <table className="tbl">
+      <fieldset disabled={readOnly} className="plain-fieldset"><table className="tbl">
         <thead><tr><th>On</th><th>Name</th><th>When</th><th>Priority</th><th>Jurisdiction</th><th className="num">Today</th><th /></tr></thead>
         <tbody>{draft.map((r, i) => (
           <tr key={r.id}>
@@ -146,7 +147,7 @@ function RuleEditor({ rules, data, master, onSave }) {
             <td><button className="btn small soft" onClick={() => setDraft((d) => d.filter((_, j) => j !== i))} aria-label={`Delete ${r.name}`}>Delete</button></td>
           </tr>
         ))}</tbody>
-      </table>
+      </table></fieldset>
     </section>
   );
 }

@@ -45,7 +45,8 @@ const PAGES = [
     { id: 'scoring', label: 'Risk scoring' },
     { id: 'ai', label: 'AI assistant' },
     { id: 'data', label: 'Upload data' },
-    { id: 'governance', label: 'Governance' }
+    { id: 'governance', label: 'Governance' },
+    { id: 'accounts', label: 'Accounts' }
   ] },
   { section: 'Help', items: [
     { id: 'guide', label: 'Guide' },
