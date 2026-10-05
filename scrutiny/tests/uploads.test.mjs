@@ -39,3 +39,10 @@ test('the upload report says what changed for each taxpayer since the last run',
   assert.equal(changeText({ gstin: 'x', before: was, after: { ...was, score: 48, band: 'High', fails: ['B-01', 'J-01'] } }), 'score 24 → 48 (Low → High) · new failed: B-01');
   assert.equal(changeText({ gstin: 'x', before: was, after: { ...was, score: 3, fails: [] } }), 'score 24 → 3 · no longer failing: J-01');
 });
+
+test('a file that is not a returns export is refused as such, not asked for a GSTIN', async () => {
+  const { refusalOf } = await import('../scripts/data-store.js');
+  assert.match(refusalOf({ gstin: '', periods: [], intake: { errors: ['No GSTIN in the banner ("Company GSTN :" on the first GSTR-3B sheet): enter it below.'] } }), /^Not a returns export: no GSTR-3B periods found/);
+  assert.match(refusalOf({ gstin: '', periods: [0, 1], intake: { errors: ['No GSTIN in the banner: enter it below.'] } }), /No GSTIN/);
+  assert.equal(refusalOf({ gstin: '27AAPFU0939F1ZV', periods: [0] }), null);
+});

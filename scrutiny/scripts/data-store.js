@@ -41,6 +41,15 @@ export function scopeUploadLog(log, inScope) {
 
 // What a failed build said: the line naming the error (not Node's closing "Node.js v20…" line), and the last lines.
 const outputLines = (text) => String(text || '').split('\n').map((l) => l.trim()).filter((l) => l && !/^Node\.js v\d/.test(l));
+/**
+ * Why a parsed workbook cannot be stored, or null. A file with no GSTR-3B periods is not a returns export at all, so
+ * that is said first (asking for its GSTIN would mislead); a returns export without a GSTIN needs it entered.
+ */
+export function refusalOf(tp) {
+  if (!tp.periods.length) return 'Not a returns export: no GSTR-3B periods found. Upload the "Get Download All Report" Excel export, or use "Data in another layout?"';
+  if (!tp.gstin) return tp.intake?.errors?.[0] || 'No GSTIN in the banner: enter it in the check before upload';
+  return null;
+}
 export const errorLine = (text) => { const lines = outputLines(text).filter((l) => !/^at\s/.test(l)); return lines.find((l) => /\b(\w*Error|FAILED)\b/.test(l)) || lines.pop() || ''; };
 const errorDetail = (text) => outputLines(text).slice(-15).join('\n');
 
@@ -128,7 +137,8 @@ export default function dataStore() {
             const buf = Buffer.concat(chunks);
             let tp;
             try { tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), name, correction); } catch (e) { return reject(`Not a readable .xlsx workbook (${e.message})`); }
-            if (!tp.gstin || !tp.periods.length) return reject(tp.intake?.errors?.[0] || 'Not a returns export: no GSTIN banner or GSTR-3B periods found');
+            const refused = refusalOf(tp);
+            if (refused) return reject(refused);
             if (!acc.inScope(tp.gstin)) return reject(`${tp.gstin} is not in your jurisdiction (taxpayer master register): ask an officer covering it, or all jurisdictions`);
 
             const { file: target, replaced } = storeWorkbook({ dataDir, name, buf, tp });
