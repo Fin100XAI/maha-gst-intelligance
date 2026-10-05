@@ -241,30 +241,35 @@ export default function App() {
       return { ok: false, errors: [`Upload failed: ${e.message}`] };
     }
   }, [loadRegisters, retryAnalysis]);
-  const onFiles = useCallback(async (files) => {
+  // files: File objects, or { file, correction } from the staging step (a GSTIN or year the officer entered)
+  const onFiles = useCallback(async (picked) => {
+    const items = picked.map((x) => (x instanceof File ? { file: x, correction: {} } : x));
+    const files = items.map((x) => x.file);
     if (!files.length || !raw) return;
     setBusy(true);
     const batch = `b${Date.now()}`;
     try {
       const saved = [], browserOnly = [], problems = [];
-      const uploadOne = async (f) => {
+      const uploadOne = async ({ file: f, correction }) => {
         if (!/\.xlsx$/i.test(f.name) || f.size > 40 * 1024 * 1024) { problems.push(`${f.name}: .xlsx under 40 MB only`); return; }
         let r = null;
         // defer=1: save only; the batch is analysed once, after the last file
-        try { r = await fetch(api(`/__data/upload?name=${encodeURIComponent(f.name)}&defer=1&batch=${batch}`), { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
+        const fix = `${correction?.gstin ? `&gstin=${encodeURIComponent(correction.gstin)}` : ''}${correction?.fy ? `&fy=${encodeURIComponent(correction.fy)}` : ''}`;
+        try { r = await fetch(api(`/__data/upload?name=${encodeURIComponent(f.name)}&defer=1&batch=${batch}${fix}`), { method: 'POST', body: f, headers: { 'content-type': 'application/octet-stream' } }); } catch { r = null; }
         const body = r ? await r.json().catch(() => null) : null;
         if (r?.ok && body?.ok) saved.push(body);
         else if (r && (r.status === 400 || r.status === 413)) problems.push(`${f.name}: ${body?.error || 'not a returns export'}`);
-        else browserOnly.push({ f, why: body?.error || (r ? `HTTP ${r.status}` : 'server not reachable') });
+        else browserOnly.push({ f, correction, why: body?.error || (r ? `HTTP ${r.status}` : 'server not reachable') });
       };
       // A few uploads at a time, then one rebuild on the server in the background, with its progress shown.
-      const queue = [...files];
+      const queue = [...items];
       let sent = 0;
       setUploadProgress({ stage: 'upload', done: 0, total: files.length });
       await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => {
         while (queue.length) { await uploadOne(queue.shift()); setUploadProgress({ stage: 'upload', done: ++sent, total: files.length }); }
       }));
       let run = null;
+      loadUploads(); // the report switches to this upload at once: received and saved, analysis in progress
       if (saved.some((s) => s.deferred)) run = await analyseOnServer(batch);
       else if (problems.length) await fetch(api(`/__data/rebuild?batch=${batch}`), { method: 'POST' }).catch(() => null); // only rejected files: close the batch
 
@@ -276,8 +281,8 @@ export default function App() {
       const added = [];
       if (browserOnly.length) {
         const [XLSX, { parseWorkbook }, { analyze }] = await Promise.all([import('xlsx'), import('./engine/parse.js'), import('./engine/analyze.js')]);
-        for (const { f } of browserOnly) {
-          const tp = parseWorkbook(XLSX.read(await f.arrayBuffer(), { type: 'array' }), f.name);
+        for (const { f, correction } of browserOnly) {
+          const tp = parseWorkbook(XLSX.read(await f.arrayBuffer(), { type: 'array' }), f.name, correction || {});
           if (!tp.gstin || !tp.periods.length) { problems.push(`${f.name}: not a returns export (no GSTIN / GSTR-3B)`); continue; }
           // Workbook banner has no company name: keep the name we already know for this GSTIN rather than the file name
           const known = next.taxpayers.find((t) => t.gstin === tp.gstin);

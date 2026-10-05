@@ -16,7 +16,8 @@ import zlib from 'node:zlib';
 import { execFile, spawn } from 'node:child_process';
 import * as XLSX from 'xlsx';
 import { parseWorkbook } from '../src/engine/parse.js';
-import { storeWorkbook } from './lib/dataset.mjs';
+import { storeWorkbook, saveCorrection } from './lib/dataset.mjs';
+import { gstinValid } from '../src/engine/gstin.js';
 import { coalesce } from './lib/coalesce.mjs';
 import { readLog, recordFile, recordAnalysis, cleanBatchId } from './lib/uploadLog.mjs';
 
@@ -78,13 +79,18 @@ export default function dataStore() {
           const batch = cleanBatchId(q.get('batch'));
           const name = cleanName(q.get('name'));
           const reject = (error) => { if (batch) recordFile(dataDir, batch, { name, error }); return json(res, 400, { ok: false, error }); };
+          // the officer's correction from the staging step, for a banner without GSTIN or return period
+          const correction = {};
+          if (q.get('gstin')) { if (gstinValid(q.get('gstin').toUpperCase()) !== true) return reject('The GSTIN entered is not valid'); correction.gstin = q.get('gstin').toUpperCase(); }
+          if (q.get('fy')) { if (!/^(20\d{2})-(20\d{2})$/.test(q.get('fy')) || Number(q.get('fy').slice(5)) !== Number(q.get('fy').slice(0, 4)) + 1) return reject('The financial year entered must look like 2025-2026'); correction.fy = q.get('fy'); }
           try {
             const buf = Buffer.concat(chunks);
             let tp;
-            try { tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), name); } catch (e) { return reject(`Not a readable .xlsx workbook (${e.message})`); }
-            if (!tp.gstin || !tp.periods.length) return reject('Not a returns export: no GSTIN banner or GSTR-3B periods found');
+            try { tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), name, correction); } catch (e) { return reject(`Not a readable .xlsx workbook (${e.message})`); }
+            if (!tp.gstin || !tp.periods.length) return reject(tp.intake?.errors?.[0] || 'Not a returns export: no GSTIN banner or GSTR-3B periods found');
 
             const { file: target, replaced } = storeWorkbook({ dataDir, name, buf, tp });
+            saveCorrection(dataDir, target, tp.intake.banner.gstin && tp.intake.banner.fy ? null : correction);
             if (batch) recordFile(dataDir, batch, { name, stored: target, gstin: tp.gstin, fy: tp.fy, taxpayer: tp.name, periods: tp.periods.length, replaced: replaced.length });
             if (q.get('defer') === '1') return json(res, 200, { ok: true, gstin: tp.gstin, fy: tp.fy, file: target, replaced: replaced.length, deferred: true });
             await rebuild();

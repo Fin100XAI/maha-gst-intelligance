@@ -34,6 +34,20 @@ export const GSTIN_RE = /(?<![0-9A-Z])\d{2}[A-Z]{5}\d{4}[A-Z][0-9A-Z]Z[0-9A-Z](?
 const FY_RE = /(?<!\d)(20\d{2})\s*-\s*(?:20)?(\d{2})(?!\d)/;
 
 const isWorkbook = (f) => /\.xlsx$/i.test(f) && !f.startsWith('~$');
+
+// Officer corrections for workbooks whose banner lacks the GSTIN or the return period (entered at the upload staging
+// step). Kept beside the file, so the uploaded workbook itself stays exactly as received.
+//   <dataDir>/corrections.json  { "<file name>": { gstin?, fy? } }
+const correctionsFile = (dataDir) => path.join(dataDir, 'corrections.json');
+export function readCorrections(dataDir) {
+  try { return JSON.parse(fs.readFileSync(correctionsFile(dataDir), 'utf8')) || {}; } catch { return {}; }
+}
+export function saveCorrection(dataDir, file, correction) {
+  const all = readCorrections(dataDir);
+  if (correction && (correction.gstin || correction.fy)) all[file] = { ...(correction.gstin ? { gstin: correction.gstin } : {}), ...(correction.fy ? { fy: correction.fy } : {}) };
+  else delete all[file];
+  fs.writeFileSync(correctionsFile(dataDir), JSON.stringify(all, null, 1));
+}
 export const isRuleMatrix = (f) => /rule_matrix/i.test(f);
 
 /**
@@ -41,10 +55,10 @@ export const isRuleMatrix = (f) => /rule_matrix/i.test(f);
  * banner rows ("Company GSTN", "Return Period"). Reads only the first rows of each sheet.
  * @returns {{ gstin: string|null, fyStart: number|null }}
  */
-export function identityOfFile(file) {
+export function identityOfFile(file, correction = {}) {
   const base = path.basename(file).toUpperCase();
-  let gstin = base.match(GSTIN_RE)?.[0] ?? null;
-  let fyStart = base.match(FY_RE) ? Number(base.match(FY_RE)[1]) : null;
+  let gstin = base.match(GSTIN_RE)?.[0] ?? correction.gstin ?? null;
+  let fyStart = base.match(FY_RE) ? Number(base.match(FY_RE)[1]) : correction.fy ? Number(String(correction.fy).slice(0, 4)) : null;
   if (gstin && fyStart) return { gstin, fyStart };
   try {
     const wb = XLSX.read(fs.readFileSync(file), { type: 'buffer', sheetRows: 12 });
@@ -87,6 +101,7 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
   if (cache) { try { fs.mkdirSync(cacheDir, { recursive: true }); fs.accessSync(cacheDir, fs.constants.W_OK); } catch (e) { noCache(e); } }
   const used = new Set();
   const stats = { analysed: 0, cached: 0 };
+  const corrections = readCorrections(dataDir);
   const list = files.filter((x) => x !== matrixFile);
   list.forEach((f, i) => {
     const file = path.join(dataDir, f);
@@ -98,20 +113,20 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
       if (cache && fs.existsSync(cacheFile)) {
         try {
           const c = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-          if (c.engine === engine && c.ewb === statOf(ewbFile(dataDir, c.gstin, c.fyStart)) && c.file === f) hit = c;
+          if (c.engine === engine && c.ewb === statOf(ewbFile(dataDir, c.gstin, c.fyStart)) && c.file === f && JSON.stringify(c.correction || null) === JSON.stringify(corrections[f] || null)) hit = c;
         } catch { /* unreadable cache entry: analyse again */ }
       }
       let gstin, fyStart, a, trade;
       if (hit) ({ gstin, fyStart, a, trade } = hit);
       else {
-        const tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), f);
+        const tp = parseWorkbook(XLSX.read(buf, { type: 'buffer' }), f, corrections[f] || {});
         if (!tp.gstin) { warn(`skip ${f}: no GSTIN banner`); return; }
         // E-way bills: the stored copy (fetched or uploaded), else a simulated fetch (scripts/synth/ewb.mjs)
         tp.ewb = ewbFor({ dataDir, root, tp });
         ({ gstin, fyStart } = tp);
         a = analyze(tp, { severity, extensions });
         trade = tradeOf(tp);
-        if (cache) { try { fs.writeFileSync(cacheFile, JSON.stringify({ engine, file: f, gstin, fyStart, ewb: statOf(ewbFile(dataDir, gstin, fyStart)), a, trade })); } catch (e) { noCache(e); } }
+        if (cache) { try { fs.writeFileSync(cacheFile, JSON.stringify({ engine, file: f, correction: corrections[f] || null, gstin, fyStart, ewb: statOf(ewbFile(dataDir, gstin, fyStart)), a, trade })); } catch (e) { noCache(e); } }
       }
       stats[hit ? 'cached' : 'analysed']++;
       if (cache) used.add(path.basename(cacheFile));
@@ -156,8 +171,9 @@ export function buildDataset({ dataDir, now = new Date(), log = () => {}, warn =
  */
 export function storeWorkbook({ dataDir, name, buf, tp, now = new Date() }) {
   fs.mkdirSync(dataDir, { recursive: true });
+  const corrections = readCorrections(dataDir);
   const same = fs.readdirSync(dataDir).filter((f) => isWorkbook(f) && !isRuleMatrix(f)).filter((f) => {
-    const id = identityOfFile(path.join(dataDir, f));
+    const id = identityOfFile(path.join(dataDir, f), corrections[f]);
     return id.gstin === tp.gstin && id.fyStart === tp.fyStart;
   });
   let file = name;

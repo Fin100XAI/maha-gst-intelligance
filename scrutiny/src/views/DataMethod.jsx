@@ -6,6 +6,7 @@ import { isTestData } from '../engine/names.js';
 import { changeText } from '../lib/uploads.js';
 import Icon from '../components/Icon.jsx';
 import { RegisterList } from '../components/RegistersCard.jsx';
+import Staging from '../components/Staging.jsx';
 import { ReplyForm } from './Eiu.jsx';
 import { REGISTERS } from '../engine/registers.js';
 import { sampleUrl, SAMPLE_GUIDE, SAMPLE_RETURNS, SAMPLE_REGISTER, SAMPLE_LETTER } from '../lib/samples.js';
@@ -28,6 +29,8 @@ function Step({ n, title, lead, points, status, children, tour }) {
 export default function DataMethod({ data, onFiles, busy, uploadProgress, uploads, retryAnalysis, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
   const years = Object.values(data.baselines || {}).reduce((s, b) => s + b.length, 0) || data.taxpayers.length;
   const regLoaded = registers ? Object.keys(REGISTERS).filter((t) => registers[t]).length : 0;
+  // Files chosen but not yet confirmed: the staging step shows what was understood before anything is analysed
+  const [staged, setStaged] = useState(null);
   return (
     <div className="page">
       <PageHead title="Upload data" path={`${int(data.taxpayers.length)} taxpayers · ${int(years)} returns files · ${regLoaded} of ${Object.keys(REGISTERS).length} registers loaded`} />
@@ -38,7 +41,9 @@ export default function DataMethod({ data, onFiles, busy, uploadProgress, upload
         lead="The “Get Download All Report” Excel export: one file per taxpayer per financial year."
         points={['Upload the file as exported. Do not rename its sheets or columns.', 'Choose several files at once if you like. A second file for the same taxpayer and year replaces the first, which is kept.', 'Excel (.xlsx), up to 40 MB each.']}
         status={<span className="chip good">{int(data.taxpayers.length)} taxpayers loaded</span>}>
-        <ReturnsDrop onFiles={onFiles} busy={busy} progress={uploadProgress} />
+        {staged
+          ? <Staging files={staged} data={data} onCancel={() => setStaged(null)} onConfirm={(items) => { setStaged(null); onFiles(items); }} />
+          : <ReturnsDrop onFiles={(files) => files.length && setStaged(files)} busy={busy} progress={uploadProgress} />}
         <UploadReport batch={uploads?.batches?.[0]} data={data} busy={busy} onRetry={retryAnalysis} openTaxpayer={openTaxpayer} />
         <details className="up-more">
           <summary>Show loaded taxpayers</summary>
@@ -112,6 +117,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
   const accepted = batch.files.filter((f) => f.ok), rejected = batch.files.filter((f) => !f.ok);
   const a = batch.analysis || {};
   const done = a.stage === 'done', failed = a.stage === 'error', running = !done && !failed && accepted.length > 0;
+  const inProgress = running && (busy || a.stage === 'running');
   const cat = Object.fromEntries((data.catalog || []).map((r) => [r.id, r]));
   const groups = [...accepted.reduce((m, f) => { const g = m.get(f.gstin) || { gstin: f.gstin, name: f.taxpayer, fys: [], replaced: 0 }; g.fys.push(f.fy); g.replaced += f.replaced || 0; return m.set(f.gstin, g); }, new Map()).values()];
   const step = (ok, label, text) => (
@@ -129,7 +135,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
       <div className="upr-steps">
         {step(true, '1 · Received', `${batch.files.length} file${batch.files.length === 1 ? '' : 's'} reached the server`)}
         {step(rejected.length ? (accepted.length ? null : false) : true, '2 · Checked and saved', `${accepted.length} accepted${rejected.length ? `, ${rejected.length} not accepted` : ''}${groups.some((g) => g.replaced) ? ' · earlier copies of the same years kept aside' : ''}`)}
-        {step(done ? true : failed ? false : null, '3 · Analysed', done ? `finished ${when(a.finishedAt)} · the dashboard includes this upload` : failed ? 'did not finish: the files are saved; try again' : running ? (busy ? 'in progress…' : 'waiting to run') : 'nothing to analyse')}
+        {step(done ? true : failed ? false : null, '3 · Analysed', done ? `finished ${when(a.finishedAt)} · the dashboard includes this upload` : failed ? 'did not finish: the files are saved; try again' : running ? (inProgress ? 'in progress… (progress bar above)' : 'waiting to run') : 'nothing to analyse')}
       </div>
       {failed && (
         <div className="upr-error" role="alert">
@@ -138,7 +144,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
           <div><button className="btn small primary" disabled={busy} onClick={() => onRetry(batch.id)}>Try the analysis again</button></div>
         </div>
       )}
-      {!busy && running && <div className="upr-note">The analysis has not finished yet. <button className="btn small" onClick={() => onRetry(batch.id)}>Run the analysis now</button></div>}
+      {!inProgress && running && <div className="upr-note">The analysis has not finished yet. <button className="btn small" onClick={() => onRetry(batch.id)}>Run the analysis now</button></div>}
       {rejected.length > 0 && (
         <ul className="upr-rejected">{rejected.map((f, i) => <li key={i}><b>{f.name}</b>: {f.error}</li>)}</ul>
       )}
