@@ -6,9 +6,13 @@
 //   /__cases                        shared case record, append-only event log in store/ (scripts/case-store.js)
 //   /__registers                    EIU signals, targets, demands in data/registers/ (scripts/register-store.js)
 //   /__ewb                          e-way bill connection: status, fetch, export upload (scripts/ewb-store.js)
+//   /__alerts                       alert rules and the officers' queue (scripts/alert-store.js)
+//   /__auth                         officer accounts and sign-in (scripts/auth.js), checked before everything else
 //
 // Environment:
 //   PORT (8080) · HOST (127.0.0.1) · AI_API_KEY · BASIC_AUTH_USER / BASIC_AUTH_PASS (optional HTTP basic auth)
+//   AUTH_MODE=accounts  officers sign in with their own accounts; each sees only their jurisdictions (scripts/auth.js).
+//                       Make the first account with  npm run accounts -- add ...  SESSION_SECRET optional (32+ chars).
 //   GST_ALLOW_REMOTE=1  allow AI calls / report saving / uploads from other machines (required behind Docker or a proxy)
 //   CHROME_PATH         Chromium/Edge binary for PDF export · CHROME_NO_SANDBOX=1 inside containers
 //   PLATFORM_DIST       platform mode: also serve the Maha GST Intelligence platform (its built dist/) at "/",
@@ -28,6 +32,9 @@ import registerStore from './scripts/register-store.js';
 import docStore from './scripts/doc-store.js';
 import governance from './scripts/governance.js';
 import ewbStore from './scripts/ewb-store.js';
+import alertStore from './scripts/alert-store.js';
+import auth from './scripts/auth.js';
+import { createStack } from './scripts/lib/middleware.mjs';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(root, 'dist');
@@ -61,15 +68,17 @@ if (PLATFORM && !fs.existsSync(path.join(PLATFORM, 'index.html'))) {
   process.exit(1);
 }
 
-// Minimal connect-style stack so the Vite plugins can be reused unchanged.
-const stack = [];
-const fakeServer = { middlewares: { use: (prefix, fn) => stack.push([prefix, fn]) }, config: { root } };
+// Minimal connect-style stack so the Vite plugins can be reused unchanged. The access check comes first.
+const stack = createStack();
+const fakeServer = { middlewares: stack.middlewares, config: { root } };
+auth().configureServer(fakeServer);
 dataStore().configureServer(fakeServer);
 caseStore().configureServer(fakeServer);
 registerStore().configureServer(fakeServer);
 docStore().configureServer(fakeServer);
 governance().configureServer(fakeServer);
 ewbStore().configureServer(fakeServer);
+alertStore().configureServer(fakeServer);
 reportLibrary().configureServer(fakeServer);
 aiProxy(process.env).configureServer(fakeServer);
 
@@ -119,21 +128,13 @@ const server = http.createServer((req, res) => {
     if (p === BASE.slice(0, -1)) { res.statusCode = 308; res.setHeader('location', BASE + url.slice(p.length)); return res.end(); }
     if (url.startsWith(BASE)) { url = url.slice(BASE.length - 1); mine = true; }
   }
-  const layers = stack.filter(([prefix]) => url === prefix || url.startsWith(`${prefix}/`) || url.startsWith(`${prefix}?`));
-  let i = 0;
-  const next = () => {
-    const layer = layers[i++];
-    if (!layer) { req.url = url; return route(req, res, mine); }
-    const [prefix, fn] = layer;
-    req.url = url.slice(prefix.length) || '/'; // strip mount path like connect does
-    try { fn(req, res, next); } catch (e) { res.statusCode = 500; res.end('Server error'); console.error(e); }
-  };
-  next();
+  stack.handle(req, res, url, (rq, rs) => route(rq, rs, mine));
 });
 
 server.listen(PORT, HOST, () => {
   console.log(`GST Intelligence on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`);
   console.log(`  AI key: ${process.env.AI_API_KEY || process.env.TOGETHER_API_KEY ? 'configured' : 'not set (deterministic insights only)'}`);
   console.log(`  platform: ${PLATFORM ? `at /, GST Scrutiny at ${BASE}` : 'off (stand-alone)'}`);
+  console.log(`  accounts: ${process.env.AUTH_MODE === 'accounts' ? 'on (officers sign in; each sees their jurisdictions)' : 'off (open mode)'}`);
   console.log(`  basic auth: ${AUTH_USER && AUTH_PASS ? 'on' : 'off'} · remote AI/report saving: ${process.env.GST_ALLOW_REMOTE === '1' ? 'allowed' : 'this machine only'}`);
 });

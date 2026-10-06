@@ -144,15 +144,16 @@ export function reconcileEwb(tp, ewb, stateCodeOf) {
   }
 
   const sumTax = (rows) => r2(rows.reduce((s, x) => s + taxOf(x), 0));
+  const sumHeads = (rows) => ({ igst: r2(rows.reduce((s, x) => s + (x.igst || 0), 0)), cgst: r2(rows.reduce((s, x) => s + (x.cgst || 0), 0)), sgst: r2(rows.reduce((s, x) => s + (x.sgst || 0), 0)) });
   const sumVal = (rows, f = (x) => x.value) => r2(rows.reduce((s, x) => s + f(x), 0));
   return {
     source: ewb.source || 'unknown', fetchedAt: ewb.fetchedAt || null,
     outward: { bills: outward.length, value: sumVal(outward, (b) => b.total), cancelled, needing: needing.length, covered: needing.length - missing.length,
       missing: { count: missing.length, value: sumVal(missing), rows: missing.slice(0, CAP).map((x) => ({ no: x.no, date: x.date, to: x.gstin, party: x.party, value: x.value })) },
-      unmatched: { count: unmatched.length, value: sumVal(unmatched, (b) => b.total), tax: sumTax(unmatched), rows: unmatched.slice(0, CAP).map((b) => ({ no: b.no, at: b.at, docNo: b.docNo, to: b.to, toName: b.toName, total: b.total, vehicle: b.vehicle })) },
+      unmatched: { count: unmatched.length, value: sumVal(unmatched, (b) => b.total), tax: sumTax(unmatched), heads: sumHeads(unmatched), rows: unmatched.slice(0, CAP).map((b) => ({ no: b.no, at: b.at, docNo: b.docNo, to: b.to, toName: b.toName, total: b.total, vehicle: b.vehicle })) },
       mismatch: { count: mismatch.length, rows: mismatch.slice(0, CAP).map(([b, x]) => ({ no: b.no, docNo: b.docNo, ewbValue: b.total, invoiceValue: x.value })) } },
     inward: { bills: inward.length, needing: goodsIn.length, covered: goodsIn.length - unsupported.length,
-      unsupported: { count: unsupported.length, value: sumVal(unsupported), itc: sumTax(unsupported), rows: unsupported.slice(0, CAP).map((x) => ({ no: x.no, date: x.date, from: x.gstin, party: x.party, value: x.value, itc: r2(taxOf(x)) })) } },
+      unsupported: { count: unsupported.length, value: sumVal(unsupported), itc: sumTax(unsupported), heads: sumHeads(unsupported), rows: unsupported.slice(0, CAP).map((x) => ({ no: x.no, date: x.date, from: x.gstin, party: x.party, value: x.value, itc: r2(taxOf(x)) })) } },
     goodsItc: sumTax(goodsIn),
     shipTo: { moves: shipMoves.length, wrongHead: { count: wrongHead.length, tax: sumTax(wrongHead.map(([, x]) => x)), rows: wrongHead.slice(0, CAP).map(([b, x]) => ({ no: b.no, docNo: b.docNo, billTo: b.toState, shipTo: b.shipTo, igst: x.igst, cgst: x.cgst, sgst: x.sgst })) } },
     vehicles: { clashes: clashes.length, rows: clashes.slice(0, CAP).map(([a, b, km]) => ({ vehicle: a.vehicle, first: a.no, firstAt: a.at, firstFrom: a.fromPin, second: b.no, secondAt: b.at, secondFrom: b.fromPin, km })) },

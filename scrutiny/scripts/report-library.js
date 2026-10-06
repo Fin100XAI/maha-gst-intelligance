@@ -5,6 +5,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
+import { accessOf, forbid, gstinOfReportFile } from './lib/request-access.mjs';
+// With accounts: an officer lists, opens and saves reports of their jurisdictions only; the library's index page
+// lists every taxpayer, so it is for accounts covering all jurisdictions.
 
 const BROWSERS = [
   process.env.CHROME_PATH,
@@ -100,11 +103,17 @@ export default function reportLibrary() {
         const rel = decodeURIComponent((req.url || '/').split('?')[0]).replace(/^\/+/, '') || 'index.html';
         const file = path.resolve(dir, rel);
         if (!file.startsWith(dir + path.sep) || !TYPES[path.extname(file)] || !fs.existsSync(file)) return next();
+        const acc = accessOf(req);
+        const g = gstinOfReportFile(rel);
+        if (g ? !acc.inScope(g) : !acc.all) return forbid(res, 'This report is outside your jurisdiction');
         res.setHeader('content-type', TYPES[path.extname(file)]);
         res.setHeader('cache-control', 'no-store');
         fs.createReadStream(file).pipe(res);
       });
-      server.middlewares.use('/__reports/list', (req, res) => json(res, 200, readIndex()));
+      server.middlewares.use('/__reports/list', (req, res) => {
+        const acc = accessOf(req);
+        json(res, 200, acc.all ? readIndex() : Object.fromEntries(Object.entries(readIndex()).filter(([g]) => acc.inScope(g))));
+      });
       server.middlewares.use('/__reports/save', (req, res) => {
         if (req.method !== 'POST') return json(res, 405, { ok: false, error: 'POST only' });
         if (!local(req)) return json(res, 403, { ok: false, error: 'Saving is allowed from this computer only' });
@@ -114,6 +123,7 @@ export default function reportLibrary() {
           try {
             const { gstin, html, meta = {}, pdf = true } = JSON.parse(body);
             if (!/^[0-9A-Z]{15}$/.test(gstin)) throw new Error('invalid GSTIN');
+            if (!accessOf(req).inScope(gstin)) return forbid(res, `${gstin} is not in your jurisdiction`);
             if (typeof html !== 'string' || !html.startsWith('<!doctype html>')) throw new Error('invalid report');
             const base = `scrutiny-report_${gstin}`;
             const htmlFile = path.join(dir, `${base}.html`);

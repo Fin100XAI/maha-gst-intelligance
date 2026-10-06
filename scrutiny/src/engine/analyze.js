@@ -5,6 +5,8 @@ import { pearson, scoreOf, DEFAULT_SCORING } from './score.js';
 import { rule37A } from './verify.js';
 import { gstinValid } from './gstin.js';
 import { reconcileEwb } from './ewb.js';
+import { headsOf, addHeads, subHeads, allocate } from './heads.js';
+import { returnDueDate } from './dueDates.js';
 
 export { pearson, portfolio } from './score.js';
 
@@ -44,7 +46,6 @@ export function analyze(tp, opts = {}) {
   const periodLabel = (p) => { const [a, b] = spanOf(p); return a === b ? `${SHORT[p]}-${String(p <= 8 ? fy : fy + 1).slice(2)}` : `${SHORT[a]}–${SHORT[b]} ${String(b <= 8 ? fy : fy + 1).slice(2)}`; };
   const quarterlyCount = P.filter((p) => spanOf(p)[1] - spanOf(p)[0] >= 2).length;
   const filing = quarterlyCount === 0 ? 'Monthly' : quarterlyCount === P.length ? 'Quarterly (QRMP)' : 'Mixed (Monthly → QRMP)';
-  const calDate = (m, day) => { const y = m <= 8 ? fy : fy + 1; const cm = ((m + 3) % 12) + 1; return `${y}-${String(cm).padStart(2, '0')}-${String(day).padStart(2, '0')}`; };
   const addMonth = (iso, n = 1) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCMonth(d.getUTCMonth() + n); return d.toISOString().slice(0, 10); };
   const days = (a, b) => Math.round((new Date(`${b}T00:00:00Z`) - new Date(`${a}T00:00:00Z`)) / 86400000);
   const pri = { High: 3, Med: 2, Low: 1 };
@@ -75,7 +76,8 @@ export function analyze(tp, opts = {}) {
     const filedOn = filedRows.length ? filedRows.map((l) => l.date).sort()[0] : null;
     const [a, b] = spanOf(p);
     const quarterly = b - a >= 2;
-    const dueOn = addMonth(calDate(p, quarterly ? 22 : 20));
+    const due = returnDueDate({ year: p <= 8 ? fy : fy + 1, month: ((p + 3) % 12) + 1, quarterly, stateCode: tp.stateCode, extensions: opts.extensions });
+    const dueOn = due.due;
     const delay = filedOn ? Math.max(0, days(dueOn, filedOn)) : null;
     const nil = g3bTax === 0 && g.rcm.igst + g.rcm.cgst + g.rcm.sgst === 0;
     return {
@@ -84,7 +86,7 @@ export function analyze(tp, opts = {}) {
       itcGross: r0((itc.A1 || 0) + (itc.A2 || 0) + (itc.A3 || 0) + (itc.A4 || 0) + (itc.A5 || 0)), itcImport: r0(itc.A1 || 0), itcRcm: r0((itc.A2 || 0) + (itc.A3 || 0)),
       reversed: r0((itc.B1 || 0) + (itc.B2 || 0)), ineligible: r0((itc.D1 || 0) + (itc.D2 || 0)),
       rcmTax: r0(g.rcm.igst + g.rcm.cgst + g.rcm.sgst + g.rcm.cess), liability: r0(g.pay.liability), cash: r0(g.pay.cash + g.pay.rcmCash), cashFwd: r0(g.pay.cash), itcUsed: r0(g.pay.itcUsed),
-      interestPaid: r0(g.pay.interest || g.interest), lateFeePaid: r0(g.pay.lateFee || g.lateFee), filedOn, dueOn, delay, nil,
+      interestPaid: r0(g.pay.interest || g.interest), lateFeePaid: r0(g.pay.lateFee || g.lateFee), filedOn, dueOn, dueExtended: due.extension ? (due.extension.notification || 'extension notified') : null, delay, nil,
     };
   });
 
@@ -121,7 +123,21 @@ export function analyze(tp, opts = {}) {
     .filter(Boolean).sort().pop() || null;
   const asOf = opts.asOf || [tp.created, latestInData].filter(Boolean).sort().pop() || null;
   const asOfSource = opts.asOf ? 'given' : asOf && asOf === tp.created ? 'workbook created' : 'latest date in data';
-  const add = (id, status, finding, extra = {}) => results.push({ id, status, finding, exposure: r0(extra.exposure || 0), metric: extra.metric ?? null, evidence: extra.evidence || null, ...(extra.rag ? { rag: extra.rag, deadlines: extra.deadlines } : {}), ...(extra.summary ? { summary: extra.summary } : {}) });
+  // Tax heads of an amount (a notice must state IGST, CGST and SGST separately): from the lines behind the finding
+  // where it names them (extra.heads), otherwise in the ratio of the taxpayer's own output (or, failing that, ITC) heads.
+  const outMix = headsOf(outward.filter((x) => !x.rc));
+  const itcMix = headsOf(tp.g2b.filter((x) => x.itcAvail && !x.rc));
+  const headsFor = (exposure, extra) => {
+    if (!(exposure > 0)) return {};
+    const own = extra.heads ? allocate(exposure, extra.heads) : null;
+    if (own) return { heads: own, headsBasis: extra.headsBasis || 'documents' };
+    const mixed = allocate(exposure, outMix) || allocate(exposure, itcMix);
+    return mixed ? { heads: mixed, headsBasis: 'apportioned' } : {};
+  };
+  const add = (id, status, finding, extra = {}) => { const exposure = r0(extra.exposure || 0); results.push({ id, status, finding, exposure, ...headsFor(exposure, extra), metric: extra.metric ?? null, evidence: extra.evidence || null, ...(extra.rag ? { rag: extra.rag, deadlines: extra.deadlines } : {}), ...(extra.summary ? { summary: extra.summary } : {}) }); };
+  // GSTR-3B periods whose filing date is not in the liability ledger: delays, interest and late fee cannot be judged.
+  const undated = periodRecon.filter((r) => !r.filedOn);
+  const undatedNote = undated.length ? ` The filing date of ${undated.length} period(s) (${undated.map((r) => r.label).join(', ')}) is not in the liability ledger, so whether they were late cannot be checked: obtain the filing dates (portal ARN / filing history).` : '';
   const ev = (columns, rows, limit = 60) => ({ columns, rows: rows.slice(0, limit), total: rows.length });
 
   // A-01 GSTIN structural validity
@@ -132,7 +148,7 @@ export function analyze(tp, opts = {}) {
     const badTax = sum(tp.g2b.filter((x) => bad.includes(x.gstin)), (x) => x.tax);
     add('A-01', bad.length ? 'Fail' : 'Pass',
       bad.length ? `${bad.length} counterparty GSTIN(s) fail the check-digit test` : `All ${cps.length} counterparty GSTINs pass the check-digit test${nonStd.length ? ` (${nonStd.length} non-standard UIN/TDS formats skipped)` : ''}. Active/cancelled status needs the GSTIN master API.`,
-      { exposure: badTax, metric: `${bad.length}/${cps.length} invalid`, evidence: bad.length ? ev(['GSTIN', 'Side'], bad.map((g) => [g, customers.has(g) ? 'Customer' : 'Supplier'])) : null });
+      { exposure: badTax, heads: headsOf(tp.g2b.filter((x) => bad.includes(x.gstin))), metric: `${bad.length}/${cps.length} invalid`, evidence: bad.length ? ev(['GSTIN', 'Side'], bad.map((g) => [g, customers.has(g) ? 'Customer' : 'Supplier'])) : null });
   }
 
   // A-02 filing completeness
@@ -147,11 +163,14 @@ export function analyze(tp, opts = {}) {
       return { m, taxable: sum(outward.filter(inM), (x) => x.taxable) + sum(cnSigned.filter(inM), (x) => x.sign * x.taxable), tax: sum(outward.filter(inM), supplierTax) + sum(cnSigned.filter(inM), (x) => x.sign * x.tax) };
     }).filter((u) => Math.abs(u.taxable) > 0);
     const unpaid = sum(uncovered, (u) => u.tax);
-    add('A-02', missing.length ? 'Fail' : 'Pass',
-      missing.length ? `GSTR-3B not found for ${missing.map((m) => SHORT[m]).join(', ')}.${uncovered.length ? ` GSTR-1 reports supplies in ${uncovered.length} of those month(s) carrying tax ${fmtL(unpaid)} that has not been returned in GSTR-3B.` : ''}` : `All ${P.length} GSTR-3B periods filed (${filing}). ${late.length} filed after due date, max delay ${Math.max(0, ...late.map((r) => r.delay))} days.`,
-      { exposure: Math.max(0, unpaid), metric: `${late.length} late`, evidence: uncovered.length
+    const inMissing = (x) => missing.includes(x.m);
+    add('A-02', missing.length ? 'Fail' : undated.length ? 'Review' : 'Pass',
+      missing.length ? `GSTR-3B not found for ${missing.map((m) => SHORT[m]).join(', ')}.${uncovered.length ? ` GSTR-1 reports supplies in ${uncovered.length} of those month(s) carrying tax ${fmtL(unpaid)} that has not been returned in GSTR-3B.` : ''}${undatedNote}`
+        : undated.length ? `GSTR-3B is on record for all ${P.length} periods (${filing}).${undatedNote}${late.length ? ` Of the dated periods, ${late.length} were filed after the due date (max ${Math.max(0, ...late.map((r) => r.delay))} days).` : ''}`
+          : `All ${P.length} GSTR-3B periods filed (${filing}). ${late.length} filed after due date, max delay ${Math.max(0, ...late.map((r) => r.delay))} days.`,
+      { exposure: Math.max(0, unpaid), heads: headsOf([...outward.filter((x) => !x.rc && inMissing(x)), ...cnSigned.filter(inMissing)], (x) => x.sign ?? 1), metric: undated.length && !missing.length ? `${undated.length} undated` : `${late.length} late`, evidence: uncovered.length
         ? ev(['Month', 'GSTR-1 taxable', 'GSTR-1 tax', 'GSTR-3B'], uncovered.map((u) => [MONTHS[u.m], r0(u.taxable), r0(u.tax), 'not filed']))
-        : ev(['Period', 'Due', 'Filed (ledger)', 'Delay (days)'], periodRecon.map((r) => [r.label, r.dueOn, r.filedOn || '-', r.delay ?? '-'])) });
+        : ev(['Period', 'Due', 'Filed (ledger)', 'Delay (days)'], periodRecon.map((r) => [r.label, r.dueExtended ? `${r.dueOn} (extended)` : r.dueOn, r.filedOn || 'not in ledger', r.delay ?? '-'])) });
   }
 
   // B-01 ITC claimed vs GSTR-2B
@@ -161,10 +180,16 @@ export function analyze(tp, opts = {}) {
     const annualGap = sum(periodRecon, (r) => r.itcGap);
     const totClaim = sum(periodRecon, (r) => r.itcClaim);
     const fail = annualGap > tol(sum(periodRecon, (r) => r.itc2b));
+    const excessHeads = addHeads(...P.map((p) => {
+      const inP = (x) => periodOf(x.m) === p, h = tp.g3b[p].itcH || {};
+      const claimed = subHeads(addHeads(h.A4, h.A5), h.B2);
+      const elig = addHeads(headsOf(tp.g2b.filter((x) => inP(x) && x.itcAvail && !x.rc)), headsOf(tp.g2bCdn.filter((x) => inP(x) && x.itcAvail && !x.rc), (x) => (x.noteType === 'D' ? 1 : -1)), headsOf(tp.g2bIsd.filter(inP)));
+      return subHeads(claimed, elig);
+    }));
     add('B-01', fail ? 'Fail' : bad.length ? 'Review' : 'Pass',
       fail ? `ITC claimed in 3B (4A(4)+4A(5)−4B(2)) exceeds GSTR-2B eligible ITC by ${fmtL(annualGap)} for the year; ${bad.length} period(s) breach threshold.`
         : bad.length ? `Annual ITC within 2B, but ${bad.length} period(s) show excess: timing difference; interest u/s 50(3) may apply if utilised.` : `ITC claimed ≤ GSTR-2B eligible ITC in every period (claimed ${fmtL(totClaim)}).`,
-      { exposure: fail ? annualGap : 0, metric: `${annualGap >= 0 ? '+' : ''}${fmtL(annualGap)}`, evidence: ev(['Period', '3B ITC claimed', '2B eligible', 'Excess'], periodRecon.map((r) => [r.label, r.itcClaim, r.itc2b, r.itcGap])) });
+      { exposure: fail ? annualGap : 0, heads: excessHeads, metric: `${annualGap >= 0 ? '+' : ''}${fmtL(annualGap)}`, evidence: ev(['Period', '3B ITC claimed', '2B eligible', 'Excess'], periodRecon.map((r) => [r.label, r.itcClaim, r.itc2b, r.itcGap])) });
   }
 
   // B-04 supplier 3B not filed (Rule 37A): judged as at the extract date, per the statutory deadlines
@@ -181,7 +206,7 @@ export function analyze(tp, opts = {}) {
           ? `Amber, awaiting validation: as per the extract of ${d(asOf)}, ${bySup.length} supplier(s) had not filed GSTR-3B for ${rows.length} invoices carrying ITC ${fmtL(t)}. Suppliers have until ${d(r37.supplierBy)} to file; Rule 37A reversal arises only for invoices still unfiled then (due by ${d(r37.reverseBy)}), with re-availment once the supplier pays. Confirm current supplier status on the portal.`
           : `Red, reversal computation conditions met as per the extract of ${d(asOf)}: ${bySup.length} supplier(s) had not filed GSTR-3B by ${d(r37.supplierBy)} for ${rows.length} invoices carrying ITC ${fmtL(t)}. Under Rule 37A the ITC is reversible by ${d(r37.reverseBy)}, with re-availment once the supplier pays. Verify supplier status and any reversal already made before concluding.`
         : `Green: all suppliers in GSTR-2A had filed GSTR-3B as per the extract of ${d(asOf)} (${filedOk} invoices).`,
-      { exposure: t, metric: rows.length ? `${bySup.length} suppliers · ${r37.rag}` : 'green', rag: rows.length ? r37.rag : 'green', deadlines: r37,
+      { exposure: t, heads: headsOf(rows), metric: rows.length ? `${bySup.length} suppliers · ${r37.rag}` : 'green', rag: rows.length ? r37.rag : 'green', deadlines: r37,
         // Invoice-wise monitor. The recipient's availment month is not reported per invoice: the 3B period covering the 2A month is shown.
         evidence: ev(['Supplier GSTIN', 'Name', 'Invoice', 'Date', 'Taxable', 'IGST', 'CGST', 'SGST', '2A month', '3B period', 'Supplier GSTR-1 filed', 'Supplier 3B (extract)', 'Status'],
           [...rows].sort((x, y) => x.gstin.localeCompare(y.gstin) || String(x.date).localeCompare(String(y.date))).map((x) => [x.gstin, x.party, x.no, x.date, r0(x.taxable), r0(x.igst), r0(x.cgst), r0(x.sgst),
@@ -197,7 +222,7 @@ export function analyze(tp, opts = {}) {
     const t = sum(late, (x) => x.tax);
     add('B-07', late.length ? 'Fail' : 'Pass',
       late.length ? `${late.length} prior-FY invoice(s) appear in 2B after November: ITC ${fmtL(t)} time-barred u/s 16(4) unless reported in 4D(2).` : `${prior.length} prior-FY invoice(s) found, all within the 30-Nov window.`,
-      { exposure: Math.max(0, t - sum(periodRecon, (r) => r.ineligible)), metric: `${late.length} invoices`, evidence: ev(['Supplier', 'Invoice', 'Date', '2B month', 'Tax'], late.map((x) => [x.party, x.no, x.date, MONTHS[x.m], r0(x.tax)])) });
+      { exposure: Math.max(0, t - sum(periodRecon, (r) => r.ineligible)), heads: headsOf(late), metric: `${late.length} invoices`, evidence: ev(['Supplier', 'Invoice', 'Date', '2B month', 'Tax'], late.map((x) => [x.party, x.no, x.date, MONTHS[x.m], r0(x.tax)])) });
   }
 
   // B-08 duplicate ITC: matching hierarchy. Supplier GSTIN, document type and normalised invoice number group the
@@ -243,7 +268,7 @@ export function analyze(tp, opts = {}) {
         ? `${exact.length} exact duplicate group(s) in GSTR-2B (same supplier, document type, invoice number, date, rate, value and tax heads) carrying ${fmtL(sum(extra, (x) => x.tax))} in the extra copies. A repeated 2B row is not proof that ITC was claimed twice in GSTR-3B: verify against the purchase register.${probable.length ? ` ${probable.length} further group(s) are probable duplicates for officer check.` : ''}`
         : probable.length ? `No exact duplicates. ${probable.length} probable duplicate group(s) for officer check${count('amendment') + count('credit-note') ? `; ${count('amendment') + count('credit-note')} linked to an amendment or credit note` : ''}${count('recurring') ? `; ${count('recurring')} recurring-billing group(s) with sequential numbers set aside` : ''}.`
           : `No duplicate invoices found in GSTR-2B${all.length ? ` (${all.length} group(s) explained by recurring sequential billing, amendments, credit notes or multi-rate lines)` : ''}.`,
-      { exposure: sum(extra, (x) => x.tax), metric: `${exact.length} exact / ${probable.length} probable`,
+      { exposure: sum(extra, (x) => x.tax), heads: headsOf(extra), metric: `${exact.length} exact / ${probable.length} probable`,
         evidence: ev(['Supplier GSTIN', 'Name', 'Invoice no(s)', 'Date(s)', 'Rate', 'Taxable', 'IGST', 'CGST', 'SGST', '2B period(s)', 'Copies', 'Outcome'],
           all.sort((a, b) => ORDER.indexOf(a.outcome) - ORDER.indexOf(b.outcome))
             .map(({ g, outcome }) => [g[0].gstin, g[0].party, [...new Set(g.map((x) => x.no))].join(' / '), [...new Set(g.map((x) => x.date))].join(' / '), [...new Set(g.map((x) => x.rate))].join(' / '),
@@ -258,7 +283,7 @@ export function analyze(tp, opts = {}) {
     else {
       const gap = claimed - boe;
       add('B-09', gap > 1000 ? 'Fail' : 'Pass', `3B 4A(1) import ITC ${fmtL(claimed)} vs ICEGATE BoE IGST in 2B ${fmtL(boe)} (${gap >= 0 ? 'excess' : 'short-claimed'} ${fmtL(Math.abs(gap))}).`,
-        { exposure: Math.max(0, gap), metric: fmtL(gap), evidence: ev(['BoE', 'Date', '2B month', 'Taxable', 'IGST'], tp.g2bImpg.map((x) => [x.boe, x.date, MONTHS[x.m], r0(x.taxable), r0(x.igst)])) });
+        { exposure: Math.max(0, gap), heads: { igst: 1 }, headsBasis: 'law', metric: fmtL(gap), evidence: ev(['BoE', 'Date', '2B month', 'Taxable', 'IGST'], tp.g2bImpg.map((x) => [x.boe, x.date, MONTHS[x.m], r0(x.taxable), r0(x.igst)])) });
     }
   }
 
@@ -266,15 +291,16 @@ export function analyze(tp, opts = {}) {
   {
     const rcmIn = sum(tp.g2b.filter((x) => x.rc), (x) => x.tax);
     const rcmPaid = sum(periodRecon, (r) => r.rcmTax);
+    const rcmPaidHeads = addHeads(...P.map((p) => tp.g3b[p].rcm));
     if (!rcmIn && !rcmPaid) add('C-01', 'Review', 'No RCM inward supplies in 2B and nil 3.1(d). RCM on GL heads (legal, GTA, URP rent, import of services) needs books.');
     else add('C-01', rcmIn - rcmPaid > 1000 ? 'Fail' : 'Pass', `RCM supplies in 2B carry tax ${fmtL(rcmIn)}; RCM liability declared in 3.1(d) ${fmtL(rcmPaid)}.`,
-      { exposure: Math.max(0, rcmIn - rcmPaid), metric: fmtL(rcmIn - rcmPaid), evidence: ev(['Supplier', 'Invoice', 'Date', 'Tax'], tp.g2b.filter((x) => x.rc).map((x) => [x.party, x.no, x.date, r0(x.tax)])) });
+      { exposure: Math.max(0, rcmIn - rcmPaid), heads: subHeads(headsOf(tp.g2b.filter((x) => x.rc)), rcmPaidHeads), metric: fmtL(rcmIn - rcmPaid), evidence: ev(['Supplier', 'Invoice', 'Date', 'Tax'], tp.g2b.filter((x) => x.rc).map((x) => [x.party, x.no, x.date, r0(x.tax)])) });
     let cum = 0; const rows = [];
     for (const r of periodRecon) { cum += r.itcRcm - r.rcmTax; rows.push([r.label, r.rcmTax, r.itcRcm, r0(cum)]); }
     const excess = sum(periodRecon, (r) => r.itcRcm) - rcmPaid;
     if (!rcmPaid && !sum(periodRecon, (r) => r.itcRcm)) add('C-02', 'NA', 'No RCM liability or RCM ITC in 3B.');
     else add('C-02', excess > 1000 ? 'Fail' : 'Pass', `RCM ITC (4A(2)+4A(3)) ${fmtL(sum(periodRecon, (r) => r.itcRcm))} vs RCM tax paid ${fmtL(rcmPaid)}.`,
-      { exposure: Math.max(0, excess), metric: fmtL(excess), evidence: ev(['Period', 'RCM paid 3.1(d)', 'RCM ITC', 'Cumulative excess'], rows) });
+      { exposure: Math.max(0, excess), heads: subHeads(addHeads(...P.map((p) => addHeads(tp.g3b[p].itcH?.A2, tp.g3b[p].itcH?.A3))), rcmPaidHeads), metric: fmtL(excess), evidence: ev(['Period', 'RCM paid 3.1(d)', 'RCM ITC', 'Cumulative excess'], rows) });
   }
 
   // D-01 tax head vs place of supply
@@ -292,7 +318,7 @@ export function analyze(tp, opts = {}) {
     add('D-01', out.length ? 'Fail' : inn.length ? 'Review' : 'Pass',
       out.length ? `${out.length} outward line(s) charge the wrong tax head for the place of supply (tax ${fmtL(sum(out, (o) => o.x.tax))}): tax paid under wrong head is not a valid discharge (s.77 / s.19 IGST).`
         : inn.length ? `Outward heads correct. ${inn.length} inward line(s) from suppliers show a head/POS mismatch (ITC ${fmtL(sum(inn, (o) => o.x.tax))}).` : 'Tax head matches place of supply on all outward and inward lines.',
-      { exposure: sum(out, (o) => o.x.tax), metric: `${out.length} out / ${inn.length} in`, evidence: ev(['Side', 'Party', 'Invoice', 'POS', 'Issue', 'Tax'], [...out.map((o) => ['Outward', o.x.party || o.x.kind, o.x.no || '-', o.x.pos, o.why, r0(o.x.tax)]), ...inn.map((o) => ['Inward', o.x.party, o.x.no, o.x.pos, o.why, r0(o.x.tax)])]) });
+      { exposure: sum(out, (o) => o.x.tax), heads: addHeads(...out.map((o) => (o.why === 'IGST on intra-state' ? { cgst: o.x.tax / 2, sgst: o.x.tax / 2 } : { igst: o.x.tax }))), headsBasis: 'law', metric: `${out.length} out / ${inn.length} in`, evidence: ev(['Side', 'Party', 'Invoice', 'POS', 'Issue', 'Tax'], [...out.map((o) => ['Outward', o.x.party || o.x.kind, o.x.no || '-', o.x.pos, o.why, r0(o.x.tax)]), ...inn.map((o) => ['Inward', o.x.party, o.x.no, o.x.pos, o.why, r0(o.x.tax)])]) });
   }
 
   // D-02 / D-03 ITC blocked by POS (2B reason P) vs 4D(2) disclosure
@@ -302,7 +328,7 @@ export function analyze(tp, opts = {}) {
     const disclosed = sum(periodRecon, (r) => r.ineligible);
     if (!rows.length) add('D-02', 'Pass', 'No GSTR-2B lines marked ITC-unavailable on place-of-supply grounds.');
     else add('D-02', t - disclosed > 1000 ? 'Review' : 'Pass', `${rows.length} 2B line(s) marked ITC not available (reason P – POS in supplier's state) worth ${fmtL(t)}; 3B 4D(2) discloses ${fmtL(disclosed)}. Confirm none of it is inside 4A(5).`,
-      { exposure: Math.max(0, t - disclosed), metric: fmtL(t), evidence: ev(['Supplier', 'Invoice', 'Date', 'POS', 'Tax'], rows.map((x) => [x.party, x.no, x.date, x.pos, r0(x.tax)])) });
+      { exposure: Math.max(0, t - disclosed), heads: headsOf(rows), metric: fmtL(t), evidence: ev(['Supplier', 'Invoice', 'Date', 'POS', 'Tax'], rows.map((x) => [x.party, x.no, x.date, x.pos, r0(x.tax)])) });
   }
 
   // F-06 Rule 86B
@@ -311,7 +337,7 @@ export function analyze(tp, opts = {}) {
     const breach = rows.filter((r) => r.monthly > 5e6 && r.pct < 0.01);
     add('F-06', breach.length ? 'Review' : 'Pass',
       breach.length ? `${breach.length} period(s) with taxable value > ₹50 L/month paid < 1% of output tax in cash. Check Rule 86B exemptions (income-tax > ₹1 L, refunds, etc.).` : 'No Rule 86B breach: cash share ≥ 1% wherever monthly taxable value exceeded ₹50 L.',
-      { exposure: sum(breach, (r) => Math.max(0, 0.01 * r.liability - r.cashFwd)), metric: `${breach.length} periods`, evidence: ev(['Period', 'Taxable / month', 'Output tax', 'Cash paid', 'Cash %'], rows.map((r) => [r.label, r0(r.monthly), r.liability, r.cashFwd, `${(r.pct * 100).toFixed(2)}%`])) });
+      { exposure: sum(breach, (r) => Math.max(0, 0.01 * r.liability - r.cashFwd)), heads: addHeads(...breach.map((r) => tp.g3b[r.p].out)), metric: `${breach.length} periods`, evidence: ev(['Period', 'Taxable / month', 'Output tax', 'Cash paid', 'Cash %'], rows.map((r) => [r.label, r0(r.monthly), r.liability, r.cashFwd, `${(r.pct * 100).toFixed(2)}%`])) });
   }
 
   // G-01 turnover reconciliation (GSTR-1 vs 3B vs HSN)
@@ -331,10 +357,14 @@ export function analyze(tp, opts = {}) {
     const bad = periodRecon.filter((r) => r.taxGap > tol(r.g3bTax));
     const net = sum(periodRecon, (r) => r.taxGap);
     const fail = net > tol(sum(periodRecon, (r) => r.g3bTax));
+    const gapHeads = addHeads(...P.map((p) => {
+      const inP = (x) => periodOf(x.m) === p, g = tp.g3b[p];
+      return subHeads(addHeads(headsOf(outward.filter((x) => inP(x) && !x.rc)), headsOf(cnSigned.filter(inP), (x) => x.sign)), addHeads(g.out, { igst: g.zero.igst }));
+    }));
     add('G-02', fail ? 'Fail' : bad.length ? 'Review' : 'Pass',
       fail ? `Tax declared in GSTR-1 exceeds tax paid in GSTR-3B by ${fmtL(net)} for the year: short payment (DRC-01B trigger, Rule 88C).`
         : bad.length ? `Annual liability matches, but ${bad.length} period(s) under-declared in 3B: interest on delayed payment applies.` : 'GSTR-3B liability ≥ GSTR-1 in every period.',
-      { exposure: fail ? net : 0, metric: fmtL(net), evidence: ev(['Period', 'GSTR-1 tax', 'GSTR-3B tax', 'Gap'], periodRecon.map((r) => [r.label, r.g1Tax, r.g3bTax, r.taxGap])) });
+      { exposure: fail ? net : 0, heads: gapHeads, metric: fmtL(net), evidence: ev(['Period', 'GSTR-1 tax', 'GSTR-3B tax', 'Gap'], periodRecon.map((r) => [r.label, r.g1Tax, r.g3bTax, r.taxGap])) });
   }
 
   // G-03 e-invoice coverage (AATO proxy = current-year turnover)
@@ -360,7 +390,7 @@ export function analyze(tp, opts = {}) {
     const short = sum(arithBad.filter((o) => o.diff > 0 && !o.x.rc), (o) => o.diff);
     add('G-10', hsnFail || short > 1000 || badRate.length ? 'Fail' : arithBad.length ? 'Review' : 'Pass',
       `${arithBad.length} invoice(s) where tax ≠ taxable × rate (short-charged ${fmtL(short)}); ${badRate.length} non-notified rate(s); HSN summary vs GSTR-1 taxable diff ${fmtL(hsnDiff)}.`,
-      { exposure: short, metric: `${arithBad.length} mismatches`, evidence: ev(['Customer', 'Invoice', 'Rate', 'Taxable', 'Tax charged', 'Tax expected'], arithBad.map((o) => [o.x.party, o.x.no, o.x.rate, r0(o.x.taxable), r0(o.x.tax), r0(o.exp + o.x.cess)])) });
+      { exposure: short, heads: headsOf(arithBad.filter((o) => o.diff > 0 && !o.x.rc).map((o) => o.x)), metric: `${arithBad.length} mismatches`, evidence: ev(['Customer', 'Invoice', 'Rate', 'Taxable', 'Tax charged', 'Tax expected'], arithBad.map((o) => [o.x.party, o.x.no, o.x.rate, r0(o.x.taxable), r0(o.x.tax), r0(o.exp + o.x.cess)])) });
   }
 
   // G-12 invoice series / document summary
@@ -397,7 +427,7 @@ export function analyze(tp, opts = {}) {
     else {
       const late = cns.filter((c) => c.origDate && c.origDate < `${fy}-04-01` && c.date && c.date > `${fy}-11-30`);
       add('H-01', late.length ? 'Fail' : 'Pass', late.length ? `${late.length} credit note(s) against prior-FY invoices issued after 30-Nov: output tax reduction not allowed u/s 34(2).` : `All ${cns.length} credit notes within the s.34(2) window (where original date available).`,
-        { exposure: sum(late, (c) => c.tax), metric: `${late.length} late`, evidence: ev(['Customer', 'Note', 'Date', 'Orig. invoice date', 'Tax'], late.map((c) => [c.party, c.no, c.date, c.origDate, r0(c.tax)])) });
+        { exposure: sum(late, (c) => c.tax), heads: headsOf(late), metric: `${late.length} late`, evidence: ev(['Customer', 'Note', 'Date', 'Orig. invoice date', 'Tax'], late.map((c) => [c.party, c.no, c.date, c.origDate, r0(c.tax)])) });
       const invNos = new Set(tp.b2b.map((x) => x.no));
       const unlinked = cns.filter((c) => !c.origNo);
       const orphan = cns.filter((c) => c.origNo && !invNos.has(c.origNo));
@@ -407,7 +437,7 @@ export function analyze(tp, opts = {}) {
       const rows = Object.entries(cnBy).map(([g, cs]) => { const s = sum(sales[g] || [], (x) => x.taxable); const c = sum(cs, (x) => x.taxable); return { g, party: cs[0].party, s, c, pct: s ? c / s : Infinity, tax: sum(cs, (x) => x.tax) }; }).filter((r) => r.pct > 0.1).sort((a, b) => b.c - a.c);
       const yearEnd = sum(cns.filter((c) => c.m >= 11), (c) => c.taxable) / Math.max(1, sum(cns, (c) => c.taxable));
       add('H-08', rows.length ? 'Review' : 'Pass', `${rows.length} customer(s) with credit notes > 10% of their invoiced value; ${(yearEnd * 100).toFixed(0)}% of CN value issued in March.`,
-        { exposure: sum(rows, (r) => r.tax), metric: `${rows.length} parties`, evidence: ev(['Customer', 'GSTIN', 'Sales taxable', 'CN taxable', 'CN %'], rows.map((r) => [r.party, r.g, r0(r.s), r0(r.c), Number.isFinite(r.pct) ? `${(r.pct * 100).toFixed(1)}%` : 'no sales'])) });
+        { exposure: sum(rows, (r) => r.tax), heads: headsOf(cns.filter((c) => rows.some((r) => r.g === c.gstin))), metric: `${rows.length} parties`, evidence: ev(['Customer', 'GSTIN', 'Sales taxable', 'CN taxable', 'CN %'], rows.map((r) => [r.party, r.g, r0(r.s), r0(r.c), Number.isFinite(r.pct) ? `${(r.pct * 100).toFixed(1)}%` : 'no sales'])) });
     }
     const cn2b = sum(tp.g2bCdn.filter((x) => x.noteType === 'C'), (x) => x.tax);
     const itcOk = results.find((r) => r.id === 'B-01').status !== 'Fail';
@@ -424,14 +454,14 @@ export function analyze(tp, opts = {}) {
     const drcPaid = sum(drc03, (l) => l.amount);
     const oneDay = due.filter((r) => r.delay === 1 && r.intDue - r.interestPaid > 0);
     const state = (r) => (!r.delay ? 'No delay' : r.delay === 1 ? 'Pending validation: one-day delay' : r.intDue - r.interestPaid > 1 ? `Difference ${fmtL(r.intDue - r.interestPaid)} to verify` : 'Interest paid');
-    add('J-01', intDue - intPaid > 100 ? 'Fail' : 'Pass',
-      `Interest computed @18% p.a. (s.50(1) proviso) on tax paid in cash for delayed periods: ${fmtL(intDue)} vs interest paid in 3B ${fmtL(intPaid)}${drcPaid ? ` and ${fmtL(drcPaid)} of DRC-03 debits in the cash ledger` : ''}.${oneDay.length ? ` ${oneDay.length} period(s) are one day late: interest calculation pending validation of the filing timestamp and any due-date extension.` : ''}`,
-      { exposure: Math.max(0, intDue - intPaid), metric: fmtL(intDue - intPaid),
+    add('J-01', intDue - intPaid > 100 ? 'Fail' : undated.length ? 'Review' : 'Pass',
+      `Interest computed @18% p.a. (s.50(1) proviso) on tax paid in cash for delayed periods: ${fmtL(intDue)} vs interest paid in 3B ${fmtL(intPaid)}${drcPaid ? ` and ${fmtL(drcPaid)} of DRC-03 debits in the cash ledger` : ''}.${oneDay.length ? ` ${oneDay.length} period(s) are one day late: interest calculation pending validation of the filing timestamp and any due-date extension.` : ''}${undatedNote}`,
+      { exposure: Math.max(0, intDue - intPaid), heads: addHeads(...due.filter((r) => r.delay).map((r) => tp.g3b[r.p].out)), headsBasis: 'apportioned', metric: fmtL(intDue - intPaid),
         evidence: ev(['Period', 'Due date', 'Filed (ledger)', 'Delay (days)', 'Tax paid in cash', 'Tax paid via ITC', 'Rate', 'Working', 'Interest computed', 'Interest paid (3B)', 'Status'],
           due.map((r) => [r.label, r.dueOn, r.filedOn || '-', r.delay ?? '-', r.cash, r.itcUsed, '18% p.a.', r.delay ? `${r.cash} × 18% × ${r.delay} / 365` : '-', r0(r.intDue), r.interestPaid, state(r)])),
         summary: { drc03: drc03.map((l) => [l.date, l.desc, r0(l.amount)]), drcPaid: r0(drcPaid), provision: 's.50(1) proviso: interest on the portion of tax paid in cash' } });
-    add('J-03', feeDue - feePaid > 50 ? 'Fail' : 'Pass', `GSTR-3B late fee computed ${fmtL(feeDue)} (₹50/day, ₹20 nil; capped) vs paid ${fmtL(feePaid)}. GSTR-1 filing dates are not in the extract.`,
-      { exposure: Math.max(0, feeDue - feePaid), metric: fmtL(feeDue - feePaid), evidence: ev(['Period', 'Due date', 'Filed (ledger)', 'Delay (days)', 'Fee due', 'Fee paid'], due.map((r) => [r.label, r.dueOn, r.filedOn || '-', r.delay ?? '-', r0(r.feeDue), r.lateFeePaid])) });
+    add('J-03', feeDue - feePaid > 50 ? 'Fail' : undated.length ? 'Review' : 'Pass', `GSTR-3B late fee computed ${fmtL(feeDue)} (₹50/day, ₹20 nil; capped) vs paid ${fmtL(feePaid)}. GSTR-1 filing dates are not in the extract.${undatedNote}`,
+      { exposure: Math.max(0, feeDue - feePaid), heads: { cgst: 1, sgst: 1 }, headsBasis: 'law', metric: fmtL(feeDue - feePaid), evidence: ev(['Period', 'Due date', 'Filed (ledger)', 'Delay (days)', 'Fee due', 'Fee paid'], due.map((r) => [r.label, r.dueOn, r.filedOn || '-', r.delay ?? '-', r0(r.feeDue), r.lateFeePaid])) });
   }
 
   // ------------------------------------------------------------------ fraud / risk indicators
@@ -486,18 +516,18 @@ export function analyze(tp, opts = {}) {
     add('G-05', o.unmatched.count ? 'Fail' : 'Pass',
       o.unmatched.count ? `${o.unmatched.count} e-way bill(s) worth ${fmtL(o.unmatched.value)} generated by the taxpayer have no invoice in GSTR-1: goods moved, sale not reported. Tax ${fmtL(o.unmatched.tax)}.`
         : `All ${o.bills} e-way bills generated by the taxpayer match an invoice in GSTR-1.`,
-      { exposure: o.unmatched.tax, metric: `${o.unmatched.count} of ${o.bills} bills`, evidence: o.unmatched.count ? ev(['E-way bill', 'Date', 'Document', 'To', 'Value', 'Vehicle'], o.unmatched.rows.map((b) => [b.no, b.at.replace('T', ' '), b.docNo, b.toName || b.to, r0(b.total), b.vehicle || '-'])) : null });
+      { exposure: o.unmatched.tax, heads: o.unmatched.heads, metric: `${o.unmatched.count} of ${o.bills} bills`, evidence: o.unmatched.count ? ev(['E-way bill', 'Date', 'Document', 'To', 'Value', 'Vehicle'], o.unmatched.rows.map((b) => [b.no, b.at.replace('T', ' '), b.docNo, b.toName || b.to, r0(b.total), b.vehicle || '-'])) : null });
     // B-03: ITC on goods with no e-way bill behind them (proof of receipt, s.16(2)(b))
     const bad = i.unsupported.itc, material = bad >= Math.max(100000, 0.005 * ewbRec.goodsItc);
     add('B-03', !i.unsupported.count ? 'Pass' : material ? 'Fail' : 'Review',
       i.unsupported.count ? `${i.unsupported.count} of ${i.needing} goods invoices above the e-way bill limit have no e-way bill: ITC ${fmtL(bad)} with no record that the goods moved. Obtain proof of receipt (GRN, lorry receipt, e-way bill).`
         : `Every goods invoice above the e-way bill limit (${i.needing}) has an e-way bill behind it.`,
-      { exposure: material ? bad : 0, metric: `${i.unsupported.count}/${i.needing} unsupported`, evidence: i.unsupported.count ? ev(['Supplier', 'GSTIN', 'Invoice', 'Date', 'Value', 'ITC'], i.unsupported.rows.map((x) => [x.party, x.from, x.no, x.date, r0(x.value), r0(x.itc)])) : null });
+      { exposure: material ? bad : 0, heads: i.unsupported.heads, metric: `${i.unsupported.count}/${i.needing} unsupported`, evidence: i.unsupported.count ? ev(['Supplier', 'GSTIN', 'Invoice', 'Date', 'Value', 'ITC'], i.unsupported.rows.map((x) => [x.party, x.from, x.no, x.date, r0(x.value), r0(x.itc)])) : null });
     // D-05: bill-to-ship-to movements: the place of supply is the bill-to party's state, so is the tax head
     add('D-05', s.wrongHead.count ? 'Fail' : 'Pass',
       s.wrongHead.count ? `${s.wrongHead.count} of ${s.moves} bill-to-ship-to movements charged the wrong tax head: goods delivered in the supplier's own state but billed to a party in another state are inter-state (IGST Act s.10(1)(b)). Tax ${fmtL(s.wrongHead.tax)} under the wrong head.`
         : s.moves ? `${s.moves} bill-to-ship-to movement(s): place of supply and tax head follow the bill-to party, correctly.` : 'No bill-to-ship-to movements in the e-way bill data.',
-      { exposure: s.wrongHead.tax, metric: `${s.wrongHead.count}/${s.moves}`, evidence: s.wrongHead.count ? ev(['E-way bill', 'Invoice', 'Bill-to state', 'Ship-to state', 'IGST', 'CGST', 'SGST'], s.wrongHead.rows.map((x) => [x.no, x.docNo, x.billTo, x.shipTo, r0(x.igst), r0(x.cgst), r0(x.sgst)])) : null });
+      { exposure: s.wrongHead.tax, heads: { igst: 1 }, headsBasis: 'law', metric: `${s.wrongHead.count}/${s.moves}`, evidence: s.wrongHead.count ? ev(['E-way bill', 'Invoice', 'Bill-to state', 'Ship-to state', 'IGST', 'CGST', 'SGST'], s.wrongHead.rows.map((x) => [x.no, x.docNo, x.billTo, x.shipTo, r0(x.igst), r0(x.cgst), r0(x.sgst)])) : null });
     fraud.push({ key: 'vehicle', label: 'Same vehicle in two places at once (e-way bills)', value: `${ewbRec.vehicles.clashes} impossible journey(s)`, flagged: ewbRec.vehicles.clashes > 0,
       why: 'One vehicle cannot start journeys hundreds of kilometres apart within a few hours: at least one of the e-way bills records movement that did not happen.', weight: 1.5 });
     const cancelRate = o.bills ? o.cancelled / (o.bills + o.cancelled) : 0;

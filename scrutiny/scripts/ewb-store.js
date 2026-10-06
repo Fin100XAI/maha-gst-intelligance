@@ -13,6 +13,7 @@ import path from 'node:path';
 import { execFile, spawn } from 'node:child_process';
 import * as XLSX from 'xlsx';
 import { parseEwbRows } from '../src/engine/ewb.js';
+import { accessOf, forbid } from './lib/request-access.mjs';
 import { writeEwb, ewbFile } from './synth/ewb.mjs';
 import { coalesce } from './lib/coalesce.mjs';
 
@@ -71,6 +72,9 @@ export default function ewbStore() {
         if (nic().configured) return json(res, 501, { ok: false, error: 'NIC credentials are set, but the live NIC e-way bill client is not part of this build yet. Unset the EWB_* variables to use the simulated system.' });
         const gstin = new URL(req.url || '/', 'http://x').searchParams.get('gstin');
         if (gstin && !GSTIN_RE.test(gstin)) return json(res, 400, { ok: false, error: 'Not a GSTIN' });
+        const acc = accessOf(req);
+        if (!acc.can('upload')) return forbid(res, 'Syncing e-way bills needs the upload permission');
+        if (gstin ? !acc.inScope(gstin) : !acc.all) return forbid(res, gstin ? `${gstin} is not in your jurisdiction` : 'Syncing every taxpayer needs an account covering all jurisdictions: choose a taxpayer');
         if (job && !job.finishedAt) return json(res, 409, { ok: false, error: 'A sync is already running', job });
         job = { id: Date.now(), gstin: gstin || null, stage: 'request', done: 0, total: countReturns(), refreshed: 0, startedAt: new Date().toISOString(), finishedAt: null, error: null };
         const current = job;
@@ -108,6 +112,9 @@ export default function ewbStore() {
         const q = new URL(req.url || '/', 'http://x').searchParams;
         const gstin = String(q.get('gstin') || '').toUpperCase();
         if (!GSTIN_RE.test(gstin)) return json(res, 400, { ok: false, error: 'Choose the GSTIN the e-way bill export belongs to' });
+        const acc = accessOf(req);
+        if (!acc.can('upload')) return forbid(res, 'Uploading e-way bills needs the upload permission');
+        if (!acc.inScope(gstin)) return forbid(res, `${gstin} is not in your jurisdiction`);
         const chunks = []; let size = 0;
         req.on('data', (c) => { size += c.length; if (size > MAX_BYTES) { json(res, 413, { ok: false, error: 'File is larger than 40 MB' }); req.destroy(); } else chunks.push(c); });
         req.on('end', async () => {

@@ -53,12 +53,14 @@ export const toISO = (v) => {
 };
 
 // Read a report sheet: skip the 4-line banner, find the header row, return keyed objects.
-function readSheet(wb, name) {
+// diag (optional) collects, per sheet, the rows read and the rows skipped because their month was not recognised.
+function readSheetDiag(wb, name, diag) {
   const ws = wb.Sheets[name];
+  if (diag) diag.asked.add(name);
   if (!ws) return [];
   const grid = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null, blankrows: false });
   const hIdx = grid.findIndex((r) => r && r.some((c) => c === 'Month') && r.filter((c) => c !== null).length > 3);
-  if (hIdx < 0) return [];
+  if (hIdx < 0) { if (diag) diag.noHeader.push(name); return []; }
   const seen = {};
   const header = grid[hIdx].map((h) => {
     if (h === null) return null;
@@ -70,10 +72,17 @@ function readSheet(wb, name) {
   for (const r of grid.slice(hIdx + 1)) {
     const o = {};
     header.forEach((h, i) => { if (h) o[h] = r[i]; });
-    if (!(o.Month in MONTH_IDX)) continue; // drops totals / blank trailer rows
+    if (!(o.Month in MONTH_IDX)) { // totals and blank trailer rows; anything else with a month is a row we could not read
+      if (diag && o.Month !== null && o.Month !== undefined && String(o.Month).trim() && !/total/i.test(String(o.Month))) {
+        diag.skipped[name] = (diag.skipped[name] || 0) + 1;
+        if (diag.examples.length < 5) diag.examples.push(`${name}: month "${String(o.Month).slice(0, 20)}"`);
+      }
+      continue;
+    }
     o._m = MONTH_IDX[o.Month];
     out.push(o);
   }
+  if (diag) diag.read[name] = out.length;
   return out;
 }
 
@@ -86,6 +95,28 @@ const tax = (o) => ({
 });
 const tt = (t) => t.igst + t.cgst + t.sgst + t.cess;
 const yes = (v) => /^y/i.test(String(v ?? ''));
+
+/**
+ * What the parser understood from a workbook, for the officer to confirm before it is analysed: banner, returns found
+ * (row counts), sheets it does not read, rows it skipped, and plain-language warnings. errors block the upload.
+ */
+function intakeOf({ banner, correction, diag, sheets, periods, b2b, b2cl, b2cs, cdn, g2b, g2a, liability, cashLedger, creditLedger }) {
+  const returns = {
+    gstr3b: periods.length, gstr1: b2b.length + b2cl.length + b2cs.length + cdn.length, gstr2b: g2b.length, gstr2a: g2a.length,
+    ledgers: liability.length + cashLedger.length + creditLedger.length,
+  };
+  const skipped = Object.values(diag.skipped).reduce((a, b) => a + b, 0);
+  const errors = [], warnings = [];
+  if (!banner.gstin && !correction.gstin) errors.push('No GSTIN in the banner ("Company GSTN :" on the first GSTR-3B sheet): enter it below.');
+  if (!periods.length) errors.push('No GSTR-3B periods found: not a returns export, or the GSTR-3B sheets are named differently.');
+  if (!banner.fy && !correction.fy) warnings.push('No return period in the banner: enter the financial year below (2025-2026 is assumed otherwise).');
+  if (!liability.length) warnings.push('No liability ledger: filing dates are unknown, so late filing, interest and late fee will be marked for review.');
+  if (!g2b.length) warnings.push('No GSTR-2B lines: ITC checks against 2B are limited.');
+  if (!returns.gstr1) warnings.push('No GSTR-1 lines: outward checks are limited.');
+  if (skipped) warnings.push(`${skipped} row(s) skipped because the Month column was not a full month name (April to March): ${diag.examples.join('; ')}.`);
+  const unread = sheets.filter((n) => !diag.asked.has(n));
+  return { banner, corrected: !!(correction.gstin || correction.fy), returns, read: diag.read, skipped: diag.skipped, unreadSheets: unread, errors, warnings };
+}
 
 function meta(wb) {
   const first = wb.Sheets[wb.SheetNames.find((n) => n.startsWith('GSTR3B')) || wb.SheetNames[0]];
@@ -100,9 +131,20 @@ function meta(wb) {
   return { name: String(find('Company Name') ?? '').trim(), gstin: String(find('Company GSTN') ?? '').trim(), fy: String(find('Return Period') ?? '').replace(/\s/g, '') };
 }
 
-export function parseWorkbook(wb, fileName = '') {
+/**
+ * @param {object} wb        SheetJS workbook
+ * @param {string} fileName
+ * @param {{ gstin?: string, fy?: string }} [correction]  officer's correction for a banner that lacks the GSTIN or
+ *   the return period (from the upload staging step); used only where the banner is missing it
+ */
+export function parseWorkbook(wb, fileName = '', correction = {}) {
   const m = meta(wb);
+  const banner = { name: !!m.name, gstin: !!m.gstin, fy: /^\d{4}-\d{4}$/.test(m.fy) };
+  if (!banner.gstin && correction.gstin) m.gstin = String(correction.gstin).trim().toUpperCase();
+  if (!banner.fy && correction.fy) m.fy = String(correction.fy).replace(/\s/g, '');
   const fyStart = parseInt(m.fy.slice(0, 4), 10) || 2025;
+  const diag = { asked: new Set(), read: {}, skipped: {}, noHeader: [], examples: [] };
+  const readSheet = (book, name) => readSheetDiag(book, name, diag);
   // ---------- GSTR-3B ----------
   const supRows = readSheet(wb, 'GSTR3B_Supplies');
   const periods = [...new Set(supRows.map((r) => r._m))].sort((a, b) => a - b);
@@ -130,6 +172,7 @@ export function parseWorkbook(wb, fileName = '') {
     const k = itcKey(r.Details);
     if (!k || !g3b[r._m]) continue;
     g3b[r._m].itc[k] = tt(tax(r));
+    (g3b[r._m].itcH ||= {})[k] = tax(r); // the same, head by head (for head-wise demands)
   }
   for (const r of readSheet(wb, 'GSTR3B_PaymentofTax')) {
     const d = g3b[r._m]; if (!d) continue;
@@ -186,7 +229,7 @@ export function parseWorkbook(wb, fileName = '') {
   // 2B amendments: the first 'Invoice number' / 'Invoice Date' columns are the original, the second the revised
   const g2bAmend = readSheet(wb, 'GSTR2B_B2BA').map((r) => ({ m: r._m, gstin: String(r['GSTIN of supplier'] || '').trim().toUpperCase(), origNo: String(r['Invoice number'] ?? '').trim(),
     origDate: toISO(r['Invoice Date']), no: String(r['Invoice number#2'] ?? '').trim(), date: toISO(r['Invoice date']), taxable: num(r['Taxable Value']) })).filter((r) => r.gstin);
-  const g2bIsd = readSheet(wb, 'GSTR2B_ISD').map((r) => ({ m: r._m, tax: tt(tax(r)) }));
+  const g2bIsd = readSheet(wb, 'GSTR2B_ISD').map((r) => ({ m: r._m, ...tax(r), tax: tt(tax(r)) }));
   // Bills of entry: 2B IMPG/IMPGSEZ plus 2A ICEGATE feed, de-duplicated on BoE number
   const boeMap = new Map();
   for (const r of [...readSheet(wb, 'GSTR2B_IMPG'), ...readSheet(wb, 'GSTR2B_IMPGSEZ'), ...readSheet(wb, 'GSTR2A_IMPGOS')]) {
@@ -215,6 +258,7 @@ export function parseWorkbook(wb, fileName = '') {
     id: m.gstin || fileName, fileName, name, nameFromBanner: !!m.name, gstin: m.gstin, fy: m.fy, fyStart, stateCode: m.gstin.slice(0, 2), pan: m.gstin.slice(2, 12),
     periods, g3b, b2b, b2cl, b2cs, cdn, b2ba, hsn, docs, nilRated, g2b, g2bCdn, g2bAmend, g2bIsd, g2bImpg, g2a, g2aCdn, tdsCredits, tcsCredits, isd6a,
     liability, cashLedger, creditLedger, challans, sheets: wb.SheetNames,
+    intake: intakeOf({ banner, correction, diag, sheets: wb.SheetNames, periods, b2b, b2cl, b2cs, cdn, g2b, g2a, liability, cashLedger, creditLedger, fyStart }),
     created: toISO(wb.Props?.CreatedDate ?? null), // workbook creation date: when the extract was downloaded
   };
 }

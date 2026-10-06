@@ -255,6 +255,13 @@ export function ReplyForm({ sig, dispatch, toast, onRecorded }) {
         return;
       }
       setForm((f) => ({ ...f, text: out.text, doc: out.doc, method: out.method, warnings: out.warnings || [] }));
+      // A scan or a photo: read it with OCR on the server (approximate; the officer checks the text)
+      if (!out.text && out.ocr?.pages) {
+        setReading(`Reading ${out.ocr.pages} scanned page${out.ocr.pages === 1 ? '' : 's'} with OCR…`);
+        const o = await fetch(api(`/__docs/${out.doc.sha256}/ocr`), { method: 'POST' }).then((r) => r.json()).catch(() => ({ ok: false, error: 'OCR could not be reached' }));
+        if (o.ok) setForm((f) => ({ ...f, text: o.text, method: o.method, warnings: o.warnings || [] }));
+        else setForm((f) => ({ ...f, warnings: [o.error || 'OCR failed: paste the text instead', ...(out.ocr.skipped || []).map((x) => `Not read: ${x}.`)] }));
+      } else if (!out.text && out.ocr?.skipped?.length) setForm((f) => ({ ...f, warnings: [...f.warnings, ...out.ocr.skipped.map((x) => `Not read: ${x}. Paste the text instead.`)] }));
     } catch {
       toast('Documents need the local server; paste the text instead');
     } finally { setReading(false); }
@@ -268,12 +275,12 @@ export function ReplyForm({ sig, dispatch, toast, onRecorded }) {
       <label className="field"><span>Received</span><input type="date" value={form.received} onChange={(e) => setForm({ ...form, received: e.target.value })} /></label>
       <label className="field"><span>From</span><select value={form.from} onChange={(e) => setForm({ ...form, from: e.target.value })}>{['CA', 'Taxpayer', 'Other'].map((x) => <option key={x}>{x}</option>)}</select></label>
       <label className="field"><span>Reference</span><input value={form.ref} onChange={(e) => setForm({ ...form, ref: e.target.value })} placeholder="Letter or ARN" /></label>
-      <label className="field wide"><span>Reply document (PDF, Word or text), or paste below</span>
-        <input key={round} type="file" accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" onChange={(e) => attach(e.target.files?.[0])} disabled={reading} />
+      <label className="field wide"><span>Reply document (PDF, Word, text, or a scan or photo of the letter), or paste below</span>
+        <input key={round} type="file" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,image/jpeg,image/png" onChange={(e) => attach(e.target.files?.[0])} disabled={reading} />
       </label>
       {(reading || form.doc || form.warnings.length > 0) && (
         <div className="wide doc-read">
-          {reading ? 'Reading the document…' : form.doc ? <>Read <b>{form.doc.name}</b> ({form.method}). Check the text below: it is what will be tested.</> : null}
+          {reading ? (typeof reading === 'string' ? reading : 'Reading the document…') : form.doc ? <>Read <b>{form.doc.name}</b> ({form.method}). Check the text below: it is what will be tested.</> : null}
           {form.warnings.map((w) => <div key={w} className="demo-warn">{w}</div>)}
         </div>
       )}

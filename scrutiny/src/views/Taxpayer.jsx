@@ -3,12 +3,14 @@ import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, PieChart, Pie, LineChart, Line, ComposedChart,
   ScatterChart, Scatter, Treemap, ReferenceLine, LabelList,
 } from 'recharts';
-import { Card, Kpi, Band, BandChip, CaseStatus, PageHead, SearchBox, Tip, Legend, Tabs, StatusPill, Sev, Seg, DataTable, axisProps, gridProps, xLab, yLab, Rag, InfoTip } from '../components/ui.jsx';
+import { Card, Kpi, Band, BandChip, CaseStatus, PageHead, SearchBox, Tip, Legend, Tabs, StatusPill, Sev, Seg, DataTable, axisProps, gridProps, xLab, yLab, Rag, InfoTip, TestTag } from '../components/ui.jsx';
+import { isTestData } from '../engine/names.js';
 import { verifyStep, routeIfConfirmed, raisedIndicators, reviewPrompts, isIssue, confirmBlocked, DISPOSITIONS, DISPOSITION_LABEL, CLOSURE_LABEL } from '../engine/verify.js';
 import { buildEvidencePack, downloadFile } from '../lib/evidencePack.js';
-import { nowStamp } from '../lib/store.js';
+import { nowStamp, usePersistent } from '../lib/store.js';
+import { verdict } from '../engine/verdict.js';
 import Icon from '../components/Icon.jsx';
-import { CASE_STATUS } from '../lib/store.js';
+import { CASE_STATUS, WORKFLOW_STATUSES } from '../lib/store.js';
 import Insights from '../components/Insights.jsx';
 import Measures from '../components/Measures.jsx';
 import BenfordCard from '../components/BenfordCard.jsx';
@@ -33,19 +35,36 @@ export default function Taxpayer({ a, initialTab, baselines, network, master, op
   const flags = raisedIndicators(a).length;
   const prompts = reviewPrompts(a).length;
   const p = a.profile;
+  const v = useMemo(() => verdict(a, cat, caseInfo), [a, cat, caseInfo]);
+  // A check picked from the verdict opens on the Rule findings tab; the profile and charts fold away (remembered)
+  const [focusRule, setFocusRule] = useState(null);
+  const [showDetail, setShowDetail] = usePersistent('gst.tpDetail', false);
+  const openRule = (id) => { setFocusRule({ id, at: Date.now() }); setTab('rules'); setTimeout(() => document.querySelector('.tabs-row')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); };
 
   return (
     <div className="page">
-      <PageHead title={a.name} path={`${a.gstin} · ${a.state} · ${a.filing.toLowerCase()} · FY ${a.fy}`}>
+      <PageHead title={isTestData(a.gstin, a.fileName) ? <>{a.name} <TestTag /></> : a.name} path={`${a.gstin} · ${a.state} · ${a.filing.toLowerCase()} · FY ${a.fy}`}>
         <SearchBox taxpayers={taxpayers} onPick={onSelect} placeholder="Jump to taxpayer or GSTIN" />
         <button className="btn" onClick={openReport}><Icon name="print" size={16} /> Generate report</button>
         <button className="btn" onClick={openNotice} title="Create scrutiny note: verification pending">Scrutiny note</button>
         {caseInfo.status === 'New' && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'In review')}>Start review</button>}
-        {(caseInfo.status === 'In review' || caseInfo.status === 'Notice drafted') && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'Closed')}>Close case</button>}
+        {['In review', 'Notice drafted', 'Notice issued', 'Escalated'].includes(caseInfo.status) && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'Closed')}>Close case</button>}
         {caseInfo.status === 'Closed' && <button className="btn primary" onClick={() => setCaseStatus(a.id, 'In review')}>Reopen case</button>}
       </PageHead>
 
+      <section className={`card tp-verdict ${v.tone}`} aria-label="Verdict">
+        <div className="tpv-line"><span className="tpv-dot" /><b>{v.line}</b> <span className="muted">{v.next}</span></div>
+        {v.actions.length > 0 && (
+          <ol className="tpv-actions">
+            {v.actions.map((x) => (
+              <li key={x.ruleId}><button className="link-btn" onClick={() => openRule(x.ruleId)}><span className="mono">{x.ruleId}</span> {x.check}</button><span className="muted"> · {x.todo}{x.amount ? ` · ${inr(x.amount)}` : ''}</span></li>
+            ))}
+          </ol>
+        )}
+      </section>
 
+      <details className="tp-detail" open={showDetail} onToggle={(e) => setShowDetail(e.currentTarget.open)}>
+        <summary>Profile, risk score and measures</summary>
       <div className="tp-top">
         <section className="card">
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
@@ -81,6 +100,7 @@ export default function Taxpayer({ a, initialTab, baselines, network, master, op
       </div>
 
       <Measures a={a} caseInfo={caseInfo} taxpayers={taxpayers} cfg={cfg} severity={severity} />
+      </details>
 
       <div className="grid g-kpi mt">
         <Kpi label="Computed exposure" value={inr(a.exposure.confirmed)} dot={a.exposure.confirmed ? '#b02222' : '#0c6a4a'} sub={`${fails} checks with exceptions · unverified`} />
@@ -111,7 +131,7 @@ export default function Taxpayer({ a, initialTab, baselines, network, master, op
       {tab === 'network' && <CounterpartyTab g={network} master={master} gstin={a.gstin} fy={a.fy} open={(x) => openTaxpayerTab(x, 'network')} />}
       {tab === 'ewb' && <EwbTab a={a} reload={ewbSync?.reload} toast={ewbSync?.toast} />}
       {tab === 'fraud' && <Fraud a={a} />}
-      {tab === 'rules' && <Findings a={a} cat={cat} caseInfo={caseInfo} setDisposition={setDisposition} logEvent={logEvent} user={user} dataGeneratedAt={dataGeneratedAt} />}
+      {tab === 'rules' && <Findings a={a} focus={focusRule} cat={cat} caseInfo={caseInfo} setDisposition={setDisposition} logEvent={logEvent} user={user} dataGeneratedAt={dataGeneratedAt} />}
       {tab === 'case' && <CaseFile a={a} caseInfo={caseInfo} setCaseStatus={setCaseStatus} addNote={addNote} addResponse={addResponse} openNotice={openNotice} />}
     </div>
   );
@@ -471,7 +491,7 @@ function Fraud({ a }) {
 }
 
 /* ================================================================ Rule findings */
-function Findings({ a, cat, caseInfo, setDisposition, logEvent, user, dataGeneratedAt }) {
+function Findings({ a, focus, cat, caseInfo, setDisposition, logEvent, user, dataGeneratedAt }) {
   const disp = caseInfo.dispositions || {};
   const pack = async (r) => {
     const p = await buildEvidencePack({ a, rule: cat[r.id], result: r, caseInfo, user, generatedAt: nowStamp(), dataGeneratedAt });
@@ -479,7 +499,8 @@ function Findings({ a, cat, caseInfo, setDisposition, logEvent, user, dataGenera
     logEvent(a.id, `Evidence pack downloaded: ${r.id} · SHA-256 ${p.hash.slice(0, 16)}…`);
   };
   const [filter, setFilter] = useState('issues');
-  const [open, setOpen] = useState(null);
+  const [open, setOpen] = useState(focus?.id || null);
+  useEffect(() => { if (focus) { setFilter('issues'); setOpen(focus.id); } }, [focus]);
   const order = { Fail: 0, Review: 1, Info: 2, Pass: 3, NA: 4 };
   const sevRank = { High: 0, Med: 1, Low: 2 };
   const rows = a.results
@@ -505,7 +526,7 @@ function Findings({ a, cat, caseInfo, setDisposition, logEvent, user, dataGenera
                     <td style={{ whiteSpace: 'nowrap' }}>{r.rag ? <Rag rag={r.rag} /> : r.metric || '-'}</td>
                     <td className="num" style={{ fontWeight: r.exposure ? 600 : 400 }}>{r.exposure ? inr(r.exposure) : '-'}</td>
                     <td>{isIssue(r) ? <span className={`disp ${disp[r.id]?.code || 'pending'}`}>{disp[r.id] ? DISPOSITION_LABEL[disp[r.id].code] : 'Pending'}</span> : <span className="muted">-</span>}</td>
-                    <td style={{ lineHeight: 1.45 }}>{r.finding}</td>
+                    <td style={{ lineHeight: 1.45 }}><span className={isOpen ? '' : 'clamp-2'} title={isOpen ? undefined : r.finding}>{r.finding}</span></td>
                   </tr>
                   {isOpen && (
                     <tr><td colSpan={8} className="evidence">
@@ -588,7 +609,7 @@ function CaseFile({ a, caseInfo, setCaseStatus, addNote, addResponse, openNotice
         <section className="card">
           <div className="eyebrow">Case status</div>
           <select style={{ marginTop: 12 }} value={caseInfo.status} onChange={(e) => setCaseStatus(a.id, e.target.value)} aria-label="Case status">
-            {Object.entries(CASE_STATUS).map(([k, v]) => <option key={k} value={k} disabled={k === 'Notice drafted' && caseInfo.status !== k} title={k === 'Notice drafted' ? 'Set automatically when a draft is saved after the readiness checklist' : undefined}>{v.label}</option>)}
+            {Object.entries(CASE_STATUS).map(([k, v]) => <option key={k} value={k} disabled={WORKFLOW_STATUSES.includes(k) && caseInfo.status !== k} title={WORKFLOW_STATUSES.includes(k) ? 'Set by the notice workflow (saving the draft, recording the issue, escalating)' : undefined}>{v.label}</option>)}
           </select>
           {caseInfo.closure && caseInfo.status === 'Closed' && <div className="note" style={{ marginTop: 10 }}><b>{CLOSURE_LABEL[caseInfo.closure.code]}</b><br />{caseInfo.closure.reason}<div className="mono muted" style={{ fontSize: 11 }}>{caseInfo.closure.at} · {caseInfo.closure.by}</div></div>}
           <button className="btn soft" style={{ width: '100%', marginTop: 12 }} onClick={openNotice}><Icon name="notice" size={16} /> Scrutiny note &amp; notice readiness</button>

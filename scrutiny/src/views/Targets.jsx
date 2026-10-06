@@ -2,6 +2,7 @@
 // sector or taxpayer with a stated method, where each unit stands to date and who makes up the gap; sector movement
 // with peer context; and how concentrated the collection is.
 import React, { useMemo, useState } from 'react';
+import { DataNeeds } from '../components/DataNeeds.jsx';
 import { ResponsiveContainer, BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLine, LabelList } from 'recharts';
 import { Card, Kpi, PageHead, Legend, Seg, InfoTip, axisProps, gridProps } from '../components/ui.jsx';
 import { useEvidence, JurisdictionPicker, jurisdictionsOf, ALL, pctOf, shortFy } from '../components/leadership.jsx';
@@ -14,7 +15,7 @@ import { inr, axisInr } from '../lib/format.js';
 const GROW = '#1c5cab', FALL = '#c23a3a';
 const gapText = (g) => (g > 0 ? `${inr(g)} short` : g < 0 ? `${inr(-g)} ahead` : 'on target');
 
-export default function Targets({ data, registers, cases, jurisdiction, setJurisdiction }) {
+export default function Targets({ data, registers, cases, jurisdiction, setJurisdiction, go }) {
   const jur = jurisdiction || jurisdictionsOf(data, registers)[0] || ALL;
   const eb = useEvidence({ data, registers, cases, jurisdiction: jur });
   const base = eb.base;
@@ -32,7 +33,7 @@ export default function Targets({ data, registers, cases, jurisdiction, setJuris
   const sectors = useMemo(() => (fy ? sectorMovement({ base, master, fy }) : null), [base, master, fy]);
   const conc = useMemo(() => (fy ? concentration({ base, fy }) : null), [base, fy]);
 
-  if (!targets.length) return <div className="page"><PageHead title="Targets" /><div className="card note">No targets register for this jurisdiction. Upload one in Upload data (step 2, Revenue targets).</div></div>;
+  if (!targets.length) return <div className="page"><PageHead title="Targets" /><DataNeeds page="targets" registers={registers} go={go} /><div className="card note">No targets register for this jurisdiction. Upload one in Upload data (step 2, Revenue targets).</div></div>;
   const rows = (pos?.rows || []).map((r) => ({ ...r, name: shortName(r.label, 24) }));
   const top = by === 'taxpayer' ? rows.slice(0, 12) : rows;
   return (
@@ -41,6 +42,7 @@ export default function Targets({ data, registers, cases, jurisdiction, setJuris
         <JurisdictionPicker data={data} registers={registers} value={jur} onChange={setJurisdiction} />
         <label className="field inline"><span>Year</span><select value={fy} onChange={(e) => { setFy(e.target.value); setAsOf(null); }}>{years.map((y) => <option key={y} value={y}>FY {y}</option>)}</select></label>
       </PageHead>
+      <DataNeeds page="targets" registers={registers} go={go} />
       <div className="section-controls">
         <label className="field inline slider"><span>Position at end of <b>{MONTHS[asOf - 1]}</b></span><input type="range" min={1} max={complete} value={asOf} onChange={(e) => setAsOf(Number(e.target.value))} aria-label="Position as at month" /></label>
         <Seg value={by} onChange={setBy} options={Object.entries(UNITS).map(([value, label]) => ({ value, label: `By ${label.toLowerCase()}` }))} />

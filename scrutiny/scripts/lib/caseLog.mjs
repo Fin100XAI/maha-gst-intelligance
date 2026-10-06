@@ -7,7 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { applyEvent, emptyState, validateEvent } from '../../src/lib/caseEvents.js';
+import { applyEvent, emptyState, validateEvent, guardEvent } from '../../src/lib/caseEvents.js';
 
 export const hashEvent = (prevHash, ev) => {
   const { hash, ...rest } = ev; // eslint-disable-line no-unused-vars
@@ -53,12 +53,16 @@ export function openCaseLog(dir) {
     get seq() { return seq; },
     problems,
     chain,
-    /** Validate every event first, so a batch is stored whole or not at all. */
+    /** Validate every event first (its shape, then the rules on the case as it stands), so a batch is stored whole or not at all. */
     append(events, now = new Date()) {
       if (!Array.isArray(events) || !events.length) throw Object.assign(new Error('no events'), { status: 400 });
+      let trial = state;
       events.forEach((ev, i) => {
         const why = validateEvent(ev);
         if (why) throw Object.assign(new Error(`event ${i + 1}: ${why}`), { status: 400 });
+        const not = guardEvent(trial, ev);
+        if (not) throw Object.assign(new Error(not), { status: 409 });
+        trial = applyEvent(trial, ev);
       });
       let prev = lastHash;
       const stamped = events.map((ev) => {

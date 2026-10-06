@@ -2,6 +2,7 @@
 // today and why. Supervisor (DC / JC): gap, unresolved exposure, bottlenecks, action yield. Commissioner: trajectory,
 // target gap, action yield, recovery and learning. Every number comes from the same computation.
 import React, { useEffect, useMemo, useState } from 'react';
+import { DataNeeds } from '../components/DataNeeds.jsx';
 import { ResponsiveContainer, BarChart, Bar, ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, LabelList } from 'recharts';
 import { Card, Kpi, PageHead, Legend, Seg, InfoTip, axisProps, gridProps } from '../components/ui.jsx';
 import { useEvidence, JurisdictionPicker, jurisdictionsOf, ALL, STEP_COLOR, pctOf, shortFy } from '../components/leadership.jsx';
@@ -29,6 +30,7 @@ export default function Overview({ data, registers, cases, jurisdiction, setJuri
       <PageHead title="Overview" path={`${jur === ALL ? 'all loaded GSTINs' : jur} · data to ${eb.asOf}`}>
         <JurisdictionPicker data={data} registers={registers} value={jur} onChange={setJurisdiction} />
       </PageHead>
+      <DataNeeds page="overview" registers={registers} go={go} />
       <div className="role-bar" data-tour="role-bar">
         <Seg value={role} onChange={setRole} options={ROLES} />
         {role === 'field' && officers.length > 0 && <label className="field inline"><span>Officer</span><select value={officer} onChange={(e) => setOfficer(e.target.value)}>{officers.map((o) => <option key={o}>{o}</option>)}</select></label>}

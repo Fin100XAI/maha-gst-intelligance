@@ -4,12 +4,19 @@ import Icon from '../components/Icon.jsx';
 import { inr } from '../lib/format.js';
 import { Readiness, ScrutinyNote, readinessState } from './NoticeGate.jsx';
 import { isIssue, DISPOSITION_LABEL } from '../engine/verify.js';
+import { HEADS, BASIS, addHeads } from '../engine/heads.js';
+import { noticeStage, drc01Text, amountKind } from '../engine/notices.js';
+import { ISSUE_MODES, SCN_SECTIONS } from '../lib/caseEvents.js';
 
 const addDays = (iso, n) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const today = () => new Date().toISOString().slice(0, 10);
 const dmy = (iso) => (iso ? iso.split('-').reverse().join('-') : '-');
+const rs = (v) => Math.round(v || 0).toLocaleString('en-IN');
+const HEAD_LABEL = { igst: 'IGST', cgst: 'CGST', sgst: 'SGST' };
+// IGST, CGST and SGST are separate levies owed to different governments: a notice states each.
+const headsText = (h) => HEADS.filter((k) => h?.[k]).map((k) => `${HEAD_LABEL[k]} ${inr(h[k], { compact: false })}`).join(', ');
 
-export default function Notices({ data, cases, notices, saveNotice, setReadiness, selected, setSelected, user, toast }) {
+export default function Notices({ data, cases, notices, saveNotice, issueNotice, remindNotice, requestApproval, decideApproval, viewer, setReadiness, selected, setSelected, user, toast }) {
   const cat = useMemo(() => Object.fromEntries(data.catalog.map((r) => [r.id, r])), [data.catalog]);
   const a = data.taxpayers.find((t) => t.id === selected) || data.taxpayers[0];
   const saved = notices[a.id];
@@ -32,14 +39,24 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
   const due = addDays(f.issued || today(), Number(f.replyDays) || 30);
   const items = candidates.filter((r) => f.items.includes(r.id));
   const total = items.reduce((s, r) => s + r.exposure, 0);
+  // Interest (J-01) and late fee (J-03) are not tax: they are totalled apart from it
+  const taxItems = items.filter((r) => amountKind(r.id) === 'tax');
+  const taxTotal = taxItems.reduce((s, r) => s + r.exposure, 0);
+  const totalHeads = addHeads(...taxItems.map((r) => r.heads));
+  const otherTotals = ['interest', 'late fee'].map((k) => [k, items.filter((r) => amountKind(r.id) === k).reduce((s, r) => s + r.exposure, 0)]).filter(([, v]) => v > 0);
+  const amountLabel = (r) => ({ tax: 'Tax involved', interest: 'Interest involved', 'late fee': 'Late fee involved' }[amountKind(r.id)]);
+  const bases = [...new Set(items.filter((r) => r.exposure > 0 && r.headsBasis).map((r) => r.headsBasis))];
+  const basisNote = (basis) => `${items.filter((r) => r.exposure > 0 && r.headsBasis === basis).map((r) => r.id).join(', ')}: heads ${BASIS[basis]}.`;
 
   const text = [
     'FORM GST ASMT-10', '[See rule 99(1)]', '', `Reference No.: ${f.ref}`, `Date: ${dmy(f.issued)}`, '',
     `To: ${a.name}`, `GSTIN: ${a.gstin}`, `State: ${a.state}`, `Tax period: FY ${a.fy}`, '',
     'Sub.: Notice for intimating discrepancies in the return after scrutiny', '',
     `This is to inform you that during scrutiny of the returns filed by you for the tax period FY ${a.fy}, the following discrepancies have been noticed:`, '',
-    ...items.map((r, i) => `${i + 1}. [${r.id}] ${cat[r.id]?.check} (${cat[r.id]?.legal}): ${r.finding}${r.exposure ? ` Tax involved: ${inr(r.exposure, { compact: false })}.` : ''}`),
-    '', `Total tax involved (indicative): ${inr(total, { compact: false })}`,
+    ...items.map((r, i) => `${i + 1}. [${r.id}] ${cat[r.id]?.check} (${cat[r.id]?.legal}): ${r.finding}${r.exposure ? ` ${amountLabel(r)}: ${inr(r.exposure, { compact: false })}${r.heads ? ` (${headsText(r.heads)})` : ''}.` : ''}`),
+    '', `Total tax involved (indicative): ${inr(taxTotal, { compact: false })}${taxTotal ? ` (${headsText(totalHeads)})` : ''}`,
+    ...otherTotals.map(([k, v]) => `${k[0].toUpperCase()}${k.slice(1)} (indicative): ${inr(v, { compact: false })}`),
+    ...(bases.length ? ['', ...bases.map(basisNote)] : []),
     ...(f.extra ? ['', f.extra] : []), '',
     `You are hereby directed to explain the reasons for the aforesaid discrepancies by ${dmy(due)}. If no explanation is received by the aforesaid date, it will be presumed that you have nothing to say in the matter and proceedings in accordance with law may be initiated against you without making any further reference to you in this regard.`,
     '', user.name, f.designation, `Jurisdiction: ${user.workspace}`, '', 'DRAFT: generated for review by the proper officer.',
@@ -51,7 +68,7 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
     const el = document.createElement('a'); el.href = url; el.download = `ASMT-10_${a.gstin}_${f.issued}.txt`; el.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  const save = () => { if (!gate.finalReady) return; saveNotice(a.id, { ...f, due, total, savedAt: new Date().toISOString() }); toast(`ASMT-10 draft saved for ${a.name}`); };
+  const save = () => { if (!gate.finalReady) return; const refused = saveNotice(a.id, { ...f, due, total, heads: totalHeads, savedAt: new Date().toISOString() }); if (!refused) toast(`ASMT-10 draft saved for ${a.name}${saved?.approvals?.issue ? ': ask again for approval to issue' : ''}`); };
   const drafted = data.taxpayers.filter((t) => notices[t.id]);
 
   return (
@@ -153,14 +170,17 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
             <p><b>Sub.: Notice for intimating discrepancies in the return after scrutiny</b></p>
             <p>This is to inform you that during scrutiny of the returns filed by you for the tax period FY {a.fy}, the following discrepancies have been noticed:</p>
             <table>
-              <thead><tr><th>#</th><th>Discrepancy</th><th>Provision</th><th>Details</th><th className="num">Tax involved (₹)</th></tr></thead>
+              <thead><tr><th>#</th><th>Discrepancy</th><th>Provision</th><th>Details</th>{HEADS.map((k) => <th key={k} className="num">{HEAD_LABEL[k]} (₹)</th>)}<th className="num">Total (₹)</th></tr></thead>
               <tbody>
                 {items.map((r, i) => (
-                  <tr key={r.id}><td>{i + 1}</td><td><b>{cat[r.id]?.check}</b><div className="mono" style={{ fontSize: 11, color: '#54607a' }}>{r.id}</div></td><td>{cat[r.id]?.legal}</td><td>{r.finding}</td><td className="num">{r.exposure ? Math.round(r.exposure).toLocaleString('en-IN') : '-'}</td></tr>
+                  <tr key={r.id}><td>{i + 1}</td><td><b>{cat[r.id]?.check}</b><div className="mono" style={{ fontSize: 11, color: '#54607a' }}>{r.id}</div></td><td>{cat[r.id]?.legal}</td><td>{r.finding}</td>
+                    {HEADS.map((k) => <td key={k} className="num">{r.exposure ? rs(r.heads?.[k]) : '-'}</td>)}<td className="num">{r.exposure ? rs(r.exposure) : '-'}</td></tr>
                 ))}
-                <tr><td colSpan={4} style={{ textAlign: 'right' }}><b>Total (indicative)</b></td><td className="num"><b>{Math.round(total).toLocaleString('en-IN')}</b></td></tr>
+                <tr><td colSpan={4} style={{ textAlign: 'right' }}><b>Tax (indicative)</b></td>{HEADS.map((k) => <td key={k} className="num"><b>{rs(totalHeads[k])}</b></td>)}<td className="num"><b>{rs(taxTotal)}</b></td></tr>
+                {otherTotals.map(([k, v]) => <tr key={k}><td colSpan={7} style={{ textAlign: 'right' }}>{k[0].toUpperCase()}{k.slice(1)} (indicative, not tax)</td><td className="num">{rs(v)}</td></tr>)}
               </tbody>
             </table>
+            {bases.length > 0 && <p style={{ fontSize: 11.5, color: '#54607a' }}>{bases.map(basisNote).join(' ')}</p>}
             {f.extra && <p>{f.extra}</p>}
             <p>You are hereby directed to explain the reasons for the aforesaid discrepancies by <b>{dmy(due)}</b>. If no explanation is received by the aforesaid date, it will be presumed that you have nothing to say in the matter and proceedings in accordance with law may be initiated against you without making any further reference to you in this regard.</p>
             <div className="sig"><div>Signature ____________________</div><div style={{ marginTop: 6 }}><b>{user.name}</b></div><div>{f.designation}</div><div className="mono" style={{ fontSize: 12 }}>{user.workspace}</div></div>
@@ -169,6 +189,8 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
         </div>
 
         <div className="stack no-print">
+          {saved && <NoticeTracking a={a} notice={saved} caseInfo={cases[a.id] || {}} items={candidates.filter((r) => saved.items.includes(r.id))} cat={cat} user={user}
+            viewer={viewer} onIssue={(x) => issueNotice(a.id, x)} onRemind={(x) => remindNotice(a.id, x)} onAsk={(stage, x) => requestApproval(a.id, stage, x)} onDecide={(stage, d, n) => decideApproval(a.id, stage, d, n)} toast={toast} />}
           <section className="card">
             <div className="eyebrow">Case</div>
             <div style={{ fontWeight: 600, fontSize: 16, marginTop: 10 }}>{a.name}</div>
@@ -193,5 +215,106 @@ export default function Notices({ data, cases, notices, saveNotice, setReadiness
         </div>
       </div>
     </div>
+  );
+}
+
+const STAGE_LABEL = {
+  drafted: 'Drafted: not yet sent for approval', approval: 'Awaiting a second officer\'s approval to issue', returned: 'Returned for changes', approved: 'Approved for issue',
+  awaiting: 'Issued: awaiting reply', overdue: 'Reply overdue', replied: 'Reply received', 'escalation-pending': 'Escalation awaiting approval', escalated: 'Escalated to DRC-01', closed: 'Case closed',
+};
+const isRequester = (viewer, a) => (viewer?.id && a?.requestedById ? viewer.id === a.requestedById : String(viewer?.name || '').trim().toLowerCase() === String(a?.requestedBy || '').trim().toLowerCase());
+
+// The checker's side of a pending request: approve, or return with a reason. Never offered to the officer who asked.
+function Decide({ request, viewer, onDecide, what, toast }) {
+  const [note, setNote] = useState('');
+  if (isRequester(viewer, request)) return <div className="muted small" style={{ marginTop: 6 }}>You asked for this approval: another officer with approval rights decides it.</div>;
+  if (!viewer?.canApprove) return <div className="muted small" style={{ marginTop: 6 }}>A supervisor or Commissioner decides it.</div>;
+  const decide = (decision) => {
+    if (decision === 'return' && !note.trim()) return toast('Returning needs a reason for the officer');
+    const refused = onDecide(decision, note.trim());
+    if (!refused) toast(decision === 'approve' ? `${what} approved` : 'Returned to the officer with your reason');
+    return undefined;
+  };
+  return (
+    <div className="track-form">
+      <b>Your decision (maker-checker)</b>
+      <label>Note to the officer<textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Required to return; optional to approve" /></label>
+      <div style={{ display: 'flex', gap: 6 }}><button type="button" className="btn small primary" onClick={() => decide('approve')}>Approve</button><button type="button" className="btn small" onClick={() => decide('return')}>Return</button></div>
+    </div>
+  );
+}
+
+// After the draft: approval to issue (maker-checker), the issue itself (made outside this platform, recorded here),
+// reminders, and escalation to a DRC-01 summary, again only with a second officer's approval. Each step is a case
+// event: logged with the officer's name, checked against the case as it stands (guardEvent), and feeding the queue.
+function NoticeTracking({ a, notice, caseInfo, items, cat, user, viewer, onIssue, onRemind, onAsk, onDecide, toast }) {
+  const st = noticeStage(notice, caseInfo, today());
+  const [issue, setIssue] = useState({ ref: notice.ref, issued: today(), mode: ISSUE_MODES[0], replyDue: notice.due });
+  const [rem, setRem] = useState({ sent: today(), mode: ISSUE_MODES[1], note: '' });
+  const [esc, setEsc] = useState({ section: Number(String(a.fy).slice(0, 4)) >= 2024 ? '74A' : '73', reason: '' });
+  const [askNote, setAskNote] = useState('');
+  const approvals = notice.approvals || {};
+  const drc = notice.escalation ? drc01Text({ a, notice, items, cat, section: notice.escalation.section, reason: notice.escalation.reason, officer: { name: user.name, designation: user.role, jurisdiction: user.workspace }, today: notice.escalation.at.slice(0, 10) }) : null;
+  const copy = async (t) => { try { await navigator.clipboard.writeText(t); toast('DRC-01 text copied'); } catch { toast('Clipboard blocked: use Download'); } };
+  const download = (t) => { const url = URL.createObjectURL(new Blob([t], { type: 'text/plain;charset=utf-8' })); const el = document.createElement('a'); el.href = url; el.download = `DRC-01_${a.gstin}.txt`; el.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  const done = (refused, ok) => { if (!refused) toast(ok); };
+  const trail = (x, label) => x && (
+    <div className="muted small">{label}: asked by {x.requestedBy} {dmy(x.requestedAt.slice(0, 10))}{x.note ? ` (${x.note})` : ''}{x.decidedBy ? ` · ${x.status === 'approved' ? 'approved' : 'returned'} by ${x.decidedBy} ${dmy(x.decidedAt.slice(0, 10))}${x.decisionNote ? `: ${x.decisionNote}` : ''}` : ''}</div>
+  );
+  return (
+    <section className="card">
+      <div className="eyebrow">Notice tracking</div>
+      <div style={{ fontWeight: 600, marginTop: 8 }}>{STAGE_LABEL[st.stage]}{st.stage === 'awaiting' ? ` · ${st.days} day${st.days === 1 ? '' : 's'} left` : st.stage === 'overdue' ? ` · ${st.days} day${st.days === 1 ? '' : 's'} late` : ''}</div>
+      {trail(approvals.issue, 'Issue')}
+      {notice.issue && <div className="muted small" style={{ marginTop: 4 }}>{notice.issue.ref} · {notice.issue.mode} · issued {dmy(notice.issue.issued)} · reply due {dmy(notice.issue.replyDue)}</div>}
+      {(notice.reminders || []).map((r, i) => <div key={i} className="muted small">Reminder {dmy(r.sent)} · {r.mode}{r.note ? `: ${r.note}` : ''}</div>)}
+      {trail(approvals.escalate, `Escalation under s.${approvals.escalate?.section}`)}
+      {st.stage === 'replied' && <div className="small" style={{ marginTop: 6 }}>Reply received {dmy(st.reply.received)}{st.reply.ref ? ` (${st.reply.ref})` : ''}: review it, then close the case or ask to escalate.</div>}
+
+      {(st.stage === 'drafted' || st.stage === 'returned') && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); done(onAsk('issue', askNote.trim() ? { note: askNote.trim() } : {}), 'Sent for approval: a second officer approves or returns it'); setAskNote(''); }}>
+          <b>{st.stage === 'returned' ? 'Ask again for approval to issue' : 'Ask for approval to issue'}</b>
+          <div className="small muted">A second officer with approval rights checks the draft before it is issued. Changing the draft afterwards needs a fresh approval.</div>
+          <label>Note for the approving officer<input value={askNote} onChange={(e) => setAskNote(e.target.value)} placeholder="optional" /></label>
+          <button className="btn small primary">Send for approval</button>
+        </form>
+      )}
+      {st.stage === 'approval' && <Decide request={st.approval} viewer={viewer} what="Issue" toast={toast} onDecide={(d, n) => onDecide('issue', d, n)} />}
+      {st.stage === 'approved' && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); done(onIssue(issue), 'Issue recorded: the reply deadline is now tracked'); }}>
+          <b>Record the issue</b>
+          <label>Reference as issued<input value={issue.ref} onChange={(e) => setIssue({ ...issue, ref: e.target.value })} required /></label>
+          <label>Issued on<input type="date" value={issue.issued} onChange={(e) => setIssue({ ...issue, issued: e.target.value })} required /></label>
+          <label>How<select value={issue.mode} onChange={(e) => setIssue({ ...issue, mode: e.target.value })}>{ISSUE_MODES.map((m) => <option key={m}>{m}</option>)}</select></label>
+          <label>Reply due<input type="date" value={issue.replyDue} onChange={(e) => setIssue({ ...issue, replyDue: e.target.value })} required /></label>
+          <button className="btn small primary">Record issue</button>
+        </form>
+      )}
+      {notice.issue && !notice.escalation && st.stage !== 'closed' && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); done(onRemind(rem), 'Reminder recorded'); setRem({ ...rem, note: '' }); }}>
+          <b>Record a reminder</b>
+          <label>Sent on<input type="date" value={rem.sent} onChange={(e) => setRem({ ...rem, sent: e.target.value })} required /></label>
+          <label>How<select value={rem.mode} onChange={(e) => setRem({ ...rem, mode: e.target.value })}>{ISSUE_MODES.map((m) => <option key={m}>{m}</option>)}</select></label>
+          <label>Note<input value={rem.note} onChange={(e) => setRem({ ...rem, note: e.target.value })} placeholder="optional" /></label>
+          <button className="btn small">Record reminder</button>
+        </form>
+      )}
+      {st.stage === 'escalation-pending' && <Decide request={st.approval} viewer={viewer} what="Escalation" toast={toast} onDecide={(d, n) => onDecide('escalate', d, n)} />}
+      {notice.issue && !notice.escalation && !['closed', 'escalation-pending'].includes(st.stage) && (
+        <form className="track-form" onSubmit={(e) => { e.preventDefault(); if (!esc.reason.trim()) return; done(onAsk('escalate', { section: esc.section, reason: esc.reason.trim() }), 'Escalation sent for approval'); }}>
+          <b>Ask to escalate to a show cause notice</b>
+          <label>Section<select value={esc.section} onChange={(e) => setEsc({ ...esc, section: e.target.value })}>{SCN_SECTIONS.map((x) => <option key={x}>{x}</option>)}</select></label>
+          <label>Reason<textarea rows={2} value={esc.reason} onChange={(e) => setEsc({ ...esc, reason: e.target.value })} placeholder="e.g. No reply by the due date despite a reminder" required /></label>
+          <button className="btn small">Send for approval</button>
+        </form>
+      )}
+      {drc && (
+        <div className="track-form">
+          <b>DRC-01 summary (draft)</b>
+          <pre className="drc-text">{drc}</pre>
+          <div style={{ display: 'flex', gap: 6 }}><button className="btn small" onClick={() => copy(drc)}>Copy</button><button className="btn small" onClick={() => download(drc)}>Download .txt</button></div>
+        </div>
+      )}
+    </section>
   );
 }

@@ -22,10 +22,15 @@ export function usePersistent(key, initial) {
   return [value, setValue];
 }
 
+// Statuses the notice workflow sets (drafting, recording the issue, escalating): never chosen by hand.
+export const WORKFLOW_STATUSES = ['Notice drafted', 'Notice issued', 'Escalated'];
+
 export const CASE_STATUS = {
   New: { color: '#3b62c0', label: 'New' },
   'In review': { color: '#9c630d', label: 'In review' },
   'Notice drafted': { color: '#9e541a', label: 'ASMT-10 drafted' },
+  'Notice issued': { color: '#7a3fa0', label: 'ASMT-10 issued' },
+  Escalated: { color: '#b02222', label: 'Escalated (DRC-01)' },
   Closed: { color: '#0c6a4a', label: 'Closed' },
 };
 

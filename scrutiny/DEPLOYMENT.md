@@ -58,12 +58,16 @@ Environment variables (set in the shell or `.env.local`):
 | `HOST` | `127.0.0.1` | Interface. Use `0.0.0.0` to accept connections from other machines |
 | `AI_API_KEY` | none | Key for AI briefings. Without it the app runs deterministic-only |
 | `BASIC_AUTH_USER`, `BASIC_AUTH_PASS` | none | When both are set, every request needs this username/password |
-| `GST_ALLOW_REMOTE` | off | `1` lets other machines upload files, record case events, use AI and save reports. Only with basic auth or network controls |
+| `GST_ALLOW_REMOTE` | off | `1` lets other machines upload files, record case events, use AI and save reports. Only with accounts, basic auth or network controls |
+| `AUTH_MODE` | `open` | `accounts`: every officer signs in with their own account and sees only their jurisdictions (section 2a) |
+| `SESSION_SECRET` | generated | Key that signs session cookies (32+ characters). Without it one is made in `store/session.key` |
+| `COOKIE_SECURE` | auto | `1` marks the session cookie Secure. Automatic when the proxy sends `X-Forwarded-Proto: https` |
 | `DATA_DIR` | `./data` | Returns workbooks (uploads included) |
 | `REGISTER_DIR` | `./data/registers` | The five registers, with `superseded/` and `originals/` |
-| `STORE_DIR` | `./store` | Case log (`events.jsonl`) and reply documents (`docs/`) |
+| `STORE_DIR` | `./store` | Case log (`events.jsonl`), reply documents (`docs/`), alerts, and with accounts `accounts.json`, `access-log.jsonl`, `session.key` |
 | `CHROME_PATH` | auto | Path to Chrome/Edge/Chromium for PDFs if not found automatically |
 | `CHROME_NO_SANDBOX` | off | `1` inside containers |
+| `OCR_LANGS` | `eng+hin+mar` | Languages OCR reads in scanned replies. OCR runs on this server (tesseract.js, installed by `npm ci` as optional packages); without them, officers paste the text |
 
 The user running the server needs write access to `data/`, `store/` and `public/reports/`.
 
@@ -92,6 +96,46 @@ User=gst
 [Install]
 WantedBy=multi-user.target
 ```
+
+## 2a. Officer accounts (recommended for a shared deployment)
+
+Without accounts (`AUTH_MODE=open`, the default) the name typed at sign-in is recorded but not verified, and everyone
+sees every taxpayer. With accounts:
+
+- each officer signs in with an official email and their own password (scrypt-hashed; five wrong attempts pause
+  sign-in for five minutes); a temporary password must be changed at the first sign-in;
+- the server stamps every case event, alert action and approval with the signed-in account, whatever the browser sends;
+- each officer is sent only the taxpayers the **taxpayer master register** assigns to their jurisdictions: the
+  analysis, cases, notices, alerts, registers, saved reports and the upload log. A taxpayer the master does not list is
+  seen only by accounts covering all jurisdictions, so keep the master complete;
+- roles: field officer (case work), supervisor (DC / JC: also approves, uploads, sets alert rules), Commissioner
+  (all of that, and manages accounts), system administrator (accounts, uploads, rules; no case work);
+- an ASMT-10 is recorded as issued, and a notice escalated to DRC-01, only after a second officer approves
+  (maker-checker); the officer who asks can never approve.
+
+Switch it on:
+
+```bash
+npm run accounts -- add --email you@dept.gov.in --name "Your Name" --designation "Commissioner of State Tax" --role commissioner --jurisdictions "*"
+# prints a temporary password once; for a demonstration instead:  npm run accounts -- demo
+echo AUTH_MODE=accounts >> .env.local      # or set it in the service / compose environment
+# restart the server, sign in, choose your password, then add officers under Configure → Accounts
+```
+
+Other commands: `npm run accounts -- list | set | reset | disable | enable` (see `scripts/accounts.mjs`). Disabling an
+account, resetting its password or changing its role or jurisdictions signs that officer out at once. Every sign-in,
+failed sign-in and account change is appended to `store/access-log.jsonl` (no passwords).
+
+The platform shell's own sign-in (the access code) is separate: with accounts on, GST Scrutiny asks the officer to
+sign in to their account inside the shell as well.
+
+### OCR for scanned replies
+
+A reply letter that arrives as a scan (a PDF of page images) or a photo (.jpg / .png) is read with OCR on the server,
+in English, Hindi and Marathi, with the confidence shown; the officer checks the text before it is tested. Nothing is
+sent outside the server. It needs the optional packages from `npm ci` (or `npm install`) in this folder: after
+updating an existing installation, run it once before restarting. Without them the app works as before and asks for
+the text to be pasted. Scans stored with fax (CCITT) or JPEG 2000 compression are named as unreadable, not guessed.
 
 ## 3. Docker
 
@@ -163,12 +207,13 @@ server {
     proxy_read_timeout 300s;                # AI briefings take ~30 s; a large upload rebuilds data.json
     proxy_set_header Host $host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;   # with accounts: the session cookie is then marked Secure
   }
 }
 ```
 
-Run the app with `GST_ALLOW_REMOTE=1` behind a proxy (requests arrive from the proxy, not 127.0.0.1) and keep
-basic auth on, or use the proxy's own SSO.
+Run the app with `GST_ALLOW_REMOTE=1` behind a proxy (requests arrive from the proxy, not 127.0.0.1) together with
+officer accounts (`AUTH_MODE=accounts`), basic auth, or the proxy's own SSO.
 
 ## 6. Backups
 
@@ -179,12 +224,15 @@ basic auth on, or use the proxy's own SSO.
 | Saved reports | The report library | `docker run --rm -v gstv4_reports:/r -v "$PWD":/b alpine tar czf /b/reports-backup.tgz -C /r .` |
 
 The `gstv4_` prefix is the compose project name (the folder name); `docker volume ls` shows the exact names. Without
-Docker, back up `data/`, `store/` and `public/reports/`.
+Docker, back up `data/`, `store/` and `public/reports/`. With accounts, `store/` also holds `accounts.json` (password
+hashes) and `session.key`: keep the backup as confidential as the server.
 
 ## 7. Security checklist
 
-- [ ] Access restricted: basic auth, SSO at the proxy, or VPN / internal network only. The in-app sign-in page is
-      a client-side gate and is not sufficient on its own for a shared deployment.
+- [ ] Access restricted: officer accounts (`AUTH_MODE=accounts`, section 2a), SSO at the proxy, or VPN / internal
+      network only. In open mode the in-app sign-in page is a client-side gate and is not sufficient on its own.
+- [ ] With accounts: the taxpayer master register assigns every taxpayer to a jurisdiction, and accounts are
+      disabled when officers move or leave.
 - [ ] HTTPS in front of the app for anything beyond one machine.
 - [ ] `AI_API_KEY` stored only in `.env.local` / a secret store; rotate it if it was ever shared in chat or email.
 - [ ] AI mode approved for live cases; *Mask identities* left on.

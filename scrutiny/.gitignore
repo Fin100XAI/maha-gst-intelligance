@@ -37,4 +37,6 @@ public/reports/
 data/.cache/
 # What each upload did (scripts/lib/uploadLog.mjs): working data
 data/uploads.json
+# Officer corrections for files whose banner lacks the GSTIN or year (upload staging step): working data
+data/corrections.json
 upload-pack/

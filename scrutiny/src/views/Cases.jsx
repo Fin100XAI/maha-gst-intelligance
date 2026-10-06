@@ -6,7 +6,7 @@ import { BAND } from '../lib/colors.js';
 import { inr } from '../lib/format.js';
 import { effectiveness, DISPOSITIONS, CLOSURE } from '../engine/verify.js';
 
-const FILTERS = ['All', 'New', 'In review', 'Notice drafted', 'Closed'];
+const FILTERS = ['All', 'New', 'In review', 'Notice drafted', 'Notice issued', 'Escalated', 'Closed'];
 
 export default function Cases({ data, cases, setCaseStatus, openTaxpayer, openNotice, go }) {
   const [filter, setFilter] = useState('All');
@@ -37,7 +37,7 @@ export default function Cases({ data, cases, setCaseStatus, openTaxpayer, openNo
         <div className="fpills" data-tour="case-filters">
           {FILTERS.map((f) => (
             <button key={f} className={`fpill ${filter === f ? 'on' : ''}`} onClick={() => setFilter(f)}>
-              {f === 'Notice drafted' ? 'ASMT-10 drafted' : f}<span className="n">{f === 'All' ? list.length : count(f)}</span>
+              {CASE_STATUS[f]?.label || f}<span className="n">{f === 'All' ? list.length : count(f)}</span>
             </button>
           ))}
         </div>
@@ -73,7 +73,7 @@ export default function Cases({ data, cases, setCaseStatus, openTaxpayer, openNo
                     <button className="btn small" onClick={() => openTaxpayer(a.id)}>Open file</button>
                     {c.status === 'New' && <button className="btn small soft" onClick={() => setCaseStatus(a.id, 'In review')}>Start review</button>}
                     {c.status === 'In review' && <button className="btn small primary" onClick={() => openNotice(a.id)} title="Create scrutiny note: verification pending">Scrutiny note</button>}
-                    {c.status === 'Notice drafted' && <button className="btn small primary" onClick={() => openNotice(a.id)}>View notice</button>}
+                    {['Notice drafted', 'Notice issued', 'Escalated'].includes(c.status) && <button className="btn small primary" onClick={() => openNotice(a.id)}>View notice</button>}
                     {c.status !== 'Closed'
                       ? <button className="btn small danger" onClick={() => setCaseStatus(a.id, 'Closed')}>Close</button>
                       : <button className="btn small" onClick={() => setCaseStatus(a.id, 'In review')}>Reopen</button>}

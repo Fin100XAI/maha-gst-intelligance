@@ -30,7 +30,7 @@ export default function governance() {
           const registers = fs.existsSync(regDir) ? fs.readdirSync(regDir).filter((f) => f.endsWith('.json')).map((f) => JSON.parse(fs.readFileSync(path.join(regDir, f), 'utf8')).meta) : [];
           const outFile = process.env.OUT_FILE ? path.resolve(process.env.OUT_FILE) : path.join(root, 'public', 'data.json');
           const docsDir = path.join(process.env.STORE_DIR ? path.resolve(process.env.STORE_DIR) : path.join(root, 'store'), 'docs');
-          const docs = fs.existsSync(docsDir) ? fs.readdirSync(docsDir).filter((f) => f.endsWith('.json')).length : 0;
+          const docs = fs.existsSync(docsDir) ? fs.readdirSync(docsDir).filter((f) => f.endsWith('.json') && !f.endsWith('.ocr.json')).length : 0;
           json(200, { ok: true, at: new Date().toISOString(), code: fingerprints(root), dataset: fs.existsSync(outFile) ? { sha256: sha(outFile), bytes: fs.statSync(outFile).size, built: fs.statSync(outFile).mtime.toISOString() } : null, registers, docs });
         } catch (e) { json(500, { ok: false, error: e.message }); }
       });

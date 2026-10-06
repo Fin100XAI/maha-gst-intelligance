@@ -1,6 +1,7 @@
 // Collections and trajectory (capabilities 21 and 28): what the jurisdiction collected and how, and where the year
 // is heading against its target, with the range, the taxpayers driving it and what-if scenarios.
 import React, { useMemo, useState } from 'react';
+import { DataNeeds } from '../components/DataNeeds.jsx';
 import { ResponsiveContainer, BarChart, Bar, ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ReferenceLine } from 'recharts';
 import { Card, Kpi, PageHead, Legend, Seg, InfoTip, axisProps, gridProps } from '../components/ui.jsx';
 import { useEvidence, JurisdictionPicker, jurisdictionsOf, ALL, CLASS_COLOR, pctOf, shortFy } from '../components/leadership.jsx';
@@ -12,7 +13,7 @@ import { inr, axisInr } from '../lib/format.js';
 const GROW = '#1c5cab', FALL = '#c23a3a';
 const gapText = (g) => (g > 0 ? `${inr(g)} short` : g < 0 ? `${inr(-g)} ahead` : 'on target');
 
-export default function Collections({ data, registers, cases, jurisdiction, setJurisdiction }) {
+export default function Collections({ data, registers, cases, jurisdiction, setJurisdiction, go }) {
   const jur = jurisdiction || jurisdictionsOf(data, registers)[0] || ALL;
   const eb = useEvidence({ data, registers, cases, jurisdiction: jur });
   const base = eb.base;
@@ -30,6 +31,7 @@ export default function Collections({ data, registers, cases, jurisdiction, setJ
         <JurisdictionPicker data={data} registers={registers} value={jur} onChange={setJurisdiction} />
         <label className="field inline"><span>Year</span><select value={fy} onChange={(e) => setFy(e.target.value)}>{base.years.map((y) => <option key={y} value={y}>FY {y}</option>)}</select></label>
       </PageHead>
+      <DataNeeds page="collections" registers={registers} go={go} />
 
       <div className="grid g-4">
         <Kpi label={`Collected in cash, FY ${shortFy(fy)}`} value={inr(t.collected)} sub={p ? `${t.collected >= p.collected ? '+' : ''}${inr(t.collected - p.collected)} (${pctOf(p.collected ? t.collected / p.collected - 1 : null, 1)}) on FY ${shortFy(prevFy)}` : 'first year loaded'} />

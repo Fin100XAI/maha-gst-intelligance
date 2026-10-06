@@ -1,9 +1,13 @@
 // Upload data: every file the platform reads, in one place, as three numbered steps (returns files, registers,
 // reply letters), each with a few lines of instructions, plus the sample files and format guide.
 import React, { useMemo, useRef, useState } from 'react';
-import { Card, Band, PageHead } from '../components/ui.jsx';
+import ColumnMapper from '../components/ColumnMapper.jsx';
+import { Card, Band, PageHead, TestTag } from '../components/ui.jsx';
+import { isTestData } from '../engine/names.js';
+import { changeText } from '../lib/uploads.js';
 import Icon from '../components/Icon.jsx';
 import { RegisterList } from '../components/RegistersCard.jsx';
+import Staging from '../components/Staging.jsx';
 import { ReplyForm } from './Eiu.jsx';
 import { REGISTERS } from '../engine/registers.js';
 import { sampleUrl, SAMPLE_GUIDE, SAMPLE_RETURNS, SAMPLE_REGISTER, SAMPLE_LETTER } from '../lib/samples.js';
@@ -23,9 +27,11 @@ function Step({ n, title, lead, points, status, children, tour }) {
   );
 }
 
-export default function DataMethod({ data, onFiles, busy, uploadProgress, uploads, retryAnalysis, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
+export default function DataMethod({ data, onMapped, canUpload = true, canUploadRegisters = true, onFiles, busy, uploadProgress, uploads, retryAnalysis, openTaxpayer, openReport, cfg, registers, onRegisterUpload, cases, dispatch, toast, go }) {
   const years = Object.values(data.baselines || {}).reduce((s, b) => s + b.length, 0) || data.taxpayers.length;
   const regLoaded = registers ? Object.keys(REGISTERS).filter((t) => registers[t]).length : 0;
+  // Files chosen but not yet confirmed: the staging step shows what was understood before anything is analysed
+  const [staged, setStaged] = useState(null);
   return (
     <div className="page">
       <PageHead title="Upload data" path={`${int(data.taxpayers.length)} taxpayers · ${int(years)} returns files · ${regLoaded} of ${Object.keys(REGISTERS).length} registers loaded`} />
@@ -36,8 +42,16 @@ export default function DataMethod({ data, onFiles, busy, uploadProgress, upload
         lead="The “Get Download All Report” Excel export: one file per taxpayer per financial year."
         points={['Upload the file as exported. Do not rename its sheets or columns.', 'Choose several files at once if you like. A second file for the same taxpayer and year replaces the first, which is kept.', 'Excel (.xlsx), up to 40 MB each.']}
         status={<span className="chip good">{int(data.taxpayers.length)} taxpayers loaded</span>}>
-        <ReturnsDrop onFiles={onFiles} busy={busy} progress={uploadProgress} />
+        {!canUpload && <div className="note">Your role can see what is loaded but not upload returns: a supervisor or Commissioner uploads them.</div>}
+        {canUpload && (staged
+          ? <Staging files={staged} data={data} onCancel={() => setStaged(null)} onConfirm={(items) => { setStaged(null); onFiles(items); }} />
+          : <ReturnsDrop onFiles={(files) => files.length && setStaged(files)} busy={busy} progress={uploadProgress} />)}
         <UploadReport batch={uploads?.batches?.[0]} data={data} busy={busy} onRetry={retryAnalysis} openTaxpayer={openTaxpayer} />
+        <details className="up-more">
+          <summary>Data in another layout? Match its columns to the template</summary>
+          <p className="muted small" style={{ margin: '6px 0 10px' }}>For a CSV or Excel file that is not the “Get Download All Report” export, such as a GSTR-2B downloaded on its own or a purchase register: say what it holds, check which column is which, and put it into a taxpayer's stored returns in place of that sheet. Rows that cannot be converted are counted, not guessed.</p>
+          <ColumnMapper data={data} canUpload={canUpload} onAdd={onMapped} toast={toast} />
+        </details>
         <details className="up-more">
           <summary>Show loaded taxpayers</summary>
           <Loaded data={data} openTaxpayer={openTaxpayer} openReport={openReport} />
@@ -48,12 +62,13 @@ export default function DataMethod({ data, onFiles, busy, uploadProgress, upload
         lead="Five lists covering the whole jurisdiction. Upload each one on its own row."
         points={['Start from the template: column names in row 1. CSV or Excel.', 'An upload adds its rows: new rows are added, a row for the same GSTIN or ID is updated, and every row already saved stays. The previous version is also kept.', 'Every row is checked. If anything is wrong, nothing is saved and every problem is listed.']}
         status={<span className={`chip ${regLoaded === Object.keys(REGISTERS).length ? 'good' : ''}`}>{regLoaded} of {Object.keys(REGISTERS).length} loaded</span>}>
-        <div className="up-registers"><RegisterList registers={registers} onUpload={onRegisterUpload} /></div>
+        {!canUploadRegisters && <div className="note">Registers are department-wide: they are uploaded by an account covering all jurisdictions. You see the rows about your jurisdictions.</div>}
+        <div className="up-registers"><RegisterList registers={registers} onUpload={canUploadRegisters ? onRegisterUpload : null} /></div>
       </Step>
 
       <Step n={3} tour="upload-replies" title="Reply letters"
         lead="The taxpayer’s or CA’s written reply to an EIU signal. Optional."
-        points={['Choose the signal, then attach the letter: PDF, Word (.docx) or text, up to 15 MB.', 'Check the text read from the letter, correct it if needed, then record it.', 'Each statement in it is tested against the returns. See the result under EIU signals.']}
+        points={['Choose the signal, then attach the letter: PDF, Word (.docx), text, or a scan or photo (read by OCR), up to 15 MB.', 'Check the text read from the letter, correct it if needed, then record it.', 'Each statement in it is tested against the returns. See the result under EIU signals.']}
         status={<RepliesStatus registers={registers} cases={cases} />}>
         <ReplyUpload registers={registers} cases={cases} dispatch={dispatch} toast={toast} go={go} />
       </Step>
@@ -102,6 +117,7 @@ function ReturnsDrop({ onFiles, busy, progress }) {
 const when = (iso) => (iso ? new Date(iso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '');
 const fyShort = (fy) => String(fy || '').replace(/^(\d{4})-\d{2}(\d{2})$/, '$1-$2');
 
+
 // The latest upload, as the platform saw it: files received, files accepted, analysis finished, and what the
 // analysis found for each taxpayer in it. Kept on the server (upload log), so it is still here after a reload.
 export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
@@ -109,6 +125,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
   const accepted = batch.files.filter((f) => f.ok), rejected = batch.files.filter((f) => !f.ok);
   const a = batch.analysis || {};
   const done = a.stage === 'done', failed = a.stage === 'error', running = !done && !failed && accepted.length > 0;
+  const inProgress = running && (busy || a.stage === 'running');
   const cat = Object.fromEntries((data.catalog || []).map((r) => [r.id, r]));
   const groups = [...accepted.reduce((m, f) => { const g = m.get(f.gstin) || { gstin: f.gstin, name: f.taxpayer, fys: [], replaced: 0 }; g.fys.push(f.fy); g.replaced += f.replaced || 0; return m.set(f.gstin, g); }, new Map()).values()];
   const step = (ok, label, text) => (
@@ -126,7 +143,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
       <div className="upr-steps">
         {step(true, '1 · Received', `${batch.files.length} file${batch.files.length === 1 ? '' : 's'} reached the server`)}
         {step(rejected.length ? (accepted.length ? null : false) : true, '2 · Checked and saved', `${accepted.length} accepted${rejected.length ? `, ${rejected.length} not accepted` : ''}${groups.some((g) => g.replaced) ? ' · earlier copies of the same years kept aside' : ''}`)}
-        {step(done ? true : failed ? false : null, '3 · Analysed', done ? `finished ${when(a.finishedAt)} · the dashboard includes this upload` : failed ? 'did not finish: the files are saved; try again' : running ? (busy ? 'in progress…' : 'waiting to run') : 'nothing to analyse')}
+        {step(done ? true : failed ? false : null, '3 · Analysed', done ? `finished ${when(a.finishedAt)} · the dashboard includes this upload` : failed ? 'did not finish: the files are saved; try again' : running ? (inProgress ? 'in progress… (progress bar above)' : 'waiting to run') : 'nothing to analyse')}
       </div>
       {failed && (
         <div className="upr-error" role="alert">
@@ -135,7 +152,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
           <div><button className="btn small primary" disabled={busy} onClick={() => onRetry(batch.id)}>Try the analysis again</button></div>
         </div>
       )}
-      {!busy && running && <div className="upr-note">The analysis has not finished yet. <button className="btn small" onClick={() => onRetry(batch.id)}>Run the analysis now</button></div>}
+      {!inProgress && running && <div className="upr-note">The analysis has not finished yet. <button className="btn small" onClick={() => onRetry(batch.id)}>Run the analysis now</button></div>}
       {rejected.length > 0 && (
         <ul className="upr-rejected">{rejected.map((f, i) => <li key={i}><b>{f.name}</b>: {f.error}</li>)}</ul>
       )}
@@ -145,7 +162,7 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
       {groups.length > 0 && (
         <div className="tbl-wrap" style={{ maxHeight: 420 }}>
           <table className="tbl">
-            <thead><tr><th>Taxpayer</th><th>Years uploaded</th><th>Risk (latest year)</th><th>Failed checks</th><th>Main findings</th><th /></tr></thead>
+            <thead><tr><th>Taxpayer</th><th>Years uploaded</th><th>Risk (latest year)</th><th>Failed checks</th><th>Main findings</th><th>Since the last run</th><th /></tr></thead>
             <tbody>
               {groups.map((g) => {
                 const t = done ? data.taxpayers.find((x) => x.gstin === g.gstin) : null;
@@ -154,11 +171,12 @@ export function UploadReport({ batch, data, busy, onRetry, openTaxpayer }) {
                 const findings = t ? [...fails.map((r) => `${r.id} ${cat[r.id]?.check || ''}`.trim()), ...t.fraud.filter((f) => f.flagged && !f.prompt).sort((x, y) => y.weight - x.weight).map((f) => f.label)].slice(0, 3) : [];
                 return (
                   <tr key={g.gstin} className={t ? 'click' : ''} onClick={() => t && openTaxpayer(t.id)}>
-                    <td><b>{t?.name || g.name || g.gstin}</b><div className="muted" style={{ fontSize: 11 }}>{g.gstin}</div></td>
+                    <td><b>{t?.name || g.name || g.gstin}</b>{isTestData(g.gstin, t?.fileName) && <> <TestTag /></>}<div className="muted" style={{ fontSize: 11 }}>{g.gstin}</div></td>
                     <td style={{ whiteSpace: 'nowrap' }}>{[...new Set(g.fys)].sort().map((fy) => `FY ${fyShort(fy)}`).join(', ')}</td>
                     <td>{t ? <><Band band={t.band} score={t.score} /><div className="muted" style={{ fontSize: 11 }}>FY {fyShort(t.fy)}</div></> : <span className="muted small">{failed ? 'not analysed' : 'analysing…'}</span>}</td>
                     <td>{t ? int(fails.length) : ''}</td>
                     <td style={{ fontSize: 12 }}>{t ? (findings.length ? findings.join(' · ') : 'no failed checks or risk indicators') : ''}</td>
+                    <td style={{ fontSize: 12 }}>{done ? changeText(a.changes?.find((c) => c.gstin === g.gstin)) : ''}</td>
                     <td>{t && <button className="btn small soft" onClick={(e) => { e.stopPropagation(); openTaxpayer(t.id); }}>Open</button>}</td>
                   </tr>
                 );
@@ -179,7 +197,7 @@ function Loaded({ data, openTaxpayer, openReport }) {
         <tbody>
           {data.taxpayers.map((a) => (
             <tr key={a.uid || a.id} className="click" onClick={() => openTaxpayer(a.id)}>
-              <td><b>{a.name}</b><div className="muted" style={{ fontSize: 11 }}>{a.gstin}</div></td>
+              <td><b>{a.name}</b>{isTestData(a.gstin, a.fileName) && <> <TestTag /></>}<div className="muted" style={{ fontSize: 11 }}>{a.gstin}</div></td>
               <td style={{ fontSize: 11.5, wordBreak: 'break-all' }}>{a.fileName}</td>
               <td style={{ whiteSpace: 'nowrap' }} title="Financial years loaded for this GSTIN (the latest drives the screens)">{(data.baselines?.[a.gstin] || [{ fy: a.fy }]).map((b) => `FY ${String(b.fy).replace(/^(\d{4})-\d{2}(\d{2})$/, '$1-$2')}`).join(', ')}</td>
               <td>{a.profile.periodsFiled} · {a.filing.split(' ')[0]}</td>

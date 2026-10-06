@@ -61,6 +61,11 @@ export function Kpi({ label, value, sub, accent, fill, dot }) {
   );
 }
 
+/** Marks generated / test taxpayers wherever their name is shown. */
+export function TestTag() {
+  return <span className="chip test" title="Test data: a generated taxpayer with planted findings, not a real registration">TEST DATA</span>;
+}
+
 export function PageHead({ title, path, children }) {
   return (
     <div className="page-head">

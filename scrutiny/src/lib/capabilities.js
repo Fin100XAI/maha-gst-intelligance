@@ -28,7 +28,7 @@ export const CAPABILITIES = [
   C(15, 'C', 'Genuine-vs-requires-verification evidence', 'built', 'taxpayer', 'network.js', 'network.test.mjs'),
   C(16, 'D', 'Consume existing EIU signals', 'built', 'eiu', 'eiu.js, registers.js', 'eiu.test.mjs, registers.test.mjs', 'By register upload; a live EIU connector needs approved integration.'),
   C(17, 'D', 'Risk signal revalidation', 'built', 'eiu', 'eiu.js', 'eiu.test.mjs'),
-  C(18, 'D', 'Taxpayer / CA reconciliation intelligence', 'built', 'eiu', 'eiu.js, scripts/lib/docText.mjs', 'eiu.test.mjs, docs.test.mjs', 'Claims found by fixed patterns; scanned (image) PDFs need their text pasted (no OCR).'),
+  C(18, 'D', 'Taxpayer / CA reconciliation intelligence', 'built', 'eiu', 'eiu.js, scripts/lib/docText.mjs, scripts/lib/ocr.mjs', 'eiu.test.mjs, docs.test.mjs, ocr.test.mjs', 'Claims found by fixed patterns. Scans and photos are read by OCR on the server (English, Hindi, Marathi), with the confidence shown; fax-compressed scans still need their text pasted.'),
   C(19, 'D', 'Reconciliation challenge engine', 'built', 'eiu', 'eiu.js', 'eiu.test.mjs, cases.test.mjs'),
   C(20, 'D', 'Unresolved revenue exposure', 'built', 'eiu', 'eiu.js', 'eiu.test.mjs'),
   C(21, 'E', 'Self-assessed / regular revenue intelligence', 'partial', 'collections', 'collections.js', 'leadership.test.mjs', 'No official collection totals loaded to reconcile against.'),
@@ -40,14 +40,16 @@ export const CAPABILITIES = [
   C(27, 'F', 'Case outcome prediction', 'excluded', 'learning', '-', '-', 'Needs a large validated history of real outcomes, leakage controls and calibration (guardrail 8).'),
   C(28, 'F', 'Revenue trajectory intelligence', 'built', 'collections', 'collections.js', 'leadership.test.mjs'),
   C(29, 'F', 'Outcome learning loop', 'built', 'learning', 'actions.js', 'leadership.test.mjs', 'Counts over closed cases; no rule or model retraining pipeline.'),
-  C(30, 'G', 'Role-specific intelligence', 'partial', 'overview', 'roles.js', 'leadership.test.mjs', 'The role is a switch in the POC; login-based access control is deferred.'),
-  C(31, 'G', 'Evidence, governance and human authority', 'partial', 'governance', 'scripts/lib/caseLog.mjs, scripts/governance.js', 'cases.test.mjs', 'POC: hash-chained audit log, code fingerprints, data freshness, decision status, human gates. Deferred: login, RBAC, encryption, retention, security testing.'),
+  C(30, 'G', 'Role-specific intelligence', 'partial', 'overview', 'roles.js, src/lib/access.js', 'leadership.test.mjs, access.test.mjs', 'With officer accounts (AUTH_MODE=accounts) each officer is sent only their jurisdictions; the three views stay a switch over that data.'),
+  C(31, 'G', 'Evidence, governance and human authority', 'partial', 'governance', 'scripts/lib/caseLog.mjs, scripts/governance.js, scripts/auth.js', 'cases.test.mjs, access.test.mjs', 'Hash-chained audit log, code fingerprints, data freshness, decision status, human gates, officer accounts with roles and jurisdictions, maker-checker on notices. Deferred: single sign-on, encryption at rest, retention, security testing.'),
 ];
 
 /** The human-authority gates enforced in code, and where. */
 export const GATES = [
   ['A notice (ASMT-10) is drafted only after the notice readiness checklist is complete; the console never issues one.', 'src/views/Notices.jsx, src/engine/verify.js'],
   ['A case closes only with a closure code and written reasons.', 'src/lib/caseEvents.js (close)'],
+  ['Maker-checker: an ASMT-10 is recorded as issued, and a notice escalated to DRC-01, only after a second officer approves; the officer who asks cannot approve, and a changed draft needs a fresh approval.', 'src/lib/caseEvents.js (guardEvent), scripts/case-store.js'],
+  ['With officer accounts, the server records who did what from the signed-in account, never from what the browser says, and sends each officer only their jurisdictions.', 'scripts/auth.js, scripts/lib/scope.mjs'],
   ['Readiness steps that need a written record (reasons, approval) refuse to complete without one.', 'src/lib/caseEvents.js (readiness)'],
   ['An EIU challenge (exclusions, assumptions) is saved only with a reason; disagreeing with a revalidation needs a note.', 'src/lib/caseEvents.js (eiu-challenge, eiu-review)'],
   ['Rule outcomes (confirmed, dropped, …) need written reasons.', 'src/lib/caseEvents.js (disposition)'],
@@ -60,7 +62,7 @@ export const GATES = [
 
 /** What this POC leaves for production, stated rather than implied. */
 export const DEFERRED = [
-  'Login, identity and role-based access (the signed-in name is recorded, but not authenticated).',
+  'Single sign-on with the department\'s identity system, and two-factor sign-in (accounts here are local to this server, switched on with AUTH_MODE=accounts; without it the signed-in name is recorded but not authenticated).',
   'Encryption at rest, retention and deletion policies, and approved hosting.',
   'Approved integrations with GSTN, the back-office and EIU systems (data arrives by file upload here).',
   'State-wide scale: server-side data store and distributed computation instead of in-browser analysis.',
